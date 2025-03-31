@@ -1,0 +1,78 @@
+<p>
+
+import pandas as pd
+import matplotlib.pyplot as pl
+
+hoteldf = pd.read_csv("hotel_bookings.csv")
+flightdf = pd.read_csv("flight_bookings.csv")
+customerdf = pd.read_csv("customer_reviews.csv")
+
+# Data cleanup
+
+# Hotel Cleanup
+hoteldf = hoteldf.astype({'HotelName' : 'string'})
+hoteldf['CheckInDate'] = pd.to_datetime(hoteldf['CheckInDate'], errors='coerce')
+hoteldf['CheckOutDate'] = pd.to_datetime(hoteldf['CheckOutDate'], errors='coerce')
+hoteldf = hoteldf.dropna(subset=['CheckOutDate', 'CheckInDate'])
+#dropping any Bookings where we don't know the date, because we can't actually do anything without that information. If there was more information, like what a night cost, then we could calculate it or infer it in other ways, but as it is right now, dropping it is the smartest thing to do
+hoteldf['TotalPrice'] = hoteldf['TotalPrice'].abs()
+
+
+# Flight Cleanup
+flightdf = flightdf.astype({'FlightNumber':'string'})
+flightdf['DepartureDate'] = pd.to_datetime(flightdf['DepartureDate'], errors='coerce')
+flightdf['ArrivalDate'] = pd.to_datetime(flightdf['ArrivalDate'], errors='coerce')
+# dropping a flight where we literally know nothing about when it happened, it doesn't help us
+flightdf = flightdf.dropna(subset=['ArrivalDate', 'DepartureDate'], how='all')
+
+# filling any leftover empty dates with their the date of departure / arrival, most of the time a flight lifts off and
+# lands on the same day, the chance is way lower to be +1 day and even lower +2.
+# It also doesn't really matter if it happened on the same day or the next one, only that we know it happened on 1 of 2 days
+# Also, if we knew if and when they had some reservations at their arrival point, we could figure out the arrival / Departure date
+flightdf['ArrivalDate'] = flightdf['ArrivalDate'].fillna(flightdf['DepartureDate'])
+flightdf['DepartureDate'] = flightdf['DepartureDate'].fillna(flightdf['ArrivalDate'])
+
+# Customer Cleanup
+customerdf = customerdf.astype({'HotelName':'string', 'Comment':'string'})
+customerdf['ReviewDate'] = pd.to_datetime(customerdf['ReviewDate'], errors='coerce')
+customerdf = customerdf.drop_duplicates(subset=['ReviewID']) # dropping any double reviews
+customerdf = customerdf.dropna(subset=['Rating', 'HotelName']) # dropping any reviews we can't use
+
+
+
+# Data analysis
+
+print('Amount of bookings for hotels: ' + str(hoteldf['BookingID'].count())) # just counting the number of bookings
+print('Amount of bookings for flights: ' + str(flightdf['BookingID'].count()))
+
+pop_hotels = hoteldf.groupby('HotelName')['BookingID'].count().reset_index().rename(columns=({'BookingID':'Booking_Count'}))
+# grouping the hotels by the name and the amount of bookings they have and renaming the amoung to reflect that
+print(pop_hotels[pop_hotels['Booking_Count'] == pop_hotels['Booking_Count'].max()]) # just getting all the columns that have the max amount
+
+print('Average prive for the hotels: ' + str(hoteldf['TotalPrice'].mean()))
+print('Average prive for the flights: ' + str(flightdf['TotalPrice'].mean()))
+# both of these do not take the amount of seats, nights and guests into account as that is not part of the task
+# but if this would be the task: just divide the average by the average seats / nights / guests
+
+
+rated_hotels = customerdf.groupby('HotelName')['Rating'].mean().reset_index() # grouping by name and average rating
+rated_hotels = rated_hotels.sort_values(by='Rating', ascending=False) # sorting it cause it looks better that way
+print('Average Rating for each Hotel:')
+print(rated_hotels)
+
+
+# Extra Analysis
+
+hoteldf_with_month = hoteldf # making a copy so I don't lose the original
+hoteldf_with_month['Month'] = hoteldf_with_month['CheckInDate'].dt.to_period('M') # making another column with unique months
+bookings_per_month = hoteldf_with_month.groupby('Month')['BookingID'].count() # grouping by the month with a count of booking in that month
+print(bookings_per_month)
+
+sum_hotels = hoteldf['TotalPrice'].sum()
+sum_flights = flightdf['TotalPrice'].sum()
+print('Total Price for every flight and hotel booking: ' + str(sum_hotels + sum_flights))
+
+print('Top 5 Hotels based on reviews: ')
+print(rated_hotels.head(5))
+
+</p>
