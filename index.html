@@ -1,3 +1,98 @@
-<h1>stil.html : Stilmittel</h1>
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+sns.set()
+from sklearn.linear_model import LinearRegression
+df = pd.read_csv('data.csv', engine='python', sep=';', decimal='.')
 
-<h1>aufbau.html: Aufbau des Kommentars</h1>
+print(df.head())
+print(df.describe())
+print(df.info())
+
+plt.scatter(df['QuadratmeterWhg'], df['Verkaufspreis'])
+plt.show()
+
+plt.clf()
+corr = df.corr()
+print(f'Correlation Coeeficient: {corr}')
+sns.heatmap(corr, annot=True, cmap='coolwarm', vmin=.1, vmax=-1)
+plt.show()
+
+model = LinearRegression()
+model.fit(df[['QuadratmeterWhg']], df[['Verkaufspreis']])
+
+min_x = min(df['QuadratmeterWhg'])
+max_x = max(df['QuadratmeterWhg'])
+
+predicted = model.predict([[min_x], [max_x]])
+
+plt.clf()
+plt.scatter(df['QuadratmeterWhg'], df['Verkaufspreis'])
+plt.plot([min_x, max_x], predicted, color='red')
+plt.show()
+
+user_input = int(input('Enter a number: '))
+
+predicted_price = model.predict([[user_input]])
+print(f'Vorhergesehener Preis: {predicted_price}')
+
+# 1. Datentypen anzeigen (zum Prüfen, ob z.B. float fälschlich als string erkannt wurde)
+print(df.dtypes)
+# 2. Versuchen, numerische Spalten zu konvertieren (z.B. falls ein String wie "300k" vorkommt)
+for col in ['QuadratmeterWhg', 'Verkaufspreis', 'Lage_Bezirk']:
+    df[col] = pd.to_numeric(df[col], errors='coerce')
+# 3. Ungültige Werte (z.B. Strings, die nicht konvertierbar sind → NaN) erkennen
+print(df[df.isna().any(axis=1)])
+# 4. Optional: NaN-Werte löschen oder ersetzen
+df.dropna(inplace=True)  # oder z. B. df.fillna(0), falls sinnvoll
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score, mean_absolute_error
+
+df = pd.read_csv("temperature_data.csv")
+
+df["Date"] = pd.to_datetime(df["Date"], format ="%Y-%m-%d")
+df["Date_ordinal"] = df["Date"].apply(pd.Timestamp.toordinal)
+
+print(df.describe())
+print(df.info())
+print(df.head())
+
+corr = df.corr()
+sns.heatmap(corr,annot=True,vmin=-1,vmax=1, cmap="coolwarm")
+plt.show()
+x= df[["Date","Date_ordinal"]]
+y= df[["Temperature (C)"]]
+x_train,x_test,y_train,y_test = train_test_split(x,y, test_size = 0.3, random_state = 42)
+
+model = LinearRegression()
+model.fit(x_train[["Date_ordinal"]],y_train)
+x
+prediction_y = model.predict(x_test[["Date_ordinal"]])
+
+plt.scatter(x_test["Date"],y_test)
+plt.scatter(x_train["Date"],y_train)
+plt.plot(x_test["Date"],prediction_y)
+
+plt.show()
+
+
+print(mean_absolute_error(y_test,prediction_y))
+print(r2_score(y_test,prediction_y))
