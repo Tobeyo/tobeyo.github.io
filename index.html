@@ -93,9 +93,9 @@
             <div class="calendar-legend">
                 <span class="legend-item"><span class="legend-dot tobias"></span> Tobias</span>
                 <span class="legend-item"><span class="legend-dot daniel"></span> Daniel</span>
-                <span class="legend-item"><span class="legend-dot swap-day"></span> Swap-Tag</span>
+                <span class="legend-item"><span class="legend-dot swap-day"></span> Tausch</span>
             </div>
-            <div class="calendar-grid">
+            <div class="calendar-weekdays">
                 <div class="cal-day-header">Mo</div>
                 <div class="cal-day-header">Di</div>
                 <div class="cal-day-header">Mi</div>
@@ -103,25 +103,9 @@
                 <div class="cal-day-header">Fr</div>
                 <div class="cal-day-header">Sa</div>
                 <div class="cal-day-header">So</div>
-                <div id="calendarDays"></div>
             </div>
-        </section>
-
-        <!-- Upcoming Swap -->
-        <section class="next-swap-card glass" id="nextSwapCard">
-            <div class="next-swap-header">
-                <span class="next-swap-icon">🔄</span>
-                <h2>Nächster Tausch</h2>
-            </div>
-            <div class="next-swap-body">
-                <div class="next-swap-date" id="nextSwapDate">Keiner geplant</div>
-                <div class="next-swap-detail" id="nextSwapDetail"></div>
-            </div>
-            <div class="plan-swap-wrap">
-                <label class="plan-label" for="planSwapDate">Tausch planen:</label>
-                <input type="date" id="planSwapDate" class="plan-input">
-                <button class="plan-btn" id="planSwapBtn">Planen</button>
-            </div>
+            <div class="calendar-grid" id="calendarGrid"></div>
+            <div class="calendar-hint">💡 Klicke auf einen Tag um einzutragen wer das Auto hat</div>
         </section>
 
         <!-- History -->
@@ -136,6 +120,40 @@
         </section>
 
     </main>
+
+    <!-- Day Assignment Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal glass" id="dayModal">
+            <button class="modal-close" id="modalClose" aria-label="Schließen">✕</button>
+            <div class="modal-header">
+                <span class="modal-date-icon">📅</span>
+                <h3 class="modal-date" id="modalDate">16. Februar 2026</h3>
+            </div>
+            <div class="modal-body">
+                <p class="modal-question">Wer hat an diesem Tag das Auto?</p>
+                <div class="modal-driver-btns">
+                    <button class="modal-driver-btn tobias-btn" id="modalBtnTobias" data-driver="Tobias">
+                        <span class="modal-driver-initial">T</span>
+                        <span class="modal-driver-name">Tobias</span>
+                    </button>
+                    <button class="modal-driver-btn daniel-btn" id="modalBtnDaniel" data-driver="Daniel">
+                        <span class="modal-driver-initial">D</span>
+                        <span class="modal-driver-name">Daniel</span>
+                    </button>
+                </div>
+                <div class="modal-time-section">
+                    <label class="modal-time-label" for="modalSwapTime">
+                        <span>🕐</span> Übergabe-Uhrzeit (optional):
+                    </label>
+                    <input type="time" id="modalSwapTime" class="modal-time-input" value="">
+                </div>
+                <div class="modal-actions">
+                    <button class="modal-save-btn" id="modalSaveBtn">Speichern</button>
+                    <button class="modal-clear-btn" id="modalClearBtn">Eintrag löschen</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Footer -->
     <footer class="footer">

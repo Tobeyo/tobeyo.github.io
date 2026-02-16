@@ -8,7 +8,7 @@
     const STORAGE_KEYS = {
         currentDriver: 'autoswap_currentDriver',
         swapHistory: 'autoswap_swapHistory',
-        plannedSwaps: 'autoswap_plannedSwaps',
+        dayAssignments: 'autoswap_dayAssignments',
         lastSwapDate: 'autoswap_lastSwapDate'
     };
 
@@ -17,14 +17,15 @@
         'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'
     ];
 
-    const DAY_NAMES_SHORT = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
-
     // ===== STATE =====
     let currentDriver = load(STORAGE_KEYS.currentDriver) || DRIVERS.TOBIAS;
     let swapHistory = load(STORAGE_KEYS.swapHistory) || [];
-    let plannedSwaps = load(STORAGE_KEYS.plannedSwaps) || [];
+    // dayAssignments: { "2026-02-16": { driver: "Tobias", time: "14:00" }, ... }
+    let dayAssignments = load(STORAGE_KEYS.dayAssignments) || {};
     let lastSwapDate = load(STORAGE_KEYS.lastSwapDate) || todayStr();
     let calYear, calMonth;
+    let modalSelectedDriver = null;
+    let modalCurrentDate = null;
 
     // ===== DOM REFS =====
     const $ = (id) => document.getElementById(id);
@@ -45,21 +46,27 @@
     const calTitle = $('calTitle');
     const calPrev = $('calPrev');
     const calNext = $('calNext');
-    const calendarDays = $('calendarDays');
-
-    const nextSwapDate = $('nextSwapDate');
-    const nextSwapDetail = $('nextSwapDetail');
-    const planSwapDate = $('planSwapDate');
-    const planSwapBtn = $('planSwapBtn');
+    const calendarGrid = $('calendarGrid');
 
     const historyList = $('historyList');
     const headerTime = $('headerTime');
+
+    // Modal
+    const modalOverlay = $('modalOverlay');
+    const dayModal = $('dayModal');
+    const modalClose = $('modalClose');
+    const modalDate = $('modalDate');
+    const modalBtnTobias = $('modalBtnTobias');
+    const modalBtnDaniel = $('modalBtnDaniel');
+    const modalSwapTime = $('modalSwapTime');
+    const modalSaveBtn = $('modalSaveBtn');
+    const modalClearBtn = $('modalClearBtn');
 
     // ===== HELPERS =====
     function save(key, value) {
         try {
             localStorage.setItem(key, JSON.stringify(value));
-        } catch (e) { /* quota exceeded, ignore */ }
+        } catch (e) { /* quota exceeded */ }
     }
 
     function load(key) {
@@ -70,11 +77,12 @@
     }
 
     function todayStr() {
-        return new Date().toISOString().slice(0, 10);
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     }
 
-    function formatDate(dateStr) {
-        const d = new Date(dateStr + 'T00:00:00');
+    function formatDateLong(dateStr) {
+        const d = parseDate(dateStr);
         return `${d.getDate()}. ${MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}`;
     }
 
@@ -87,14 +95,39 @@
         return `${day}. ${month}, ${h}:${m}`;
     }
 
+    function parseDate(dateStr) {
+        const [y, m, d] = dateStr.split('-').map(Number);
+        return new Date(y, m - 1, d);
+    }
+
+    function makeDateStr(year, month, day) {
+        return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    }
+
     function daysBetween(dateA, dateB) {
-        const a = new Date(dateA + 'T00:00:00');
-        const b = new Date(dateB + 'T00:00:00');
+        const a = parseDate(dateA);
+        const b = parseDate(dateB);
         return Math.round((b - a) / (1000 * 60 * 60 * 24));
     }
 
     function otherDriver(driver) {
         return driver === DRIVERS.TOBIAS ? DRIVERS.DANIEL : DRIVERS.TOBIAS;
+    }
+
+    function getDriverForDate(dateStr) {
+        // Priority: explicit day assignment > current driver for today > null
+        if (dayAssignments[dateStr]) {
+            return dayAssignments[dateStr].driver;
+        }
+        if (dateStr === todayStr()) {
+            return currentDriver;
+        }
+        return null;
+    }
+
+    function getWeekdayName(dateStr) {
+        const names = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+        return names[parseDate(dateStr).getDay()];
     }
 
     // ===== INIT =====
@@ -103,22 +136,46 @@
         calYear = now.getFullYear();
         calMonth = now.getMonth();
 
+        // Ensure today has an assignment
+        if (!dayAssignments[todayStr()]) {
+            dayAssignments[todayStr()] = { driver: currentDriver, time: '' };
+            save(STORAGE_KEYS.dayAssignments, dayAssignments);
+        }
+
         updateDriverDisplay();
         updateStats();
         renderCalendar();
-        updateNextSwap();
         renderHistory();
         createParticles();
         startClock();
 
-        // Set min date for planner
-        planSwapDate.min = todayStr();
-
         // Event listeners
         swapBtn.addEventListener('click', doSwap);
-        calPrev.addEventListener('click', () => { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCalendar(); });
-        calNext.addEventListener('click', () => { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } renderCalendar(); });
-        planSwapBtn.addEventListener('click', planSwap);
+        calPrev.addEventListener('click', () => {
+            calMonth--;
+            if (calMonth < 0) { calMonth = 11; calYear--; }
+            renderCalendar();
+        });
+        calNext.addEventListener('click', () => {
+            calMonth++;
+            if (calMonth > 11) { calMonth = 0; calYear++; }
+            renderCalendar();
+        });
+
+        // Modal
+        modalClose.addEventListener('click', closeModal);
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) closeModal();
+        });
+        modalBtnTobias.addEventListener('click', () => selectModalDriver(DRIVERS.TOBIAS));
+        modalBtnDaniel.addEventListener('click', () => selectModalDriver(DRIVERS.DANIEL));
+        modalSaveBtn.addEventListener('click', saveModal);
+        modalClearBtn.addEventListener('click', clearModalEntry);
+
+        // Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
     }
 
     // ===== DRIVER DISPLAY =====
@@ -127,44 +184,39 @@
         driverInitial.textContent = isTobias ? 'T' : 'D';
         driverName.textContent = currentDriver;
 
-        // Color classes
         driverAvatar.className = 'driver-avatar' + (isTobias ? '' : ' daniel');
         driverName.className = 'driver-name ' + (isTobias ? 'tobias' : 'daniel');
 
-        // Update "since" text
         const days = daysBetween(lastSwapDate, todayStr());
         if (days === 0) {
             driverSince.textContent = 'seit heute';
         } else if (days === 1) {
             driverSince.textContent = 'seit gestern';
         } else {
-            driverSince.textContent = `seit ${days} Tagen (${formatDate(lastSwapDate)})`;
+            driverSince.textContent = `seit ${days} Tagen (${formatDateLong(lastSwapDate)})`;
         }
-
-        // Update ring animation color
-        const color = isTobias ? '56, 189, 248' : '167, 139, 250';
-        avatarRing.style.setProperty('--ring-rgb', color);
     }
 
     // ===== SWAP =====
     function doSwap() {
-        // Animate
         swapAnimation.classList.add('active');
         swapBtn.disabled = true;
-        heroCard.style.transition = 'opacity 0.3s';
-        
-        // Vibration feedback if supported
+
         if (navigator.vibrate) navigator.vibrate(100);
 
         setTimeout(() => {
-            // Toggle driver
             const previousDriver = currentDriver;
             currentDriver = otherDriver(currentDriver);
             lastSwapDate = todayStr();
 
-            // Save
             save(STORAGE_KEYS.currentDriver, currentDriver);
             save(STORAGE_KEYS.lastSwapDate, lastSwapDate);
+
+            // Update today's assignment
+            const now = new Date();
+            const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            dayAssignments[todayStr()] = { driver: currentDriver, time: timeStr };
+            save(STORAGE_KEYS.dayAssignments, dayAssignments);
 
             // Log to history
             const entry = {
@@ -172,21 +224,17 @@
                 from: previousDriver,
                 to: currentDriver,
                 timestamp: new Date().toISOString(),
-                date: todayStr()
+                date: todayStr(),
+                time: timeStr
             };
             swapHistory.unshift(entry);
             if (swapHistory.length > 50) swapHistory.pop();
             save(STORAGE_KEYS.swapHistory, swapHistory);
 
-            // Remove planned swap if it's today
-            plannedSwaps = plannedSwaps.filter(s => s.date !== todayStr());
-            save(STORAGE_KEYS.plannedSwaps, plannedSwaps);
-
             // Update UI
             updateDriverDisplay();
             updateStats();
             renderCalendar();
-            updateNextSwap();
             renderHistory();
 
             swapAnimation.classList.remove('active');
@@ -196,35 +244,31 @@
 
     // ===== STATS =====
     function updateStats() {
-        const today = new Date();
-        const todayS = todayStr();
-
-        // Get all swap dates from history to build a day-by-day assignment
-        const dayMap = buildDayMap();
+        const today = todayStr();
+        const todayDate = new Date();
 
         // Week stats (Monday to Sunday)
-        const weekStart = getMonday(today);
+        const weekStart = getMonday(todayDate);
         let weekT = 0, weekD = 0;
         for (let i = 0; i < 7; i++) {
             const d = new Date(weekStart);
             d.setDate(d.getDate() + i);
-            const ds = d.toISOString().slice(0, 10);
-            if (ds > todayS) break;
-            const driver = dayMap[ds] || currentDriver;
+            const ds = makeDateStr(d.getFullYear(), d.getMonth(), d.getDate());
+            if (ds > today) break;
+            const driver = getDriverForDate(ds);
             if (driver === DRIVERS.TOBIAS) weekT++;
-            else weekD++;
+            else if (driver === DRIVERS.DANIEL) weekD++;
         }
         statWeekTobias.textContent = weekT;
         statWeekDaniel.textContent = weekD;
 
         // Month stats
-        const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
         let monthT = 0, monthD = 0;
-        for (let d = new Date(monthStart); d <= today; d.setDate(d.getDate() + 1)) {
-            const ds = d.toISOString().slice(0, 10);
-            const driver = dayMap[ds] || currentDriver;
+        for (let day = 1; day <= todayDate.getDate(); day++) {
+            const ds = makeDateStr(todayDate.getFullYear(), todayDate.getMonth(), day);
+            const driver = getDriverForDate(ds);
             if (driver === DRIVERS.TOBIAS) monthT++;
-            else monthD++;
+            else if (driver === DRIVERS.DANIEL) monthD++;
         }
         statMonthTobias.textContent = monthT;
         statMonthDaniel.textContent = monthD;
@@ -236,59 +280,18 @@
         return new Date(d.getFullYear(), d.getMonth(), diff);
     }
 
-    function buildDayMap() {
-        // Build a map of date -> driver by replaying swap history
-        // History is sorted newest-first, so we reverse to replay chronologically
-        const sorted = [...swapHistory].reverse();
-        const map = {};
-        const today = todayStr();
-        
-        if (sorted.length === 0) {
-            // No history — current driver has it for all days since lastSwapDate
-            let d = new Date(lastSwapDate + 'T00:00:00');
-            const end = new Date(today + 'T00:00:00');
-            while (d <= end) {
-                map[d.toISOString().slice(0, 10)] = currentDriver;
-                d.setDate(d.getDate() + 1);
-            }
-            return map;
-        }
-
-        // Fill from each swap entry
-        for (let i = 0; i < sorted.length; i++) {
-            const swap = sorted[i];
-            const startDate = swap.date;
-            const endDate = i < sorted.length - 1 ? sorted[i + 1].date : today;
-
-            let d = new Date(startDate + 'T00:00:00');
-            const end = new Date(endDate + 'T00:00:00');
-            while (d <= end) {
-                map[d.toISOString().slice(0, 10)] = swap.to;
-                d.setDate(d.getDate() + 1);
-            }
-        }
-
-        // Also fill today with current driver
-        map[today] = currentDriver;
-
-        return map;
-    }
-
     // ===== CALENDAR =====
     function renderCalendar() {
         calTitle.textContent = `${MONTH_NAMES[calMonth]} ${calYear}`;
 
         const firstDay = new Date(calYear, calMonth, 1);
-        const lastDay = new Date(calYear, calMonth + 1, 0);
-        const daysInMonth = lastDay.getDate();
+        const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
 
-        // Get the day of week for the first day (0=Sun, we want Mon=0)
+        // Monday = 0, Sunday = 6
         let startDay = firstDay.getDay() - 1;
         if (startDay < 0) startDay = 6;
 
-        const dayMap = buildDayMap();
         const todayS = todayStr();
-        const plannedDates = new Set(plannedSwaps.map(s => s.date));
 
         let html = '';
 
@@ -297,89 +300,148 @@
             html += '<div class="cal-day empty"></div>';
         }
 
-        // Days
+        // Day cells
         for (let day = 1; day <= daysInMonth; day++) {
-            const dateStr = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const dateStr = makeDateStr(calYear, calMonth, day);
+            const assignment = dayAssignments[dateStr];
+            const driver = assignment ? assignment.driver : null;
+            const time = assignment ? assignment.time : '';
             const classes = ['cal-day'];
 
             if (dateStr === todayS) classes.push('today');
-            
-            // Color by driver
-            const driver = dayMap[dateStr];
+
             if (driver === DRIVERS.TOBIAS) classes.push('tobias-day');
             else if (driver === DRIVERS.DANIEL) classes.push('daniel-day');
 
-            // Swap marker
-            if (plannedDates.has(dateStr)) classes.push('swap-marker');
-
-            // Check if a swap happened on this day
+            // Check if a swap happened this day (from history)
             const hadSwap = swapHistory.some(s => s.date === dateStr);
             if (hadSwap) classes.push('swap-marker');
 
-            html += `<div class="${classes.join(' ')}" data-date="${dateStr}" title="${dateStr}">${day}</div>`;
+            // Driver short name
+            let driverLabel = '';
+            if (driver) {
+                driverLabel = `<span class="cal-day-driver">${driver === DRIVERS.TOBIAS ? 'Tobi' : 'Dani'}</span>`;
+            }
+
+            // Time label
+            let timeLabel = '';
+            if (time) {
+                timeLabel = `<span class="cal-day-time">🕐 ${time}</span>`;
+            }
+
+            html += `<div class="${classes.join(' ')}" data-date="${dateStr}">
+                <span class="cal-day-number">${day}</span>
+                ${driverLabel}
+                ${timeLabel}
+            </div>`;
         }
 
-        calendarDays.innerHTML = html;
+        // Fill remaining cells to complete the grid row
+        const totalCells = startDay + daysInMonth;
+        const remainder = totalCells % 7;
+        if (remainder > 0) {
+            for (let i = 0; i < (7 - remainder); i++) {
+                html += '<div class="cal-day empty"></div>';
+            }
+        }
 
-        // Add click listeners to day cells
-        calendarDays.querySelectorAll('.cal-day:not(.empty)').forEach(el => {
+        calendarGrid.innerHTML = html;
+
+        // Click listeners on day cells
+        calendarGrid.querySelectorAll('.cal-day:not(.empty)').forEach(el => {
             el.addEventListener('click', () => {
-                const date = el.dataset.date;
-                if (date >= todayStr()) {
-                    planSwapDate.value = date;
-                }
+                openModal(el.dataset.date);
             });
         });
     }
 
-    // ===== NEXT SWAP =====
-    function updateNextSwap() {
-        // Filter future planned swaps
-        const today = todayStr();
-        const future = plannedSwaps
-            .filter(s => s.date >= today)
-            .sort((a, b) => a.date.localeCompare(b.date));
+    // ===== MODAL =====
+    function openModal(dateStr) {
+        modalCurrentDate = dateStr;
+        modalDate.textContent = formatDateLong(dateStr);
 
-        if (future.length > 0) {
-            const next = future[0];
-            const days = daysBetween(today, next.date);
-            nextSwapDate.textContent = formatDate(next.date);
+        const assignment = dayAssignments[dateStr];
 
-            if (days === 0) {
-                nextSwapDetail.textContent = 'Heute! 🚗💨';
-            } else if (days === 1) {
-                nextSwapDetail.textContent = 'Morgen';
-            } else {
-                nextSwapDetail.textContent = `In ${days} Tagen`;
-            }
-        } else {
-            nextSwapDate.textContent = 'Keiner geplant';
-            nextSwapDetail.textContent = 'Wähle ein Datum unten aus';
+        // Reset selection
+        modalBtnTobias.classList.remove('selected');
+        modalBtnDaniel.classList.remove('selected');
+        modalSelectedDriver = null;
+        modalSwapTime.value = '';
+
+        if (assignment) {
+            selectModalDriver(assignment.driver);
+            modalSwapTime.value = assignment.time || '';
         }
+
+        modalOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
     }
 
-    function planSwap() {
-        const date = planSwapDate.value;
-        if (!date) return;
+    function closeModal() {
+        modalOverlay.classList.remove('active');
+        document.body.style.overflow = '';
+        modalCurrentDate = null;
+        modalSelectedDriver = null;
+    }
 
-        const today = todayStr();
-        if (date < today) return;
+    function selectModalDriver(driver) {
+        modalSelectedDriver = driver;
+        modalBtnTobias.classList.toggle('selected', driver === DRIVERS.TOBIAS);
+        modalBtnDaniel.classList.toggle('selected', driver === DRIVERS.DANIEL);
+    }
 
-        // Don't add duplicate
-        if (plannedSwaps.some(s => s.date === date)) {
-            // Remove it instead (toggle)
-            plannedSwaps = plannedSwaps.filter(s => s.date !== date);
-        } else {
-            plannedSwaps.push({
-                date: date,
-                createdAt: new Date().toISOString()
-            });
+    function saveModal() {
+        if (!modalCurrentDate || !modalSelectedDriver) return;
+
+        const time = modalSwapTime.value || '';
+
+        dayAssignments[modalCurrentDate] = {
+            driver: modalSelectedDriver,
+            time: time
+        };
+        save(STORAGE_KEYS.dayAssignments, dayAssignments);
+
+        // If this is today, also update currentDriver
+        if (modalCurrentDate === todayStr()) {
+            const prevDriver = currentDriver;
+            currentDriver = modalSelectedDriver;
+            lastSwapDate = todayStr();
+            save(STORAGE_KEYS.currentDriver, currentDriver);
+            save(STORAGE_KEYS.lastSwapDate, lastSwapDate);
+
+            // Log swap if driver changed
+            if (prevDriver !== currentDriver) {
+                const entry = {
+                    id: Date.now(),
+                    from: prevDriver,
+                    to: currentDriver,
+                    timestamp: new Date().toISOString(),
+                    date: todayStr(),
+                    time: time
+                };
+                swapHistory.unshift(entry);
+                if (swapHistory.length > 50) swapHistory.pop();
+                save(STORAGE_KEYS.swapHistory, swapHistory);
+            }
+
+            updateDriverDisplay();
         }
 
-        save(STORAGE_KEYS.plannedSwaps, plannedSwaps);
-        updateNextSwap();
+        updateStats();
         renderCalendar();
-        planSwapDate.value = '';
+        renderHistory();
+        closeModal();
+    }
+
+    function clearModalEntry() {
+        if (!modalCurrentDate) return;
+
+        delete dayAssignments[modalCurrentDate];
+        save(STORAGE_KEYS.dayAssignments, dayAssignments);
+
+        updateStats();
+        renderCalendar();
+        closeModal();
     }
 
     // ===== HISTORY =====
@@ -395,13 +457,14 @@
         visible.forEach(entry => {
             const fromClass = entry.from === DRIVERS.TOBIAS ? 'name-tobias' : 'name-daniel';
             const toClass = entry.to === DRIVERS.TOBIAS ? 'name-tobias' : 'name-daniel';
+            const timeInfo = entry.time ? ` um ${entry.time} Uhr` : '';
 
             html += `
                 <div class="history-item" data-id="${entry.id}">
                     <span class="history-swap-icon">🔄</span>
                     <div class="history-info">
                         <div class="history-text">
-                            <span class="${fromClass}">${entry.from}</span> → <span class="${toClass}">${entry.to}</span>
+                            <span class="${fromClass}">${entry.from}</span> → <span class="${toClass}">${entry.to}</span>${timeInfo}
                         </div>
                         <div class="history-time">${formatDateTime(entry.timestamp)}</div>
                     </div>
