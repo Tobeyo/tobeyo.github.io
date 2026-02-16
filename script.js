@@ -1,11 +1,12 @@
 /* ===== AutoSwap — Car Sharing Tracker ===== */
+/* Firebase + localStorage hybrid: Firebase for sync, localStorage as cache/fallback */
 
 (function () {
     'use strict';
 
     // ===== CONSTANTS =====
     const DRIVERS = { TOBIAS: 'Tobias', DANIEL: 'Daniel' };
-    const STORAGE_KEYS = {
+    const LOCAL_KEYS = {
         currentDriver: 'autoswap_currentDriver',
         swapHistory: 'autoswap_swapHistory',
         dayAssignments: 'autoswap_dayAssignments',
@@ -17,12 +18,57 @@
         'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'
     ];
 
+    // ===== FIREBASE =====
+    let db = null;
+    let firebaseReady = false;
+
+    function initFirebase() {
+        try {
+            if (typeof USE_FIREBASE !== 'undefined' && USE_FIREBASE &&
+                typeof FIREBASE_CONFIG !== 'undefined' &&
+                FIREBASE_CONFIG.apiKey && !FIREBASE_CONFIG.apiKey.startsWith('DEIN')) {
+
+                firebase.initializeApp(FIREBASE_CONFIG);
+                db = firebase.database();
+                firebaseReady = true;
+                console.log('🔥 Firebase verbunden!');
+                return true;
+            }
+        } catch (e) {
+            console.warn('Firebase init fehlgeschlagen:', e);
+        }
+        console.log('📦 Fallback: localStorage (keine Cloud-Sync)');
+        return false;
+    }
+
+    // ===== STORAGE LAYER =====
+    // Write to both Firebase and localStorage
+    function saveData(key, value) {
+        // Always save to localStorage as cache
+        try {
+            localStorage.setItem(LOCAL_KEYS[key] || key, JSON.stringify(value));
+        } catch (e) { /* quota */ }
+
+        // Also save to Firebase if available
+        if (firebaseReady && db) {
+            db.ref('autoswap/' + key).set(value).catch(err => {
+                console.warn('Firebase write error:', err);
+            });
+        }
+    }
+
+    function loadLocal(key) {
+        try {
+            const v = localStorage.getItem(LOCAL_KEYS[key] || key);
+            return v ? JSON.parse(v) : null;
+        } catch (e) { return null; }
+    }
+
     // ===== STATE =====
-    let currentDriver = load(STORAGE_KEYS.currentDriver) || DRIVERS.TOBIAS;
-    let swapHistory = load(STORAGE_KEYS.swapHistory) || [];
-    // dayAssignments: { "2026-02-16": { driver: "Tobias", time: "14:00" }, ... }
-    let dayAssignments = load(STORAGE_KEYS.dayAssignments) || {};
-    let lastSwapDate = load(STORAGE_KEYS.lastSwapDate) || todayStr();
+    let currentDriver = loadLocal('currentDriver') || DRIVERS.TOBIAS;
+    let swapHistory = loadLocal('swapHistory') || [];
+    let dayAssignments = loadLocal('dayAssignments') || {};
+    let lastSwapDate = loadLocal('lastSwapDate') || todayStr();
     let calYear, calMonth;
     let modalSelectedDriver = null;
     let modalCurrentDate = null;
@@ -53,7 +99,6 @@
 
     // Modal
     const modalOverlay = $('modalOverlay');
-    const dayModal = $('dayModal');
     const modalClose = $('modalClose');
     const modalDate = $('modalDate');
     const modalBtnTobias = $('modalBtnTobias');
@@ -63,19 +108,6 @@
     const modalClearBtn = $('modalClearBtn');
 
     // ===== HELPERS =====
-    function save(key, value) {
-        try {
-            localStorage.setItem(key, JSON.stringify(value));
-        } catch (e) { /* quota exceeded */ }
-    }
-
-    function load(key) {
-        try {
-            const v = localStorage.getItem(key);
-            return v ? JSON.parse(v) : null;
-        } catch (e) { return null; }
-    }
-
     function todayStr() {
         const d = new Date();
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -115,7 +147,6 @@
     }
 
     function getDriverForDate(dateStr) {
-        // Priority: explicit day assignment > current driver for today > null
         if (dayAssignments[dateStr]) {
             return dayAssignments[dateStr].driver;
         }
@@ -125,21 +156,19 @@
         return null;
     }
 
-    function getWeekdayName(dateStr) {
-        const names = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
-        return names[parseDate(dateStr).getDay()];
-    }
-
     // ===== INIT =====
     function init() {
         const now = new Date();
         calYear = now.getFullYear();
         calMonth = now.getMonth();
 
+        // Init Firebase
+        const hasFirebase = initFirebase();
+
         // Ensure today has an assignment
         if (!dayAssignments[todayStr()]) {
             dayAssignments[todayStr()] = { driver: currentDriver, time: '' };
-            save(STORAGE_KEYS.dayAssignments, dayAssignments);
+            saveData('dayAssignments', dayAssignments);
         }
 
         updateDriverDisplay();
@@ -171,10 +200,91 @@
         modalBtnDaniel.addEventListener('click', () => selectModalDriver(DRIVERS.DANIEL));
         modalSaveBtn.addEventListener('click', saveModal);
         modalClearBtn.addEventListener('click', clearModalEntry);
-
-        // Escape key
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') closeModal();
+        });
+
+        // If Firebase is ready, load data from cloud and set up real-time listeners
+        if (hasFirebase) {
+            loadFromFirebase();
+            setupRealtimeListeners();
+        }
+    }
+
+    // ===== FIREBASE: Initial Load =====
+    function loadFromFirebase() {
+        db.ref('autoswap').once('value').then(snapshot => {
+            const data = snapshot.val();
+            if (!data) {
+                // No cloud data yet — push local data to Firebase
+                console.log('🔥 Keine Cloud-Daten, lokale Daten werden hochgeladen...');
+                saveData('currentDriver', currentDriver);
+                saveData('swapHistory', swapHistory);
+                saveData('dayAssignments', dayAssignments);
+                saveData('lastSwapDate', lastSwapDate);
+                return;
+            }
+
+            // Merge cloud data into local state
+            if (data.currentDriver) currentDriver = data.currentDriver;
+            if (data.swapHistory) swapHistory = data.swapHistory;
+            if (data.dayAssignments) dayAssignments = data.dayAssignments;
+            if (data.lastSwapDate) lastSwapDate = data.lastSwapDate;
+
+            // Update localStorage cache
+            try {
+                localStorage.setItem(LOCAL_KEYS.currentDriver, JSON.stringify(currentDriver));
+                localStorage.setItem(LOCAL_KEYS.swapHistory, JSON.stringify(swapHistory));
+                localStorage.setItem(LOCAL_KEYS.dayAssignments, JSON.stringify(dayAssignments));
+                localStorage.setItem(LOCAL_KEYS.lastSwapDate, JSON.stringify(lastSwapDate));
+            } catch (e) { /* ignore */ }
+
+            // Re-render everything with cloud data
+            updateDriverDisplay();
+            updateStats();
+            renderCalendar();
+            renderHistory();
+
+            console.log('🔥 Cloud-Daten geladen!');
+        }).catch(err => {
+            console.warn('Firebase load error:', err);
+        });
+    }
+
+    // ===== FIREBASE: Real-time Listeners =====
+    function setupRealtimeListeners() {
+        // Listen for changes from other devices/tabs
+        db.ref('autoswap/currentDriver').on('value', snapshot => {
+            const val = snapshot.val();
+            if (val && val !== currentDriver) {
+                currentDriver = val;
+                updateDriverDisplay();
+            }
+        });
+
+        db.ref('autoswap/dayAssignments').on('value', snapshot => {
+            const val = snapshot.val();
+            if (val) {
+                dayAssignments = val;
+                updateStats();
+                renderCalendar();
+            }
+        });
+
+        db.ref('autoswap/swapHistory').on('value', snapshot => {
+            const val = snapshot.val();
+            if (val) {
+                swapHistory = val;
+                renderHistory();
+            }
+        });
+
+        db.ref('autoswap/lastSwapDate').on('value', snapshot => {
+            const val = snapshot.val();
+            if (val) {
+                lastSwapDate = val;
+                updateDriverDisplay();
+            }
         });
     }
 
@@ -209,14 +319,14 @@
             currentDriver = otherDriver(currentDriver);
             lastSwapDate = todayStr();
 
-            save(STORAGE_KEYS.currentDriver, currentDriver);
-            save(STORAGE_KEYS.lastSwapDate, lastSwapDate);
+            saveData('currentDriver', currentDriver);
+            saveData('lastSwapDate', lastSwapDate);
 
             // Update today's assignment
             const now = new Date();
             const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
             dayAssignments[todayStr()] = { driver: currentDriver, time: timeStr };
-            save(STORAGE_KEYS.dayAssignments, dayAssignments);
+            saveData('dayAssignments', dayAssignments);
 
             // Log to history
             const entry = {
@@ -229,7 +339,7 @@
             };
             swapHistory.unshift(entry);
             if (swapHistory.length > 50) swapHistory.pop();
-            save(STORAGE_KEYS.swapHistory, swapHistory);
+            saveData('swapHistory', swapHistory);
 
             // Update UI
             updateDriverDisplay();
@@ -247,7 +357,6 @@
         const today = todayStr();
         const todayDate = new Date();
 
-        // Week stats (Monday to Sunday)
         const weekStart = getMonday(todayDate);
         let weekT = 0, weekD = 0;
         for (let i = 0; i < 7; i++) {
@@ -262,7 +371,6 @@
         statWeekTobias.textContent = weekT;
         statWeekDaniel.textContent = weekD;
 
-        // Month stats
         let monthT = 0, monthD = 0;
         for (let day = 1; day <= todayDate.getDate(); day++) {
             const ds = makeDateStr(todayDate.getFullYear(), todayDate.getMonth(), day);
@@ -287,12 +395,10 @@
         const firstDay = new Date(calYear, calMonth, 1);
         const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
 
-        // Monday = 0, Sunday = 6
         let startDay = firstDay.getDay() - 1;
         if (startDay < 0) startDay = 6;
 
         const todayS = todayStr();
-
         let html = '';
 
         // Empty cells before first day
@@ -309,21 +415,19 @@
             const classes = ['cal-day'];
 
             if (dateStr === todayS) classes.push('today');
-
             if (driver === DRIVERS.TOBIAS) classes.push('tobias-day');
             else if (driver === DRIVERS.DANIEL) classes.push('daniel-day');
 
-            // Check if a swap happened this day (from history)
-            const hadSwap = swapHistory.some(s => s.date === dateStr);
+            // Swap marker from history
+            const historyArr = Array.isArray(swapHistory) ? swapHistory : [];
+            const hadSwap = historyArr.some(s => s.date === dateStr);
             if (hadSwap) classes.push('swap-marker');
 
-            // Driver short name
             let driverLabel = '';
             if (driver) {
                 driverLabel = `<span class="cal-day-driver">${driver === DRIVERS.TOBIAS ? 'Tobi' : 'Dani'}</span>`;
             }
 
-            // Time label
             let timeLabel = '';
             if (time) {
                 timeLabel = `<span class="cal-day-time">🕐 ${time}</span>`;
@@ -336,7 +440,7 @@
             </div>`;
         }
 
-        // Fill remaining cells to complete the grid row
+        // Fill remaining cells
         const totalCells = startDay + daysInMonth;
         const remainder = totalCells % 7;
         if (remainder > 0) {
@@ -347,7 +451,6 @@
 
         calendarGrid.innerHTML = html;
 
-        // Click listeners on day cells
         calendarGrid.querySelectorAll('.cal-day:not(.empty)').forEach(el => {
             el.addEventListener('click', () => {
                 openModal(el.dataset.date);
@@ -362,7 +465,6 @@
 
         const assignment = dayAssignments[dateStr];
 
-        // Reset selection
         modalBtnTobias.classList.remove('selected');
         modalBtnDaniel.classList.remove('selected');
         modalSelectedDriver = null;
@@ -399,15 +501,15 @@
             driver: modalSelectedDriver,
             time: time
         };
-        save(STORAGE_KEYS.dayAssignments, dayAssignments);
+        saveData('dayAssignments', dayAssignments);
 
         // If this is today, also update currentDriver
         if (modalCurrentDate === todayStr()) {
             const prevDriver = currentDriver;
             currentDriver = modalSelectedDriver;
             lastSwapDate = todayStr();
-            save(STORAGE_KEYS.currentDriver, currentDriver);
-            save(STORAGE_KEYS.lastSwapDate, lastSwapDate);
+            saveData('currentDriver', currentDriver);
+            saveData('lastSwapDate', lastSwapDate);
 
             // Log swap if driver changed
             if (prevDriver !== currentDriver) {
@@ -421,7 +523,7 @@
                 };
                 swapHistory.unshift(entry);
                 if (swapHistory.length > 50) swapHistory.pop();
-                save(STORAGE_KEYS.swapHistory, swapHistory);
+                saveData('swapHistory', swapHistory);
             }
 
             updateDriverDisplay();
@@ -437,7 +539,7 @@
         if (!modalCurrentDate) return;
 
         delete dayAssignments[modalCurrentDate];
-        save(STORAGE_KEYS.dayAssignments, dayAssignments);
+        saveData('dayAssignments', dayAssignments);
 
         updateStats();
         renderCalendar();
@@ -446,13 +548,15 @@
 
     // ===== HISTORY =====
     function renderHistory() {
-        if (swapHistory.length === 0) {
+        const historyArr = Array.isArray(swapHistory) ? swapHistory : [];
+
+        if (historyArr.length === 0) {
             historyList.innerHTML = '<div class="history-empty">Noch keine Tausche — drück den Swap-Button! 🚗</div>';
             return;
         }
 
         let html = '';
-        const visible = swapHistory.slice(0, 15);
+        const visible = historyArr.slice(0, 15);
 
         visible.forEach(entry => {
             const fromClass = entry.from === DRIVERS.TOBIAS ? 'name-tobias' : 'name-daniel';
@@ -475,13 +579,12 @@
 
         historyList.innerHTML = html;
 
-        // Delete listeners
         historyList.querySelectorAll('.history-delete').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const id = parseInt(btn.dataset.id);
                 swapHistory = swapHistory.filter(s => s.id !== id);
-                save(STORAGE_KEYS.swapHistory, swapHistory);
+                saveData('swapHistory', swapHistory);
                 renderHistory();
                 updateStats();
                 renderCalendar();
