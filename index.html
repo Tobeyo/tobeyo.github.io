@@ -44,41 +44,20 @@
       padding: 20px 16px 60px;
     }
 
-    /* Obere Leiste mit Schrift- und Verlauf-Knopf */
+    /* Obere Leiste mit Verlauf-Knopf */
     .topbar {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
+      justify-content: flex-end;
       margin-bottom: 4px;
     }
-
-    .font-controls { display: flex; gap: 6px; }
-
-    .font-btn {
-      background: #fff;
-      color: var(--green-dark);
-      border: 3px solid var(--green);
-      border-radius: 12px;
-      min-width: 46px;
-      padding: 9px 10px;
-      font-size: 1em;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.12);
-      -webkit-tap-highlight-color: transparent;
-    }
-    .font-btn:hover { background: var(--green-light); }
-    .font-btn:active { transform: scale(0.96); }
 
     .history-btn {
       background: #fff;
       color: var(--green-dark);
       border: 3px solid var(--green);
       border-radius: 14px;
-      padding: 10px 14px;
-      font-size: 1em;
+      padding: 12px 18px;
+      font-size: 1.05em;
       font-weight: 700;
       cursor: pointer;
       box-shadow: 0 2px 4px rgba(0,0,0,0.12);
@@ -577,10 +556,6 @@
 <body>
   <div class="container">
     <div class="topbar">
-      <div class="font-controls" role="group" aria-label="Schriftgröße ändern">
-        <button class="font-btn" id="fontMinusBtn" aria-label="Schrift kleiner" title="Schrift kleiner">A−</button>
-        <button class="font-btn" id="fontPlusBtn" aria-label="Schrift größer" title="Schrift größer">A+</button>
-      </div>
       <button class="history-btn" id="historyBtn">
         <span class="icon">🕘</span>Meine Pflanzen
       </button>
@@ -1555,31 +1530,6 @@
       inputSection.classList.remove("hidden");
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
-
-    // =====================================================================
-    // SCHRIFTGRÖSSE (für bessere Lesbarkeit, Auswahl wird gespeichert)
-    // =====================================================================
-    const FONT_KEY = "pflanzenerkenner_schrift";
-    const FONT_STEPS = [18, 20, 23, 26, 30];   // px – Basis ist 20
-    let fontIndex = 1;
-
-    function applyFontSize() {
-      document.body.style.fontSize = FONT_STEPS[fontIndex] + "px";
-      document.getElementById("fontMinusBtn").disabled = (fontIndex === 0);
-      document.getElementById("fontPlusBtn").disabled = (fontIndex === FONT_STEPS.length - 1);
-    }
-    function setFontIndex(i) {
-      fontIndex = Math.max(0, Math.min(FONT_STEPS.length - 1, i));
-      try { localStorage.setItem(FONT_KEY, String(fontIndex)); } catch (e) {}
-      applyFontSize();
-    }
-    (function initFont() {
-      const saved = parseInt(localStorage.getItem(FONT_KEY), 10);
-      if (!isNaN(saved)) fontIndex = Math.max(0, Math.min(FONT_STEPS.length - 1, saved));
-      applyFontSize();
-    })();
-    document.getElementById("fontMinusBtn").addEventListener("click", () => setFontIndex(fontIndex - 1));
-    document.getElementById("fontPlusBtn").addEventListener("click", () => setFontIndex(fontIndex + 1));
 
     // --- Hilfsfunktion: HTML escapen ---
     function escapeHtml(str) {
