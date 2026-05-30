@@ -1,170 +1,487 @@
 <!DOCTYPE html>
 <html lang="de">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoSwap — Tobias & Daniel</title>
-    <meta name="description" content="AutoSwap: Car Sharing Tracker für Tobias und Daniel. Wer hat das Auto?">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pflanzen erkennen</title>
+  <style>
+    :root {
+      --green: #2e7d32;
+      --green-dark: #1b5e20;
+      --green-light: #e8f5e9;
+      --text: #1a1a1a;
+      --bg: #f4f8f4;
+      --card: #ffffff;
+      --border: #cccccc;
+      --error: #c62828;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 20px;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 20px 16px 60px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    header h1 {
+      font-size: 2em;
+      color: var(--green-dark);
+      margin: 12px 0 4px;
+    }
+
+    header p {
+      font-size: 1.05em;
+      color: #444;
+      margin: 0;
+    }
+
+    .leaf {
+      font-size: 3em;
+      line-height: 1;
+    }
+
+    /* Buttons */
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 22px 20px;
+      margin: 14px 0;
+      font-size: 1.15em;
+      font-weight: 700;
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+      text-align: center;
+      color: #fff;
+      background: var(--green);
+      box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+      transition: background 0.15s, transform 0.05s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn:active { transform: scale(0.98); }
+    .btn:hover { background: var(--green-dark); }
+
+    .btn-secondary {
+      background: #ffffff;
+      color: var(--green-dark);
+      border: 3px solid var(--green);
+    }
+    .btn-secondary:hover {
+      background: var(--green-light);
+    }
+
+    .btn-submit {
+      background: var(--green-dark);
+      font-size: 1.3em;
+    }
+
+    .btn .icon {
+      font-size: 1.3em;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+
+    input[type="file"] { display: none; }
+
+    /* Preview */
+    .preview-wrap {
+      margin: 18px 0;
+      text-align: center;
+    }
+
+    .preview-wrap img {
+      max-width: 100%;
+      max-height: 340px;
+      border-radius: 16px;
+      border: 4px solid var(--green-light);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+    }
+
+    .hidden { display: none !important; }
+
+    /* Spinner */
+    .loading {
+      text-align: center;
+      padding: 30px 10px;
+    }
+
+    .spinner {
+      width: 64px;
+      height: 64px;
+      border: 8px solid var(--green-light);
+      border-top-color: var(--green);
+      border-radius: 50%;
+      margin: 0 auto 16px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading p { font-size: 1.1em; color: #444; }
+
+    /* Error */
+    .error-box {
+      background: #ffebee;
+      border: 3px solid var(--error);
+      color: var(--error);
+      border-radius: 16px;
+      padding: 20px;
+      margin: 18px 0;
+      font-size: 1.05em;
+      text-align: center;
+    }
+
+    /* Results */
+    .results h2 {
+      font-size: 1.5em;
+      color: var(--green-dark);
+      margin: 24px 0 12px;
+    }
+
+    .result-card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 18px 20px;
+      margin: 14px 0;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      border-left: 8px solid var(--green);
+    }
+
+    .result-rank {
+      display: inline-block;
+      background: var(--green);
+      color: #fff;
+      font-weight: 700;
+      border-radius: 50%;
+      width: 38px;
+      height: 38px;
+      line-height: 38px;
+      text-align: center;
+      margin-right: 10px;
+      font-size: 1em;
+    }
+
+    .result-name {
+      font-size: 1.3em;
+      font-weight: 700;
+      font-style: italic;
+      color: var(--text);
+    }
+
+    .result-common {
+      font-size: 1.15em;
+      font-weight: 700;
+      color: var(--green-dark);
+      margin: 6px 0 2px;
+    }
+
+    .result-family {
+      font-size: 1em;
+      color: #555;
+      margin: 4px 0 12px;
+    }
+
+    .bar-label {
+      font-size: 0.95em;
+      color: #444;
+      margin-bottom: 4px;
+    }
+
+    .bar-track {
+      background: #e0e0e0;
+      border-radius: 10px;
+      height: 28px;
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .bar-fill {
+      background: linear-gradient(90deg, #66bb6a, #2e7d32);
+      height: 100%;
+      border-radius: 10px;
+      color: #fff;
+      font-weight: 700;
+      text-align: right;
+      padding-right: 10px;
+      line-height: 28px;
+      font-size: 0.95em;
+      white-space: nowrap;
+      min-width: 40px;
+      transition: width 0.6s ease;
+    }
+
+    .reset-btn {
+      margin-top: 20px;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      color: #666;
+      font-size: 0.95em;
+    }
+
+    footer a { color: var(--green-dark); }
+  </style>
 </head>
-
 <body>
-    <!-- Animated background particles -->
-    <div class="bg-particles" id="bgParticles"></div>
-
-    <!-- Header -->
-    <header class="header">
-        <div class="logo">
-            <span class="logo-icon">🚗</span>
-            <span class="logo-text">Auto<span class="accent">Swap</span></span>
-        </div>
-        <div class="header-time" id="headerTime"></div>
+  <div class="container">
+    <header>
+      <div class="leaf">🌼</div>
+      <h1>Pflanzen erkennen</h1>
+      <p>Fotografieren Sie eine Blume oder Pflanze, und wir sagen Ihnen, wie sie heißt.</p>
     </header>
 
-    <!-- Main Content -->
-    <main class="container">
+    <!-- Eingabe-Bereich -->
+    <section id="inputSection">
+      <button class="btn" id="cameraBtn">
+        <span class="icon">📷</span>Foto aufnehmen
+      </button>
+      <button class="btn btn-secondary" id="uploadBtn">
+        <span class="icon">🖼️</span>Bild auswählen
+      </button>
 
-        <!-- Hero: Current Driver -->
-        <section class="hero-card glass" id="heroCard">
-            <div class="hero-label">Aktuell am Steuer</div>
-            <div class="hero-driver-wrap">
-                <div class="driver-avatar-ring" id="avatarRing">
-                    <div class="driver-avatar" id="driverAvatar">
-                        <span id="driverInitial">T</span>
-                    </div>
-                </div>
-                <h1 class="driver-name" id="driverName">Tobias</h1>
-                <div class="driver-since" id="driverSince">seit heute</div>
-            </div>
-            <button class="swap-btn" id="swapBtn" aria-label="Auto tauschen">
-                <span class="swap-btn-icon">⇄</span>
-                <span class="swap-btn-text">Swap!</span>
-            </button>
-            <div class="swap-animation" id="swapAnimation">
-                <div class="swap-car">🚗</div>
-            </div>
-        </section>
+      <!-- Versteckte Datei-Eingaben -->
+      <input type="file" id="cameraInput" accept="image/*" capture="environment">
+      <input type="file" id="uploadInput" accept="image/*">
 
-        <!-- Stats Row -->
-        <section class="stats-row">
-            <div class="stat-card glass">
-                <div class="stat-icon">📅</div>
-                <div class="stat-info">
-                    <span class="stat-value" id="statWeekTobias">0</span>
-                    <span class="stat-label">Tobias diese Woche</span>
-                </div>
-            </div>
-            <div class="stat-card glass">
-                <div class="stat-icon">📅</div>
-                <div class="stat-info">
-                    <span class="stat-value" id="statWeekDaniel">0</span>
-                    <span class="stat-label">Daniel diese Woche</span>
-                </div>
-            </div>
-            <div class="stat-card glass">
-                <div class="stat-icon">📊</div>
-                <div class="stat-info">
-                    <span class="stat-value" id="statMonthTobias">0</span>
-                    <span class="stat-label">Tobias diesen Monat</span>
-                </div>
-            </div>
-            <div class="stat-card glass">
-                <div class="stat-icon">📊</div>
-                <div class="stat-info">
-                    <span class="stat-value" id="statMonthDaniel">0</span>
-                    <span class="stat-label">Daniel diesen Monat</span>
-                </div>
-            </div>
-        </section>
+      <div class="preview-wrap hidden" id="previewWrap">
+        <img id="previewImg" alt="Vorschau Ihres Bildes">
+      </div>
 
-        <!-- Calendar Section -->
-        <section class="calendar-section glass">
-            <div class="calendar-header">
-                <button class="cal-nav-btn" id="calPrev" aria-label="Vorheriger Monat">‹</button>
-                <h2 class="cal-title" id="calTitle">Februar 2026</h2>
-                <button class="cal-nav-btn" id="calNext" aria-label="Nächster Monat">›</button>
-            </div>
-            <div class="calendar-legend">
-                <span class="legend-item"><span class="legend-dot tobias"></span> Tobias</span>
-                <span class="legend-item"><span class="legend-dot daniel"></span> Daniel</span>
-                <span class="legend-item"><span class="legend-dot swap-day"></span> Tausch</span>
-            </div>
-            <div class="calendar-weekdays">
-                <div class="cal-day-header">Mo</div>
-                <div class="cal-day-header">Di</div>
-                <div class="cal-day-header">Mi</div>
-                <div class="cal-day-header">Do</div>
-                <div class="cal-day-header">Fr</div>
-                <div class="cal-day-header">Sa</div>
-                <div class="cal-day-header">So</div>
-            </div>
-            <div class="calendar-grid" id="calendarGrid"></div>
-            <div class="calendar-hint">💡 Klicke auf einen Tag um einzutragen wer das Auto hat</div>
-        </section>
+      <button class="btn btn-submit hidden" id="submitBtn">
+        <span class="icon">🔍</span>Pflanze bestimmen
+      </button>
+    </section>
 
-        <!-- History -->
-        <section class="history-section glass">
-            <h2 class="history-title">
-                <span class="history-icon">📜</span>
-                Tausch-History
-            </h2>
-            <div class="history-list" id="historyList">
-                <div class="history-empty">Noch keine Tausche — drück den Swap-Button!</div>
-            </div>
-        </section>
+    <!-- Lade-Anzeige -->
+    <section class="loading hidden" id="loadingSection">
+      <div class="spinner"></div>
+      <p>Ihre Pflanze wird bestimmt …<br>Bitte einen Moment Geduld.</p>
+    </section>
 
-    </main>
+    <!-- Fehler-Anzeige -->
+    <section class="error-box hidden" id="errorSection"></section>
 
-    <!-- Day Assignment Modal -->
-    <div class="modal-overlay" id="modalOverlay">
-        <div class="modal glass" id="dayModal">
-            <button class="modal-close" id="modalClose" aria-label="Schließen">✕</button>
-            <div class="modal-header">
-                <span class="modal-date-icon">📅</span>
-                <h3 class="modal-date" id="modalDate">16. Februar 2026</h3>
-            </div>
-            <div class="modal-body">
-                <p class="modal-question">Wer hat an diesem Tag das Auto?</p>
-                <div class="modal-driver-btns">
-                    <button class="modal-driver-btn tobias-btn" id="modalBtnTobias" data-driver="Tobias">
-                        <span class="modal-driver-initial">T</span>
-                        <span class="modal-driver-name">Tobias</span>
-                    </button>
-                    <button class="modal-driver-btn daniel-btn" id="modalBtnDaniel" data-driver="Daniel">
-                        <span class="modal-driver-initial">D</span>
-                        <span class="modal-driver-name">Daniel</span>
-                    </button>
-                </div>
-                <div class="modal-time-section">
-                    <label class="modal-time-label" for="modalSwapTime">
-                        <span>🕐</span> Übergabe-Uhrzeit (optional):
-                    </label>
-                    <input type="time" id="modalSwapTime" class="modal-time-input" value="">
-                </div>
-                <div class="modal-actions">
-                    <button class="modal-save-btn" id="modalSaveBtn">Speichern</button>
-                    <button class="modal-clear-btn" id="modalClearBtn">Eintrag löschen</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Ergebnisse -->
+    <section class="results hidden" id="resultsSection">
+      <h2>Das könnte Ihre Pflanze sein:</h2>
+      <div id="resultsList"></div>
+      <button class="btn btn-secondary reset-btn" id="resetBtn">
+        <span class="icon">↺</span>Neue Pflanze bestimmen
+      </button>
+    </section>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <span>AutoSwap &copy; 2026 — Tobias & Daniel</span>
+    <footer>
+      <p>Powered by Pl@ntNet</p>
+      <p>Made by Tobi 🌱</p>
     </footer>
+  </div>
 
-    <!-- Firebase SDK (compat — no build step needed) -->
-    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
-    <script src="firebase-config.js"></script>
-    <script src="script.js"></script>
+  <script>
+    // =====================================================================
+    // KONFIGURATION
+    // ---------------------------------------------------------------------
+    // Hier Ihren persönlichen Pl@ntNet-API-Schlüssel eintragen.
+    // Einen kostenlosen Schlüssel erhalten Sie unter: https://my.plantnet.org
+    // =====================================================================
+    const API_KEY = "2b10DkD1ZjHZ3nBNlqwfJgq9";
+
+    const API_URL = "https://my-api.plantnet.org/v2/identify/all";
+
+    // --- Elemente ---
+    const cameraBtn = document.getElementById("cameraBtn");
+    const uploadBtn = document.getElementById("uploadBtn");
+    const cameraInput = document.getElementById("cameraInput");
+    const uploadInput = document.getElementById("uploadInput");
+    const previewWrap = document.getElementById("previewWrap");
+    const previewImg = document.getElementById("previewImg");
+    const submitBtn = document.getElementById("submitBtn");
+
+    const inputSection = document.getElementById("inputSection");
+    const loadingSection = document.getElementById("loadingSection");
+    const errorSection = document.getElementById("errorSection");
+    const resultsSection = document.getElementById("resultsSection");
+    const resultsList = document.getElementById("resultsList");
+    const resetBtn = document.getElementById("resetBtn");
+
+    let selectedFile = null;
+
+    // --- Datei-Auswahl auslösen ---
+    cameraBtn.addEventListener("click", () => cameraInput.click());
+    uploadBtn.addEventListener("click", () => uploadInput.click());
+
+    cameraInput.addEventListener("change", handleFileSelect);
+    uploadInput.addEventListener("change", handleFileSelect);
+
+    function handleFileSelect(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      selectedFile = file;
+      hideError();
+
+      // Vorschau anzeigen
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        previewImg.src = e.target.result;
+        previewWrap.classList.remove("hidden");
+        submitBtn.classList.remove("hidden");
+        previewWrap.scrollIntoView({ behavior: "smooth", block: "center" });
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // --- Bild an die API senden ---
+    submitBtn.addEventListener("click", identifyPlant);
+
+    async function identifyPlant() {
+      if (!selectedFile) return;
+
+      hideError();
+      inputSection.classList.add("hidden");
+      resultsSection.classList.add("hidden");
+      loadingSection.classList.remove("hidden");
+      loadingSection.scrollIntoView({ behavior: "smooth", block: "center" });
+
+      const formData = new FormData();
+      formData.append("images", selectedFile);
+      formData.append("organs", "auto");
+
+      // Deutsche Namen mit anfordern
+      const url = API_URL + "?api-key=" + encodeURIComponent(API_KEY) + "&lang=de";
+
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          body: formData
+        });
+
+        if (!response.ok) {
+          let msg;
+          if (response.status === 404) {
+            msg = "Auf diesem Bild konnte leider keine Pflanze erkannt werden. Bitte versuchen Sie es mit einem anderen Foto.";
+          } else if (response.status === 401 || response.status === 403) {
+            msg = "Der Zugang zum Bestimmungsdienst ist nicht gültig. Bitte prüfen Sie den API-Schlüssel.";
+          } else if (response.status === 429) {
+            msg = "Das Tageslimit für Bestimmungen ist erreicht. Bitte versuchen Sie es später noch einmal.";
+          } else {
+            msg = "Der Bestimmungsdienst ist gerade nicht erreichbar (Fehler " + response.status + "). Bitte versuchen Sie es später erneut.";
+          }
+          throw new Error(msg);
+        }
+
+        const data = await response.json();
+        showResults(data);
+
+      } catch (err) {
+        // Netzwerkfehler oder geworfene Meldung
+        const friendly = (err && err.message && err.message.length < 200)
+          ? err.message
+          : "Es gab leider ein Problem bei der Verbindung. Bitte prüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.";
+        showError(friendly);
+      }
+    }
+
+    // --- Ergebnisse anzeigen ---
+    function showResults(data) {
+      loadingSection.classList.add("hidden");
+
+      const results = (data && data.results) ? data.results.slice(0, 3) : [];
+
+      if (results.length === 0) {
+        showError("Es konnte keine passende Pflanze gefunden werden. Bitte versuchen Sie es mit einem anderen Foto.");
+        return;
+      }
+
+      resultsList.innerHTML = "";
+
+      results.forEach((res, index) => {
+        const species = res.species || {};
+        const sciName = species.scientificNameWithoutAuthor || species.scientificName || "Unbekannt";
+        const family = (species.family && species.family.scientificNameWithoutAuthor) || "";
+        const commonNames = species.commonNames || [];
+        const commonName = commonNames.length > 0 ? commonNames[0] : "";
+        const score = Math.round((res.score || 0) * 100);
+
+        const card = document.createElement("div");
+        card.className = "result-card";
+
+        let html = '<div><span class="result-rank">' + (index + 1) + '</span>'
+                 + '<span class="result-name">' + escapeHtml(sciName) + '</span></div>';
+
+        if (commonName) {
+          html += '<div class="result-common">' + escapeHtml(commonName) + '</div>';
+        }
+
+        if (family) {
+          html += '<div class="result-family">Familie: ' + escapeHtml(family) + '</div>';
+        }
+
+        html += '<div class="bar-label">Übereinstimmung</div>'
+              + '<div class="bar-track"><div class="bar-fill" style="width:' + Math.max(score, 6) + '%">'
+              + score + '%</div></div>';
+
+        card.innerHTML = html;
+        resultsList.appendChild(card);
+      });
+
+      resultsSection.classList.remove("hidden");
+      resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    // --- Fehler anzeigen ---
+    function showError(message) {
+      loadingSection.classList.add("hidden");
+      inputSection.classList.remove("hidden");
+      errorSection.textContent = "😕 " + message;
+      errorSection.classList.remove("hidden");
+      errorSection.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    function hideError() {
+      errorSection.classList.add("hidden");
+      errorSection.textContent = "";
+    }
+
+    // --- Zurücksetzen ---
+    resetBtn.addEventListener("click", () => {
+      selectedFile = null;
+      cameraInput.value = "";
+      uploadInput.value = "";
+      previewImg.src = "";
+      previewWrap.classList.add("hidden");
+      submitBtn.classList.add("hidden");
+      resultsSection.classList.add("hidden");
+      hideError();
+      inputSection.classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    // --- Hilfsfunktion: HTML escapen ---
+    function escapeHtml(str) {
+      const div = document.createElement("div");
+      div.textContent = str;
+      return div.innerHTML;
+    }
+  </script>
 </body>
-
 </html>
