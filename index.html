@@ -44,6 +44,29 @@
       padding: 20px 16px 60px;
     }
 
+    /* Obere Leiste mit Verlauf-Knopf */
+    .topbar {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 4px;
+    }
+
+    .history-btn {
+      background: #fff;
+      color: var(--green-dark);
+      border: 3px solid var(--green);
+      border-radius: 14px;
+      padding: 12px 18px;
+      font-size: 1.05em;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.12);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .history-btn:hover { background: var(--green-light); }
+    .history-btn:active { transform: scale(0.98); }
+    .history-btn .icon { margin-right: 6px; }
+
     header {
       text-align: center;
       margin-bottom: 24px;
@@ -243,6 +266,85 @@
       margin-top: 20px;
     }
 
+    /* Verlauf-Ansicht */
+    .history-view h2 {
+      font-size: 1.5em;
+      color: var(--green-dark);
+      margin: 12px 0 16px;
+    }
+
+    .history-empty {
+      text-align: center;
+      font-size: 1.1em;
+      color: #555;
+      background: var(--card);
+      border-radius: 16px;
+      padding: 28px 20px;
+      margin: 18px 0;
+    }
+
+    .history-card {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      background: var(--card);
+      border-radius: 16px;
+      padding: 14px;
+      margin: 14px 0;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      border-left: 8px solid var(--green);
+    }
+
+    .history-thumb {
+      width: 84px;
+      height: 84px;
+      flex-shrink: 0;
+      object-fit: cover;
+      border-radius: 12px;
+      border: 3px solid var(--green-light);
+    }
+
+    .history-info { flex: 1; min-width: 0; }
+
+    .history-name {
+      font-size: 1.15em;
+      font-weight: 700;
+      font-style: italic;
+      color: var(--text);
+    }
+
+    .history-common {
+      font-size: 1.05em;
+      font-weight: 700;
+      color: var(--green-dark);
+      margin: 2px 0;
+    }
+
+    .history-meta {
+      font-size: 0.9em;
+      color: #666;
+    }
+
+    .history-score {
+      display: inline-block;
+      background: var(--green-light);
+      color: var(--green-dark);
+      font-weight: 700;
+      border-radius: 8px;
+      padding: 2px 10px;
+      font-size: 0.95em;
+      margin-top: 4px;
+    }
+
+    .history-date {
+      display: block;
+      font-size: 0.85em;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    #historyClearBtn { margin-top: 20px; }
+
     footer {
       text-align: center;
       margin-top: 40px;
@@ -257,6 +359,12 @@
 </head>
 <body>
   <div class="container">
+    <div class="topbar">
+      <button class="history-btn" id="historyBtn">
+        <span class="icon">🕘</span>Meine Pflanzen
+      </button>
+    </div>
+
     <header>
       <img src="logo.svg" alt="Pflanzenerkenner Logo" class="logo">
       <h1>Pflanzenerkenner</h1>
@@ -276,13 +384,13 @@
       <input type="file" id="cameraInput" accept="image/*" capture="environment">
       <input type="file" id="uploadInput" accept="image/*">
 
-      <div class="preview-wrap hidden" id="previewWrap">
-        <img id="previewImg" alt="Vorschau Ihres Bildes">
-      </div>
-
       <button class="btn btn-submit hidden" id="submitBtn">
         <span class="icon">🔍</span>Pflanze bestimmen
       </button>
+
+      <div class="preview-wrap hidden" id="previewWrap">
+        <img id="previewImg" alt="Vorschau Ihres Bildes">
+      </div>
     </section>
 
     <!-- Lade-Anzeige -->
@@ -300,6 +408,22 @@
       <div id="resultsList"></div>
       <button class="btn btn-secondary reset-btn" id="resetBtn">
         <span class="icon">↺</span>Neue Pflanze bestimmen
+      </button>
+    </section>
+
+    <!-- Verlauf: bereits bestimmte Pflanzen -->
+    <section class="history-view hidden" id="historySection">
+      <h2>Meine bestimmten Pflanzen</h2>
+      <button class="btn btn-submit" id="historyBackBtn">
+        <span class="icon">←</span>Zurück
+      </button>
+      <p class="history-empty hidden" id="historyEmpty">
+        Sie haben noch keine Pflanzen bestimmt.<br>
+        Bestimmen Sie Ihre erste Pflanze – sie wird dann hier gespeichert.
+      </p>
+      <div id="historyList"></div>
+      <button class="btn btn-secondary" id="historyClearBtn">
+        <span class="icon">🗑️</span>Verlauf löschen
       </button>
     </section>
 
@@ -336,6 +460,15 @@
     const resultsList = document.getElementById("resultsList");
     const resetBtn = document.getElementById("resetBtn");
 
+    const historyBtn = document.getElementById("historyBtn");
+    const historySection = document.getElementById("historySection");
+    const historyList = document.getElementById("historyList");
+    const historyEmpty = document.getElementById("historyEmpty");
+    const historyBackBtn = document.getElementById("historyBackBtn");
+    const historyClearBtn = document.getElementById("historyClearBtn");
+
+    const HISTORY_KEY = "pflanzenerkenner_verlauf";
+
     let selectedFile = null;
 
     // --- Datei-Auswahl auslösen ---
@@ -358,7 +491,7 @@
         previewImg.src = e.target.result;
         previewWrap.classList.remove("hidden");
         submitBtn.classList.remove("hidden");
-        previewWrap.scrollIntoView({ behavior: "smooth", block: "center" });
+        submitBtn.scrollIntoView({ behavior: "smooth", block: "center" });
       };
       reader.readAsDataURL(file);
     }
@@ -460,7 +593,17 @@
         }
 
         const data = await response.json();
-        showResults(data);
+        const shown = showResults(data);
+
+        // Bei Erfolg im Verlauf speichern
+        if (shown && shown.length > 0) {
+          try {
+            const thumb = await makeThumbnail(selectedFile);
+            addToHistory({ date: Date.now(), image: thumb, results: shown });
+          } catch (thumbErr) {
+            // Verlauf ist optional – Fehler hier ignorieren
+          }
+        }
 
       } catch (err) {
         // Netzwerkfehler oder geworfene Meldung
@@ -471,44 +614,52 @@
       }
     }
 
-    // --- Ergebnisse anzeigen ---
+    // --- API-Antwort in einfache Objekte umwandeln ---
+    function parseResults(data) {
+      const raw = (data && data.results) ? data.results.slice(0, 3) : [];
+      return raw.map((res) => {
+        const species = res.species || {};
+        const commonNames = species.commonNames || [];
+        return {
+          sciName: species.scientificNameWithoutAuthor || species.scientificName || "Unbekannt",
+          family: (species.family && species.family.scientificNameWithoutAuthor) || "",
+          commonName: commonNames.length > 0 ? commonNames[0] : "",
+          score: Math.round((res.score || 0) * 100)
+        };
+      });
+    }
+
+    // --- Ergebnisse anzeigen --- (gibt die geparsten Ergebnisse zurück)
     function showResults(data) {
       loadingSection.classList.add("hidden");
 
-      const results = (data && data.results) ? data.results.slice(0, 3) : [];
+      const results = parseResults(data);
 
       if (results.length === 0) {
         showError("Es konnte keine passende Pflanze gefunden werden. Bitte versuchen Sie es mit einem anderen Foto.");
-        return;
+        return null;
       }
 
       resultsList.innerHTML = "";
 
       results.forEach((res, index) => {
-        const species = res.species || {};
-        const sciName = species.scientificNameWithoutAuthor || species.scientificName || "Unbekannt";
-        const family = (species.family && species.family.scientificNameWithoutAuthor) || "";
-        const commonNames = species.commonNames || [];
-        const commonName = commonNames.length > 0 ? commonNames[0] : "";
-        const score = Math.round((res.score || 0) * 100);
-
         const card = document.createElement("div");
         card.className = "result-card";
 
         let html = '<div><span class="result-rank">' + (index + 1) + '</span>'
-                 + '<span class="result-name">' + escapeHtml(sciName) + '</span></div>';
+                 + '<span class="result-name">' + escapeHtml(res.sciName) + '</span></div>';
 
-        if (commonName) {
-          html += '<div class="result-common">' + escapeHtml(commonName) + '</div>';
+        if (res.commonName) {
+          html += '<div class="result-common">' + escapeHtml(res.commonName) + '</div>';
         }
 
-        if (family) {
-          html += '<div class="result-family">Familie: ' + escapeHtml(family) + '</div>';
+        if (res.family) {
+          html += '<div class="result-family">Familie: ' + escapeHtml(res.family) + '</div>';
         }
 
         html += '<div class="bar-label">Übereinstimmung</div>'
-              + '<div class="bar-track"><div class="bar-fill" style="width:' + Math.max(score, 6) + '%">'
-              + score + '%</div></div>';
+              + '<div class="bar-track"><div class="bar-fill" style="width:' + Math.max(res.score, 6) + '%">'
+              + res.score + '%</div></div>';
 
         card.innerHTML = html;
         resultsList.appendChild(card);
@@ -516,7 +667,131 @@
 
       resultsSection.classList.remove("hidden");
       resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      return results;
     }
+
+    // =====================================================================
+    // VERLAUF (gespeichert im Browser via localStorage)
+    // =====================================================================
+    function loadHistory() {
+      try {
+        return JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveHistory(list) {
+      try {
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
+      } catch (e) {
+        // Speicher voll: ältesten Eintrag entfernen und erneut versuchen
+        if (list.length > 1) {
+          list.pop();
+          saveHistory(list);
+        }
+      }
+    }
+
+    function addToHistory(entry) {
+      const list = loadHistory();
+      list.unshift(entry);          // neuester zuerst
+      while (list.length > 30) list.pop();  // höchstens 30 merken
+      saveHistory(list);
+    }
+
+    // Kleines Vorschaubild (Thumbnail) als Daten-URL erzeugen
+    function makeThumbnail(file, size = 220, quality = 0.7) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        const objectUrl = URL.createObjectURL(file);
+        img.onload = () => {
+          URL.revokeObjectURL(objectUrl);
+          const scale = size / Math.max(img.width, img.height);
+          const w = Math.round(img.width * scale);
+          const h = Math.round(img.height * scale);
+          const canvas = document.createElement("canvas");
+          canvas.width = w;
+          canvas.height = h;
+          canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL("image/jpeg", quality));
+        };
+        img.onerror = () => { URL.revokeObjectURL(objectUrl); reject(new Error("thumb")); };
+        img.src = objectUrl;
+      });
+    }
+
+    function formatDate(ts) {
+      try {
+        return new Date(ts).toLocaleString("de-DE", {
+          day: "2-digit", month: "2-digit", year: "numeric",
+          hour: "2-digit", minute: "2-digit"
+        }) + " Uhr";
+      } catch (e) {
+        return "";
+      }
+    }
+
+    function renderHistory() {
+      const list = loadHistory();
+      historyList.innerHTML = "";
+
+      if (list.length === 0) {
+        historyEmpty.classList.remove("hidden");
+        historyClearBtn.classList.add("hidden");
+        return;
+      }
+
+      historyEmpty.classList.add("hidden");
+      historyClearBtn.classList.remove("hidden");
+
+      list.forEach((entry) => {
+        const top = (entry.results && entry.results[0]) || {};
+        const card = document.createElement("div");
+        card.className = "history-card";
+
+        let info = '<div class="history-name">' + escapeHtml(top.sciName || "Unbekannt") + '</div>';
+        if (top.commonName) {
+          info += '<div class="history-common">' + escapeHtml(top.commonName) + '</div>';
+        }
+        if (top.family) {
+          info += '<div class="history-meta">Familie: ' + escapeHtml(top.family) + '</div>';
+        }
+        info += '<span class="history-score">' + (top.score || 0) + '% Übereinstimmung</span>';
+        info += '<span class="history-date">' + formatDate(entry.date) + '</span>';
+
+        card.innerHTML =
+          '<img class="history-thumb" src="' + (entry.image || "") + '" alt="Foto der Pflanze">' +
+          '<div class="history-info">' + info + '</div>';
+
+        historyList.appendChild(card);
+      });
+    }
+
+    function showHistory() {
+      inputSection.classList.add("hidden");
+      resultsSection.classList.add("hidden");
+      loadingSection.classList.add("hidden");
+      hideError();
+      renderHistory();
+      historySection.classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function hideHistory() {
+      historySection.classList.add("hidden");
+      inputSection.classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    historyBtn.addEventListener("click", showHistory);
+    historyBackBtn.addEventListener("click", hideHistory);
+    historyClearBtn.addEventListener("click", () => {
+      if (confirm("Möchten Sie wirklich alle gespeicherten Pflanzen löschen?")) {
+        localStorage.removeItem(HISTORY_KEY);
+        renderHistory();
+      }
+    });
 
     // --- Fehler anzeigen ---
     function showError(message) {
