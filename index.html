@@ -44,24 +44,46 @@
       padding: 20px 16px 60px;
     }
 
-    /* Obere Leiste mit Verlauf-Knopf */
+    /* Obere Leiste mit Schrift- und Verlauf-Knopf */
     .topbar {
       display: flex;
-      justify-content: flex-end;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
       margin-bottom: 4px;
     }
+
+    .font-controls { display: flex; gap: 6px; }
+
+    .font-btn {
+      background: #fff;
+      color: var(--green-dark);
+      border: 3px solid var(--green);
+      border-radius: 12px;
+      min-width: 46px;
+      padding: 9px 10px;
+      font-size: 1em;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.12);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .font-btn:hover { background: var(--green-light); }
+    .font-btn:active { transform: scale(0.96); }
 
     .history-btn {
       background: #fff;
       color: var(--green-dark);
       border: 3px solid var(--green);
       border-radius: 14px;
-      padding: 12px 18px;
-      font-size: 1.05em;
+      padding: 10px 14px;
+      font-size: 1em;
       font-weight: 700;
       cursor: pointer;
       box-shadow: 0 2px 4px rgba(0,0,0,0.12);
       -webkit-tap-highlight-color: transparent;
+      white-space: nowrap;
     }
     .history-btn:hover { background: var(--green-light); }
     .history-btn:active { transform: scale(0.98); }
@@ -351,6 +373,101 @@
     }
     .care-retry:hover { background: #00695c; }
 
+    /* Pflege: Quellen-Hinweis (Gattung/Familie) */
+    .care-level {
+      background: #fff8e1;
+      border-radius: 10px;
+      padding: 8px 12px;
+      margin: 0 0 10px;
+      font-size: 0.92em;
+      color: #8d6e00;
+    }
+
+    /* Pflege: Warn-Zeile (z. B. giftig) */
+    .care-row.care-warn {
+      background: #fff3e0;
+      border-radius: 12px;
+      padding: 12px;
+      border-bottom: none;
+    }
+    .care-row.care-warn .care-label { color: #c62828; }
+
+    /* Unsicherheits-Hinweis im Ergebnis */
+    .result-uncertain {
+      margin-top: 14px;
+      background: #fff3e0;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 0.95em;
+      color: #8a5a00;
+    }
+
+    /* Aktions-Knöpfe (Vorlesen / Teilen / Mehr erfahren) */
+    .result-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 4px 0 8px;
+    }
+
+    .action-btn {
+      flex: 1 1 30%;
+      min-width: 120px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: #fff;
+      color: var(--green-dark);
+      border: 3px solid var(--green);
+      border-radius: 14px;
+      padding: 14px 12px;
+      font-size: 1.02em;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .action-btn:hover { background: var(--green-light); }
+    .action-btn:active { transform: scale(0.98); }
+
+    /* Fehler-Box: Text + Nochmal-Knopf */
+    .error-retry {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 14px;
+      background: var(--error);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 22px;
+      font-size: 1.05em;
+      font-weight: 700;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .error-retry:hover { background: #a01818; }
+
+    /* Verlauf: einzelnen Eintrag löschen */
+    .history-del {
+      align-self: flex-start;
+      flex-shrink: 0;
+      background: #f5f5f5;
+      color: #999;
+      border: none;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      font-size: 1.05em;
+      font-weight: 700;
+      line-height: 1;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .history-del:hover { background: #ffebee; color: var(--error); }
+
     /* Verlauf-Ansicht */
     .history-view h2 {
       font-size: 1.5em;
@@ -460,6 +577,10 @@
 <body>
   <div class="container">
     <div class="topbar">
+      <div class="font-controls" role="group" aria-label="Schriftgröße ändern">
+        <button class="font-btn" id="fontMinusBtn" aria-label="Schrift kleiner" title="Schrift kleiner">A−</button>
+        <button class="font-btn" id="fontPlusBtn" aria-label="Schrift größer" title="Schrift größer">A+</button>
+      </div>
       <button class="history-btn" id="historyBtn">
         <span class="icon">🕘</span>Meine Pflanzen
       </button>
@@ -582,6 +703,8 @@
     const HISTORY_KEY = "pflanzenerkenner_verlauf";
 
     let selectedFile = null;
+    let lastResult = null;     // zuletzt angezeigte Pflanze (für Vorlesen/Teilen)
+    let lastCareRows = [];     // zuletzt geladene Pflegehinweise
 
     // --- Datei-Auswahl auslösen ---
     cameraBtn.addEventListener("click", () => cameraInput.click());
@@ -661,6 +784,12 @@
     async function identifyPlant() {
       if (!selectedFile) return;
 
+      // Keine Internetverbindung? -> früh und freundlich abbrechen
+      if (navigator.onLine === false) {
+        showError("Sie sind gerade nicht mit dem Internet verbunden. Bitte stellen Sie eine Verbindung her und versuchen Sie es erneut.");
+        return;
+      }
+
       hideError();
       inputSection.classList.add("hidden");
       resultsSection.classList.add("hidden");
@@ -714,7 +843,7 @@
           addToHistory({ date: Date.now(), image: thumb, result: shown, care: [] });
 
           // Pflegehinweise (Trefle) – läuft eigenständig, blockiert nichts
-          loadCare(shown.sciName);
+          loadCare(shown.sciName, shown.family);
         }
 
       } catch (err) {
@@ -753,6 +882,8 @@
       }
 
       const res = results[0];   // wahrscheinlichste Pflanze
+      lastResult = res;
+      lastCareRows = [];
       resultsList.innerHTML = "";
       careSection.innerHTML = "";
 
@@ -772,8 +903,28 @@
             + '<div class="bar-track"><div class="bar-fill" style="width:' + Math.max(res.score, 6) + '%">'
             + res.score + '%</div></div>';
 
+      // Hinweis bei unsicherer Erkennung
+      if (res.score < 35) {
+        html += '<div class="result-uncertain">⚠️ Die Erkennung ist unsicher. Für ein besseres Ergebnis ' +
+                'ein scharfes Foto von Blüte oder Blatt bei gutem Licht machen.</div>';
+      }
+
       card.innerHTML = html;
       resultsList.appendChild(card);
+
+      // Aktions-Knöpfe: Vorlesen, Teilen, Mehr erfahren
+      const actions = document.createElement("div");
+      actions.className = "result-actions";
+      actions.innerHTML =
+        '<button class="action-btn" id="speakBtn"><span class="icon">🔊</span>Vorlesen</button>' +
+        '<button class="action-btn" id="shareBtn"><span class="icon">📤</span>Teilen</button>' +
+        '<a class="action-btn" id="wikiBtn" target="_blank" rel="noopener" ' +
+        'href="https://de.wikipedia.org/wiki/Spezial:Suche?search=' + encodeURIComponent(res.commonName || res.sciName) +
+        '"><span class="icon">🔎</span>Mehr erfahren</a>';
+      resultsList.appendChild(actions);
+
+      document.getElementById("speakBtn").addEventListener("click", toggleSpeak);
+      document.getElementById("shareBtn").addEventListener("click", shareResult);
 
       resultsSection.classList.remove("hidden");
       resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -804,12 +955,157 @@
       throw lastErr || new Error("Pflegehinweise nicht erreichbar");
     }
 
+    const HABIT_DE = {
+      tree: "Baum", shrub: "Strauch", subshrub: "Halbstrauch", herb: "Krautige Pflanze",
+      forb: "Kraut", "forb/herb": "Kraut", graminoid: "Gras", vine: "Kletterpflanze",
+      liana: "Kletterpflanze", succulent: "Sukkulente", lycopod: "Bärlapp", fern: "Farn"
+    };
+    const DURATION_DE = { annual: "einjährig", biennial: "zweijährig", perennial: "mehrjährig" };
+    const TOX_DE = { none: null, low: "leicht giftig", medium: "giftig", high: "stark giftig" };
+    const EDIBLE_PART_DE = {
+      fruits: "Früchte", leaves: "Blätter", roots: "Wurzeln", flowers: "Blüten",
+      seeds: "Samen", stem: "Stängel", tubers: "Knollen", bark: "Rinde"
+    };
+
+    // =====================================================================
+    // EINGEBAUTE PFLEGE-DATENBANK (für häufige Pflanzen, v. a. Zimmerpflanzen,
+    // zu denen Trefle keine Daten hat). Schlüssel = lateinische Gattung.
+    // =====================================================================
+    const L = (icon, label, value, warn) => ({ icon, label, value, warn: !!warn });
+    const LOCAL_CARE = {
+      monstera: { name: "Fensterblatt (Monstera)", rows: [
+        L("☀️", "Licht", "Hell, aber keine direkte Sonne."),
+        L("💧", "Gießen", "Mäßig – obere Erdschicht antrocknen lassen, dann durchdringend gießen."),
+        L("🌫️", "Luftfeuchtigkeit", "Mag hohe Luftfeuchtigkeit – Blätter ab und zu besprühen."),
+        L("💡", "Tipp", "Große Blätter gelegentlich abstauben."),
+        L("⚠️", "Achtung", "Alle Teile sind leicht giftig. Von Kindern und Haustieren fernhalten.", true) ] },
+      ficus: { name: "Gummibaum / Birkenfeige (Ficus)", rows: [
+        L("☀️", "Licht", "Hell, ohne pralle Mittagssonne."),
+        L("💧", "Gießen", "Mäßig – erst gießen, wenn die Erde oben abgetrocknet ist."),
+        L("💡", "Tipp", "Standort möglichst nicht wechseln – sonst wirft er Blätter ab."),
+        L("⚠️", "Achtung", "Der Milchsaft reizt Haut und Schleimhäute.", true) ] },
+      epipremnum: { name: "Efeutute (Pothos)", rows: [
+        L("☀️", "Licht", "Hell bis halbschattig – sehr anpassungsfähig."),
+        L("💧", "Gießen", "Mäßig – zwischendurch leicht antrocknen lassen."),
+        L("💡", "Tipp", "Sehr pflegeleicht, ideal für Anfänger. Lange Ranken kann man kürzen."),
+        L("⚠️", "Achtung", "Leicht giftig für Menschen und Tiere.", true) ] },
+      pothos: { name: "Efeutute (Pothos)", rows: [
+        L("☀️", "Licht", "Hell bis halbschattig – sehr anpassungsfähig."),
+        L("💧", "Gießen", "Mäßig – zwischendurch leicht antrocknen lassen."),
+        L("⚠️", "Achtung", "Leicht giftig für Menschen und Tiere.", true) ] },
+      sansevieria: { name: "Bogenhanf (Sansevieria)", rows: [
+        L("☀️", "Licht", "Von sonnig bis halbschattig – verträgt fast jeden Platz."),
+        L("💧", "Gießen", "Sehr sparsam! Lieber zu wenig als zu viel. Staunässe vermeiden."),
+        L("💡", "Tipp", "Im Winter nur etwa einmal im Monat gießen.") ] },
+      dracaena: { name: "Drachenbaum (Dracaena)", rows: [
+        L("☀️", "Licht", "Hell bis halbschattig, keine pralle Sonne."),
+        L("💧", "Gießen", "Mäßig – oben antrocknen lassen. Staunässe vermeiden."),
+        L("💡", "Tipp", "Mag kalkarmes Wasser (z. B. Regenwasser).") ] },
+      zamioculcas: { name: "Glücksfeder (Zamioculcas)", rows: [
+        L("☀️", "Licht", "Halbschattig – kommt sogar mit wenig Licht aus."),
+        L("💧", "Gießen", "Sparsam – sehr genügsam, verzeiht auch mal Vergessen."),
+        L("⚠️", "Achtung", "Leicht giftig.", true) ] },
+      spathiphyllum: { name: "Einblatt / Friedenslilie (Spathiphyllum)", rows: [
+        L("☀️", "Licht", "Halbschattig, keine direkte Sonne."),
+        L("💧", "Gießen", "Gleichmäßig feucht halten. Lässt die Blätter hängen, wenn es Durst hat."),
+        L("🌫️", "Luftfeuchtigkeit", "Mag hohe Luftfeuchtigkeit – regelmäßig besprühen."),
+        L("⚠️", "Achtung", "Leicht giftig.", true) ] },
+      chlorophytum: { name: "Grünlilie (Chlorophytum)", rows: [
+        L("☀️", "Licht", "Hell bis halbschattig."),
+        L("💧", "Gießen", "Mäßig bis reichlich im Sommer, weniger im Winter."),
+        L("💡", "Tipp", "Sehr robust, ungiftig und luftreinigend – perfekt für Anfänger.") ] },
+      phalaenopsis: { name: "Orchidee (Phalaenopsis)", rows: [
+        L("☀️", "Licht", "Hell, ohne direkte Sonne (z. B. Ostfenster)."),
+        L("💧", "Gießen", "Etwa einmal pro Woche tauchen, gut abtropfen lassen. Kein Wasser im Herzen."),
+        L("🌫️", "Luftfeuchtigkeit", "Mag feuchte Luft."),
+        L("💡", "Tipp", "Spezielle Orchideenerde verwenden. Verblühten Stiel über einem Auge kürzen.") ] },
+      orchis: { name: "Orchidee", rows: [
+        L("☀️", "Licht", "Hell, ohne direkte Sonne."),
+        L("💧", "Gießen", "Sparsam, lieber tauchen als gießen. Staunässe unbedingt vermeiden.") ] },
+      aloe: { name: "Aloe Vera", rows: [
+        L("☀️", "Licht", "Sonnig bis hell."),
+        L("💧", "Gießen", "Sehr sparsam – die dicken Blätter speichern Wasser. Kakteenerde."),
+        L("💡", "Tipp", "Im Winter kühl stellen und kaum gießen.") ] },
+      echeveria: { name: "Sukkulente (Echeveria)", rows: [
+        L("☀️", "Licht", "Sonnig."),
+        L("💧", "Gießen", "Sparsam, erst gießen wenn die Erde ganz trocken ist. Staunässe vermeiden.") ] },
+      kalanchoe: { name: "Flammendes Käthchen (Kalanchoe)", rows: [
+        L("☀️", "Licht", "Hell bis sonnig."),
+        L("💧", "Gießen", "Sparsam – Sukkulente, speichert Wasser in den Blättern."),
+        L("⚠️", "Achtung", "Für Haustiere giftig.", true) ] },
+      saintpaulia: { name: "Usambaraveilchen (Saintpaulia)", rows: [
+        L("☀️", "Licht", "Hell, ohne direkte Sonne."),
+        L("💧", "Gießen", "Von unten gießen (Untersetzer). Blätter und Herz nicht nass machen."),
+        L("💡", "Tipp", "Zimmerwarmes, kalkarmes Wasser verwenden.") ] },
+      pelargonium: { name: "Geranie (Pelargonium)", rows: [
+        L("☀️", "Licht", "Sonnig – klassische Balkonpflanze."),
+        L("💧", "Gießen", "Regelmäßig, an heißen Tagen täglich. Verblühtes ausbrechen."),
+        L("💡", "Tipp", "Frostempfindlich – im Winter hell und kühl überwintern.") ] },
+      cyclamen: { name: "Alpenveilchen (Cyclamen)", rows: [
+        L("☀️", "Licht", "Hell und kühl (nicht über der Heizung)."),
+        L("💧", "Gießen", "Von unten gießen. Die Knolle selbst nicht begießen."),
+        L("⚠️", "Achtung", "Besonders die Knolle ist giftig.", true) ] },
+      euphorbia: { name: "Weihnachtsstern (Euphorbia)", rows: [
+        L("☀️", "Licht", "Hell und warm, ohne Zugluft."),
+        L("💧", "Gießen", "Mäßig mit lauwarmem Wasser. Staunässe vermeiden."),
+        L("⚠️", "Achtung", "Der Milchsaft reizt Haut und Augen.", true) ] },
+      hedera: { name: "Efeu (Hedera)", rows: [
+        L("☀️", "Licht", "Hell bis halbschattig, gerne kühl."),
+        L("💧", "Gießen", "Gleichmäßig feucht halten, nicht austrocknen lassen."),
+        L("⚠️", "Achtung", "Blätter und Beeren sind giftig.", true) ] },
+      begonia: { name: "Begonie (Begonia)", rows: [
+        L("☀️", "Licht", "Hell, ohne pralle Mittagssonne."),
+        L("💧", "Gießen", "Mäßig und gleichmäßig. Blätter trocken halten.") ] },
+      rosa: { name: "Rose (Rosa)", rows: [
+        L("☀️", "Licht", "Sonnig und luftig."),
+        L("💧", "Gießen", "Durchdringend an der Wurzel gießen, Blätter trocken halten (beugt Pilz vor)."),
+        L("💡", "Tipp", "Während der Blüte düngen. Verblühtes regelmäßig herausschneiden.") ] },
+      tulipa: { name: "Tulpe (Tulipa)", rows: [
+        L("☀️", "Licht", "Hell bis sonnig."),
+        L("💧", "Gießen", "Mäßig. Im Beet die Zwiebeln im Herbst setzen."),
+        L("💡", "Tipp", "Als Schnittblume kühl stellen, dann hält sie länger.") ] },
+      narcissus: { name: "Narzisse / Osterglocke (Narcissus)", rows: [
+        L("☀️", "Licht", "Sonnig bis halbschattig."),
+        L("💧", "Gießen", "Mäßig feucht halten während der Blüte."),
+        L("⚠️", "Achtung", "Zwiebel und Pflanze sind giftig.", true) ] },
+      lavandula: { name: "Lavendel (Lavandula)", rows: [
+        L("☀️", "Licht", "Vollsonnig und warm."),
+        L("💧", "Gießen", "Sparsam – mag trockenen, durchlässigen Boden. Staunässe vermeiden."),
+        L("💡", "Tipp", "Nach der Blüte zurückschneiden, dann bleibt er kompakt.") ] },
+      hydrangea: { name: "Hortensie (Hydrangea)", rows: [
+        L("☀️", "Licht", "Halbschattig."),
+        L("💧", "Gießen", "Viel Wasser – der Name bedeutet „Wasserschlürfer“. Nicht austrocknen lassen."),
+        L("💡", "Tipp", "Saurer Boden färbt die Blüten blau.") ] },
+      ocimum: { name: "Basilikum (Ocimum)", rows: [
+        L("☀️", "Licht", "Sonnig und warm."),
+        L("💧", "Gießen", "Reichlich, am besten von unten. Erde nie ganz austrocknen lassen."),
+        L("💡", "Tipp", "Regelmäßig die Triebspitzen ernten, dann wird er buschig.") ] }
+    };
+    // einige deutsche/englische Stichwörter auf Gattungen abbilden
+    const LOCAL_ALIAS = {
+      orchidaceae: "phalaenopsis", orchidee: "phalaenopsis", orchid: "phalaenopsis",
+      cactaceae: "echeveria", kaktus: "echeveria", cactus: "echeveria", sukkulente: "echeveria",
+      poinsettia: "euphorbia"
+    };
+
+    function localCareLookup(sciName) {
+      const genus = (sciName || "").trim().split(/\s+/)[0].toLowerCase();
+      const key = LOCAL_CARE[genus] ? genus : LOCAL_ALIAS[genus];
+      return key ? LOCAL_CARE[key] : null;
+    }
+
     // Trefle-Wachstumsdaten in verständliche deutsche Pflegehinweise umwandeln
     function buildCareRows(plant) {
       const ms = plant.main_species || {};
       const g = ms.growth || {};
       const spec = ms.specifications || {};
       const rows = [];
+
+      // Giftigkeit – als Warnung ganz oben (wichtig für Haushalte mit Kindern/Tieren)
+      const tox = spec.toxicity && TOX_DE[String(spec.toxicity).toLowerCase()];
+      if (tox) {
+        rows.push({ icon: "⚠️", label: "Achtung", value: "Diese Pflanze ist " + tox + ". Von Kindern und Haustieren fernhalten.", warn: true });
+      }
 
       // Licht (Skala 0–10)
       if (g.light != null) {
@@ -851,6 +1147,12 @@
         rows.push({ icon: "🌡️", label: "Temperatur", value: "Verträgt Kälte bis etwa " + tmin + " °C." });
       }
 
+      // Wuchsform
+      const habit = spec.growth_habit && HABIT_DE[String(spec.growth_habit).toLowerCase()];
+      if (habit) {
+        rows.push({ icon: "🌳", label: "Wuchsform", value: habit + "." });
+      }
+
       // Wuchshöhe
       const h = spec.average_height && spec.average_height.cm;
       if (h != null) {
@@ -858,9 +1160,23 @@
         rows.push({ icon: "📏", label: "Wuchshöhe", value: "Wird etwa " + txt + " hoch." });
       }
 
+      // Lebensdauer
+      const dur = ms.duration;
+      const durKey = Array.isArray(dur) ? (dur[0] || "") : (dur || "");
+      const durDe = DURATION_DE[String(durKey).toLowerCase()];
+      if (durDe) {
+        rows.push({ icon: "📅", label: "Lebensdauer", value: durDe.charAt(0).toUpperCase() + durDe.slice(1) + "." });
+      }
+
       // Blütezeit
       if (Array.isArray(g.bloom_months) && g.bloom_months.length) {
         rows.push({ icon: "🌸", label: "Blütezeit", value: monthsToGerman(g.bloom_months) });
+      }
+
+      // Essbar
+      if (ms.edible) {
+        const parts = (ms.edible_part || []).map((p) => EDIBLE_PART_DE[String(p).toLowerCase()] || p);
+        rows.push({ icon: "🍽️", label: "Essbar", value: parts.length ? ("Essbare Teile: " + parts.join(", ") + ".") : "Teile dieser Pflanze sind essbar." });
       }
 
       return rows;
@@ -884,52 +1200,158 @@
         '<span>Pflegehinweise werden geladen …</span></div></div>';
     }
 
-    function renderCareRows(rows) {
+    function renderCareRows(rows, levelNote, source) {
       let inner = '<div class="care-title">🪴 Pflege</div>';
+      if (levelNote) {
+        inner += '<p class="care-level">' + escapeHtml(levelNote) + '</p>';
+      }
       if (rows.length === 0) {
-        inner += '<p class="care-value">Für diese Pflanze liegen leider keine genauen Pflegedaten vor.</p>';
+        inner += '<p class="care-value">Für diese Pflanze liegen leider keine Pflegedaten vor.</p>';
       } else {
         rows.forEach((r) => {
-          inner += '<div class="care-row"><div class="care-icon">' + r.icon + '</div>' +
+          inner += '<div class="care-row' + (r.warn ? ' care-warn' : '') + '"><div class="care-icon">' + r.icon + '</div>' +
                    '<div><div class="care-label">' + escapeHtml(r.label) + '</div>' +
                    '<div class="care-value">' + escapeHtml(r.value) + '</div></div></div>';
         });
       }
-      inner += '<p class="care-note">Pflegehinweise von Trefle. Allgemeine Richtwerte – im Zweifel auf Ihre Pflanze achten.</p>';
+      const credit = source === "trefle" ? "Pflegehinweise von Trefle. " : "";
+      inner += '<p class="care-note">' + credit + 'Allgemeine Richtwerte – im Zweifel auf Ihre Pflanze achten.</p>';
       careSection.innerHTML = '<div class="care-card">' + inner + '</div>';
     }
 
-    function renderCareError(sciName) {
+    function renderCareError(sciName, family) {
       careSection.innerHTML =
         '<div class="care-card">' +
         '<div class="care-title">🪴 Pflege</div>' +
         '<p class="care-value">Die Pflegehinweise konnten gerade nicht geladen werden.</p>' +
         '<button class="care-retry" id="careRetryBtn">Erneut versuchen</button></div>';
       const btn = document.getElementById("careRetryBtn");
-      if (btn) btn.addEventListener("click", () => loadCare(sciName));
+      if (btn) btn.addEventListener("click", () => loadCare(sciName, family));
     }
 
-    // Pflegehinweise zur Pflanze laden, anzeigen und (für den Verlauf) zurückgeben
-    async function loadCare(sciName) {
+    // Für eine Suchanfrage Pflegedaten holen: sucht und prüft die ersten Treffer,
+    // bis einer brauchbare Wachstumsdaten liefert. Gibt [] zurück, wenn nichts da.
+    async function careRowsForQuery(query) {
+      const search = await proxyGetJson(TREFLE_URL + "/search?token=" + TREFLE_TOKEN +
+                                        "&q=" + encodeURIComponent(query));
+      const hits = (search && search.data) || [];
+      for (let i = 0; i < Math.min(hits.length, 2); i++) {
+        const detail = await proxyGetJson(TREFLE_URL + "/" + hits[i].slug + "?token=" + TREFLE_TOKEN);
+        const rows = buildCareRows((detail && detail.data) || {});
+        if (rows.length) return rows;
+      }
+      return [];
+    }
+
+    // Pflegehinweise laden. Reihenfolge:
+    //   1) eingebaute Datenbank (sofort, zuverlässig – v. a. für Zimmerpflanzen)
+    //   2) Trefle für die genaue Art
+    //   3) Trefle-Rückfall auf Gattung, dann Familie
+    // "Besser ungefähre Hinweise als gar keine."
+    async function loadCare(sciName, family) {
+      // 1) Eingebaute Datenbank zuerst
+      const local = localCareLookup(sciName);
+      if (local) {
+        renderCareRows(local.rows, "Allgemeine Pflege für " + local.name + ".", "local");
+        lastCareRows = local.rows;
+        patchLatestHistoryCare(sciName, local.rows);
+        return local.rows;
+      }
+
       renderCareLoading();
       try {
-        // 1) Pflanze in Trefle suchen
-        const search = await proxyGetJson(TREFLE_URL + "/search?token=" + TREFLE_TOKEN +
-                                          "&q=" + encodeURIComponent(sciName));
-        const hit = search && search.data && search.data[0];
-        if (!hit) { renderCareRows([]); return []; }
+        // 2) Genaue Art über Trefle
+        let rows = await careRowsForQuery(sciName);
+        let note = "";
 
-        // 2) Detail mit Wachstumsdaten holen
-        const detail = await proxyGetJson(TREFLE_URL + "/" + hit.slug + "?token=" + TREFLE_TOKEN);
-        const rows = buildCareRows((detail && detail.data) || {});
-        renderCareRows(rows);
+        // 3a) Rückfall: Gattung (erstes Wort des Namens)
+        const genus = (sciName || "").trim().split(/\s+/)[0];
+        if (rows.length === 0 && genus && genus.toLowerCase() !== (sciName || "").toLowerCase()) {
+          rows = await careRowsForQuery(genus);
+          if (rows.length) note = "Allgemeine Hinweise für die Gattung " + genus + " (für die genaue Art lagen keine Daten vor).";
+        }
 
-        // im Verlauf nachtragen, falls dieser Eintrag der neueste ist
+        // 3b) Rückfall: Pflanzenfamilie
+        if (rows.length === 0 && family) {
+          rows = await careRowsForQuery(family);
+          if (rows.length) note = "Allgemeine Hinweise für die Familie " + family + " (für die genaue Art lagen keine Daten vor).";
+        }
+
+        renderCareRows(rows, note, "trefle");
+        lastCareRows = rows;
         patchLatestHistoryCare(sciName, rows);
         return rows;
       } catch (e) {
-        renderCareError(sciName);
+        renderCareError(sciName, family);
         return [];
+      }
+    }
+
+    // =====================================================================
+    // VORLESEN & TEILEN
+    // =====================================================================
+
+    // Text aus Ergebnis + Pflege zusammensetzen
+    function buildPlantText() {
+      if (!lastResult) return "";
+      let t = "Diese Pflanze ist vermutlich ";
+      t += lastResult.commonName ? (lastResult.commonName + ", wissenschaftlich " + lastResult.sciName) : lastResult.sciName;
+      t += ". ";
+      if (lastResult.family) t += "Familie: " + lastResult.family + ". ";
+      if (lastCareRows && lastCareRows.length) {
+        t += "Pflege. ";
+        lastCareRows.forEach((r) => { t += r.label + ": " + r.value + " "; });
+      }
+      return t.trim();
+    }
+
+    // Vorlesen per Sprachausgabe (Web Speech API), Knopf wirkt als An/Aus
+    function toggleSpeak() {
+      const btn = document.getElementById("speakBtn");
+      if (!("speechSynthesis" in window)) {
+        alert("Das Vorlesen wird von diesem Gerät leider nicht unterstützt.");
+        return;
+      }
+      // Läuft gerade etwas? -> stoppen
+      if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
+        window.speechSynthesis.cancel();
+        if (btn) btn.innerHTML = '<span class="icon">🔊</span>Vorlesen';
+        return;
+      }
+      const text = buildPlantText();
+      if (!text) return;
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "de-DE";
+      u.rate = 0.95;
+      const deVoice = window.speechSynthesis.getVoices().find((v) => /de(-|_)/i.test(v.lang));
+      if (deVoice) u.voice = deVoice;
+      u.onend = () => { if (btn) btn.innerHTML = '<span class="icon">🔊</span>Vorlesen'; };
+      if (btn) btn.innerHTML = '<span class="icon">⏹️</span>Stopp';
+      window.speechSynthesis.speak(u);
+    }
+
+    // Stimmen laden ggf. asynchron – nur anstoßen
+    if ("speechSynthesis" in window) { window.speechSynthesis.getVoices(); }
+
+    // Ergebnis teilen (WhatsApp & Co.) oder in die Zwischenablage kopieren
+    async function shareResult() {
+      const text = buildPlantText();
+      if (!text) return;
+      const shareData = { title: "Pflanzenerkenner", text: text };
+      try {
+        if (navigator.share) {
+          await navigator.share(shareData);
+          return;
+        }
+      } catch (e) {
+        if (e && e.name === "AbortError") return; // Nutzer hat abgebrochen
+      }
+      // Rückfall: in die Zwischenablage kopieren
+      try {
+        await navigator.clipboard.writeText(text);
+        alert("Der Text wurde in die Zwischenablage kopiert. Sie können ihn nun einfügen.");
+      } catch (e) {
+        alert(text);
       }
     }
 
@@ -1050,8 +1472,25 @@
           '<img class="history-thumb" src="' + (entry.image || "") + '" alt="Foto der Pflanze">' +
           '<div class="history-info">' + info + '</div>';
 
+        // Einzelnen Eintrag löschen
+        const del = document.createElement("button");
+        del.className = "history-del";
+        del.setAttribute("aria-label", "Diesen Eintrag löschen");
+        del.title = "Diesen Eintrag löschen";
+        del.textContent = "✕";
+        del.addEventListener("click", () => {
+          if (confirm("Diesen Eintrag aus dem Verlauf löschen?")) deleteHistoryEntry(entry.date);
+        });
+        card.appendChild(del);
+
         historyList.appendChild(card);
       });
+    }
+
+    function deleteHistoryEntry(date) {
+      const list = loadHistory().filter((e) => e.date !== date);
+      saveHistory(list);
+      renderHistory();
     }
 
     function showHistory() {
@@ -1083,18 +1522,27 @@
     function showError(message) {
       loadingSection.classList.add("hidden");
       inputSection.classList.remove("hidden");
-      errorSection.textContent = "😕 " + message;
+      errorSection.innerHTML = '<div class="error-text">😕 ' + escapeHtml(message) + '</div>';
+      // Wenn noch ein Bild ausgewählt ist: direkt nochmal versuchen anbieten
+      if (selectedFile) {
+        const retry = document.createElement("button");
+        retry.className = "error-retry";
+        retry.innerHTML = '<span class="icon">🔁</span>Nochmal versuchen';
+        retry.addEventListener("click", identifyPlant);
+        errorSection.appendChild(retry);
+      }
       errorSection.classList.remove("hidden");
       errorSection.scrollIntoView({ behavior: "smooth", block: "center" });
     }
 
     function hideError() {
       errorSection.classList.add("hidden");
-      errorSection.textContent = "";
+      errorSection.innerHTML = "";
     }
 
     // --- Zurücksetzen ---
     resetBtn.addEventListener("click", () => {
+      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
       selectedFile = null;
       cameraInput.value = "";
       uploadInput.value = "";
@@ -1102,10 +1550,36 @@
       previewWrap.classList.add("hidden");
       submitBtn.classList.add("hidden");
       resultsSection.classList.add("hidden");
+      careSection.innerHTML = "";
       hideError();
       inputSection.classList.remove("hidden");
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
+
+    // =====================================================================
+    // SCHRIFTGRÖSSE (für bessere Lesbarkeit, Auswahl wird gespeichert)
+    // =====================================================================
+    const FONT_KEY = "pflanzenerkenner_schrift";
+    const FONT_STEPS = [18, 20, 23, 26, 30];   // px – Basis ist 20
+    let fontIndex = 1;
+
+    function applyFontSize() {
+      document.body.style.fontSize = FONT_STEPS[fontIndex] + "px";
+      document.getElementById("fontMinusBtn").disabled = (fontIndex === 0);
+      document.getElementById("fontPlusBtn").disabled = (fontIndex === FONT_STEPS.length - 1);
+    }
+    function setFontIndex(i) {
+      fontIndex = Math.max(0, Math.min(FONT_STEPS.length - 1, i));
+      try { localStorage.setItem(FONT_KEY, String(fontIndex)); } catch (e) {}
+      applyFontSize();
+    }
+    (function initFont() {
+      const saved = parseInt(localStorage.getItem(FONT_KEY), 10);
+      if (!isNaN(saved)) fontIndex = Math.max(0, Math.min(FONT_STEPS.length - 1, saved));
+      applyFontSize();
+    })();
+    document.getElementById("fontMinusBtn").addEventListener("click", () => setFontIndex(fontIndex - 1));
+    document.getElementById("fontPlusBtn").addEventListener("click", () => setFontIndex(fontIndex + 1));
 
     // --- Hilfsfunktion: HTML escapen ---
     function escapeHtml(str) {
