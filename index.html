@@ -3,7 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pflanzen erkennen</title>
+  <title>Pflanzenerkenner</title>
+  <meta name="description" content="Blumen und Pflanzen ganz einfach per Foto bestimmen.">
+
+  <!-- App-Manifest & Icons (für „Zum Startbildschirm hinzufügen") -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#2e7d32">
+  <link rel="icon" type="image/svg+xml" href="logo.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Pflanzenerkenner">
   <style>
     :root {
       --green: #2e7d32;
@@ -50,9 +61,11 @@
       margin: 0;
     }
 
-    .leaf {
-      font-size: 3em;
-      line-height: 1;
+    .logo {
+      width: 96px;
+      height: 96px;
+      border-radius: 22px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.18);
     }
 
     /* Buttons */
@@ -245,8 +258,8 @@
 <body>
   <div class="container">
     <header>
-      <div class="leaf">🌼</div>
-      <h1>Pflanzen erkennen</h1>
+      <img src="logo.svg" alt="Pflanzenerkenner Logo" class="logo">
+      <h1>Pflanzenerkenner</h1>
       <p>Fotografieren Sie eine Blume oder Pflanze, und wir sagen Ihnen, wie sie heißt.</p>
     </header>
 
@@ -350,6 +363,53 @@
       reader.readAsDataURL(file);
     }
 
+    // --- Bild für die API vorbereiten ---
+    // Pl@ntNet akzeptiert nur JPEG/PNG. Wir zeichnen das Bild auf ein Canvas
+    // und exportieren es als JPEG. Das wandelt z. B. WebP/HEIC um und
+    // verkleinert sehr große Fotos (schnellerer Upload).
+    function prepareImage(file, maxSize = 1600, quality = 0.9) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        const objectUrl = URL.createObjectURL(file);
+
+        img.onload = () => {
+          URL.revokeObjectURL(objectUrl);
+
+          let { width, height } = img;
+          if (width > maxSize || height > maxSize) {
+            const scale = maxSize / Math.max(width, height);
+            width = Math.round(width * scale);
+            height = Math.round(height * scale);
+          }
+
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, width, height);
+
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                resolve(blob);
+              } else {
+                reject(new Error("Das Bild konnte nicht verarbeitet werden."));
+              }
+            },
+            "image/jpeg",
+            quality
+          );
+        };
+
+        img.onerror = () => {
+          URL.revokeObjectURL(objectUrl);
+          reject(new Error("Dieses Bild konnte nicht gelesen werden. Bitte verwenden Sie ein Foto im Format JPG oder PNG."));
+        };
+
+        img.src = objectUrl;
+      });
+    }
+
     // --- Bild an die API senden ---
     submitBtn.addEventListener("click", identifyPlant);
 
@@ -362,8 +422,16 @@
       loadingSection.classList.remove("hidden");
       loadingSection.scrollIntoView({ behavior: "smooth", block: "center" });
 
+      let imageBlob;
+      try {
+        imageBlob = await prepareImage(selectedFile);
+      } catch (prepErr) {
+        showError(prepErr.message);
+        return;
+      }
+
       const formData = new FormData();
-      formData.append("images", selectedFile);
+      formData.append("images", imageBlob, "pflanze.jpg");
       formData.append("organs", "auto");
 
       // Deutsche Namen mit anfordern
@@ -383,6 +451,8 @@
             msg = "Der Zugang zum Bestimmungsdienst ist nicht gültig. Bitte prüfen Sie den API-Schlüssel.";
           } else if (response.status === 429) {
             msg = "Das Tageslimit für Bestimmungen ist erreicht. Bitte versuchen Sie es später noch einmal.";
+          } else if (response.status === 400) {
+            msg = "Dieses Bild konnte nicht ausgewertet werden. Bitte verwenden Sie ein klares Foto einer Pflanze (Format JPG oder PNG).";
           } else {
             msg = "Der Bestimmungsdienst ist gerade nicht erreichbar (Fehler " + response.status + "). Bitte versuchen Sie es später erneut.";
           }
