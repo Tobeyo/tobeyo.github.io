@@ -44,29 +44,35 @@
       padding: 20px 16px 60px;
     }
 
-    /* Obere Leiste mit Verlauf-Knopf */
+    /* Obere Leiste mit Navigations-Knöpfen */
     .topbar {
       display: flex;
-      justify-content: flex-end;
-      margin-bottom: 4px;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
     }
 
-    .history-btn {
+    .history-btn, .wm-btn {
+      display: inline-flex;
+      align-items: center;
       background: #fff;
       color: var(--green-dark);
       border: 3px solid var(--green);
       border-radius: 14px;
-      padding: 12px 18px;
-      font-size: 1.05em;
+      padding: 9px 11px;
+      font-size: 0.9em;
       font-weight: 700;
+      text-decoration: none;
       cursor: pointer;
       box-shadow: 0 2px 4px rgba(0,0,0,0.12);
       -webkit-tap-highlight-color: transparent;
       white-space: nowrap;
     }
-    .history-btn:hover { background: var(--green-light); }
-    .history-btn:active { transform: scale(0.98); }
-    .history-btn .icon { margin-right: 6px; }
+    .history-btn:hover, .wm-btn:hover { background: var(--green-light); }
+    .history-btn:active, .wm-btn:active { transform: scale(0.98); }
+    .history-btn .icon, .wm-btn .icon { margin-right: 5px; }
 
     header {
       text-align: center;
@@ -556,6 +562,9 @@
 <body>
   <div class="container">
     <div class="topbar">
+      <a class="wm-btn" href="./wm-wetten.html">
+        <span class="icon">⚽</span>WM Wetten
+      </a>
       <button class="history-btn" id="historyBtn">
         <span class="icon">🕘</span>Meine Pflanzen
       </button>

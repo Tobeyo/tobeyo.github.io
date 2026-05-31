@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WM 2026 – Familien-Tippspiel</title>
+  <meta name="theme-color" content="#080b11">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚽</text></svg>">
+  <style>
+    :root{
+      --bg:#080b11; --text:#e9eef6; --muted:#8b94a8;
+      --surface:rgba(255,255,255,0.045); --surface2:rgba(255,255,255,0.07);
+      --border:rgba(255,255,255,0.08); --border2:rgba(255,255,255,0.16);
+      --accent:#27e08a; --accent2:#13c4d8; --accent-glow:rgba(39,224,138,0.40);
+      --gold:#ffd24d; --danger:#ff6470;
+    }
+    *{ box-sizing:border-box; }
+    html{ -webkit-text-size-adjust:100%; }
+    body{
+      margin:0; color:var(--text); font-size:16px; line-height:1.5; min-height:100vh;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      background:
+        radial-gradient(1100px 520px at 50% -240px, #14233f 0%, transparent 62%),
+        radial-gradient(700px 460px at 110% -60px, rgba(19,196,216,0.10), transparent 60%),
+        radial-gradient(700px 460px at -10% 8%, rgba(39,224,138,0.10), transparent 60%),
+        var(--bg);
+      background-attachment:fixed;
+    }
+    .wrap{ max-width:560px; margin:0 auto; padding:12px 14px 96px; }
+    .hidden{ display:none !important; }
+
+    /* Topnav */
+    .topnav{ display:flex; justify-content:space-between; align-items:center; gap:8px; padding:6px 0 10px; }
+    .nav-link{
+      display:inline-flex; align-items:center; gap:7px; text-decoration:none;
+      color:var(--text); background:var(--surface); border:1px solid var(--border);
+      padding:9px 14px; border-radius:999px; font-size:0.9em; font-weight:700;
+      backdrop-filter:blur(8px); -webkit-tap-highlight-color:transparent; transition:border-color .2s, background .2s;
+    }
+    .nav-link:hover{ border-color:var(--border2); background:var(--surface2); }
+    .dot{ display:inline-flex; align-items:center; gap:7px; font-size:0.78em; color:var(--muted); font-weight:600; }
+    .dot::before{ content:""; width:8px; height:8px; border-radius:50%; background:#5a6173; box-shadow:0 0 0 0 rgba(0,0,0,0); }
+    .dot.live::before{ background:var(--accent); box-shadow:0 0 10px var(--accent-glow); animation:pulse 2s infinite; }
+    .dot.local::before{ background:var(--gold); box-shadow:0 0 10px rgba(255,210,77,.5); }
+    @keyframes pulse{ 0%,100%{opacity:1} 50%{opacity:.45} }
+
+    /* Hero */
+    .hero{
+      position:relative; overflow:hidden; margin:4px 0 14px; padding:24px 22px;
+      border-radius:24px; border:1px solid var(--border);
+      background:linear-gradient(135deg,#101d33,#0a1120);
+    }
+    .hero::before{ content:""; position:absolute; inset:0;
+      background:radial-gradient(520px 180px at 18% -20%, var(--accent-glow), transparent 60%); opacity:.6; }
+    .hero::after{ content:""; position:absolute; right:-40px; top:-40px; width:160px; height:160px; border-radius:50%;
+      background:radial-gradient(circle, rgba(19,196,216,.25), transparent 65%); }
+    .hero .ball{ position:relative; font-size:2em; display:inline-block; animation:float 3.2s ease-in-out infinite; }
+    @keyframes float{ 0%,100%{transform:translateY(0) rotate(0)} 50%{transform:translateY(-7px) rotate(8deg)} }
+    .hero h1{ position:relative; margin:4px 0 0; font-size:1.85em; font-weight:800; letter-spacing:-0.02em;
+      background:linear-gradient(120deg,#ffffff,#a8f0cf); -webkit-background-clip:text; background-clip:text; color:transparent; }
+    .hero p{ position:relative; margin:6px 0 0; color:var(--muted); font-size:0.95em; }
+
+    /* Login */
+    .login-card{
+      background:var(--surface); border:1px solid var(--border); border-radius:24px;
+      padding:30px 22px; text-align:center; backdrop-filter:blur(10px);
+    }
+    .login-card h2{ margin:0 0 6px; font-size:1.5em; font-weight:800; letter-spacing:-0.01em; }
+    .login-card p{ color:var(--muted); margin:0 0 18px; }
+    input[type=text]{
+      width:100%; padding:15px 16px; font-size:1.05em; color:var(--text);
+      background:rgba(255,255,255,0.05); border:1px solid var(--border2); border-radius:14px;
+      margin-bottom:14px; transition:border-color .2s, box-shadow .2s;
+    }
+    input[type=text]::placeholder{ color:#5e6678; }
+    input[type=text]:focus{ outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-glow); }
+
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%;
+      padding:16px; font-size:1.05em; font-weight:800; border:none; border-radius:16px; cursor:pointer;
+      color:#04160d; background:linear-gradient(135deg,var(--accent),var(--accent2));
+      box-shadow:0 10px 26px var(--accent-glow); transition:transform .12s, box-shadow .2s; -webkit-tap-highlight-color:transparent;
+    }
+    .btn:hover{ box-shadow:0 12px 32px var(--accent-glow); }
+    .btn:active{ transform:translateY(1px) scale(.99); }
+
+    /* Userbar */
+    .userbar{
+      display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;
+      background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:11px 15px; margin-bottom:12px;
+      backdrop-filter:blur(8px);
+    }
+    .userbar .who{ font-weight:700; }
+    .userbar .who .name{
+      background:linear-gradient(120deg,var(--accent),var(--accent2)); -webkit-background-clip:text; background-clip:text; color:transparent;
+    }
+    .userbar .right{ display:flex; align-items:center; gap:12px; }
+    .linkish{ background:none; border:none; color:var(--muted); font-weight:700; cursor:pointer; font-size:0.9em; text-decoration:underline; }
+    .linkish:hover{ color:var(--text); }
+
+    .notice{
+      background:rgba(255,210,77,0.08); border:1px solid rgba(255,210,77,0.25); color:#ffe39b;
+      border-radius:14px; padding:12px 14px; margin-bottom:12px; font-size:0.9em;
+    }
+    .notice.err{ background:rgba(255,100,112,0.08); border-color:rgba(255,100,112,0.3); color:#ffb3ba; }
+
+    /* Tabs (sticky segmented control) */
+    .tabs{
+      position:sticky; top:8px; z-index:20; display:flex; gap:6px; padding:6px; margin-bottom:14px;
+      background:rgba(12,18,30,0.72); border:1px solid var(--border); border-radius:16px; backdrop-filter:blur(14px);
+    }
+    .tab{
+      flex:1; padding:11px; border:none; border-radius:11px; background:transparent;
+      color:var(--muted); font-weight:700; font-size:0.95em; cursor:pointer; transition:color .2s, background .25s, box-shadow .25s;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .tab.active{ color:#04160d; background:linear-gradient(135deg,var(--accent),var(--accent2)); box-shadow:0 6px 16px var(--accent-glow); }
+
+    .filterbar{ margin-bottom:10px; }
+    select{
+      width:100%; padding:12px 14px; font-size:0.95em; color:var(--text);
+      background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%238b94a8' d='M6 8 0 0h12z'/%3E%3C/svg%3E") no-repeat right 14px center;
+      border:1px solid var(--border); border-radius:14px; -webkit-appearance:none; appearance:none;
+    }
+    select:focus{ outline:none; border-color:var(--accent); }
+
+    .refresh{ margin:0 0 14px; }
+    .refresh button{
+      width:100%; padding:12px; border:1px solid var(--border); border-radius:14px;
+      background:var(--surface); color:var(--text); font-weight:700; cursor:pointer; font-size:0.9em; transition:border-color .2s, background .2s;
+    }
+    .refresh button:hover{ border-color:var(--border2); background:var(--surface2); }
+
+    /* Match card */
+    .match{
+      position:relative; background:var(--surface); border:1px solid var(--border); border-radius:20px;
+      padding:16px; margin-bottom:12px; backdrop-filter:blur(6px);
+      transition:border-color .25s, box-shadow .25s, transform .25s;
+    }
+    .match.win-card{ border-color:rgba(255,210,77,.45); box-shadow:0 0 0 1px rgba(255,210,77,.2), 0 14px 40px rgba(255,210,77,.08); }
+    .match-top{ display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px; }
+    .chip{
+      background:rgba(39,224,138,0.12); color:var(--accent); border:1px solid rgba(39,224,138,0.22);
+      font-weight:700; font-size:0.68em; letter-spacing:0.04em; text-transform:uppercase; padding:4px 10px; border-radius:999px;
+    }
+    .match-date{ font-size:0.78em; color:var(--muted); text-align:right; }
+
+    .teams{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin:6px 0 12px; }
+    .team{ flex:1; text-align:center; min-width:0; }
+    .team .flag{ font-size:1.8em; line-height:1; }
+    .team .flag img{ width:42px; height:30px; object-fit:contain; border-radius:5px; filter:drop-shadow(0 3px 8px rgba(0,0,0,.5)); }
+    .team .tname{ font-weight:700; margin-top:4px; font-size:0.92em; }
+    .vs{ font-weight:800; color:var(--muted); font-size:0.78em; letter-spacing:0.12em; }
+    .score{ font-size:1.7em; font-weight:800; min-width:64px; text-align:center; letter-spacing:0.02em; }
+    .score .sep{ color:var(--muted); margin:0 2px; }
+
+    .bet-row{ display:flex; gap:7px; margin-top:6px; }
+    .bet-btn{
+      flex:1 1 0; min-width:0; padding:13px 6px; border:1px solid var(--border2); border-radius:14px;
+      background:rgba(255,255,255,0.04); color:var(--text); font-weight:700; font-size:0.82em; cursor:pointer;
+      line-height:1.2; overflow-wrap:anywhere; -webkit-tap-highlight-color:transparent;
+      transition:transform .12s, background .2s, border-color .2s, box-shadow .2s, color .2s;
+    }
+    .bet-btn:hover:not(:disabled){ border-color:var(--accent); }
+    .bet-btn:active:not(:disabled){ transform:scale(.97); }
+    .bet-btn.picked{ background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#04160d; border-color:transparent; box-shadow:0 6px 18px var(--accent-glow); }
+    .bet-btn:disabled{ opacity:.5; cursor:default; }
+    .bet-btn.win{ box-shadow:0 0 0 2px var(--gold), 0 6px 20px rgba(255,210,77,.3); }
+    .bet-btn.pop{ animation:pop .38s cubic-bezier(.34,1.56,.64,1); }
+    @keyframes pop{ 0%{transform:scale(1)} 45%{transform:scale(1.1)} 100%{transform:scale(1)} }
+
+    .result-line{ text-align:center; font-weight:700; margin-top:10px; color:var(--gold); font-size:0.95em; }
+    .locked-hint{ text-align:center; font-size:0.8em; color:var(--muted); margin-top:8px; }
+
+    .others{ margin-top:12px; border-top:1px solid var(--border); padding-top:10px; }
+    .others h4{ margin:0 0 8px; font-size:0.72em; color:var(--muted); font-weight:700; letter-spacing:0.05em; text-transform:uppercase; }
+    .pickline{ display:flex; justify-content:space-between; gap:10px; font-size:0.9em; padding:3px 0; }
+    .pickline .pn{ font-weight:700; }
+    .pickline .pv{ color:var(--muted); }
+    .pickline.correct .pv{ color:var(--accent); font-weight:700; }
+    .pickline.incorrect .pv{ color:var(--danger); }
+    .empty-hint{ color:var(--muted); font-size:0.92em; text-align:center; padding:26px 16px; }
+
+    /* Leaderboard */
+    .lb-card{ background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:6px 16px; backdrop-filter:blur(6px); }
+    .lb-row{ display:flex; align-items:center; gap:13px; padding:14px 4px; border-bottom:1px solid var(--border); }
+    .lb-row:last-child{ border-bottom:none; }
+    .lb-row.top1{ }
+    .lb-rank{ font-size:1.3em; width:40px; text-align:center; font-weight:800; }
+    .lb-name{ flex:1; font-weight:700; min-width:0; }
+    .lb-name.me{ background:linear-gradient(120deg,var(--accent),var(--accent2)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+    .lb-sub{ font-size:0.76em; color:var(--muted); font-weight:500; }
+    .lb-pts{ font-weight:800; font-size:1.2em; color:var(--accent); }
+    .lb-pts .lb-sub{ color:var(--muted); }
+    .lb-row.top1 .lb-pts{ color:var(--gold); }
+
+    /* Footer */
+    footer{ text-align:center; margin-top:30px; color:var(--muted); font-size:0.8em; }
+    footer a{ color:var(--accent); text-decoration:none; }
+
+    /* Toast */
+    .toast-wrap{ position:fixed; left:0; right:0; bottom:24px; display:flex; flex-direction:column; align-items:center; gap:8px; pointer-events:none; z-index:100; }
+    .toast{
+      pointer-events:none; background:rgba(18,26,40,0.96); color:var(--text); border:1px solid var(--border2);
+      border-radius:14px; padding:12px 18px; font-weight:700; font-size:0.92em; box-shadow:0 12px 34px rgba(0,0,0,.45);
+      backdrop-filter:blur(12px); animation:toastIn .26s ease, toastOut .35s ease 1.5s forwards;
+    }
+    .toast .tick{ color:var(--accent); }
+    @keyframes toastIn{ from{opacity:0; transform:translateY(14px) scale(.96)} to{opacity:1; transform:none} }
+    @keyframes toastOut{ to{opacity:0; transform:translateY(8px)} }
+
+    /* Confetti */
+    .confetti-piece{ position:fixed; top:0; left:0; width:9px; height:9px; border-radius:2px; z-index:90; pointer-events:none; will-change:transform,opacity; }
+
+    /* Karten-Eingang */
+    .animate-in .match{ animation:cardIn .5s both; animation-delay:calc(min(var(--i,0),12) * 35ms); }
+    @keyframes cardIn{ from{opacity:0; transform:translateY(16px)} to{opacity:1; transform:none} }
+
+    @media (prefers-reduced-motion: reduce){
+      *{ animation:none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topnav">
+      <a class="nav-link" href="./index.html"><span>🌸</span>Blumen erkennen</a>
+      <span class="dot" id="connDot">verbinde…</span>
+    </div>
+
+    <div class="hero">
+      <div class="ball">⚽</div>
+      <h1>WM 2026 Tippspiel</h1>
+      <p>Das Familien-Tippspiel zur Fußball-Weltmeisterschaft</p>
+    </div>
+
+    <!-- Login -->
+    <section id="loginView" class="login-card">
+      <h2>Willkommen! 👋</h2>
+      <p>Gib deinen Namen ein, damit die Familie deine Tipps sieht.</p>
+      <input type="text" id="nameInput" placeholder="Dein Name (z. B. Oma Trude)" maxlength="24" autocomplete="off">
+      <button class="btn" id="loginBtn"><span>⚽</span>Los geht's</button>
+    </section>
+
+    <!-- App -->
+    <section id="appView" class="hidden">
+      <div class="userbar">
+        <div class="who">Hallo, <span class="name" id="userName">—</span>!</div>
+        <div class="right">
+          <span class="dot" id="modeDot"></span>
+          <button class="linkish" id="changeNameBtn">Name ändern</button>
+        </div>
+      </div>
+
+      <div id="noticeArea"></div>
+
+      <div class="tabs">
+        <button class="tab active" id="tabMatches">⚽ Spiele</button>
+        <button class="tab" id="tabBoard">🏆 Rangliste</button>
+      </div>
+
+      <!-- Spiele -->
+      <div id="matchesView">
+        <div class="filterbar">
+          <select id="stageFilter"><option value="ALL">Alle Spiele</option></select>
+        </div>
+        <div class="refresh"><button id="refreshBtn">🔄 Ergebnisse aktualisieren</button></div>
+        <div id="matchList"></div>
+      </div>
+
+      <!-- Rangliste -->
+      <div id="boardView" class="hidden">
+        <div class="lb-card" id="leaderboard"></div>
+      </div>
+    </section>
+
+    <footer>
+      <p>⚽ Familien-Tippspiel · Daten von <a href="https://www.football-data.org" target="_blank" rel="noopener">football-data.org</a></p>
+      <p>Made by Tobi 🌱</p>
+    </footer>
+  </div>
+
+  <div class="toast-wrap" id="toastWrap"></div>
+
+  <!-- Firebase (v9 compat über CDN) – Realtime Database (kostenlos, ohne Billing) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <script>
+  /* =====================================================================
+     ============   K O N F I G U R A T I O N   (hier anpassen)   =========
+     =====================================================================
+
+     1) FIREBASE: Aus der Firebase-Konsole (Projekt-Einstellungen → Web-App)
+        die Werte unten ersetzen. Anleitung steht unter dem Code.            */
+  const firebaseConfig = {
+    // Für die Realtime Database genügt die databaseURL (bei offenen Regeln).
+    // apiKey/appId etc. brauchst du nur, falls du später echte Anmeldung o. Ä. nutzt.
+    databaseURL: "https://wm-tippspiel-d4f4f-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "wm-tippspiel-d4f4f"
+  };
+
+  /* 2) FOOTBALL-DATA.ORG: Kostenlosen Schlüssel auf football-data.org holen.
+        Achtung: football-data.org erlaubt KEINE direkten Browser-Aufrufe.
+        Der Schlüssel kommt deshalb in deinen Cloudflare Worker (siehe Anleitung),
+        und hier trägst du nur die Worker-Adresse ein.                        */
+  const FOOTBALL_DATA_API_KEY = "144af3ab5dc64631ace37039d56b79ea"; // wird im Worker verwendet
+  const FOOTBALL_WORKER_URL   = "https://wm-tippspiel.tobey067.workers.dev"; // URL deines Workers
+  const COMPETITION_CODE      = "WC"; // WC = Weltmeisterschaft
+
+  /* ===================================================================== */
+  /* =======================  AB HIER: APP-LOGIK  ======================== */
+  /* ===================================================================== */
+
+  // ---------- Firebase initialisieren (mit Fallback auf lokalen Modus) ----------
+  let db = null, firebaseReady = false;
+  try {
+    if (typeof firebase !== "undefined" &&
+        firebaseConfig.databaseURL && firebaseConfig.databaseURL.indexOf("DEIN_PROJEKT") === -1) {
+      firebase.initializeApp(firebaseConfig);
+      db = firebase.database();
+      firebaseReady = true;
+    }
+  } catch (e) {
+    console.warn("Firebase konnte nicht gestartet werden:", e);
+  }
+
+  // ---------- Status-Anzeige ----------
+  const connDot = document.getElementById("connDot");
+  const modeDot = document.getElementById("modeDot");
+  function setMode() {
+    if (firebaseReady) {
+      connDot.className = "dot live"; connDot.textContent = "Live geteilt";
+      modeDot.className = "dot live"; modeDot.textContent = "Live";
+    } else {
+      connDot.className = "dot local"; connDot.textContent = "Lokaler Modus";
+      modeDot.className = "dot local"; modeDot.textContent = "Nur auf diesem Gerät";
+    }
+  }
+  setMode();
+
+  // =====================================================================
+  // SPEICHER-SCHICHT: Firestore wenn konfiguriert, sonst localStorage
+  // (damit die App auch ohne Firebase sofort testbar ist)
+  // =====================================================================
+  const LOCAL_BETS_KEY = "wm2026_bets";
+  const Store = {
+    onBets(cb) {
+      if (firebaseReady) {
+        db.ref("bets").on("value",
+          (snap) => { const val = snap.val() || {}; cb(Object.keys(val).map((k) => val[k])); },
+          (err) => { console.warn("Realtime-DB-Fehler:", err); showNotice("Verbindung zu Firebase gestört: " + err.message, true); }
+        );
+      } else {
+        const emit = () => cb(loadLocalBets());
+        emit();
+        window.addEventListener("storage", (e) => { if (e.key === LOCAL_BETS_KEY) emit(); });
+        window.addEventListener("wm-bets-changed", emit);
+      }
+    },
+    saveBet(matchId, user, userKey, pick) {
+      if (firebaseReady) {
+        return db.ref("bets/" + matchId + "__" + userKey).set({
+          matchId, user, userKey, pick, ts: Date.now()
+        });
+      } else {
+        const list = loadLocalBets().filter((b) => !(b.matchId === matchId && b.userKey === userKey));
+        list.push({ matchId, user, userKey, pick, ts: Date.now() });
+        localStorage.setItem(LOCAL_BETS_KEY, JSON.stringify(list));
+        window.dispatchEvent(new Event("wm-bets-changed"));
+        return Promise.resolve();
+      }
+    }
+  };
+  function loadLocalBets() {
+    try { return JSON.parse(localStorage.getItem(LOCAL_BETS_KEY)) || []; } catch (e) { return []; }
+  }
+
+  // =====================================================================
+  // SPIELPLAN laden: echte Daten über den Worker, sonst Demo-Daten
+  // =====================================================================
+  const STAGE_DE = {
+    GROUP_STAGE: "Gruppenphase", LAST_32: "Sechzehntelfinale", LAST_16: "Achtelfinale",
+    QUARTER_FINALS: "Viertelfinale", SEMI_FINALS: "Halbfinale",
+    THIRD_PLACE: "Spiel um Platz 3", FINAL: "Finale"
+  };
+  const STAGE_ORDER = ["GROUP_STAGE","LAST_32","LAST_16","QUARTER_FINALS","SEMI_FINALS","THIRD_PLACE","FINAL"];
+
+  function mapWinner(w) {
+    if (w === "HOME_TEAM") return "HOME";
+    if (w === "AWAY_TEAM") return "AWAY";
+    if (w === "DRAW") return "DRAW";
+    return null;
+  }
+
+  function normalizeFd(m) {
+    return {
+      id: "fd-" + m.id,
+      stage: m.stage || "GROUP_STAGE",
+      group: m.group || null,
+      utcDate: m.utcDate,
+      status: m.status,
+      home: { name: translateTeam((m.homeTeam && m.homeTeam.name) || "Noch offen"), crest: (m.homeTeam && m.homeTeam.crest) || "" },
+      away: { name: translateTeam((m.awayTeam && m.awayTeam.name) || "Noch offen"), crest: (m.awayTeam && m.awayTeam.crest) || "" },
+      outcome: mapWinner(m.score && m.score.winner),
+      homeScore: m.score && m.score.fullTime ? m.score.fullTime.home : null,
+      awayScore: m.score && m.score.fullTime ? m.score.fullTime.away : null
+    };
+  }
+
+  async function fetchLiveSchedule() {
+    if (!FOOTBALL_WORKER_URL || FOOTBALL_WORKER_URL.indexOf("DEIN-WORKER") !== -1) {
+      throw new Error("Worker nicht konfiguriert");
+    }
+    const base = FOOTBALL_WORKER_URL.replace(/\/$/, "");
+    const resp = await fetch(base + "/competitions/" + COMPETITION_CODE + "/matches");
+    if (!resp.ok) throw new Error("HTTP " + resp.status);
+    const data = await resp.json();
+    if (!data.matches || !data.matches.length) throw new Error("Keine Spiele erhalten");
+    return data.matches.map(normalizeFd);
+  }
+
+  // Echter WM-2026-Spielplan (eingebaut als Rückfall, falls der Worker noch
+  // nicht erreichbar ist). Match-IDs identisch zur Live-API ("fd-<id>"), damit
+  // bereits abgegebene Tipps automatisch passen, sobald Live-Ergebnisse kommen.
+  const REAL_SCHEDULE = [{"id":"fd-537327","stage":"GROUP_STAGE","group":"GROUP_A","utcDate":"2026-06-11T19:00:00Z","status":"TIMED","home":{"name":"Mexico","crest":"https://crests.football-data.org/769.svg"},"away":{"name":"South Africa","crest":"https://crests.football-data.org/9396.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537328","stage":"GROUP_STAGE","group":"GROUP_A","utcDate":"2026-06-12T02:00:00Z","status":"TIMED","home":{"name":"South Korea","crest":"https://crests.football-data.org/772.png"},"away":{"name":"Czechia","crest":"https://crests.football-data.org/798.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537333","stage":"GROUP_STAGE","group":"GROUP_B","utcDate":"2026-06-12T19:00:00Z","status":"TIMED","home":{"name":"Canada","crest":"https://crests.football-data.org/canada.svg"},"away":{"name":"Bosnia-Herzegovina","crest":"https://crests.football-data.org/bosnia.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537345","stage":"GROUP_STAGE","group":"GROUP_D","utcDate":"2026-06-13T01:00:00Z","status":"TIMED","home":{"name":"United States","crest":"https://crests.football-data.org/usa.svg"},"away":{"name":"Paraguay","crest":"https://crests.football-data.org/761.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537334","stage":"GROUP_STAGE","group":"GROUP_B","utcDate":"2026-06-13T19:00:00Z","status":"TIMED","home":{"name":"Qatar","crest":"https://crests.football-data.org/8030.svg"},"away":{"name":"Switzerland","crest":"https://crests.football-data.org/788.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537339","stage":"GROUP_STAGE","group":"GROUP_C","utcDate":"2026-06-13T22:00:00Z","status":"TIMED","home":{"name":"Brazil","crest":"https://crests.football-data.org/764.svg"},"away":{"name":"Morocco","crest":"https://crests.football-data.org/morocco.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537340","stage":"GROUP_STAGE","group":"GROUP_C","utcDate":"2026-06-14T01:00:00Z","status":"TIMED","home":{"name":"Haiti","crest":"https://crests.football-data.org/haiti.svg"},"away":{"name":"Scotland","crest":"https://crests.football-data.org/814.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537346","stage":"GROUP_STAGE","group":"GROUP_D","utcDate":"2026-06-14T04:00:00Z","status":"TIMED","home":{"name":"Australia","crest":"https://crests.football-data.org/779.svg"},"away":{"name":"Turkey","crest":"https://crests.football-data.org/803.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537351","stage":"GROUP_STAGE","group":"GROUP_E","utcDate":"2026-06-14T17:00:00Z","status":"TIMED","home":{"name":"Germany","crest":"https://crests.football-data.org/759.svg"},"away":{"name":"Curaçao","crest":"https://crests.football-data.org/curacao.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537357","stage":"GROUP_STAGE","group":"GROUP_F","utcDate":"2026-06-14T20:00:00Z","status":"TIMED","home":{"name":"Netherlands","crest":"https://crests.football-data.org/8601.svg"},"away":{"name":"Japan","crest":"https://crests.football-data.org/766.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537352","stage":"GROUP_STAGE","group":"GROUP_E","utcDate":"2026-06-14T23:00:00Z","status":"SCHEDULED","home":{"name":"Ivory Coast","crest":"https://crests.football-data.org/787.svg"},"away":{"name":"Ecuador","crest":"https://crests.football-data.org/791.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537358","stage":"GROUP_STAGE","group":"GROUP_F","utcDate":"2026-06-15T02:00:00Z","status":"TIMED","home":{"name":"Sweden","crest":"https://crests.football-data.org/792.svg"},"away":{"name":"Tunisia","crest":"https://crests.football-data.org/tunisia.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537369","stage":"GROUP_STAGE","group":"GROUP_H","utcDate":"2026-06-15T16:00:00Z","status":"TIMED","home":{"name":"Spain","crest":"https://crests.football-data.org/760.svg"},"away":{"name":"Cape Verde Islands","crest":"https://crests.football-data.org/cape_verde.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537363","stage":"GROUP_STAGE","group":"GROUP_G","utcDate":"2026-06-15T19:00:00Z","status":"TIMED","home":{"name":"Belgium","crest":"https://crests.football-data.org/805.svg"},"away":{"name":"Egypt","crest":"https://crests.football-data.org/825.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537370","stage":"GROUP_STAGE","group":"GROUP_H","utcDate":"2026-06-15T22:00:00Z","status":"TIMED","home":{"name":"Saudi Arabia","crest":"https://crests.football-data.org/saudi_arabia.svg"},"away":{"name":"Uruguay","crest":"https://crests.football-data.org/758.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537364","stage":"GROUP_STAGE","group":"GROUP_G","utcDate":"2026-06-16T01:00:00Z","status":"TIMED","home":{"name":"Iran","crest":"https://crests.football-data.org/iran.svg"},"away":{"name":"New Zealand","crest":"https://crests.football-data.org/783.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537391","stage":"GROUP_STAGE","group":"GROUP_I","utcDate":"2026-06-16T19:00:00Z","status":"TIMED","home":{"name":"France","crest":"https://crests.football-data.org/773.svg"},"away":{"name":"Senegal","crest":"https://crests.football-data.org/senegal.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537392","stage":"GROUP_STAGE","group":"GROUP_I","utcDate":"2026-06-16T22:00:00Z","status":"TIMED","home":{"name":"Iraq","crest":"https://crests.football-data.org/iraq.svg"},"away":{"name":"Norway","crest":"https://crests.football-data.org/813.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537397","stage":"GROUP_STAGE","group":"GROUP_J","utcDate":"2026-06-17T01:00:00Z","status":"TIMED","home":{"name":"Argentina","crest":"https://crests.football-data.org/762.png"},"away":{"name":"Algeria","crest":"https://crests.football-data.org/algeria.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537398","stage":"GROUP_STAGE","group":"GROUP_J","utcDate":"2026-06-17T04:00:00Z","status":"TIMED","home":{"name":"Austria","crest":"https://crests.football-data.org/816.svg"},"away":{"name":"Jordan","crest":"https://crests.football-data.org/8049.png"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537403","stage":"GROUP_STAGE","group":"GROUP_K","utcDate":"2026-06-17T17:00:00Z","status":"TIMED","home":{"name":"Portugal","crest":"https://crests.football-data.org/765.svg"},"away":{"name":"Congo DR","crest":"https://crests.football-data.org/congo_dr.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537409","stage":"GROUP_STAGE","group":"GROUP_L","utcDate":"2026-06-17T20:00:00Z","status":"TIMED","home":{"name":"England","crest":"https://crests.football-data.org/770.svg"},"away":{"name":"Croatia","crest":"https://crests.football-data.org/799.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537410","stage":"GROUP_STAGE","group":"GROUP_L","utcDate":"2026-06-17T23:00:00Z","status":"TIMED","home":{"name":"Ghana","crest":"https://crests.football-data.org/ghana.svg"},"away":{"name":"Panama","crest":"https://crests.football-data.org/panama.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537404","stage":"GROUP_STAGE","group":"GROUP_K","utcDate":"2026-06-18T02:00:00Z","status":"TIMED","home":{"name":"Uzbekistan","crest":"https://crests.football-data.org/8070.png"},"away":{"name":"Colombia","crest":"https://crests.football-data.org/818.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537329","stage":"GROUP_STAGE","group":"GROUP_A","utcDate":"2026-06-18T16:00:00Z","status":"TIMED","home":{"name":"Czechia","crest":"https://crests.football-data.org/798.svg"},"away":{"name":"South Africa","crest":"https://crests.football-data.org/9396.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537335","stage":"GROUP_STAGE","group":"GROUP_B","utcDate":"2026-06-18T19:00:00Z","status":"TIMED","home":{"name":"Switzerland","crest":"https://crests.football-data.org/788.svg"},"away":{"name":"Bosnia-Herzegovina","crest":"https://crests.football-data.org/bosnia.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537336","stage":"GROUP_STAGE","group":"GROUP_B","utcDate":"2026-06-18T22:00:00Z","status":"TIMED","home":{"name":"Canada","crest":"https://crests.football-data.org/canada.svg"},"away":{"name":"Qatar","crest":"https://crests.football-data.org/8030.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537330","stage":"GROUP_STAGE","group":"GROUP_A","utcDate":"2026-06-19T01:00:00Z","status":"TIMED","home":{"name":"Mexico","crest":"https://crests.football-data.org/769.svg"},"away":{"name":"South Korea","crest":"https://crests.football-data.org/772.png"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537348","stage":"GROUP_STAGE","group":"GROUP_D","utcDate":"2026-06-19T19:00:00Z","status":"TIMED","home":{"name":"United States","crest":"https://crests.football-data.org/usa.svg"},"away":{"name":"Australia","crest":"https://crests.football-data.org/779.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537342","stage":"GROUP_STAGE","group":"GROUP_C","utcDate":"2026-06-19T22:00:00Z","status":"TIMED","home":{"name":"Scotland","crest":"https://crests.football-data.org/814.svg"},"away":{"name":"Morocco","crest":"https://crests.football-data.org/morocco.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537341","stage":"GROUP_STAGE","group":"GROUP_C","utcDate":"2026-06-20T00:30:00Z","status":"TIMED","home":{"name":"Brazil","crest":"https://crests.football-data.org/764.svg"},"away":{"name":"Haiti","crest":"https://crests.football-data.org/haiti.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537347","stage":"GROUP_STAGE","group":"GROUP_D","utcDate":"2026-06-20T03:00:00Z","status":"TIMED","home":{"name":"Turkey","crest":"https://crests.football-data.org/803.svg"},"away":{"name":"Paraguay","crest":"https://crests.football-data.org/761.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537359","stage":"GROUP_STAGE","group":"GROUP_F","utcDate":"2026-06-20T17:00:00Z","status":"TIMED","home":{"name":"Netherlands","crest":"https://crests.football-data.org/8601.svg"},"away":{"name":"Sweden","crest":"https://crests.football-data.org/792.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537353","stage":"GROUP_STAGE","group":"GROUP_E","utcDate":"2026-06-20T20:00:00Z","status":"TIMED","home":{"name":"Germany","crest":"https://crests.football-data.org/759.svg"},"away":{"name":"Ivory Coast","crest":"https://crests.football-data.org/787.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537354","stage":"GROUP_STAGE","group":"GROUP_E","utcDate":"2026-06-21T00:00:00Z","status":"TIMED","home":{"name":"Ecuador","crest":"https://crests.football-data.org/791.svg"},"away":{"name":"Curaçao","crest":"https://crests.football-data.org/curacao.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537360","stage":"GROUP_STAGE","group":"GROUP_F","utcDate":"2026-06-21T04:00:00Z","status":"TIMED","home":{"name":"Tunisia","crest":"https://crests.football-data.org/tunisia.svg"},"away":{"name":"Japan","crest":"https://crests.football-data.org/766.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537371","stage":"GROUP_STAGE","group":"GROUP_H","utcDate":"2026-06-21T16:00:00Z","status":"TIMED","home":{"name":"Spain","crest":"https://crests.football-data.org/760.svg"},"away":{"name":"Saudi Arabia","crest":"https://crests.football-data.org/saudi_arabia.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537365","stage":"GROUP_STAGE","group":"GROUP_G","utcDate":"2026-06-21T19:00:00Z","status":"TIMED","home":{"name":"Belgium","crest":"https://crests.football-data.org/805.svg"},"away":{"name":"Iran","crest":"https://crests.football-data.org/iran.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537372","stage":"GROUP_STAGE","group":"GROUP_H","utcDate":"2026-06-21T22:00:00Z","status":"TIMED","home":{"name":"Uruguay","crest":"https://crests.football-data.org/758.svg"},"away":{"name":"Cape Verde Islands","crest":"https://crests.football-data.org/cape_verde.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537366","stage":"GROUP_STAGE","group":"GROUP_G","utcDate":"2026-06-22T01:00:00Z","status":"TIMED","home":{"name":"New Zealand","crest":"https://crests.football-data.org/783.svg"},"away":{"name":"Egypt","crest":"https://crests.football-data.org/825.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537399","stage":"GROUP_STAGE","group":"GROUP_J","utcDate":"2026-06-22T17:00:00Z","status":"TIMED","home":{"name":"Argentina","crest":"https://crests.football-data.org/762.png"},"away":{"name":"Austria","crest":"https://crests.football-data.org/816.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537393","stage":"GROUP_STAGE","group":"GROUP_I","utcDate":"2026-06-22T21:00:00Z","status":"TIMED","home":{"name":"France","crest":"https://crests.football-data.org/773.svg"},"away":{"name":"Iraq","crest":"https://crests.football-data.org/iraq.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537394","stage":"GROUP_STAGE","group":"GROUP_I","utcDate":"2026-06-23T00:00:00Z","status":"TIMED","home":{"name":"Norway","crest":"https://crests.football-data.org/813.svg"},"away":{"name":"Senegal","crest":"https://crests.football-data.org/senegal.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537400","stage":"GROUP_STAGE","group":"GROUP_J","utcDate":"2026-06-23T03:00:00Z","status":"TIMED","home":{"name":"Jordan","crest":"https://crests.football-data.org/8049.png"},"away":{"name":"Algeria","crest":"https://crests.football-data.org/algeria.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537405","stage":"GROUP_STAGE","group":"GROUP_K","utcDate":"2026-06-23T17:00:00Z","status":"TIMED","home":{"name":"Portugal","crest":"https://crests.football-data.org/765.svg"},"away":{"name":"Uzbekistan","crest":"https://crests.football-data.org/8070.png"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537411","stage":"GROUP_STAGE","group":"GROUP_L","utcDate":"2026-06-23T20:00:00Z","status":"TIMED","home":{"name":"England","crest":"https://crests.football-data.org/770.svg"},"away":{"name":"Ghana","crest":"https://crests.football-data.org/ghana.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537412","stage":"GROUP_STAGE","group":"GROUP_L","utcDate":"2026-06-23T23:00:00Z","status":"TIMED","home":{"name":"Panama","crest":"https://crests.football-data.org/panama.svg"},"away":{"name":"Croatia","crest":"https://crests.football-data.org/799.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537406","stage":"GROUP_STAGE","group":"GROUP_K","utcDate":"2026-06-24T02:00:00Z","status":"TIMED","home":{"name":"Colombia","crest":"https://crests.football-data.org/818.svg"},"away":{"name":"Congo DR","crest":"https://crests.football-data.org/congo_dr.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537337","stage":"GROUP_STAGE","group":"GROUP_B","utcDate":"2026-06-24T19:00:00Z","status":"TIMED","home":{"name":"Switzerland","crest":"https://crests.football-data.org/788.svg"},"away":{"name":"Canada","crest":"https://crests.football-data.org/canada.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537338","stage":"GROUP_STAGE","group":"GROUP_B","utcDate":"2026-06-24T19:00:00Z","status":"TIMED","home":{"name":"Bosnia-Herzegovina","crest":"https://crests.football-data.org/bosnia.svg"},"away":{"name":"Qatar","crest":"https://crests.football-data.org/8030.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537344","stage":"GROUP_STAGE","group":"GROUP_C","utcDate":"2026-06-24T22:00:00Z","status":"TIMED","home":{"name":"Morocco","crest":"https://crests.football-data.org/morocco.svg"},"away":{"name":"Haiti","crest":"https://crests.football-data.org/haiti.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537343","stage":"GROUP_STAGE","group":"GROUP_C","utcDate":"2026-06-24T22:00:00Z","status":"TIMED","home":{"name":"Scotland","crest":"https://crests.football-data.org/814.svg"},"away":{"name":"Brazil","crest":"https://crests.football-data.org/764.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537331","stage":"GROUP_STAGE","group":"GROUP_A","utcDate":"2026-06-25T01:00:00Z","status":"TIMED","home":{"name":"Czechia","crest":"https://crests.football-data.org/798.svg"},"away":{"name":"Mexico","crest":"https://crests.football-data.org/769.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537332","stage":"GROUP_STAGE","group":"GROUP_A","utcDate":"2026-06-25T01:00:00Z","status":"TIMED","home":{"name":"South Africa","crest":"https://crests.football-data.org/9396.svg"},"away":{"name":"South Korea","crest":"https://crests.football-data.org/772.png"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537355","stage":"GROUP_STAGE","group":"GROUP_E","utcDate":"2026-06-25T20:00:00Z","status":"TIMED","home":{"name":"Ecuador","crest":"https://crests.football-data.org/791.svg"},"away":{"name":"Germany","crest":"https://crests.football-data.org/759.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537356","stage":"GROUP_STAGE","group":"GROUP_E","utcDate":"2026-06-25T20:00:00Z","status":"TIMED","home":{"name":"Curaçao","crest":"https://crests.football-data.org/curacao.svg"},"away":{"name":"Ivory Coast","crest":"https://crests.football-data.org/787.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537361","stage":"GROUP_STAGE","group":"GROUP_F","utcDate":"2026-06-25T23:00:00Z","status":"TIMED","home":{"name":"Tunisia","crest":"https://crests.football-data.org/tunisia.svg"},"away":{"name":"Netherlands","crest":"https://crests.football-data.org/8601.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537362","stage":"GROUP_STAGE","group":"GROUP_F","utcDate":"2026-06-25T23:00:00Z","status":"TIMED","home":{"name":"Japan","crest":"https://crests.football-data.org/766.svg"},"away":{"name":"Sweden","crest":"https://crests.football-data.org/792.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537349","stage":"GROUP_STAGE","group":"GROUP_D","utcDate":"2026-06-26T02:00:00Z","status":"TIMED","home":{"name":"Turkey","crest":"https://crests.football-data.org/803.svg"},"away":{"name":"United States","crest":"https://crests.football-data.org/usa.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537350","stage":"GROUP_STAGE","group":"GROUP_D","utcDate":"2026-06-26T02:00:00Z","status":"TIMED","home":{"name":"Paraguay","crest":"https://crests.football-data.org/761.svg"},"away":{"name":"Australia","crest":"https://crests.football-data.org/779.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537395","stage":"GROUP_STAGE","group":"GROUP_I","utcDate":"2026-06-26T19:00:00Z","status":"TIMED","home":{"name":"Norway","crest":"https://crests.football-data.org/813.svg"},"away":{"name":"France","crest":"https://crests.football-data.org/773.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537396","stage":"GROUP_STAGE","group":"GROUP_I","utcDate":"2026-06-26T19:00:00Z","status":"TIMED","home":{"name":"Senegal","crest":"https://crests.football-data.org/senegal.svg"},"away":{"name":"Iraq","crest":"https://crests.football-data.org/iraq.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537373","stage":"GROUP_STAGE","group":"GROUP_H","utcDate":"2026-06-27T00:00:00Z","status":"TIMED","home":{"name":"Uruguay","crest":"https://crests.football-data.org/758.svg"},"away":{"name":"Spain","crest":"https://crests.football-data.org/760.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537374","stage":"GROUP_STAGE","group":"GROUP_H","utcDate":"2026-06-27T00:00:00Z","status":"TIMED","home":{"name":"Cape Verde Islands","crest":"https://crests.football-data.org/cape_verde.svg"},"away":{"name":"Saudi Arabia","crest":"https://crests.football-data.org/saudi_arabia.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537367","stage":"GROUP_STAGE","group":"GROUP_G","utcDate":"2026-06-27T03:00:00Z","status":"TIMED","home":{"name":"New Zealand","crest":"https://crests.football-data.org/783.svg"},"away":{"name":"Belgium","crest":"https://crests.football-data.org/805.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537368","stage":"GROUP_STAGE","group":"GROUP_G","utcDate":"2026-06-27T03:00:00Z","status":"TIMED","home":{"name":"Egypt","crest":"https://crests.football-data.org/825.svg"},"away":{"name":"Iran","crest":"https://crests.football-data.org/iran.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537413","stage":"GROUP_STAGE","group":"GROUP_L","utcDate":"2026-06-27T21:00:00Z","status":"TIMED","home":{"name":"Panama","crest":"https://crests.football-data.org/panama.svg"},"away":{"name":"England","crest":"https://crests.football-data.org/770.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537414","stage":"GROUP_STAGE","group":"GROUP_L","utcDate":"2026-06-27T21:00:00Z","status":"TIMED","home":{"name":"Croatia","crest":"https://crests.football-data.org/799.svg"},"away":{"name":"Ghana","crest":"https://crests.football-data.org/ghana.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537407","stage":"GROUP_STAGE","group":"GROUP_K","utcDate":"2026-06-27T23:30:00Z","status":"TIMED","home":{"name":"Colombia","crest":"https://crests.football-data.org/818.svg"},"away":{"name":"Portugal","crest":"https://crests.football-data.org/765.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537408","stage":"GROUP_STAGE","group":"GROUP_K","utcDate":"2026-06-27T23:30:00Z","status":"TIMED","home":{"name":"Congo DR","crest":"https://crests.football-data.org/congo_dr.svg"},"away":{"name":"Uzbekistan","crest":"https://crests.football-data.org/8070.png"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537401","stage":"GROUP_STAGE","group":"GROUP_J","utcDate":"2026-06-28T02:00:00Z","status":"TIMED","home":{"name":"Jordan","crest":"https://crests.football-data.org/8049.png"},"away":{"name":"Argentina","crest":"https://crests.football-data.org/762.png"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537402","stage":"GROUP_STAGE","group":"GROUP_J","utcDate":"2026-06-28T02:00:00Z","status":"TIMED","home":{"name":"Algeria","crest":"https://crests.football-data.org/algeria.svg"},"away":{"name":"Austria","crest":"https://crests.football-data.org/816.svg"},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537417","stage":"LAST_32","group":null,"utcDate":"2026-06-28T19:00:00Z","status":"TIMED","home":{"name":"Noch offen","crest":""},"away":{"name":"Noch offen","crest":""},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537423","stage":"LAST_32","group":null,"utcDate":"2026-06-29T17:00:00Z","status":"TIMED","home":{"name":"Noch offen","crest":""},"away":{"name":"Noch offen","crest":""},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537415","stage":"LAST_32","group":null,"utcDate":"2026-06-29T20:30:00Z","status":"TIMED","home":{"name":"Noch offen","crest":""},"away":{"name":"Noch offen","crest":""},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537418","stage":"LAST_32","group":null,"utcDate":"2026-06-30T01:00:00Z","status":"TIMED","home":{"name":"Noch offen","crest":""},"away":{"name":"Noch offen","crest":""},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537424","stage":"LAST_32","group":null,"utcDate":"2026-06-30T17:00:00Z","status":"TIMED","home":{"name":"Noch offen","crest":""},"away":{"name":"Noch offen","crest":""},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537416","stage":"LAST_32","group":null,"utcDate":"2026-06-30T21:00:00Z","status":"TIMED","home":{"name":"Noch offen","crest":""},"away":{"name":"Noch offen","crest":""},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537425","stage":"LAST_32","group":null,"utcDate":"2026-07-01T01:00:00Z","status":"TIMED","home":{"name":"Noch offen","crest":""},"away":{"name":"Noch offen","crest":""},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537426","stage":"LAST_32","group":null,"utcDate":"2026-07-01T16:00:00Z","status":"TIMED","home":{"name":"Noch offen","crest":""},"away":{"name":"Noch offen","crest":""},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537422","stage":"LAST_32","group":null,"utcDate":"2026-07-01T20:00:00Z","status":"TIMED","home":{"name":"Noch offen","crest":""},"away":{"name":"Noch offen","crest":""},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537421","stage":"LAST_32","group":null,"utcDate":"2026-07-02T00:00:00Z","status":"TIMED","home":{"name":"Noch offen","crest":""},"away":{"name":"Noch offen","crest":""},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537420","stage":"LAST_32","group":null,"utcDate":"2026-07-02T19:00:00Z","status":"TIMED","home":{"name":"Noch offen","crest":""},"away":{"name":"Noch offen","crest":""},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537419","stage":"LAST_32","group":null,"utcDate":"2026-07-02T23:00:00Z","status":"TIMED","home":{"name":"Noch offen","crest":""},"away":{"name":"Noch offen","crest":""},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537429","stage":"LAST_32","group":null,"utcDate":"2026-07-03T03:00:00Z","status":"TIMED","home":{"name":"Noch offen","crest":""},"away":{"name":"Noch offen","crest":""},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537428","stage":"LAST_32","group":null,"utcDate":"2026-07-03T18:00:00Z","status":"TIMED","home":{"name":"Noch offen","crest":""},"away":{"name":"Noch offen","crest":""},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537427","stage":"LAST_32","group":null,"utcDate":"2026-07-03T22:00:00Z","status":"TIMED","home":{"name":"Noch offen","crest":""},"away":{"name":"Noch offen","crest":""},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537430","stage":"LAST_32","group":null,"utcDate":"2026-07-04T01:30:00Z","status":"TIMED","home":{"name":"Noch offen","crest":""},"away":{"name":"Noch offen","crest":""},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537376","stage":"LAST_16","group":null,"utcDate":"2026-07-04T17:00:00Z","status":"TIMED","home":{"name":"Noch offen","crest":""},"away":{"name":"Noch offen","crest":""},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537375","stage":"LAST_16","group":null,"utcDate":"2026-07-04T21:00:00Z","status":"TIMED","home":{"name":"Noch offen","crest":""},"away":{"name":"Noch offen","crest":""},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537377","stage":"LAST_16","group":null,"utcDate":"2026-07-05T20:00:00Z","status":"TIMED","home":{"name":"Noch offen","crest":""},"away":{"name":"Noch offen","crest":""},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537378","stage":"LAST_16","group":null,"utcDate":"2026-07-06T00:00:00Z","status":"TIMED","home":{"name":"Noch offen","crest":""},"away":{"name":"Noch offen","crest":""},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537379","stage":"LAST_16","group":null,"utcDate":"2026-07-06T19:00:00Z","status":"TIMED","home":{"name":"Noch offen","crest":""},"away":{"name":"Noch offen","crest":""},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537380","stage":"LAST_16","group":null,"utcDate":"2026-07-07T00:00:00Z","status":"TIMED","home":{"name":"Noch offen","crest":""},"away":{"name":"Noch offen","crest":""},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537381","stage":"LAST_16","group":null,"utcDate":"2026-07-07T16:00:00Z","status":"TIMED","home":{"name":"Noch offen","crest":""},"away":{"name":"Noch offen","crest":""},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537382","stage":"LAST_16","group":null,"utcDate":"2026-07-07T20:00:00Z","status":"TIMED","home":{"name":"Noch offen","crest":""},"away":{"name":"Noch offen","crest":""},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537383","stage":"QUARTER_FINALS","group":null,"utcDate":"2026-07-09T20:00:00Z","status":"TIMED","home":{"name":"Noch offen","crest":""},"away":{"name":"Noch offen","crest":""},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537384","stage":"QUARTER_FINALS","group":null,"utcDate":"2026-07-10T19:00:00Z","status":"TIMED","home":{"name":"Noch offen","crest":""},"away":{"name":"Noch offen","crest":""},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537385","stage":"QUARTER_FINALS","group":null,"utcDate":"2026-07-11T21:00:00Z","status":"TIMED","home":{"name":"Noch offen","crest":""},"away":{"name":"Noch offen","crest":""},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537386","stage":"QUARTER_FINALS","group":null,"utcDate":"2026-07-12T01:00:00Z","status":"TIMED","home":{"name":"Noch offen","crest":""},"away":{"name":"Noch offen","crest":""},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537387","stage":"SEMI_FINALS","group":null,"utcDate":"2026-07-14T19:00:00Z","status":"TIMED","home":{"name":"Noch offen","crest":""},"away":{"name":"Noch offen","crest":""},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537388","stage":"SEMI_FINALS","group":null,"utcDate":"2026-07-15T19:00:00Z","status":"TIMED","home":{"name":"Noch offen","crest":""},"away":{"name":"Noch offen","crest":""},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537389","stage":"THIRD_PLACE","group":null,"utcDate":"2026-07-18T21:00:00Z","status":"TIMED","home":{"name":"Noch offen","crest":""},"away":{"name":"Noch offen","crest":""},"outcome":null,"homeScore":null,"awayScore":null},{"id":"fd-537390","stage":"FINAL","group":null,"utcDate":"2026-07-19T19:00:00Z","status":"TIMED","home":{"name":"Noch offen","crest":""},"away":{"name":"Noch offen","crest":""},"outcome":null,"homeScore":null,"awayScore":null}];
+
+  // Englische Team-Namen ins Deutsche übersetzen (Live-API & Rückfall)
+  const TEAM_DE = {"Algeria":"Algerien","Argentina":"Argentinien","Australia":"Australien","Austria":"Österreich","Belgium":"Belgien","Bosnia-Herzegovina":"Bosnien-Herzegowina","Brazil":"Brasilien","Canada":"Kanada","Cape Verde Islands":"Kap Verde","Colombia":"Kolumbien","Congo DR":"DR Kongo","Croatia":"Kroatien","Curaçao":"Curaçao","Czechia":"Tschechien","Ecuador":"Ecuador","Egypt":"Ägypten","England":"England","France":"Frankreich","Germany":"Deutschland","Ghana":"Ghana","Haiti":"Haiti","Iran":"Iran","Iraq":"Irak","Ivory Coast":"Elfenbeinküste","Japan":"Japan","Jordan":"Jordanien","Mexico":"Mexiko","Morocco":"Marokko","Netherlands":"Niederlande","New Zealand":"Neuseeland","Norway":"Norwegen","Panama":"Panama","Paraguay":"Paraguay","Portugal":"Portugal","Qatar":"Katar","Saudi Arabia":"Saudi-Arabien","Scotland":"Schottland","Senegal":"Senegal","South Africa":"Südafrika","South Korea":"Südkorea","Spain":"Spanien","Sweden":"Schweden","Switzerland":"Schweiz","Tunisia":"Tunesien","Turkey":"Türkei","United States":"USA","Uruguay":"Uruguay","Uzbekistan":"Usbekistan"};
+  function translateTeam(name) { return TEAM_DE[name] || name; }
+
+  function fallbackSchedule() {
+    return REAL_SCHEDULE.map(function (m) {
+      return Object.assign({}, m, {
+        home: { name: translateTeam(m.home.name), crest: m.home.crest },
+        away: { name: translateTeam(m.away.name), crest: m.away.crest }
+      });
+    });
+  }
+
+  let allMatches = [];
+  let usingFallback = false;
+
+  async function loadSchedule() {
+    try {
+      allMatches = await fetchLiveSchedule();
+      usingFallback = false;
+      clearNotice();
+    } catch (e) {
+      allMatches = fallbackSchedule();
+      usingFallback = true;
+      showNotice("ℹ️ Echter WM-Spielplan ist geladen – Tippen funktioniert vollständig. Live-Ergebnisse werden automatisch ergänzt, sobald dein Worker erreichbar ist (zurzeit nicht).");
+    }
+    allMatches.sort((a, b) => new Date(a.utcDate) - new Date(b.utcDate));
+    buildStageFilter();
+    animateNextRender = true;
+    renderAll();
+  }
+
+  // =====================================================================
+  // ANZEIGE
+  // =====================================================================
+  let currentUser = localStorage.getItem("wm2026_name") || "";
+  let userKey = "";
+  let allBets = [];
+  let activeStage = "ALL";
+  let animateNextRender = true;
+
+  const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const celebratedWins = new Set(JSON.parse(localStorage.getItem("wm2026_celebrated") || "[]"));
+  function persistCelebrated() {
+    try { localStorage.setItem("wm2026_celebrated", JSON.stringify(Array.from(celebratedWins))); } catch (e) {}
+  }
+
+  const el = (id) => document.getElementById(id);
+
+  // =====================================================================
+  // EFFEKTE: Toast + Konfetti (dezent)
+  // =====================================================================
+  function toast(html) {
+    const wrap = document.getElementById("toastWrap");
+    if (!wrap) return;
+    const t = document.createElement("div");
+    t.className = "toast";
+    t.innerHTML = html;
+    wrap.appendChild(t);
+    setTimeout(() => t.remove(), 2000);
+  }
+
+  function confettiBurst(x, y, count) {
+    if (reduceMotion) return;
+    count = count || 14;
+    const colors = ["#27e08a", "#13c4d8", "#ffd24d", "#ffffff"];
+    for (let i = 0; i < count; i++) {
+      const p = document.createElement("div");
+      p.className = "confetti-piece";
+      p.style.background = colors[i % colors.length];
+      document.body.appendChild(p);
+      const angle = Math.random() * Math.PI * 2;
+      const dist = 40 + Math.random() * 70;
+      const dx = Math.cos(angle) * dist;
+      const dy = Math.sin(angle) * dist - (40 + Math.random() * 45);
+      const rot = Math.random() * 720 - 360;
+      p.animate([
+        { transform: "translate(" + x + "px," + y + "px) rotate(0deg)", opacity: 1 },
+        { transform: "translate(" + (x + dx) + "px," + (y + dy) + "px) rotate(" + rot + "deg)", opacity: 1, offset: 0.7 },
+        { transform: "translate(" + (x + dx * 1.1) + "px," + (y + dy + 130) + "px) rotate(" + rot + "deg)", opacity: 0 }
+      ], { duration: 900 + Math.random() * 450, easing: "cubic-bezier(.2,.7,.3,1)" }).onfinish = () => p.remove();
+    }
+  }
+
+  function keyOf(name) { return name.trim().toLowerCase().replace(/[^a-z0-9äöüß]+/g, "-"); }
+
+  function showNotice(msg, isErr) {
+    el("noticeArea").innerHTML = '<div class="notice' + (isErr ? " err" : "") + '">' + escapeHtml(msg) + '</div>';
+  }
+  function clearNotice() { el("noticeArea").innerHTML = ""; }
+
+  function buildStageFilter() {
+    const present = [];
+    STAGE_ORDER.forEach((s) => { if (allMatches.some((m) => m.stage === s)) present.push(s); });
+    const sel = el("stageFilter");
+    sel.innerHTML = '<option value="ALL">Alle Spiele</option>' +
+      present.map((s) => '<option value="' + s + '">' + STAGE_DE[s] + '</option>').join("");
+    sel.value = activeStage;
+  }
+
+  function fmtDate(iso) {
+    try {
+      return new Date(iso).toLocaleString("de-DE", {
+        weekday: "short", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit"
+      }) + " Uhr";
+    } catch (e) { return ""; }
+  }
+
+  function crestHtml(team) {
+    if (team.crest && team.crest.indexOf("http") === 0) {
+      return '<span class="flag"><img src="' + team.crest + '" alt=""></span>';
+    }
+    return '<span class="flag">' + (team.crest || "⚽") + "</span>";
+  }
+
+  function isLocked(m) {
+    if (["IN_PLAY", "PAUSED", "FINISHED", "AWARDED"].indexOf(m.status) !== -1) return true;
+    return new Date(m.utcDate) <= new Date();
+  }
+  function teamsKnown(m) {
+    return m.home.name !== "Noch offen" && m.away.name !== "Noch offen";
+  }
+
+  function betsForMatch(matchId) {
+    return allBets.filter((b) => b.matchId === matchId);
+  }
+  function myPick(matchId) {
+    const b = allBets.find((x) => x.matchId === matchId && x.userKey === userKey);
+    return b ? b.pick : null;
+  }
+
+  function pickLabel(m, pick) {
+    if (pick === "HOME") return m.home.name;
+    if (pick === "AWAY") return m.away.name;
+    return "Unentschieden";
+  }
+
+  function renderMatches() {
+    const list = el("matchList");
+    const matches = allMatches.filter((m) => activeStage === "ALL" || m.stage === activeStage);
+    if (!matches.length) { list.innerHTML = '<div class="empty-hint">Keine Spiele vorhanden.</div>'; return; }
+
+    const newWins = [];
+
+    list.innerHTML = matches.map((m, idx) => {
+      const locked = isLocked(m);
+      const known = teamsKnown(m);
+      const finished = m.status === "FINISHED" && m.outcome;
+      const isGroup = m.stage === "GROUP_STAGE";
+      const mine = myPick(m.id);
+      const iWon = finished && mine && mine === m.outcome;
+      if (iWon && !celebratedWins.has(m.id)) newWins.push(m.id);
+      const chip = STAGE_DE[m.stage] + (m.group ? " · " + m.group.replace("GROUP_", "Gruppe ") : "");
+
+      // Mittelteil: Ergebnis oder "gegen"
+      const middle = finished
+        ? '<div class="score">' + m.homeScore + '<span class="sep">:</span>' + m.awayScore + '</div>'
+        : '<div class="vs">gegen</div>';
+
+      // Tipp-Knöpfe
+      let betRow = "";
+      if (known) {
+        const opt = (pick, label) => {
+          const picked = mine === pick ? " picked" : "";
+          const win = finished && m.outcome === pick ? " win" : "";
+          const dis = locked ? " disabled" : "";
+          return '<button class="bet-btn' + picked + win + '"' + dis +
+                 ' data-match="' + m.id + '" data-pick="' + pick + '">' + escapeHtml(label) + "</button>";
+        };
+        betRow = '<div class="bet-row">' + opt("HOME", m.home.name) +
+                 (isGroup ? opt("DRAW", "Unent­schieden") : "") +
+                 opt("AWAY", m.away.name) + "</div>";
+      } else {
+        betRow = '<div class="locked-hint">Teams stehen noch nicht fest – Tippen bald möglich.</div>';
+      }
+
+      // Ergebniszeile
+      let resultLine = "";
+      if (finished) {
+        const wname = m.outcome === "DRAW" ? "Unentschieden" : (m.outcome === "HOME" ? m.home.name : m.away.name);
+        resultLine = '<div class="result-line">🏁 Endstand – ' + escapeHtml(wname) +
+                     (m.outcome === "DRAW" ? "" : " gewinnt") + "</div>";
+      } else if (locked && known) {
+        resultLine = '<div class="locked-hint">⏱️ Anstoß erfolgt – Tipps sind gesperrt.</div>';
+      }
+
+      // Tipps der Familie
+      const bets = betsForMatch(m.id);
+      let others = "";
+      if (bets.length) {
+        const lines = bets.slice().sort((a, b) => a.user.localeCompare(b.user)).map((b) => {
+          let cls = "";
+          if (finished) cls = b.pick === m.outcome ? " correct" : " incorrect";
+          const mark = finished ? (b.pick === m.outcome ? " ✓" : " ✗") : "";
+          return '<div class="pickline' + cls + '"><span class="pn">' + escapeHtml(b.user) +
+                 '</span><span class="pv">' + escapeHtml(pickLabel(m, b.pick)) + mark + "</span></div>";
+        }).join("");
+        others = '<div class="others"><h4>Tipps der Familie (' + bets.length + ")</h4>" + lines + "</div>";
+      }
+
+      return '<div class="match' + (iWon ? ' win-card' : '') + '" style="--i:' + idx + '">' +
+        '<div class="match-top"><span class="chip">' + escapeHtml(chip) + "</span>" +
+        '<span class="match-date">' + fmtDate(m.utcDate) + "</span></div>" +
+        '<div class="teams">' +
+          '<div class="team">' + crestHtml(m.home) + '<div class="tname">' + escapeHtml(m.home.name) + "</div></div>" +
+          middle +
+          '<div class="team">' + crestHtml(m.away) + '<div class="tname">' + escapeHtml(m.away.name) + "</div></div>" +
+        "</div>" +
+        betRow + resultLine + others +
+      "</div>";
+    }).join("");
+
+    // Eingangs-Animation nur beim ersten Rendern (nicht bei jedem Tipp-Update)
+    if (animateNextRender) {
+      list.classList.remove("animate-in"); void list.offsetWidth; list.classList.add("animate-in");
+      animateNextRender = false;
+    } else {
+      list.classList.remove("animate-in");
+    }
+
+    // Klicks an die Tipp-Knöpfe hängen
+    list.querySelectorAll(".bet-btn:not(:disabled)").forEach((btn) => {
+      btn.addEventListener("click", () => placeBet(btn.dataset.match, btn.dataset.pick, btn));
+    });
+
+    // Sieg-Konfetti (einmalig pro Spiel)
+    if (newWins.length) {
+      newWins.forEach((id) => celebratedWins.add(id));
+      persistCelebrated();
+      setTimeout(() => confettiBurst(window.innerWidth / 2, window.innerHeight * 0.35, 30), 250);
+    }
+  }
+
+  function placeBet(matchId, pick, btnEl) {
+    if (!currentUser) return;
+    if (btnEl) {
+      btnEl.classList.remove("pop"); void btnEl.offsetWidth; btnEl.classList.add("pop");
+      const r = btnEl.getBoundingClientRect();
+      confettiBurst(r.left + r.width / 2, r.top + r.height / 2, 12);
+    }
+    toast('Tipp gespeichert <span class="tick">✓</span>');
+    Store.saveBet(matchId, currentUser, userKey, pick).catch((e) => {
+      showNotice("Tipp konnte nicht gespeichert werden: " + e.message, true);
+    });
+  }
+
+  function renderLeaderboard() {
+    const stats = {};
+    const ensure = (name) => { if (!stats[name]) stats[name] = { name: name, points: 0, decided: 0, total: 0 }; return stats[name]; };
+
+    allBets.forEach((b) => {
+      const s = ensure(b.user); s.total++;
+      const m = allMatches.find((x) => x.id === b.matchId);
+      if (m && m.status === "FINISHED" && m.outcome) {
+        s.decided++;
+        if (b.pick === m.outcome) s.points++;
+      }
+    });
+
+    const rows = Object.values(stats).sort((a, b) =>
+      b.points - a.points || (b.decided ? b.points / b.decided : 0) - (a.decided ? a.points / a.decided : 0) || a.name.localeCompare(b.name)
+    );
+
+    const board = el("leaderboard");
+    if (!rows.length) {
+      board.innerHTML = '<div class="empty-hint">Noch keine Tipps abgegeben. Sei die/der Erste! ⚽</div>';
+      return;
+    }
+    const medal = ["🥇", "🥈", "🥉"];
+    board.innerHTML = rows.map((r, i) => {
+      const rank = medal[i] || (i + 1);
+      const meClass = r.name === currentUser ? " me" : "";
+      const topClass = (i === 0 && r.points > 0) ? " top1" : "";
+      return '<div class="lb-row' + topClass + '">' +
+        '<div class="lb-rank">' + rank + "</div>" +
+        '<div class="lb-name' + meClass + '">' + escapeHtml(r.name) +
+          '<div class="lb-sub">' + r.total + " Tipp" + (r.total === 1 ? "" : "s") +
+          (r.decided ? " · " + r.decided + " gewertet" : "") + "</div></div>" +
+        '<div class="lb-pts">' + r.points + '<span class="lb-sub"> Pkt.</span></div>' +
+      "</div>";
+    }).join("");
+  }
+
+  function renderAll() { renderMatches(); renderLeaderboard(); }
+
+  // =====================================================================
+  // LOGIN / NAVIGATION
+  // =====================================================================
+  function showApp() {
+    el("loginView").classList.add("hidden");
+    el("appView").classList.remove("hidden");
+    el("userName").textContent = currentUser;
+  }
+  function doLogin(name) {
+    name = name.trim();
+    if (!name) return;
+    currentUser = name;
+    userKey = keyOf(name);
+    localStorage.setItem("wm2026_name", name);
+    showApp();
+    renderAll();
+  }
+
+  el("loginBtn").addEventListener("click", () => doLogin(el("nameInput").value));
+  el("nameInput").addEventListener("keydown", (e) => { if (e.key === "Enter") doLogin(el("nameInput").value); });
+  el("changeNameBtn").addEventListener("click", () => {
+    const n = prompt("Wie heißt du?", currentUser);
+    if (n && n.trim()) doLogin(n);
+  });
+
+  el("tabMatches").addEventListener("click", () => switchTab("matches"));
+  el("tabBoard").addEventListener("click", () => switchTab("board"));
+  function switchTab(which) {
+    const m = which === "matches";
+    el("tabMatches").classList.toggle("active", m);
+    el("tabBoard").classList.toggle("active", !m);
+    el("matchesView").classList.toggle("hidden", !m);
+    el("boardView").classList.toggle("hidden", m);
+  }
+
+  el("stageFilter").addEventListener("change", (e) => { activeStage = e.target.value; animateNextRender = true; renderMatches(); });
+  el("refreshBtn").addEventListener("click", async () => {
+    el("refreshBtn").textContent = "⏳ Lädt…";
+    await loadSchedule();
+    el("refreshBtn").textContent = "🔄 Ergebnisse aktualisieren";
+  });
+
+  // =====================================================================
+  // START
+  // =====================================================================
+  Store.onBets((bets) => { allBets = bets; renderAll(); });
+  loadSchedule();
+  if (currentUser) { userKey = keyOf(currentUser); showApp(); }
+
+  // ---------- kleine Hilfsfunktion ----------
+  function escapeHtml(str) {
+    const d = document.createElement("div");
+    d.textContent = String(str == null ? "" : str);
+    return d.innerHTML;
+  }
+  </script>
+</body>
+</html>
