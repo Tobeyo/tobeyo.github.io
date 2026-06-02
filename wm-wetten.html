@@ -467,6 +467,7 @@
   let animateNextRender = true;
 
   const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const pendingBets = new Set();   // Spiele, deren Tipp gerade gespeichert wird (gegen Doppelklick)
   const celebratedWins = new Set(JSON.parse(localStorage.getItem("wm2026_celebrated") || "[]"));
   function persistCelebrated() {
     try { localStorage.setItem("wm2026_celebrated", JSON.stringify(Array.from(celebratedWins))); } catch (e) {}
@@ -590,7 +591,8 @@
         const opt = (pick, label) => {
           const picked = mine === pick ? " picked" : "";
           const win = finished && m.outcome === pick ? " win" : "";
-          const dis = locked ? " disabled" : "";
+          // Gesperrt, sobald Anstoß war ODER bereits ein Tipp abgegeben wurde (endgültig)
+          const dis = (locked || mine) ? " disabled" : "";
           return '<button class="bet-btn' + picked + win + '"' + dis +
                  ' data-match="' + m.id + '" data-pick="' + pick + '">' + escapeHtml(label) + "</button>";
         };
@@ -607,8 +609,10 @@
         const wname = m.outcome === "DRAW" ? "Unentschieden" : (m.outcome === "HOME" ? m.home.name : m.away.name);
         resultLine = '<div class="result-line">🏁 Endstand – ' + escapeHtml(wname) +
                      (m.outcome === "DRAW" ? "" : " gewinnt") + "</div>";
+      } else if (mine && known) {
+        resultLine = '<div class="locked-hint">🔒 Dein Tipp steht fest und kann nicht mehr geändert werden.</div>';
       } else if (locked && known) {
-        resultLine = '<div class="locked-hint">⏱️ Anstoß erfolgt – Tipps sind gesperrt.</div>';
+        resultLine = '<div class="locked-hint">⏱️ Anstoß erfolgt – Tipp nicht mehr möglich.</div>';
       }
 
       // Tipps der Familie
@@ -660,6 +664,18 @@
 
   function placeBet(matchId, pick, btnEl) {
     if (!currentUser) return;
+    // Schon getippt oder gerade am Speichern? -> Tipp ist endgültig, nichts mehr ändern
+    if (myPick(matchId) || pendingBets.has(matchId)) return;
+
+    const m = allMatches.find((x) => x.id === matchId);
+    const label = m ? pickLabel(m, pick) : pick;
+
+    // Zweifache Sicherheitsabfrage – danach ist der Tipp endgültig
+    if (!confirm("Auf „" + label + "“ tippen?")) return;
+    if (!confirm("Achtung: Dieser Tipp ist endgültig und kann danach NICHT mehr geändert werden.\n\nWirklich so abgeben?")) return;
+
+    pendingBets.add(matchId);
+
     if (btnEl) {
       btnEl.classList.remove("pop"); void btnEl.offsetWidth; btnEl.classList.add("pop");
       const r = btnEl.getBoundingClientRect();
@@ -667,6 +683,7 @@
     }
     toast('Tipp gespeichert <span class="tick">✓</span>');
     Store.saveBet(matchId, currentUser, userKey, pick).catch((e) => {
+      pendingBets.delete(matchId);
       showNotice("Tipp konnte nicht gespeichert werden: " + e.message, true);
     });
   }
