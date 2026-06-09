@@ -3,1549 +3,208 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pflanzenerkenner</title>
-  <meta name="description" content="Blumen und Pflanzen ganz einfach per Foto bestimmen.">
+  <title>Nessie-Hub</title>
+  <meta name="description" content="Nessie-Hub - Das zentrale Portal für alle Anwendungen.">
 
-  <!-- App-Manifest & Icons (für „Zum Startbildschirm hinzufügen") -->
   <link rel="manifest" href="manifest.webmanifest">
-  <meta name="theme-color" content="#2e7d32">
-  <link rel="icon" type="image/svg+xml" href="logo.svg">
+  <meta name="theme-color" content="#1a1b26">
+  <link rel="icon" type="image/png" href="logo.png">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Pflanzenerkenner">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Nessie-Hub">
+  
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
+
     :root {
-      --green: #2e7d32;
-      --green-dark: #1b5e20;
-      --green-light: #e8f5e9;
-      --text: #1a1a1a;
-      --bg: #f4f8f4;
-      --card: #ffffff;
-      --border: #cccccc;
-      --error: #c62828;
+      --bg-color: #0f1015;
+      --card-bg: rgba(255, 255, 255, 0.03);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-hover: rgba(255, 255, 255, 0.08);
+      --accent-1: #b052ff;
+      --accent-2: #00d2ff;
+      --text-main: #ffffff;
+      --text-muted: #a0a4b8;
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      font-size: 20px;
-      line-height: 1.5;
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-image: 
+        radial-gradient(circle at 15% 50%, rgba(176, 82, 255, 0.15), transparent 25%),
+        radial-gradient(circle at 85% 30%, rgba(0, 210, 255, 0.15), transparent 25%);
+      overflow-x: hidden;
     }
 
     .container {
-      max-width: 640px;
-      margin: 0 auto;
-      padding: 20px 16px 60px;
-    }
-
-    /* Obere Leiste mit Navigations-Knöpfen */
-    .topbar {
+      max-width: 900px;
+      width: 100%;
+      padding: 40px 20px;
       display: flex;
-      justify-content: space-between;
+      flex-direction: column;
       align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 8px;
+      flex-grow: 1;
     }
-
-    .history-btn, .wm-btn {
-      display: inline-flex;
-      align-items: center;
-      background: #fff;
-      color: var(--green-dark);
-      border: 3px solid var(--green);
-      border-radius: 14px;
-      padding: 9px 11px;
-      font-size: 0.9em;
-      font-weight: 700;
-      text-decoration: none;
-      cursor: pointer;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.12);
-      -webkit-tap-highlight-color: transparent;
-      white-space: nowrap;
-    }
-    .history-btn:hover, .wm-btn:hover { background: var(--green-light); }
-    .history-btn:active, .wm-btn:active { transform: scale(0.98); }
-    .history-btn .icon, .wm-btn .icon { margin-right: 5px; }
 
     header {
       text-align: center;
-      margin-bottom: 24px;
-    }
-
-    header h1 {
-      font-size: 2em;
-      color: var(--green-dark);
-      margin: 12px 0 4px;
-    }
-
-    header p {
-      font-size: 1.05em;
-      color: #444;
-      margin: 0;
+      margin-bottom: 50px;
+      animation: fadeInDown 0.8s ease-out;
     }
 
     .logo {
-      width: 96px;
-      height: 96px;
-      border-radius: 22px;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.18);
+      width: 120px;
+      height: 120px;
+      border-radius: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      margin-bottom: 20px;
+      border: 1px solid rgba(255,255,255,0.1);
     }
 
-    /* Buttons */
-    .btn {
-      display: block;
+    h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+      letter-spacing: -1px;
+    }
+
+    header p {
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      font-weight: 300;
+    }
+
+    .app-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
       width: 100%;
-      padding: 22px 20px;
-      margin: 14px 0;
-      font-size: 1.15em;
-      font-weight: 700;
-      border: none;
-      border-radius: 16px;
-      cursor: pointer;
-      text-align: center;
-      color: #fff;
-      background: var(--green);
-      box-shadow: 0 3px 6px rgba(0,0,0,0.15);
-      transition: background 0.15s, transform 0.05s;
-      -webkit-tap-highlight-color: transparent;
+      animation: fadeInUp 0.8s ease-out 0.2s both;
     }
 
-    .btn:active { transform: scale(0.98); }
-    .btn:hover { background: var(--green-dark); }
-
-    .btn-secondary {
-      background: #ffffff;
-      color: var(--green-dark);
-      border: 3px solid var(--green);
-    }
-    .btn-secondary:hover {
-      background: var(--green-light);
-    }
-
-    .btn-submit {
-      background: var(--green-dark);
-      font-size: 1.3em;
-    }
-
-    .btn .icon {
-      font-size: 1.3em;
-      vertical-align: middle;
-      margin-right: 8px;
-    }
-
-    input[type="file"] { display: none; }
-
-    /* Preview */
-    .preview-wrap {
-      margin: 18px 0;
-      text-align: center;
-    }
-
-    .preview-wrap img {
-      max-width: 100%;
-      max-height: 340px;
-      border-radius: 16px;
-      border: 4px solid var(--green-light);
-      box-shadow: 0 3px 8px rgba(0,0,0,0.12);
-    }
-
-    .hidden { display: none !important; }
-
-    /* Spinner */
-    .loading {
-      text-align: center;
-      padding: 30px 10px;
-    }
-
-    .spinner {
-      width: 64px;
-      height: 64px;
-      border: 8px solid var(--green-light);
-      border-top-color: var(--green);
-      border-radius: 50%;
-      margin: 0 auto 16px;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .loading p { font-size: 1.1em; color: #444; }
-
-    /* Error */
-    .error-box {
-      background: #ffebee;
-      border: 3px solid var(--error);
-      color: var(--error);
-      border-radius: 16px;
-      padding: 20px;
-      margin: 18px 0;
-      font-size: 1.05em;
-      text-align: center;
-    }
-
-    /* Results */
-    .results h2 {
-      font-size: 1.5em;
-      color: var(--green-dark);
-      margin: 24px 0 12px;
-    }
-
-    .result-card {
-      background: var(--card);
-      border-radius: 16px;
-      padding: 18px 20px;
-      margin: 14px 0;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      border-left: 8px solid var(--green);
-    }
-
-    .result-rank {
-      display: inline-block;
-      background: var(--green);
-      color: #fff;
-      font-weight: 700;
-      border-radius: 50%;
-      width: 38px;
-      height: 38px;
-      line-height: 38px;
-      text-align: center;
-      margin-right: 10px;
-      font-size: 1em;
-    }
-
-    .result-name {
-      font-size: 1.3em;
-      font-weight: 700;
-      font-style: italic;
-      color: var(--text);
-    }
-
-    .result-common {
-      font-size: 1.15em;
-      font-weight: 700;
-      color: var(--green-dark);
-      margin: 6px 0 2px;
-    }
-
-    .result-family {
-      font-size: 1em;
-      color: #555;
-      margin: 4px 0 12px;
-    }
-
-    .bar-label {
-      font-size: 0.95em;
-      color: #444;
-      margin-bottom: 4px;
-    }
-
-    .bar-track {
-      background: #e0e0e0;
-      border-radius: 10px;
-      height: 28px;
-      overflow: hidden;
-      width: 100%;
-    }
-
-    .bar-fill {
-      background: linear-gradient(90deg, #66bb6a, #2e7d32);
-      height: 100%;
-      border-radius: 10px;
-      color: #fff;
-      font-weight: 700;
-      text-align: right;
-      padding-right: 10px;
-      line-height: 28px;
-      font-size: 0.95em;
-      white-space: nowrap;
-      min-width: 40px;
-      transition: width 0.6s ease;
-    }
-
-    .reset-btn {
-      margin-top: 20px;
-    }
-
-    /* Pflege-Bereich */
-    .care-card {
-      background: var(--card);
-      border-radius: 16px;
-      padding: 18px 20px;
-      margin: 14px 0;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      border-left: 8px solid #00897b;
-    }
-
-    .care-title {
-      font-size: 1.35em;
-      font-weight: 700;
-      color: #00695c;
-      margin: 0 0 12px;
-    }
-
-    .care-loading {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      color: #555;
-      font-size: 1.05em;
-    }
-
-    .care-loading .mini-spinner {
-      width: 28px;
-      height: 28px;
-      border: 5px solid #e0f2f1;
-      border-top-color: #00897b;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      flex-shrink: 0;
-    }
-
-    .care-row {
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-      padding: 12px 0;
-      border-bottom: 1px solid #eee;
-    }
-    .care-row:last-child { border-bottom: none; }
-
-    .care-icon {
-      font-size: 1.6em;
-      line-height: 1.2;
-      flex-shrink: 0;
-      width: 38px;
-      text-align: center;
-    }
-
-    .care-label {
-      font-weight: 700;
-      color: var(--text);
-      font-size: 1.05em;
-    }
-
-    .care-value {
-      color: #333;
-      font-size: 1.05em;
-    }
-
-    .care-note {
-      font-size: 0.9em;
-      color: #888;
-      margin-top: 10px;
-      font-style: italic;
-    }
-
-    .care-retry {
-      display: inline-block;
-      margin-top: 12px;
-      background: #00897b;
-      color: #fff;
-      border: none;
-      border-radius: 12px;
-      padding: 12px 20px;
-      font-size: 1.05em;
-      font-weight: 700;
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .care-retry:hover { background: #00695c; }
-
-    /* Pflege: Quellen-Hinweis (Gattung/Familie) */
-    .care-level {
-      background: #fff8e1;
-      border-radius: 10px;
-      padding: 8px 12px;
-      margin: 0 0 10px;
-      font-size: 0.92em;
-      color: #8d6e00;
-    }
-
-    /* Pflege: Warn-Zeile (z. B. giftig) */
-    .care-row.care-warn {
-      background: #fff3e0;
-      border-radius: 12px;
-      padding: 12px;
-      border-bottom: none;
-    }
-    .care-row.care-warn .care-label { color: #c62828; }
-
-    /* Unsicherheits-Hinweis im Ergebnis */
-    .result-uncertain {
-      margin-top: 14px;
-      background: #fff3e0;
-      border-radius: 12px;
-      padding: 12px 14px;
-      font-size: 0.95em;
-      color: #8a5a00;
-    }
-
-    /* Aktions-Knöpfe (Vorlesen / Teilen / Mehr erfahren) */
-    .result-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin: 4px 0 8px;
-    }
-
-    .action-btn {
-      flex: 1 1 30%;
-      min-width: 120px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      background: #fff;
-      color: var(--green-dark);
-      border: 3px solid var(--green);
-      border-radius: 14px;
-      padding: 14px 12px;
-      font-size: 1.02em;
-      font-weight: 700;
+    .app-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 30px;
       text-decoration: none;
-      cursor: pointer;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      -webkit-tap-highlight-color: transparent;
-    }
-    .action-btn:hover { background: var(--green-light); }
-    .action-btn:active { transform: scale(0.98); }
-
-    /* Fehler-Box: Text + Nochmal-Knopf */
-    .error-retry {
-      display: inline-flex;
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 8px;
-      margin-top: 14px;
-      background: var(--error);
-      color: #fff;
-      border: none;
-      border-radius: 12px;
-      padding: 14px 22px;
-      font-size: 1.05em;
-      font-weight: 700;
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .error-retry:hover { background: #a01818; }
-
-    /* Verlauf: einzelnen Eintrag löschen */
-    .history-del {
-      align-self: flex-start;
-      flex-shrink: 0;
-      background: #f5f5f5;
-      color: #999;
-      border: none;
-      border-radius: 50%;
-      width: 36px;
-      height: 36px;
-      font-size: 1.05em;
-      font-weight: 700;
-      line-height: 1;
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .history-del:hover { background: #ffebee; color: var(--error); }
-
-    /* Verlauf-Ansicht */
-    .history-view h2 {
-      font-size: 1.5em;
-      color: var(--green-dark);
-      margin: 12px 0 16px;
-    }
-
-    .history-empty {
       text-align: center;
-      font-size: 1.1em;
-      color: #555;
-      background: var(--card);
-      border-radius: 16px;
-      padding: 28px 20px;
-      margin: 18px 0;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
     }
 
-    .history-card {
-      display: flex;
-      gap: 14px;
-      align-items: flex-start;
-      background: var(--card);
-      border-radius: 16px;
-      padding: 14px;
-      margin: 14px 0;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      border-left: 8px solid var(--green);
+    .app-card:hover {
+      transform: translateY(-8px);
+      background: var(--card-hover);
+      border-color: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2), 
+                  0 0 20px rgba(176, 82, 255, 0.1);
     }
 
-    .history-thumb {
-      width: 84px;
-      height: 84px;
-      flex-shrink: 0;
-      object-fit: cover;
-      border-radius: 12px;
-      border: 3px solid var(--green-light);
-    }
-
-    .history-info { flex: 1; min-width: 0; }
-
-    .history-name {
-      font-size: 1.15em;
-      font-weight: 700;
-      font-style: italic;
-      color: var(--text);
-    }
-
-    .history-common {
-      font-size: 1.05em;
-      font-weight: 700;
-      color: var(--green-dark);
-      margin: 2px 0;
-    }
-
-    .history-meta {
-      font-size: 0.9em;
-      color: #666;
-    }
-
-    .history-score {
+    .app-icon {
+      font-size: 3.5rem;
+      margin-bottom: 20px;
       display: inline-block;
-      background: var(--green-light);
-      color: var(--green-dark);
-      font-weight: 700;
-      border-radius: 8px;
-      padding: 2px 10px;
-      font-size: 0.95em;
-      margin-top: 4px;
+      transition: transform 0.3s ease;
     }
 
-    .history-date {
-      display: block;
-      font-size: 0.85em;
-      color: #888;
-      margin-top: 4px;
+    .app-card:hover .app-icon {
+      transform: scale(1.1) rotate(5deg);
     }
 
-    .history-care {
-      margin-top: 8px;
-      padding-top: 8px;
-      border-top: 1px solid #eee;
+    .app-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 10px;
     }
 
-    .history-care-row {
-      font-size: 0.92em;
-      color: #444;
-      margin: 3px 0;
-      display: flex;
-      gap: 6px;
-      align-items: flex-start;
+    .app-desc {
+      font-size: 1rem;
+      color: var(--text-muted);
+      font-weight: 300;
+      line-height: 1.5;
     }
-
-    #historyClearBtn { margin-top: 20px; }
 
     footer {
+      margin-top: auto;
+      padding: 30px;
       text-align: center;
-      margin-top: 40px;
-      padding-top: 20px;
-      border-top: 1px solid var(--border);
-      color: #666;
-      font-size: 0.95em;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      opacity: 0.7;
     }
 
-    footer a { color: var(--green-dark); }
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 2.5rem; }
+      header p { font-size: 1rem; }
+      .app-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="topbar">
-      <a class="wm-btn" href="./wm-wetten.html">
-        <span class="icon">⚽</span>WM Wetten
-      </a>
-      <button class="history-btn" id="historyBtn">
-        <span class="icon">🕘</span>Meine Pflanzen
-      </button>
-    </div>
 
+  <div class="container">
     <header>
-      <img src="logo.svg" alt="Pflanzenerkenner Logo" class="logo">
-      <h1>Pflanzenerkenner</h1>
-      <p>Fotografieren Sie eine Blume oder Pflanze, und wir sagen Ihnen, wie sie heißt.</p>
+      <img src="logo.png" alt="Nessie-Hub Logo" class="logo">
+      <h1>Nessie-Hub</h1>
+      <p>Wähle eine Anwendung, um zu starten</p>
     </header>
 
-    <!-- Eingabe-Bereich -->
-    <section id="inputSection">
-      <button class="btn" id="cameraBtn">
-        <span class="icon">📷</span>Foto aufnehmen
-      </button>
-      <button class="btn btn-secondary" id="uploadBtn">
-        <span class="icon">🖼️</span>Bild auswählen
-      </button>
+    <div class="app-grid">
+      <a href="pflanzen.html" class="app-card">
+        <span class="app-icon">🌱</span>
+        <h2 class="app-title">Pflanzen Erkenner</h2>
+        <p class="app-desc">Fotografiere Pflanzen und Blumen, um mehr über sie zu erfahren.</p>
+      </a>
 
-      <!-- Versteckte Datei-Eingaben -->
-      <input type="file" id="cameraInput" accept="image/*" capture="environment">
-      <input type="file" id="uploadInput" accept="image/*">
+      <a href="wm-wetten.html" class="app-card">
+        <span class="app-icon">⚽</span>
+        <h2 class="app-title">WM Wetten</h2>
+        <p class="app-desc">Die Tipprunde für die Weltmeisterschaft in der Familie.</p>
+      </a>
 
-      <button class="btn btn-submit hidden" id="submitBtn">
-        <span class="icon">🔍</span>Pflanze bestimmen
-      </button>
-
-      <div class="preview-wrap hidden" id="previewWrap">
-        <img id="previewImg" alt="Vorschau Ihres Bildes">
-      </div>
-    </section>
-
-    <!-- Lade-Anzeige -->
-    <section class="loading hidden" id="loadingSection">
-      <div class="spinner"></div>
-      <p>Ihre Pflanze wird bestimmt …<br>Bitte einen Moment Geduld.</p>
-    </section>
-
-    <!-- Fehler-Anzeige -->
-    <section class="error-box hidden" id="errorSection"></section>
-
-    <!-- Ergebnisse -->
-    <section class="results hidden" id="resultsSection">
-      <h2>Ihre Pflanze ist vermutlich:</h2>
-      <div id="resultsList"></div>
-      <div id="careSection"></div>
-      <button class="btn btn-secondary reset-btn" id="resetBtn">
-        <span class="icon">↺</span>Neue Pflanze bestimmen
-      </button>
-    </section>
-
-    <!-- Verlauf: bereits bestimmte Pflanzen -->
-    <section class="history-view hidden" id="historySection">
-      <h2>Meine bestimmten Pflanzen</h2>
-      <button class="btn btn-submit" id="historyBackBtn">
-        <span class="icon">←</span>Zurück
-      </button>
-      <p class="history-empty hidden" id="historyEmpty">
-        Sie haben noch keine Pflanzen bestimmt.<br>
-        Bestimmen Sie Ihre erste Pflanze – sie wird dann hier gespeichert.
-      </p>
-      <div id="historyList"></div>
-      <button class="btn btn-secondary" id="historyClearBtn">
-        <span class="icon">🗑️</span>Verlauf löschen
-      </button>
-    </section>
-
-    <footer>
-      <p>Powered by Pl@ntNet · Pflegedaten von Trefle</p>
-      <p>Made by Tobi 🌱</p>
-    </footer>
+      <a href="Wohnungsplaner.html" class="app-card">
+        <span class="app-icon">🛋️</span>
+        <h2 class="app-title">Wohnungsplaner</h2>
+        <p class="app-desc">Plane und gestalte die Einrichtung der Wohnung.</p>
+      </a>
+    </div>
   </div>
 
-  <script>
-    // =====================================================================
-    // KONFIGURATION
-    // ---------------------------------------------------------------------
-    // Hier Ihren persönlichen Pl@ntNet-API-Schlüssel eintragen.
-    // Einen kostenlosen Schlüssel erhalten Sie unter: https://my.plantnet.org
-    // =====================================================================
-    const API_KEY = "2b10DkD1ZjHZ3nBNlqwfJgq9";
+  <footer>
+    <p>&copy; Nessie-Hub by Tobi</p>
+  </footer>
 
-    const API_URL = "https://my-api.plantnet.org/v2/identify/all";
-
-    // --- Trefle (Pflegehinweise) ---
-    // Kostenlosen Token erhalten Sie unter: https://trefle.io
-    const TREFLE_TOKEN = "usr-2OMx8cmxIiAKlLmTx83WsmkyxEAaZ7u5-B2I4uMDYhs";
-    const TREFLE_URL = "https://trefle.io/api/v1/plants";
-
-    // Trefle erlaubt keine direkten Browser-Aufrufe (kein CORS). Deshalb läuft
-    // die Anfrage über einen öffentlichen CORS-Proxy. Bei Bedarf austauschbar
-    // (Alternative: "https://api.allorigins.win/raw?url=").
-    const CORS_PROXY = "https://api.codetabs.com/v1/proxy/?quest=";
-
-    // --- Elemente ---
-    const cameraBtn = document.getElementById("cameraBtn");
-    const uploadBtn = document.getElementById("uploadBtn");
-    const cameraInput = document.getElementById("cameraInput");
-    const uploadInput = document.getElementById("uploadInput");
-    const previewWrap = document.getElementById("previewWrap");
-    const previewImg = document.getElementById("previewImg");
-    const submitBtn = document.getElementById("submitBtn");
-
-    const inputSection = document.getElementById("inputSection");
-    const loadingSection = document.getElementById("loadingSection");
-    const errorSection = document.getElementById("errorSection");
-    const resultsSection = document.getElementById("resultsSection");
-    const resultsList = document.getElementById("resultsList");
-    const careSection = document.getElementById("careSection");
-    const resetBtn = document.getElementById("resetBtn");
-
-    const historyBtn = document.getElementById("historyBtn");
-    const historySection = document.getElementById("historySection");
-    const historyList = document.getElementById("historyList");
-    const historyEmpty = document.getElementById("historyEmpty");
-    const historyBackBtn = document.getElementById("historyBackBtn");
-    const historyClearBtn = document.getElementById("historyClearBtn");
-
-    const HISTORY_KEY = "pflanzenerkenner_verlauf";
-
-    let selectedFile = null;
-    let lastResult = null;     // zuletzt angezeigte Pflanze (für Vorlesen/Teilen)
-    let lastCareRows = [];     // zuletzt geladene Pflegehinweise
-
-    // --- Datei-Auswahl auslösen ---
-    cameraBtn.addEventListener("click", () => cameraInput.click());
-    uploadBtn.addEventListener("click", () => uploadInput.click());
-
-    cameraInput.addEventListener("change", handleFileSelect);
-    uploadInput.addEventListener("change", handleFileSelect);
-
-    function handleFileSelect(event) {
-      const file = event.target.files && event.target.files[0];
-      if (!file) return;
-
-      selectedFile = file;
-      hideError();
-
-      // Vorschau anzeigen
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        previewImg.src = e.target.result;
-        previewWrap.classList.remove("hidden");
-        submitBtn.classList.remove("hidden");
-        submitBtn.scrollIntoView({ behavior: "smooth", block: "center" });
-      };
-      reader.readAsDataURL(file);
-    }
-
-    // --- Bild für die API vorbereiten ---
-    // Pl@ntNet akzeptiert nur JPEG/PNG. Wir zeichnen das Bild auf ein Canvas
-    // und exportieren es als JPEG. Das wandelt z. B. WebP/HEIC um und
-    // verkleinert sehr große Fotos (schnellerer Upload).
-    function prepareImage(file, maxSize = 1600, quality = 0.9) {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        const objectUrl = URL.createObjectURL(file);
-
-        img.onload = () => {
-          URL.revokeObjectURL(objectUrl);
-
-          let { width, height } = img;
-          if (width > maxSize || height > maxSize) {
-            const scale = maxSize / Math.max(width, height);
-            width = Math.round(width * scale);
-            height = Math.round(height * scale);
-          }
-
-          const canvas = document.createElement("canvas");
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext("2d");
-          ctx.drawImage(img, 0, 0, width, height);
-
-          canvas.toBlob(
-            (blob) => {
-              if (blob) {
-                resolve(blob);
-              } else {
-                reject(new Error("Das Bild konnte nicht verarbeitet werden."));
-              }
-            },
-            "image/jpeg",
-            quality
-          );
-        };
-
-        img.onerror = () => {
-          URL.revokeObjectURL(objectUrl);
-          reject(new Error("Dieses Bild konnte nicht gelesen werden. Bitte verwenden Sie ein Foto im Format JPG oder PNG."));
-        };
-
-        img.src = objectUrl;
-      });
-    }
-
-    // --- Bild an die API senden ---
-    submitBtn.addEventListener("click", identifyPlant);
-
-    async function identifyPlant() {
-      if (!selectedFile) return;
-
-      // Keine Internetverbindung? -> früh und freundlich abbrechen
-      if (navigator.onLine === false) {
-        showError("Sie sind gerade nicht mit dem Internet verbunden. Bitte stellen Sie eine Verbindung her und versuchen Sie es erneut.");
-        return;
-      }
-
-      hideError();
-      inputSection.classList.add("hidden");
-      resultsSection.classList.add("hidden");
-      loadingSection.classList.remove("hidden");
-      loadingSection.scrollIntoView({ behavior: "smooth", block: "center" });
-
-      let imageBlob;
-      try {
-        imageBlob = await prepareImage(selectedFile);
-      } catch (prepErr) {
-        showError(prepErr.message);
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append("images", imageBlob, "pflanze.jpg");
-      formData.append("organs", "auto");
-
-      // Deutsche Namen mit anfordern
-      const url = API_URL + "?api-key=" + encodeURIComponent(API_KEY) + "&lang=de";
-
-      try {
-        const response = await fetch(url, {
-          method: "POST",
-          body: formData
-        });
-
-        if (!response.ok) {
-          let msg;
-          if (response.status === 404) {
-            msg = "Auf diesem Bild konnte leider keine Pflanze erkannt werden. Bitte versuchen Sie es mit einem anderen Foto.";
-          } else if (response.status === 401 || response.status === 403) {
-            msg = "Der Zugang zum Bestimmungsdienst ist nicht gültig. Bitte prüfen Sie den API-Schlüssel.";
-          } else if (response.status === 429) {
-            msg = "Das Tageslimit für Bestimmungen ist erreicht. Bitte versuchen Sie es später noch einmal.";
-          } else if (response.status === 400) {
-            msg = "Dieses Bild konnte nicht ausgewertet werden. Bitte verwenden Sie ein klares Foto einer Pflanze (Format JPG oder PNG).";
-          } else {
-            msg = "Der Bestimmungsdienst ist gerade nicht erreichbar (Fehler " + response.status + "). Bitte versuchen Sie es später erneut.";
-          }
-          throw new Error(msg);
-        }
-
-        const data = await response.json();
-        const shown = showResults(data);
-
-        // Bei Erfolg: im Verlauf speichern und Pflegehinweise nachladen
-        if (shown) {
-          let thumb = "";
-          try { thumb = await makeThumbnail(selectedFile); } catch (e) { /* optional */ }
-          addToHistory({ date: Date.now(), image: thumb, result: shown, care: [] });
-
-          // Pflegehinweise (Trefle) – läuft eigenständig, blockiert nichts
-          loadCare(shown.sciName, shown.family);
-        }
-
-      } catch (err) {
-        // Netzwerkfehler oder geworfene Meldung
-        const friendly = (err && err.message && err.message.length < 200)
-          ? err.message
-          : "Es gab leider ein Problem bei der Verbindung. Bitte prüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.";
-        showError(friendly);
-      }
-    }
-
-    // --- API-Antwort in einfache Objekte umwandeln ---
-    function parseResults(data) {
-      const raw = (data && data.results) ? data.results.slice(0, 3) : [];
-      return raw.map((res) => {
-        const species = res.species || {};
-        const commonNames = species.commonNames || [];
-        return {
-          sciName: species.scientificNameWithoutAuthor || species.scientificName || "Unbekannt",
-          family: (species.family && species.family.scientificNameWithoutAuthor) || "",
-          commonName: commonNames.length > 0 ? commonNames[0] : "",
-          score: Math.round((res.score || 0) * 100)
-        };
-      });
-    }
-
-    // --- Ergebnis anzeigen --- (nur der wahrscheinlichste Treffer)
-    function showResults(data) {
-      loadingSection.classList.add("hidden");
-
-      const results = parseResults(data);
-
-      if (results.length === 0) {
-        showError("Es konnte keine passende Pflanze gefunden werden. Bitte versuchen Sie es mit einem anderen Foto.");
-        return null;
-      }
-
-      const res = results[0];   // wahrscheinlichste Pflanze
-      lastResult = res;
-      lastCareRows = [];
-      resultsList.innerHTML = "";
-      careSection.innerHTML = "";
-
-      const card = document.createElement("div");
-      card.className = "result-card";
-
-      let html = '<div class="result-name">' + escapeHtml(res.sciName) + '</div>';
-
-      if (res.commonName) {
-        html += '<div class="result-common">' + escapeHtml(res.commonName) + '</div>';
-      }
-      if (res.family) {
-        html += '<div class="result-family">Familie: ' + escapeHtml(res.family) + '</div>';
-      }
-
-      html += '<div class="bar-label">Übereinstimmung</div>'
-            + '<div class="bar-track"><div class="bar-fill" style="width:' + Math.max(res.score, 6) + '%">'
-            + res.score + '%</div></div>';
-
-      // Hinweis bei unsicherer Erkennung
-      if (res.score < 35) {
-        html += '<div class="result-uncertain">⚠️ Die Erkennung ist unsicher. Für ein besseres Ergebnis ' +
-                'ein scharfes Foto von Blüte oder Blatt bei gutem Licht machen.</div>';
-      }
-
-      card.innerHTML = html;
-      resultsList.appendChild(card);
-
-      // Aktions-Knöpfe: Vorlesen, Teilen, Mehr erfahren
-      const actions = document.createElement("div");
-      actions.className = "result-actions";
-      actions.innerHTML =
-        '<button class="action-btn" id="speakBtn"><span class="icon">🔊</span>Vorlesen</button>' +
-        '<button class="action-btn" id="shareBtn"><span class="icon">📤</span>Teilen</button>' +
-        '<a class="action-btn" id="wikiBtn" target="_blank" rel="noopener" ' +
-        'href="https://de.wikipedia.org/wiki/Spezial:Suche?search=' + encodeURIComponent(res.commonName || res.sciName) +
-        '"><span class="icon">🔎</span>Mehr erfahren</a>';
-      resultsList.appendChild(actions);
-
-      document.getElementById("speakBtn").addEventListener("click", toggleSpeak);
-      document.getElementById("shareBtn").addEventListener("click", shareResult);
-
-      resultsSection.classList.remove("hidden");
-      resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
-      return res;   // einzelnes Objekt
-    }
-
-    // =====================================================================
-    // PFLEGEHINWEISE (Trefle, über CORS-Proxy)
-    // =====================================================================
-
-    // Abruf über den Proxy, mit mehreren Versuchen (Proxy kann mal aussetzen)
-    async function proxyGetJson(trefleUrl, attempts = 3) {
-      const fullUrl = CORS_PROXY + encodeURIComponent(trefleUrl);
-      let lastErr;
-      for (let i = 0; i < attempts; i++) {
-        try {
-          const controller = new AbortController();
-          const timer = setTimeout(() => controller.abort(), 12000);
-          const resp = await fetch(fullUrl, { signal: controller.signal });
-          clearTimeout(timer);
-          if (!resp.ok) throw new Error("HTTP " + resp.status);
-          return await resp.json();
-        } catch (e) {
-          lastErr = e;
-          await new Promise((r) => setTimeout(r, 1200)); // kurz warten, dann erneut
-        }
-      }
-      throw lastErr || new Error("Pflegehinweise nicht erreichbar");
-    }
-
-    const HABIT_DE = {
-      tree: "Baum", shrub: "Strauch", subshrub: "Halbstrauch", herb: "Krautige Pflanze",
-      forb: "Kraut", "forb/herb": "Kraut", graminoid: "Gras", vine: "Kletterpflanze",
-      liana: "Kletterpflanze", succulent: "Sukkulente", lycopod: "Bärlapp", fern: "Farn"
-    };
-    const DURATION_DE = { annual: "einjährig", biennial: "zweijährig", perennial: "mehrjährig" };
-    const TOX_DE = { none: null, low: "leicht giftig", medium: "giftig", high: "stark giftig" };
-    const EDIBLE_PART_DE = {
-      fruits: "Früchte", leaves: "Blätter", roots: "Wurzeln", flowers: "Blüten",
-      seeds: "Samen", stem: "Stängel", tubers: "Knollen", bark: "Rinde"
-    };
-
-    // =====================================================================
-    // EINGEBAUTE PFLEGE-DATENBANK (für häufige Pflanzen, v. a. Zimmerpflanzen,
-    // zu denen Trefle keine Daten hat). Schlüssel = lateinische Gattung.
-    // =====================================================================
-    const L = (icon, label, value, warn) => ({ icon, label, value, warn: !!warn });
-    const LOCAL_CARE = {
-      monstera: { name: "Fensterblatt (Monstera)", rows: [
-        L("☀️", "Licht", "Hell, aber keine direkte Sonne."),
-        L("💧", "Gießen", "Mäßig – obere Erdschicht antrocknen lassen, dann durchdringend gießen."),
-        L("🌫️", "Luftfeuchtigkeit", "Mag hohe Luftfeuchtigkeit – Blätter ab und zu besprühen."),
-        L("💡", "Tipp", "Große Blätter gelegentlich abstauben."),
-        L("⚠️", "Achtung", "Alle Teile sind leicht giftig. Von Kindern und Haustieren fernhalten.", true) ] },
-      ficus: { name: "Gummibaum / Birkenfeige (Ficus)", rows: [
-        L("☀️", "Licht", "Hell, ohne pralle Mittagssonne."),
-        L("💧", "Gießen", "Mäßig – erst gießen, wenn die Erde oben abgetrocknet ist."),
-        L("💡", "Tipp", "Standort möglichst nicht wechseln – sonst wirft er Blätter ab."),
-        L("⚠️", "Achtung", "Der Milchsaft reizt Haut und Schleimhäute.", true) ] },
-      epipremnum: { name: "Efeutute (Pothos)", rows: [
-        L("☀️", "Licht", "Hell bis halbschattig – sehr anpassungsfähig."),
-        L("💧", "Gießen", "Mäßig – zwischendurch leicht antrocknen lassen."),
-        L("💡", "Tipp", "Sehr pflegeleicht, ideal für Anfänger. Lange Ranken kann man kürzen."),
-        L("⚠️", "Achtung", "Leicht giftig für Menschen und Tiere.", true) ] },
-      pothos: { name: "Efeutute (Pothos)", rows: [
-        L("☀️", "Licht", "Hell bis halbschattig – sehr anpassungsfähig."),
-        L("💧", "Gießen", "Mäßig – zwischendurch leicht antrocknen lassen."),
-        L("⚠️", "Achtung", "Leicht giftig für Menschen und Tiere.", true) ] },
-      sansevieria: { name: "Bogenhanf (Sansevieria)", rows: [
-        L("☀️", "Licht", "Von sonnig bis halbschattig – verträgt fast jeden Platz."),
-        L("💧", "Gießen", "Sehr sparsam! Lieber zu wenig als zu viel. Staunässe vermeiden."),
-        L("💡", "Tipp", "Im Winter nur etwa einmal im Monat gießen.") ] },
-      dracaena: { name: "Drachenbaum (Dracaena)", rows: [
-        L("☀️", "Licht", "Hell bis halbschattig, keine pralle Sonne."),
-        L("💧", "Gießen", "Mäßig – oben antrocknen lassen. Staunässe vermeiden."),
-        L("💡", "Tipp", "Mag kalkarmes Wasser (z. B. Regenwasser).") ] },
-      zamioculcas: { name: "Glücksfeder (Zamioculcas)", rows: [
-        L("☀️", "Licht", "Halbschattig – kommt sogar mit wenig Licht aus."),
-        L("💧", "Gießen", "Sparsam – sehr genügsam, verzeiht auch mal Vergessen."),
-        L("⚠️", "Achtung", "Leicht giftig.", true) ] },
-      spathiphyllum: { name: "Einblatt / Friedenslilie (Spathiphyllum)", rows: [
-        L("☀️", "Licht", "Halbschattig, keine direkte Sonne."),
-        L("💧", "Gießen", "Gleichmäßig feucht halten. Lässt die Blätter hängen, wenn es Durst hat."),
-        L("🌫️", "Luftfeuchtigkeit", "Mag hohe Luftfeuchtigkeit – regelmäßig besprühen."),
-        L("⚠️", "Achtung", "Leicht giftig.", true) ] },
-      chlorophytum: { name: "Grünlilie (Chlorophytum)", rows: [
-        L("☀️", "Licht", "Hell bis halbschattig."),
-        L("💧", "Gießen", "Mäßig bis reichlich im Sommer, weniger im Winter."),
-        L("💡", "Tipp", "Sehr robust, ungiftig und luftreinigend – perfekt für Anfänger.") ] },
-      phalaenopsis: { name: "Orchidee (Phalaenopsis)", rows: [
-        L("☀️", "Licht", "Hell, ohne direkte Sonne (z. B. Ostfenster)."),
-        L("💧", "Gießen", "Etwa einmal pro Woche tauchen, gut abtropfen lassen. Kein Wasser im Herzen."),
-        L("🌫️", "Luftfeuchtigkeit", "Mag feuchte Luft."),
-        L("💡", "Tipp", "Spezielle Orchideenerde verwenden. Verblühten Stiel über einem Auge kürzen.") ] },
-      orchis: { name: "Orchidee", rows: [
-        L("☀️", "Licht", "Hell, ohne direkte Sonne."),
-        L("💧", "Gießen", "Sparsam, lieber tauchen als gießen. Staunässe unbedingt vermeiden.") ] },
-      aloe: { name: "Aloe Vera", rows: [
-        L("☀️", "Licht", "Sonnig bis hell."),
-        L("💧", "Gießen", "Sehr sparsam – die dicken Blätter speichern Wasser. Kakteenerde."),
-        L("💡", "Tipp", "Im Winter kühl stellen und kaum gießen.") ] },
-      echeveria: { name: "Sukkulente (Echeveria)", rows: [
-        L("☀️", "Licht", "Sonnig."),
-        L("💧", "Gießen", "Sparsam, erst gießen wenn die Erde ganz trocken ist. Staunässe vermeiden.") ] },
-      kalanchoe: { name: "Flammendes Käthchen (Kalanchoe)", rows: [
-        L("☀️", "Licht", "Hell bis sonnig."),
-        L("💧", "Gießen", "Sparsam – Sukkulente, speichert Wasser in den Blättern."),
-        L("⚠️", "Achtung", "Für Haustiere giftig.", true) ] },
-      saintpaulia: { name: "Usambaraveilchen (Saintpaulia)", rows: [
-        L("☀️", "Licht", "Hell, ohne direkte Sonne."),
-        L("💧", "Gießen", "Von unten gießen (Untersetzer). Blätter und Herz nicht nass machen."),
-        L("💡", "Tipp", "Zimmerwarmes, kalkarmes Wasser verwenden.") ] },
-      pelargonium: { name: "Geranie (Pelargonium)", rows: [
-        L("☀️", "Licht", "Sonnig – klassische Balkonpflanze."),
-        L("💧", "Gießen", "Regelmäßig, an heißen Tagen täglich. Verblühtes ausbrechen."),
-        L("💡", "Tipp", "Frostempfindlich – im Winter hell und kühl überwintern.") ] },
-      cyclamen: { name: "Alpenveilchen (Cyclamen)", rows: [
-        L("☀️", "Licht", "Hell und kühl (nicht über der Heizung)."),
-        L("💧", "Gießen", "Von unten gießen. Die Knolle selbst nicht begießen."),
-        L("⚠️", "Achtung", "Besonders die Knolle ist giftig.", true) ] },
-      euphorbia: { name: "Weihnachtsstern (Euphorbia)", rows: [
-        L("☀️", "Licht", "Hell und warm, ohne Zugluft."),
-        L("💧", "Gießen", "Mäßig mit lauwarmem Wasser. Staunässe vermeiden."),
-        L("⚠️", "Achtung", "Der Milchsaft reizt Haut und Augen.", true) ] },
-      hedera: { name: "Efeu (Hedera)", rows: [
-        L("☀️", "Licht", "Hell bis halbschattig, gerne kühl."),
-        L("💧", "Gießen", "Gleichmäßig feucht halten, nicht austrocknen lassen."),
-        L("⚠️", "Achtung", "Blätter und Beeren sind giftig.", true) ] },
-      begonia: { name: "Begonie (Begonia)", rows: [
-        L("☀️", "Licht", "Hell, ohne pralle Mittagssonne."),
-        L("💧", "Gießen", "Mäßig und gleichmäßig. Blätter trocken halten.") ] },
-      rosa: { name: "Rose (Rosa)", rows: [
-        L("☀️", "Licht", "Sonnig und luftig."),
-        L("💧", "Gießen", "Durchdringend an der Wurzel gießen, Blätter trocken halten (beugt Pilz vor)."),
-        L("💡", "Tipp", "Während der Blüte düngen. Verblühtes regelmäßig herausschneiden.") ] },
-      tulipa: { name: "Tulpe (Tulipa)", rows: [
-        L("☀️", "Licht", "Hell bis sonnig."),
-        L("💧", "Gießen", "Mäßig. Im Beet die Zwiebeln im Herbst setzen."),
-        L("💡", "Tipp", "Als Schnittblume kühl stellen, dann hält sie länger.") ] },
-      narcissus: { name: "Narzisse / Osterglocke (Narcissus)", rows: [
-        L("☀️", "Licht", "Sonnig bis halbschattig."),
-        L("💧", "Gießen", "Mäßig feucht halten während der Blüte."),
-        L("⚠️", "Achtung", "Zwiebel und Pflanze sind giftig.", true) ] },
-      lavandula: { name: "Lavendel (Lavandula)", rows: [
-        L("☀️", "Licht", "Vollsonnig und warm."),
-        L("💧", "Gießen", "Sparsam – mag trockenen, durchlässigen Boden. Staunässe vermeiden."),
-        L("💡", "Tipp", "Nach der Blüte zurückschneiden, dann bleibt er kompakt.") ] },
-      hydrangea: { name: "Hortensie (Hydrangea)", rows: [
-        L("☀️", "Licht", "Halbschattig."),
-        L("💧", "Gießen", "Viel Wasser – der Name bedeutet „Wasserschlürfer“. Nicht austrocknen lassen."),
-        L("💡", "Tipp", "Saurer Boden färbt die Blüten blau.") ] },
-      ocimum: { name: "Basilikum (Ocimum)", rows: [
-        L("☀️", "Licht", "Sonnig und warm."),
-        L("💧", "Gießen", "Reichlich, am besten von unten. Erde nie ganz austrocknen lassen."),
-        L("💡", "Tipp", "Regelmäßig die Triebspitzen ernten, dann wird er buschig.") ] }
-    };
-    // einige deutsche/englische Stichwörter auf Gattungen abbilden
-    const LOCAL_ALIAS = {
-      orchidaceae: "phalaenopsis", orchidee: "phalaenopsis", orchid: "phalaenopsis",
-      cactaceae: "echeveria", kaktus: "echeveria", cactus: "echeveria", sukkulente: "echeveria",
-      poinsettia: "euphorbia"
-    };
-
-    function localCareLookup(sciName) {
-      const genus = (sciName || "").trim().split(/\s+/)[0].toLowerCase();
-      const key = LOCAL_CARE[genus] ? genus : LOCAL_ALIAS[genus];
-      return key ? LOCAL_CARE[key] : null;
-    }
-
-    // Trefle-Wachstumsdaten in verständliche deutsche Pflegehinweise umwandeln
-    function buildCareRows(plant) {
-      const ms = plant.main_species || {};
-      const g = ms.growth || {};
-      const spec = ms.specifications || {};
-      const rows = [];
-
-      // Giftigkeit – als Warnung ganz oben (wichtig für Haushalte mit Kindern/Tieren)
-      const tox = spec.toxicity && TOX_DE[String(spec.toxicity).toLowerCase()];
-      if (tox) {
-        rows.push({ icon: "⚠️", label: "Achtung", value: "Diese Pflanze ist " + tox + ". Von Kindern und Haustieren fernhalten.", warn: true });
-      }
-
-      // Licht (Skala 0–10)
-      if (g.light != null) {
-        let t;
-        if (g.light <= 3) t = "Schattig – wenig direktes Licht nötig.";
-        else if (g.light <= 6) t = "Heller Standort, aber keine pralle Mittagssonne.";
-        else t = "Sonnig – viel direktes Sonnenlicht.";
-        rows.push({ icon: "☀️", label: "Licht", value: t });
-      }
-
-      // Gießen / Bodenfeuchte (Skala 0–10)
-      if (g.soil_humidity != null) {
-        let t;
-        if (g.soil_humidity <= 3) t = "Sparsam gießen – Erde zwischendurch abtrocknen lassen.";
-        else if (g.soil_humidity <= 6) t = "Mäßig gießen – Erde gleichmäßig leicht feucht halten.";
-        else t = "Regelmäßig gießen – Erde feucht halten.";
-        rows.push({ icon: "💧", label: "Gießen", value: t });
-      }
-
-      // Luftfeuchtigkeit (Skala 0–10)
-      if (g.atmospheric_humidity != null) {
-        let t;
-        if (g.atmospheric_humidity <= 3) t = "Trockene Raumluft wird gut vertragen.";
-        else if (g.atmospheric_humidity <= 6) t = "Normale Luftfeuchtigkeit ist ideal.";
-        else t = "Mag hohe Luftfeuchtigkeit – ab und zu mit Wasser besprühen.";
-        rows.push({ icon: "🌫️", label: "Luftfeuchtigkeit", value: t });
-      }
-
-      // Boden-pH
-      if (g.ph_minimum != null && g.ph_maximum != null) {
-        const mid = (g.ph_minimum + g.ph_maximum) / 2;
-        let art = mid < 6.5 ? "eher saurer Boden" : (mid > 7.5 ? "eher kalkhaltiger Boden" : "neutraler Boden");
-        rows.push({ icon: "🧪", label: "Boden", value: "pH " + g.ph_minimum + "–" + g.ph_maximum + " (" + art + ")." });
-      }
-
-      // Temperatur / Frosthärte
-      const tmin = g.minimum_temperature && g.minimum_temperature.deg_c;
-      if (tmin != null) {
-        rows.push({ icon: "🌡️", label: "Temperatur", value: "Verträgt Kälte bis etwa " + tmin + " °C." });
-      }
-
-      // Wuchsform
-      const habit = spec.growth_habit && HABIT_DE[String(spec.growth_habit).toLowerCase()];
-      if (habit) {
-        rows.push({ icon: "🌳", label: "Wuchsform", value: habit + "." });
-      }
-
-      // Wuchshöhe
-      const h = spec.average_height && spec.average_height.cm;
-      if (h != null) {
-        const txt = h >= 100 ? (Math.round(h / 10) / 10 + " m") : (h + " cm");
-        rows.push({ icon: "📏", label: "Wuchshöhe", value: "Wird etwa " + txt + " hoch." });
-      }
-
-      // Lebensdauer
-      const dur = ms.duration;
-      const durKey = Array.isArray(dur) ? (dur[0] || "") : (dur || "");
-      const durDe = DURATION_DE[String(durKey).toLowerCase()];
-      if (durDe) {
-        rows.push({ icon: "📅", label: "Lebensdauer", value: durDe.charAt(0).toUpperCase() + durDe.slice(1) + "." });
-      }
-
-      // Blütezeit
-      if (Array.isArray(g.bloom_months) && g.bloom_months.length) {
-        rows.push({ icon: "🌸", label: "Blütezeit", value: monthsToGerman(g.bloom_months) });
-      }
-
-      // Essbar
-      if (ms.edible) {
-        const parts = (ms.edible_part || []).map((p) => EDIBLE_PART_DE[String(p).toLowerCase()] || p);
-        rows.push({ icon: "🍽️", label: "Essbar", value: parts.length ? ("Essbare Teile: " + parts.join(", ") + ".") : "Teile dieser Pflanze sind essbar." });
-      }
-
-      return rows;
-    }
-
-    const MONTHS_DE = {
-      jan: "Januar", feb: "Februar", mar: "März", apr: "April", may: "Mai",
-      jun: "Juni", jul: "Juli", aug: "August", sep: "September",
-      oct: "Oktober", nov: "November", dec: "Dezember"
-    };
-    function monthsToGerman(arr) {
-      return arr.map((m) => MONTHS_DE[String(m).toLowerCase().slice(0, 3)] || m).join(", ");
-    }
-
-    // Pflege-Karte rendern
-    function renderCareLoading() {
-      careSection.innerHTML =
-        '<div class="care-card">' +
-        '<div class="care-title">🪴 Pflege</div>' +
-        '<div class="care-loading"><div class="mini-spinner"></div>' +
-        '<span>Pflegehinweise werden geladen …</span></div></div>';
-    }
-
-    function renderCareRows(rows, levelNote, source) {
-      let inner = '<div class="care-title">🪴 Pflege</div>';
-      if (levelNote) {
-        inner += '<p class="care-level">' + escapeHtml(levelNote) + '</p>';
-      }
-      if (rows.length === 0) {
-        inner += '<p class="care-value">Für diese Pflanze liegen leider keine Pflegedaten vor.</p>';
-      } else {
-        rows.forEach((r) => {
-          inner += '<div class="care-row' + (r.warn ? ' care-warn' : '') + '"><div class="care-icon">' + r.icon + '</div>' +
-                   '<div><div class="care-label">' + escapeHtml(r.label) + '</div>' +
-                   '<div class="care-value">' + escapeHtml(r.value) + '</div></div></div>';
-        });
-      }
-      const credit = source === "trefle" ? "Pflegehinweise von Trefle. " : "";
-      inner += '<p class="care-note">' + credit + 'Allgemeine Richtwerte – im Zweifel auf Ihre Pflanze achten.</p>';
-      careSection.innerHTML = '<div class="care-card">' + inner + '</div>';
-    }
-
-    function renderCareError(sciName, family) {
-      careSection.innerHTML =
-        '<div class="care-card">' +
-        '<div class="care-title">🪴 Pflege</div>' +
-        '<p class="care-value">Die Pflegehinweise konnten gerade nicht geladen werden.</p>' +
-        '<button class="care-retry" id="careRetryBtn">Erneut versuchen</button></div>';
-      const btn = document.getElementById("careRetryBtn");
-      if (btn) btn.addEventListener("click", () => loadCare(sciName, family));
-    }
-
-    // Für eine Suchanfrage Pflegedaten holen: sucht und prüft die ersten Treffer,
-    // bis einer brauchbare Wachstumsdaten liefert. Gibt [] zurück, wenn nichts da.
-    async function careRowsForQuery(query) {
-      const search = await proxyGetJson(TREFLE_URL + "/search?token=" + TREFLE_TOKEN +
-                                        "&q=" + encodeURIComponent(query));
-      const hits = (search && search.data) || [];
-      for (let i = 0; i < Math.min(hits.length, 2); i++) {
-        const detail = await proxyGetJson(TREFLE_URL + "/" + hits[i].slug + "?token=" + TREFLE_TOKEN);
-        const rows = buildCareRows((detail && detail.data) || {});
-        if (rows.length) return rows;
-      }
-      return [];
-    }
-
-    // Pflegehinweise laden. Reihenfolge:
-    //   1) eingebaute Datenbank (sofort, zuverlässig – v. a. für Zimmerpflanzen)
-    //   2) Trefle für die genaue Art
-    //   3) Trefle-Rückfall auf Gattung, dann Familie
-    // "Besser ungefähre Hinweise als gar keine."
-    async function loadCare(sciName, family) {
-      // 1) Eingebaute Datenbank zuerst
-      const local = localCareLookup(sciName);
-      if (local) {
-        renderCareRows(local.rows, "Allgemeine Pflege für " + local.name + ".", "local");
-        lastCareRows = local.rows;
-        patchLatestHistoryCare(sciName, local.rows);
-        return local.rows;
-      }
-
-      renderCareLoading();
-      try {
-        // 2) Genaue Art über Trefle
-        let rows = await careRowsForQuery(sciName);
-        let note = "";
-
-        // 3a) Rückfall: Gattung (erstes Wort des Namens)
-        const genus = (sciName || "").trim().split(/\s+/)[0];
-        if (rows.length === 0 && genus && genus.toLowerCase() !== (sciName || "").toLowerCase()) {
-          rows = await careRowsForQuery(genus);
-          if (rows.length) note = "Allgemeine Hinweise für die Gattung " + genus + " (für die genaue Art lagen keine Daten vor).";
-        }
-
-        // 3b) Rückfall: Pflanzenfamilie
-        if (rows.length === 0 && family) {
-          rows = await careRowsForQuery(family);
-          if (rows.length) note = "Allgemeine Hinweise für die Familie " + family + " (für die genaue Art lagen keine Daten vor).";
-        }
-
-        renderCareRows(rows, note, "trefle");
-        lastCareRows = rows;
-        patchLatestHistoryCare(sciName, rows);
-        return rows;
-      } catch (e) {
-        renderCareError(sciName, family);
-        return [];
-      }
-    }
-
-    // =====================================================================
-    // VORLESEN & TEILEN
-    // =====================================================================
-
-    // Text aus Ergebnis + Pflege zusammensetzen
-    function buildPlantText() {
-      if (!lastResult) return "";
-      let t = "Diese Pflanze ist vermutlich ";
-      t += lastResult.commonName ? (lastResult.commonName + ", wissenschaftlich " + lastResult.sciName) : lastResult.sciName;
-      t += ". ";
-      if (lastResult.family) t += "Familie: " + lastResult.family + ". ";
-      if (lastCareRows && lastCareRows.length) {
-        t += "Pflege. ";
-        lastCareRows.forEach((r) => { t += r.label + ": " + r.value + " "; });
-      }
-      return t.trim();
-    }
-
-    // Vorlesen per Sprachausgabe (Web Speech API), Knopf wirkt als An/Aus
-    function toggleSpeak() {
-      const btn = document.getElementById("speakBtn");
-      if (!("speechSynthesis" in window)) {
-        alert("Das Vorlesen wird von diesem Gerät leider nicht unterstützt.");
-        return;
-      }
-      // Läuft gerade etwas? -> stoppen
-      if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
-        window.speechSynthesis.cancel();
-        if (btn) btn.innerHTML = '<span class="icon">🔊</span>Vorlesen';
-        return;
-      }
-      const text = buildPlantText();
-      if (!text) return;
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = "de-DE";
-      u.rate = 0.95;
-      const deVoice = window.speechSynthesis.getVoices().find((v) => /de(-|_)/i.test(v.lang));
-      if (deVoice) u.voice = deVoice;
-      u.onend = () => { if (btn) btn.innerHTML = '<span class="icon">🔊</span>Vorlesen'; };
-      if (btn) btn.innerHTML = '<span class="icon">⏹️</span>Stopp';
-      window.speechSynthesis.speak(u);
-    }
-
-    // Stimmen laden ggf. asynchron – nur anstoßen
-    if ("speechSynthesis" in window) { window.speechSynthesis.getVoices(); }
-
-    // Ergebnis teilen (WhatsApp & Co.) oder in die Zwischenablage kopieren
-    async function shareResult() {
-      const text = buildPlantText();
-      if (!text) return;
-      const shareData = { title: "Pflanzenerkenner", text: text };
-      try {
-        if (navigator.share) {
-          await navigator.share(shareData);
-          return;
-        }
-      } catch (e) {
-        if (e && e.name === "AbortError") return; // Nutzer hat abgebrochen
-      }
-      // Rückfall: in die Zwischenablage kopieren
-      try {
-        await navigator.clipboard.writeText(text);
-        alert("Der Text wurde in die Zwischenablage kopiert. Sie können ihn nun einfügen.");
-      } catch (e) {
-        alert(text);
-      }
-    }
-
-    // =====================================================================
-    // VERLAUF (gespeichert im Browser via localStorage)
-    // =====================================================================
-    function loadHistory() {
-      try {
-        return JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
-      } catch (e) {
-        return [];
-      }
-    }
-
-    function saveHistory(list) {
-      try {
-        localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
-      } catch (e) {
-        // Speicher voll: ältesten Eintrag entfernen und erneut versuchen
-        if (list.length > 1) {
-          list.pop();
-          saveHistory(list);
-        }
-      }
-    }
-
-    function addToHistory(entry) {
-      const list = loadHistory();
-      list.unshift(entry);          // neuester zuerst
-      while (list.length > 30) list.pop();  // höchstens 30 merken
-      saveHistory(list);
-    }
-
-    // Pflegedaten beim passenden (neuesten) Verlauf-Eintrag nachtragen
-    function patchLatestHistoryCare(sciName, rows) {
-      const list = loadHistory();
-      const entry = list.find((e) => e.result && e.result.sciName === sciName);
-      if (entry) {
-        entry.care = rows;
-        saveHistory(list);
-        // Falls der Verlauf gerade offen ist, neu zeichnen
-        if (!historySection.classList.contains("hidden")) renderHistory();
-      }
-    }
-
-    // Kleines Vorschaubild (Thumbnail) als Daten-URL erzeugen
-    function makeThumbnail(file, size = 220, quality = 0.7) {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        const objectUrl = URL.createObjectURL(file);
-        img.onload = () => {
-          URL.revokeObjectURL(objectUrl);
-          const scale = size / Math.max(img.width, img.height);
-          const w = Math.round(img.width * scale);
-          const h = Math.round(img.height * scale);
-          const canvas = document.createElement("canvas");
-          canvas.width = w;
-          canvas.height = h;
-          canvas.getContext("2d").drawImage(img, 0, 0, w, h);
-          resolve(canvas.toDataURL("image/jpeg", quality));
-        };
-        img.onerror = () => { URL.revokeObjectURL(objectUrl); reject(new Error("thumb")); };
-        img.src = objectUrl;
-      });
-    }
-
-    function formatDate(ts) {
-      try {
-        return new Date(ts).toLocaleString("de-DE", {
-          day: "2-digit", month: "2-digit", year: "numeric",
-          hour: "2-digit", minute: "2-digit"
-        }) + " Uhr";
-      } catch (e) {
-        return "";
-      }
-    }
-
-    function renderHistory() {
-      const list = loadHistory();
-      historyList.innerHTML = "";
-
-      if (list.length === 0) {
-        historyEmpty.classList.remove("hidden");
-        historyClearBtn.classList.add("hidden");
-        return;
-      }
-
-      historyEmpty.classList.add("hidden");
-      historyClearBtn.classList.remove("hidden");
-
-      list.forEach((entry) => {
-        // Rückwärtskompatibel: ältere Einträge hatten ein results-Array
-        const top = entry.result || (entry.results && entry.results[0]) || {};
-        const card = document.createElement("div");
-        card.className = "history-card";
-
-        let info = '<div class="history-name">' + escapeHtml(top.sciName || "Unbekannt") + '</div>';
-        if (top.commonName) {
-          info += '<div class="history-common">' + escapeHtml(top.commonName) + '</div>';
-        }
-        if (top.family) {
-          info += '<div class="history-meta">Familie: ' + escapeHtml(top.family) + '</div>';
-        }
-        info += '<span class="history-score">' + (top.score || 0) + '% Übereinstimmung</span>';
-        info += '<span class="history-date">' + formatDate(entry.date) + '</span>';
-
-        // Pflegehinweise (falls gespeichert)
-        if (Array.isArray(entry.care) && entry.care.length) {
-          info += '<div class="history-care">';
-          entry.care.forEach((r) => {
-            info += '<div class="history-care-row"><span>' + r.icon + '</span> ' +
-                    '<span><b>' + escapeHtml(r.label) + ':</b> ' + escapeHtml(r.value) + '</span></div>';
-          });
-          info += '</div>';
-        }
-
-        card.innerHTML =
-          '<img class="history-thumb" src="' + (entry.image || "") + '" alt="Foto der Pflanze">' +
-          '<div class="history-info">' + info + '</div>';
-
-        // Einzelnen Eintrag löschen
-        const del = document.createElement("button");
-        del.className = "history-del";
-        del.setAttribute("aria-label", "Diesen Eintrag löschen");
-        del.title = "Diesen Eintrag löschen";
-        del.textContent = "✕";
-        del.addEventListener("click", () => {
-          if (confirm("Diesen Eintrag aus dem Verlauf löschen?")) deleteHistoryEntry(entry.date);
-        });
-        card.appendChild(del);
-
-        historyList.appendChild(card);
-      });
-    }
-
-    function deleteHistoryEntry(date) {
-      const list = loadHistory().filter((e) => e.date !== date);
-      saveHistory(list);
-      renderHistory();
-    }
-
-    function showHistory() {
-      inputSection.classList.add("hidden");
-      resultsSection.classList.add("hidden");
-      loadingSection.classList.add("hidden");
-      hideError();
-      renderHistory();
-      historySection.classList.remove("hidden");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
-    function hideHistory() {
-      historySection.classList.add("hidden");
-      inputSection.classList.remove("hidden");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
-    historyBtn.addEventListener("click", showHistory);
-    historyBackBtn.addEventListener("click", hideHistory);
-    historyClearBtn.addEventListener("click", () => {
-      if (!confirm("Möchten Sie den Verlauf löschen?")) return;
-      if (!confirm("Wirklich alle gespeicherten Pflanzen unwiderruflich löschen?")) return;
-      localStorage.removeItem(HISTORY_KEY);
-      renderHistory();
-    });
-
-    // --- Fehler anzeigen ---
-    function showError(message) {
-      loadingSection.classList.add("hidden");
-      inputSection.classList.remove("hidden");
-      errorSection.innerHTML = '<div class="error-text">😕 ' + escapeHtml(message) + '</div>';
-      // Wenn noch ein Bild ausgewählt ist: direkt nochmal versuchen anbieten
-      if (selectedFile) {
-        const retry = document.createElement("button");
-        retry.className = "error-retry";
-        retry.innerHTML = '<span class="icon">🔁</span>Nochmal versuchen';
-        retry.addEventListener("click", identifyPlant);
-        errorSection.appendChild(retry);
-      }
-      errorSection.classList.remove("hidden");
-      errorSection.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
-
-    function hideError() {
-      errorSection.classList.add("hidden");
-      errorSection.innerHTML = "";
-    }
-
-    // --- Zurücksetzen ---
-    resetBtn.addEventListener("click", () => {
-      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
-      selectedFile = null;
-      cameraInput.value = "";
-      uploadInput.value = "";
-      previewImg.src = "";
-      previewWrap.classList.add("hidden");
-      submitBtn.classList.add("hidden");
-      resultsSection.classList.add("hidden");
-      careSection.innerHTML = "";
-      hideError();
-      inputSection.classList.remove("hidden");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    });
-
-    // --- Hilfsfunktion: HTML escapen ---
-    function escapeHtml(str) {
-      const div = document.createElement("div");
-      div.textContent = str;
-      return div.innerHTML;
-    }
-  </script>
 </body>
 </html>

@@ -1,15 +1,15 @@
 {
-  "name": "Pflanzenerkenner",
-  "short_name": "Pflanzen",
-  "description": "Blumen und Pflanzen ganz einfach per Foto bestimmen.",
+  "name": "Nessie-Hub",
+  "short_name": "Nessie",
+  "description": "Das zentrale Portal für alle Anwendungen: Pflanzen Erkenner, WM Wetten, und Wohnungsplaner.",
   "lang": "de",
   "dir": "ltr",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#f4f8f4",
-  "theme_color": "#2e7d32",
+  "background_color": "#0f1015",
+  "theme_color": "#b052ff",
   "icons": [
     {
       "src": "icon-192.png",
@@ -24,9 +24,9 @@
       "purpose": "any maskable"
     },
     {
-      "src": "logo.svg",
+      "src": "logo.png",
       "sizes": "any",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any"
     }
   ]
