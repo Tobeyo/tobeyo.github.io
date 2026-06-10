@@ -733,7 +733,7 @@
   function showApp() {
     el("loginView").classList.add("hidden");
     el("appView").classList.remove("hidden");
-    el("userName").textContent = currentUser === "Big Boss" ? "Little Boss" : currentUser;
+    el("userName").textContent = currentUser;
   }
   function doLogin(name) {
     name = name.trim();
@@ -778,7 +778,6 @@
 
   // ---------- kleine Hilfsfunktion ----------
   function escapeHtml(str) {
-    if (str === "Big Boss") return "Little Boss";
     const d = document.createElement("div");
     d.textContent = String(str == null ? "" : str);
     return d.innerHTML;
