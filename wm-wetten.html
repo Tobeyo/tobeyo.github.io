@@ -248,6 +248,7 @@
         <div class="who">Hallo, <span class="name" id="userName">—</span>!</div>
         <div class="right">
           <span class="dot" id="modeDot"></span>
+          <button class="linkish" id="toggleGoalBtn">🔔 Tore an</button>
           <button class="linkish" id="changeNameBtn">Name ändern</button>
         </div>
       </div>
@@ -441,16 +442,61 @@
   let allMatches = [];
   let usingFallback = false;
 
-  async function loadSchedule() {
+  function notifyGoal(scorer, scoreScorer, other, scoreOther) {
+    const msg = `Tor für ${scorer}! (${scoreScorer}:${scoreOther} gegen ${other})`;
+    toast(`⚽ ${msg}`);
+    if (typeof confettiBurst === "function") confettiBurst(window.innerWidth / 2, window.innerHeight / 2, 25);
+    if ("Notification" in window && Notification.permission === "granted") {
+      new Notification("⚽ TOR!", { body: msg });
+    }
+  }
+
+  let notifyGoalsEnabled = localStorage.getItem("wm2026_notify") !== "false";
+  let espnPreviousScores = {};
+  async function pollLiveGoals() {
+    if (!notifyGoalsEnabled) return;
     try {
-      allMatches = await fetchLiveSchedule();
+      const res = await fetch("https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard");
+      const data = await res.json();
+      data.events.forEach(event => {
+        const comp = event.competitions && event.competitions[0];
+        if (comp && comp.status.type.state === "in") {
+          const id = event.id;
+          const home = comp.competitors.find(c => c.homeAway === "home");
+          const away = comp.competitors.find(c => c.homeAway === "away");
+          if (!home || !away) return;
+
+          const homeScore = parseInt(home.score, 10) || 0;
+          const awayScore = parseInt(away.score, 10) || 0;
+          
+          const old = espnPreviousScores[id];
+          if (old) {
+            const hName = typeof translateTeam === "function" ? translateTeam(home.team.displayName) : home.team.displayName;
+            const aName = typeof translateTeam === "function" ? translateTeam(away.team.displayName) : away.team.displayName;
+            if (homeScore > old.home) notifyGoal(hName, homeScore, aName, awayScore);
+            if (awayScore > old.away) notifyGoal(aName, awayScore, hName, homeScore);
+          }
+          espnPreviousScores[id] = { home: homeScore, away: awayScore };
+        }
+      });
+    } catch (e) {
+      // Still fail for background polling
+    }
+  }
+
+  async function loadSchedule() {
+    let matches;
+    try {
+      matches = await fetchLiveSchedule();
       usingFallback = false;
       clearNotice();
     } catch (e) {
-      allMatches = fallbackSchedule();
+      matches = fallbackSchedule();
       usingFallback = true;
       showNotice("ℹ️ Echter WM-Spielplan ist geladen – Tippen funktioniert vollständig. Live-Ergebnisse werden automatisch ergänzt, sobald dein Worker erreichbar ist (zurzeit nicht).");
     }
+
+    allMatches = matches;
     allMatches.sort((a, b) => new Date(a.utcDate) - new Date(b.utcDate));
     buildStageFilter();
     animateNextRender = true;
@@ -747,6 +793,23 @@
 
   el("loginBtn").addEventListener("click", () => doLogin(el("nameInput").value));
   el("nameInput").addEventListener("keydown", (e) => { if (e.key === "Enter") doLogin(el("nameInput").value); });
+  
+  const toggleGoalBtn = el("toggleGoalBtn");
+  function updateToggleBtn() {
+    toggleGoalBtn.textContent = notifyGoalsEnabled ? "🔔 Tore an" : "🔕 Tore aus";
+    toggleGoalBtn.style.color = notifyGoalsEnabled ? "var(--text)" : "var(--muted)";
+    toggleGoalBtn.style.textDecoration = notifyGoalsEnabled ? "none" : "line-through";
+  }
+  updateToggleBtn();
+  toggleGoalBtn.addEventListener("click", () => {
+    notifyGoalsEnabled = !notifyGoalsEnabled;
+    localStorage.setItem("wm2026_notify", notifyGoalsEnabled);
+    updateToggleBtn();
+    if (notifyGoalsEnabled && "Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
+      Notification.requestPermission();
+    }
+  });
+
   el("changeNameBtn").addEventListener("click", () => {
     const n = prompt("Wie heißt du?", currentUser);
     if (n && n.trim()) doLogin(n);
@@ -774,6 +837,14 @@
   // =====================================================================
   Store.onBets((bets) => { allBets = bets; renderAll(); });
   loadSchedule();
+  setInterval(loadSchedule, 60000); // 1 Minute Auto-Refresh
+  setInterval(pollLiveGoals, 20000); // Live-Tore über ESPN checken
+  pollLiveGoals();
+
+  if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
+    Notification.requestPermission();
+  }
+
   if (currentUser) { userKey = keyOf(currentUser); showApp(); }
 
   // ---------- kleine Hilfsfunktion ----------
