@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DBI visuell – Mündliche Matura</title>
+<style>
+:root{--ink:#0f172a;--mut:#475569;--line:#e2e8f0;--bg:#f6f8fb;--acc:#0e7490;--acc2:#155e75;--defb:#e0f2fe;--defl:#0284c7;--bsb:#dcfce7;--bsl:#16a34a;--wnb:#fee2e2;--wnl:#dc2626}
+*{box-sizing:border-box}
+body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;color:var(--ink);background:var(--bg);margin:0;line-height:1.45}
+main{max-width:1080px;margin:0 auto;padding:0 16px 60px}
+header.top{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;padding:26px 16px;text-align:center}
+header.top h1{margin:0 0 6px;font-size:1.7rem}
+header.top p{margin:0;opacity:.92;font-size:.95rem}
+.chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.chip{padding:3px 12px;border-radius:99px;font-size:.78rem;font-weight:600}
+.c-def{background:var(--defb);color:#075985}.c-best{background:var(--bsb);color:#14532d}.c-warn{background:var(--wnb);color:#7f1d1d}.c-merk{background:#fef9c3;color:#713f12}
+nav.bar{position:sticky;top:0;z-index:9;background:#ffffffee;backdrop-filter:blur(6px);border-bottom:1px solid var(--line);display:flex;gap:4px;overflow-x:auto;padding:8px 12px}
+nav.bar a{white-space:nowrap;text-decoration:none;color:var(--acc2);font-size:.82rem;font-weight:600;padding:4px 10px;border-radius:8px}
+nav.bar a:hover{background:var(--defb)}
+.toc{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px;margin:16px 0}
+.toc div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:.85rem}
+.toc b{color:var(--acc2)}
+.toc a{color:var(--ink);text-decoration:none;display:block;padding:1.5px 0}
+.toc a:hover{color:var(--acc)}
+h2.korb{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;padding:10px 16px;border-radius:12px;font-size:1.15rem;margin:34px 0 10px}
+section.topic{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 18px 16px;margin:14px 0;box-shadow:0 1px 3px #0f172a0d}
+section.topic h3{color:var(--acc2);margin:2px 0 10px;font-size:1.08rem}
+h4{margin:14px 0 6px;font-size:.92rem;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
+.box{border-radius:10px;padding:8px 12px;margin:6px 0;font-size:.9rem;border-left:4px solid}
+.b-def{background:var(--defb);border-color:var(--defl)}
+.b-best{background:var(--bsb);border-color:var(--bsl)}
+.b-warn{background:var(--wnb);border-color:var(--wnl)}
+.merk{background:#fefce8;border-left:4px solid #ca8a04;border-radius:10px;padding:8px 12px;margin:6px 0;font-size:.9rem}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:10px;margin:8px 0}
+.card{border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:.88rem;background:#fff}
+.card h5{margin:0 0 6px;font-size:.9rem;color:var(--acc2)}
+.flow{display:flex;align-items:stretch;flex-wrap:wrap;gap:6px;margin:10px 0}
+.step{background:#fff;border:1.5px solid var(--acc);border-radius:10px;padding:8px 12px;font-size:.85rem;flex:1;min-width:120px;display:flex;flex-direction:column;justify-content:center;text-align:center}
+.step b{color:var(--acc2)}
+.arr{align-self:center;color:var(--acc);font-weight:700;font-size:1.2rem}
+table{border-collapse:collapse;width:100%;font-size:.86rem;margin:8px 0}
+th{background:var(--acc);color:#fff;text-align:left;padding:6px 10px}
+td{border:1px solid var(--line);padding:5px 10px;background:#fff}
+tr:nth-child(even) td{background:#f8fafc}
+pre{background:#0f172a;color:#e2e8f0;padding:10px 14px;border-radius:10px;font-size:.78rem;overflow-x:auto;line-height:1.5;margin:8px 0}
+code{font-family:ui-monospace,'SF Mono',Consolas,monospace}
+p,li{font-size:.92rem}
+ul{margin:6px 0;padding-left:22px}
+.svgwrap{text-align:center;margin:10px 0}
+.svgwrap svg{max-width:100%;height:auto}
+svg text{font-family:system-ui,sans-serif}
+.t{font-size:12px;fill:#0f172a}.tb{font-size:12px;font-weight:700;fill:#0f172a}.tm{font-size:10.5px;fill:#475569}.tw{font-size:11.5px;font-weight:700;fill:#fff}.ta{text-anchor:middle}
+.foot{text-align:center;color:var(--mut);font-size:.8rem;margin-top:30px}
+@media print{nav.bar{display:none}section.topic{break-inside:avoid}body{background:#fff}}
+.gl{font-style:normal;font-weight:400;color:#64748b;font-size:.78em}
+section.fav{border:2px solid #f59e0b;box-shadow:0 2px 12px #f59e0b40}
+.favtag{display:inline-block;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:99px;margin-left:10px;vertical-align:2px;white-space:nowrap}
+.basics{background:#eef2ff;border-left:4px solid #6366f1;border-radius:10px;padding:8px 12px;margin:6px 0;font-size:.9rem}
+.prax{background:#fff7ed;border:2px dashed #f59e0b;border-radius:12px;padding:10px 14px;margin:10px 0;font-size:.9rem}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs>
+<marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#475569"/></marker>
+<marker id="arrA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#0e7490"/></marker>
+<marker id="arrR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#dc2626"/></marker>
+</defs></svg>
+<header class="top">
+<h1>DBI – Visueller Lernzettel</h1>
+<p>Datenbanken &amp; Informationssysteme · 6 Themenkörbe · 24 Themen</p>
+<div class="chips"><span class="chip c-def">Blau = Definition</span><span class="chip c-best">Grün = Merkregel / Best Practice</span><span class="chip c-warn">Rot = Risiko / Warnung</span><span class="chip c-merk">Gelb = Merksatz</span><span class="chip" style="background:#fde68a;color:#92400e">⭐ = wahrscheinliches Prüfungsthema</span><span class="chip" style="background:#e0e7ff;color:#3730a3">🧱 = Basics zuerst</span></div>
+</header>
+<nav class="bar">
+<a href="#k1">1 Modellierung</a><a href="#k2">2 SQL &amp; PL/SQL</a><a href="#k3">3 Sicherheit</a><a href="#k4">4 Architektur</a><a href="#k5">5 Betrieb</a><a href="#k6">6 DWH &amp; NoSQL</a>
+</nav>
+<a href="index.html" style="position:fixed;top:12px;left:12px;background:rgba(0,0,0,0.6);color:#fff;padding:8px 16px;border-radius:20px;text-decoration:none;font-weight:bold;z-index:999999;backdrop-filter:blur(4px);display:flex;align-items:center;gap:6px;font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:14px;box-shadow:0 2px 10px rgba(0,0,0,0.2);"><span>🏠</span> Nessie-Hub</a>
+<main>
+<div class="toc">
+<div><b>Korb 1 – Modellierung</b><a href="#t11">1.1 ERD</a><a href="#t12">1.2 Mapping ERD → Tabellen + Normalformen</a><a href="#t13">1.3 Redundanzen</a><a href="#t14" style="font-weight:700;color:#b45309">⭐ 1.4 Normalformen 1–5</a></div>
+<div><b>Korb 2 – Relationales Modell</b><a href="#t21">2.1 SQL (DDL · DML · DQL · DCL)</a><a href="#t22">2.2 Trigger</a><a href="#t23">2.3 Cursor</a><a href="#t24">2.4 Exceptions</a></div>
+<div><b>Korb 3 – Datensicherheit</b><a href="#t31">3.1 RSA</a><a href="#t32">3.2 E-Unterschrift</a><a href="#t33">3.3 SQL-Injection</a><a href="#t34">3.4 Transaktionen / ACID</a></div>
+<div><b>Korb 4 – DB-Architektur</b><a href="#t41">4.1 B-Baum</a><a href="#t42">4.2 Hashtabellen</a><a href="#t43">4.3 XML</a><a href="#t44">4.4 Index &amp; Performance</a></div>
+<div><b>Korb 5 – Betrieb</b><a href="#t51">5.1 RAID</a><a href="#t52">5.2 NAS &amp; SAN</a><a href="#t53">5.3 Hochverfügbarkeit</a><a href="#t54">5.4 Backup</a></div>
+<div><b>Korb 6 – DWH &amp; NoSQL</b><a href="#t61">6.1 Data Warehouse</a><a href="#t62">6.2 NoSQL &amp; CAP</a><a href="#t63">6.3 OLAP</a><a href="#t64">6.4 Mehrfachspeicherung</a></div>
+</div>
+
+<h2 class="korb" id="k0" style="background:linear-gradient(135deg,#6366f1,#4338ca)">Korb 0 – Grundbegriffe in 60 Sekunden</h2>
+<section class="topic"><div class="cards">
+<div class="card"><h5>Datenbank &amp; DBMS</h5>Datenbank = geordnete Datensammlung. <b>DBMS</b> (z.&nbsp;B. Oracle, MySQL) = die Software, die sie verwaltet, schützt und Abfragen beantwortet.</div>
+<div class="card"><h5>Tabelle</h5>Zeilen = <b>Datensätze</b>, Spalten = <b>Attribute</b> (je mit Datentyp: Zahl, Text, Datum). Fachwort für Tabelle: <b>Relation</b>.</div>
+<div class="card"><h5>Schlüssel</h5><b>Primärschlüssel (PK)</b> identifiziert jede Zeile eindeutig · <b>Fremdschlüssel (FK)</b> zeigt auf den PK einer anderen Tabelle = die Verbindung.</div>
+<div class="card"><h5>SQL &amp; PL/SQL</h5><b>SQL</b> = Befehlssprache an die DB („SELECT …"). <b>PL/SQL</b> = damit programmiert man IN der Oracle-DB (Variablen, IF, Schleifen).</div>
+<div class="card"><h5>Client ↔ Server</h5>Die Anwendung (Client) schickt Befehle, der <b>DB-Server</b> führt sie aus und antwortet. Viele Clients, ein Server.</div>
+<div class="card"><h5>RAM vs. Massenspeicher</h5><b>Hauptspeicher (RAM)</b>: superschnell, aber weg beim Ausschalten. <b>Platte/SSD</b>: dauerhaft, langsamer, liest in ganzen Blöcken → erklärt B-Baum, Index, RAID &amp; Backup.</div>
+</div></section>
+<h2 class="korb" id="k1">Themenkorb 1 – Daten- und Informationsmodellierung</h2>
+
+<section class="topic" id="t11">
+<h3>1.1 Entity-Relationship-Diagramm (ERD)</h3>
+<div class="basics">🧱 <b>Basics:</b> Eine <b>Datenbank</b> speichert Daten in <b>Tabellen</b> (Zeilen = Datensätze, Spalten = Attribute). Bevor man Tabellen anlegt, zeichnet man einen Plan – das ERD. Es zeigt: Welche „Dinge" (Entities) gibt es, welche Eigenschaften (Attribute) haben sie, wie hängen sie zusammen (Beziehungen)? Wie ein Bauplan vor dem Hausbau.</div>
+<div class="box b-def"><b>ERD</b> = grafisches Modell der Datenstruktur: <b>Entities<i class="gl"> (Objekte der Realität)</i> + Relationships<i class="gl"> (Beziehung zwischen 2 Entities)</i> + Attribute</b>. Zweck: DB-Struktur finden, Doku, Analysewerkzeug, Aufwandsschätzung → Preisfindung. Auch der <b>Kunde versteht's</b> → Abstimmung VOR dem Coden.</div>
+<div class="box b-warn">Direkt los-entwickeln ohne ERD<i class="gl"> (Entity-Relationship-Diagramm)</i> = <b>Zeit + Geld verpulvert</b>.</div>
+<h4>Die 3 Beziehungsarten (Krähenfuß-Notation)</h4>
+<div class="svgwrap">
+<svg viewBox="0 0 760 240" xmlns="http://www.w3.org/2000/svg">
+<!-- 1:1 -->
+<rect x="10" y="14" width="110" height="34" rx="6" fill="#e0f2fe" stroke="#0284c7"/><text x="65" y="35" class="tb ta">Person</text>
+<line x1="120" y1="31" x2="250" y2="31" stroke="#475569" stroke-width="1.5"/>
+<rect x="250" y="14" width="110" height="34" rx="6" fill="#e0f2fe" stroke="#0284c7"/><text x="305" y="35" class="tb ta">Reisepass</text>
+<text x="133" y="25" class="tm">1</text><text x="232" y="25" class="tm">1</text>
+<text x="185" y="62" class="tm ta">1:1 → FK in EINE der beiden Tabellen</text>
+<!-- 1:n -->
+<rect x="10" y="86" width="110" height="34" rx="6" fill="#e0f2fe" stroke="#0284c7"/><text x="65" y="107" class="tb ta">Hersteller</text>
+<line x1="120" y1="103" x2="250" y2="103" stroke="#475569" stroke-width="1.5"/>
+<!-- crow's foot at right end -->
+<path d="M236 103 L250 95 M236 103 L250 103 M236 103 L250 111" stroke="#475569" stroke-width="1.5" fill="none"/>
+<rect x="250" y="86" width="110" height="34" rx="6" fill="#e0f2fe" stroke="#0284c7"/><text x="305" y="107" class="tb ta">Auto</text>
+<text x="133" y="97" class="tm">1</text><text x="222" y="97" class="tm">n</text>
+<text x="185" y="134" class="tm ta">1:n → FK wandert zum Krähenfuß (n-Seite)</text>
+<!-- n:m -->
+<rect x="10" y="158" width="110" height="34" rx="6" fill="#e0f2fe" stroke="#0284c7"/><text x="65" y="179" class="tb ta">Schüler</text>
+<path d="M134 175 L120 167 M134 175 L120 175 M134 175 L120 183" stroke="#475569" stroke-width="1.5" fill="none"/>
+<line x1="120" y1="175" x2="250" y2="175" stroke="#475569" stroke-width="1.5"/>
+<path d="M236 175 L250 167 M236 175 L250 175 M236 175 L250 183" stroke="#475569" stroke-width="1.5" fill="none"/>
+<rect x="250" y="158" width="110" height="34" rx="6" fill="#e0f2fe" stroke="#0284c7"/><text x="305" y="179" class="tb ta">Fach</text>
+<text x="139" y="167" class="tm">n</text><text x="224" y="167" class="tm">m</text>
+<text x="185" y="206" class="tm ta">n:m → Zwischentabelle (Intersection) nötig</text>
+<!-- Legende rechts -->
+<rect x="420" y="14" width="330" height="200" rx="10" fill="#f8fafc" stroke="#e2e8f0"/>
+<text x="436" y="38" class="tb">Kardinalitäten-Legende</text>
+<path d="M436 60 L478 60" stroke="#475569" stroke-width="1.5"/><path d="M464 60 L478 52 M464 60 L478 60 M464 60 L478 68" stroke="#475569" stroke-width="1.5" fill="none"/><text x="490" y="64" class="t">Krähenfuß = n (viele)</text>
+<path d="M436 92 L478 92" stroke="#475569" stroke-width="1.5" stroke-dasharray="5 4"/><text x="490" y="96" class="t">strichliert = optional (0 …)</text>
+<path d="M436 124 L478 124" stroke="#475569" stroke-width="2.5"/><text x="490" y="128" class="t">durchgezogen = Pflicht (1 …)</text>
+<text x="436" y="160" class="t">↺ <tspan class="tb">rekursiv</tspan>: Entity auf sich selbst (Vater)</text>
+<text x="436" y="186" class="t">▲ <tspan class="tb">is-a / Vererbung</tspan>: Basis + Child-Entities</text>
+</svg>
+</div>
+<h4>Notationen</h4>
+<div class="cards">
+<div class="card"><h5>Chen (Erfinder)</h5>Beziehungen als <b>Diamant</b>. Eigenheit: keine Attribute in Relations → eigene Entity<i class="gl"> (Objekt der Realität, beschrieben durch Attribute)</i> nötig.<br><span style="color:#dc2626">Nachteile: zu komplex, mit 100 Tabellen unmöglich, platzfressend.</span></div>
+<div class="card"><h5>Krähenfuß (IE)</h5><b>Praxis-Standard</b>, platzsparend. <b>Oracle</b> = Krähenfuß-Variante. Insgesamt &gt; 10 Notationen.</div>
+</div>
+<h4>Dasselbe Beispiel in Chen-Notation</h4>
+<div class="svgwrap">
+<svg viewBox="0 0 740 230" xmlns="http://www.w3.org/2000/svg">
+<ellipse cx="85" cy="40" rx="48" ry="20" fill="#fff" stroke="#475569"/><text x="85" y="45" class="t ta">name</text>
+<ellipse cx="205" cy="36" rx="48" ry="20" fill="#fff" stroke="#475569"/><text x="205" y="41" class="t ta" text-decoration="underline">svnr</text>
+<rect x="90" y="95" width="140" height="46" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/><text x="160" y="123" class="tb ta">PERSON</text>
+<line x1="95" y1="58" x2="135" y2="95" stroke="#475569" stroke-width="1.5"/><line x1="200" y1="56" x2="180" y2="95" stroke="#475569" stroke-width="1.5"/>
+<polygon points="370,90 440,118 370,146 300,118" fill="#fef9c3" stroke="#ca8a04" stroke-width="2"/><text x="370" y="123" class="tb ta">besitzt</text>
+<line x1="230" y1="118" x2="300" y2="118" stroke="#475569" stroke-width="1.8"/><text x="252" y="110" class="tb">1</text>
+<line x1="440" y1="118" x2="510" y2="118" stroke="#475569" stroke-width="1.8"/><text x="488" y="110" class="tb">n</text>
+<rect x="510" y="95" width="140" height="46" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/><text x="580" y="123" class="tb ta">AUTO</text>
+<ellipse cx="540" cy="40" rx="42" ry="20" fill="#fff" stroke="#475569"/><text x="540" y="45" class="t ta" text-decoration="underline">fin</text>
+<ellipse cx="655" cy="36" rx="46" ry="20" fill="#fff" stroke="#475569"/><text x="655" y="41" class="t ta">farbe</text>
+<line x1="548" y1="60" x2="566" y2="95" stroke="#475569" stroke-width="1.5"/><line x1="648" y1="56" x2="612" y2="95" stroke="#475569" stroke-width="1.5"/>
+<text x="370" y="185" class="t ta">Chen: Entity = Rechteck · Beziehung = <tspan class="tb">Diamant</tspan> · Attribute = <tspan class="tb">Ellipsen</tspan> · PK = <tspan text-decoration="underline">unterstrichen</tspan> · 1 / n an den Linien</text>
+<text x="370" y="208" class="tm ta">Aussage identisch zum Krähenfuß oben – aber jedes Attribut frisst Platz → bei 100 Entities unleserlich, darum Praxis: Krähenfuß</text>
+</svg>
+</div>
+<h4>Schlüssel &amp; Weak Entity</h4>
+<div class="box b-best"><b>Primärschlüssel<i class="gl"> (identifiziert jeden Datensatz eindeutig)</i>: immer nur EINER!</b> (kann zusammengesetzt sein) · <b>minimal</b> (sonst Verstoß gegen 2. NF<i class="gl"> (Normalform)</i> + schlechte Query-Performance) · <b>unveränderlich</b> · <b>nie NULL</b>. Wert bekannt → genau 1 Entity<i class="gl"> (Objekt der Realität, beschrieben durch Attribute)</i> (Bsp. Fahrgestellnummer).</div>
+<div class="box b-def"><b>Weak Entity</b> = existiert nicht ohne anderes Entity. Kennzeichen: <b>Fremdschlüssel<i class="gl"> (Verweis auf den PK einer anderen Tabelle)</i> ist Teil des Primary Keys<i class="gl"> (Primärschlüssel)</i></b>. Bsp.: Social-Media-Profil nur mit Besitzer.</div>
+</section>
+
+<section class="topic" id="t12">
+<h3>1.2 Mapping: ERD → Tabellen &amp; Normalformen</h3>
+<div class="basics">🧱 <b>Basics:</b> Das ERD ist nur ein Bild – die Datenbank braucht echte Tabellen. <b>Mapping</b> = festes Übersetzungs-Rezept vom Bild zu den Tabellen. Jedes Feld bekommt einen <b>Datentyp</b> (INT = Zahl, VARCHAR = Text, DATE = Datum), und die DB bekommt Regeln (Constraints), auf die sie selbst aufpasst.</div>
+<div class="flow">
+<div class="step"><b>1. Entities<i class="gl"> (Objekte der Realität)</i></b><br>→ Tabellen<br>Attribute → Felder + Datentyp<br>Schlüssel → Primary Key</div><div class="arr">→</div>
+<div class="step"><b>2. Relationships<i class="gl"> (Beziehung zwischen 2 Entities)</i></b><br>→ Fremdschlüssel<i class="gl"> (Verweis auf den PK einer anderen Tabelle)</i><br>(Regeln je Kardinalität<i class="gl"> (Anzahl-Vorgabe der Beziehung: 0, 1, n)</i>, s. unten)</div><div class="arr">→</div>
+<div class="step"><b>3. is-a<i class="gl"> (Vererbungsbeziehung)</i></b><br>je Entity<i class="gl"> (Objekt der Realität, beschrieben durch Attribute)</i> eigene Tabelle ODER eine Tabelle + Typ-Feld + Check-Constraints</div>
+</div>
+<div class="cards">
+<div class="card"><h5>1:1</h5>EINEN Schlüssel als FK<i class="gl"> (Fremdschlüssel: Verweis auf fremden PK)</i> in die 2. Tabelle. Überlegung: <b>was existiert zuerst?</b> (Auto oder Besitzer)</div>
+<div class="card"><h5>1:n</h5>FK wandert <b>zum Krähenfuß</b> (n-Seite).</div>
+<div class="card"><h5>n:m</h5><b>Intersection Table<i class="gl"> (Zwischentabelle für n:m)</i></b> → zwei 1:n. <b>PK<i class="gl"> (Primärschlüssel)</i> der Intersection = beide FK-Attribute.</b></div>
+<div class="card"><h5>Optional</h5>FK darf <b>NULL</b> sein.</div>
+</div>
+<div class="svgwrap">
+<svg viewBox="0 0 700 120" xmlns="http://www.w3.org/2000/svg">
+<rect x="20" y="30" width="150" height="60" rx="8" fill="#e0f2fe" stroke="#0284c7"/><text x="95" y="52" class="tb ta">SCHÜLER</text><text x="95" y="72" class="tm ta">PK: snr</text>
+<rect x="275" y="30" width="170" height="60" rx="8" fill="#fef9c3" stroke="#ca8a04"/><text x="360" y="52" class="tb ta">BESUCHT</text><text x="360" y="72" class="tm ta">PK = (snr FK, fnr FK)</text>
+<rect x="530" y="30" width="150" height="60" rx="8" fill="#e0f2fe" stroke="#0284c7"/><text x="605" y="52" class="tb ta">FACH</text><text x="605" y="72" class="tm ta">PK: fnr</text>
+<line x1="170" y1="60" x2="275" y2="60" stroke="#475569" stroke-width="1.5"/><path d="M261 60 L275 52 M261 60 L275 60 M261 60 L275 68" stroke="#475569" stroke-width="1.5" fill="none"/><text x="180" y="52" class="tm">1</text><text x="248" y="52" class="tm">n</text>
+<line x1="445" y1="60" x2="530" y2="60" stroke="#475569" stroke-width="1.5"/><path d="M459 60 L445 52 M459 60 L445 60 M459 60 L445 68" stroke="#475569" stroke-width="1.5" fill="none"/><text x="518" y="52" class="tm">1</text><text x="462" y="52" class="tm">n</text>
+<text x="350" y="112" class="tm ta">n:m wird zu zwei 1:n über die Intersection Table</text>
+</svg>
+</div>
+<h4>5 Constraints – „Zusatzbedingungen, DB passt auf"</h4>
+<div class="flow">
+<div class="step"><b>PRIMARY KEY<i class="gl"> (Primärschlüssel)</i></b></div><div class="step"><b>FOREIGN KEY<i class="gl"> (Fremdschlüssel)</i></b></div><div class="step"><b>UNIQUE<i class="gl"> (keine doppelten Werte erlaubt)</i></b></div><div class="step"><b>NOT NULL<i class="gl"> (Wert ist Pflicht)</i></b></div><div class="step"><b>CHECK<i class="gl"> (Werte-Prüfregel)</i></b></div>
+</div>
+<pre><code>CREATE TABLE Auto (
+  fin        VARCHAR(30) NOT NULL
+ ,Hersteller INTEGER NOT NULL REFERENCES Hersteller
+ ,Besitzer   INTEGER                  -- optional: NULL erlaubt
+ ,PRIMARY KEY (fin)
+ ,FOREIGN KEY (Besitzer) REFERENCES Person );
+-- benannte Constraints:
+ ,CONSTRAINT Hersteller_PK PRIMARY KEY (nr)
+ ,CONSTRAINT Hersteller_UK UNIQUE (Bezeichnung)
+ ,CONSTRAINT c_land CHECK (land IN ('A','D','F','GB','I','RUS'))</code></pre>
+<h4>Normalformen <span style="text-transform:none">(Lehrer: 1–3 sehr gut können, 4+5 oberflächlich)</span></h4>
+<div class="svgwrap">
+<svg viewBox="0 0 700 150" xmlns="http://www.w3.org/2000/svg">
+<rect x="30" y="20" width="180" height="100" rx="10" fill="#e0f2fe" stroke="#0284c7"/>
+<text x="120" y="48" class="tb ta">1. NF</text>
+<text x="120" y="72" class="t ta">alle Attribute</text><text x="120" y="90" class="tb ta">atomar</text>
+<line x1="210" y1="70" x2="255" y2="70" stroke="#0e7490" stroke-width="2" marker-end="url(#arrA)"/>
+<rect x="260" y="20" width="180" height="100" rx="10" fill="#bae6fd" stroke="#0284c7"/>
+<text x="350" y="48" class="tb ta">2. NF</text>
+<text x="350" y="72" class="t ta">keine partiellen</text><text x="350" y="90" class="t ta">Abhängigkeiten (Teil-PK)</text>
+<line x1="440" y1="70" x2="485" y2="70" stroke="#0e7490" stroke-width="2" marker-end="url(#arrA)"/>
+<rect x="490" y="20" width="180" height="100" rx="10" fill="#7dd3fc" stroke="#0284c7"/>
+<text x="580" y="48" class="tb ta">3. NF</text>
+<text x="580" y="72" class="t ta">keine transitiven Abh.</text><text x="580" y="90" class="t ta">(von Nicht-Schlüssel-Attr.)</text>
+<text x="350" y="142" class="tm ta">Boyce-Codd ≈ „3,5. NF" · NF brauchen Daten → im Entwurf eher uninteressant</text>
+</svg>
+</div>
+<div class="merk">🧠 <b>ERD<i class="gl"> (Entity-Relationship-Diagramm)</i> mit Hausverstand gezeichnet → automatisch 3. NF<i class="gl"> (Normalform)</i>.</b></div>
+<div class="box b-warn">Ab <b>4. NF: Theorie, praxisfern</b> – „grausliche" Strukturen, quasi 1 Key + 1 Wert pro Tabelle, Struktur geht verloren.</div>
+</section>
+
+<section class="topic" id="t13">
+<h3>1.3 Redundanzen und Auswirkungen</h3>
+<div class="basics">🧱 <b>Basics:</b> Steht dieselbe Information an zwei Stellen, muss man sie an zwei Stellen pflegen – wie zwei Kalender parallel führen. Vergisst man eine Stelle, widersprechen sich die Daten. Genau das ist das Redundanz-Problem.</div>
+<div class="box b-def"><b>Redundanz</b> = Sachverhalt mehrfach gespeichert (in eigener Tabelle öfter / über Tabellen verteilt). Auch als <b>Aggregierung</b> (sum, max).</div>
+<h4>Folgen = Anomalien</h4>
+<div class="cards">
+<div class="card"><h5>✍️ Schreibweisen</h5>„Rowling" vs. „J.K. Rowling" – trotz gleicher Bedeutung. <b>Welcher Datensatz ist richtig?</b></div>
+<div class="card"><h5>🔁 Änderungsanomalie</h5>Wertänderung – <b>alle Instanzen erwischt?</b></div>
+<div class="card"><h5>🗑️ Löschanomalie</h5>Ungewollter Datenverlust: nur Buch löschen → <b>Autor/Verlag auch weg</b>.</div>
+<div class="card"><h5>📊 Aggregat veraltet</h5>Summenfeld ≠ Summe der Einzelpositionen, wenn nicht explizit gepflegt.</div>
+</div>
+<h4>Abhilfe + Ausnahme</h4>
+<div class="box b-best"><b>Auslagern in eigene Tabelle + FK<i class="gl"> (Fremdschlüssel: Verweis auf fremden PK)</i>-Verweis.</b> Theorie dahinter: Normalformen 1–5 + Boyce-Codd (≈ 3,5).</div>
+<div class="box b-warn">Vorsicht: <b>Beziehungs-Kreise im ERD<i class="gl"> (Entity-Relationship-Diagramm)</i></b> → evtl. redundante Beziehungen.</div>
+<div class="box b-best">Manchmal <b>gewollt für Performance</b> → <b>Trigger<i class="gl"> (autom. DB-Codeblock bei INSERT/UPDATE/DELETE)</i> pflegen die Redundanz<i class="gl"> (gleiche Info mehrfach gespeichert)</i> automatisch</b> → Konsistenz bleibt.</div>
+</section>
+
+<section class="topic fav" id="t14">
+<h3>1.4 Normalformen – 1.–3. genau, 4.–5. ungefähr <span class="favtag">⭐ Kommt! (statt Relationenalgebra)</span></h3>
+<div class="basics">🧱 <b>Basics:</b> Normalisieren = Tabellen so aufteilen, dass nichts doppelt gespeichert wird. Werkzeug dafür: die <b>funktionale Abhängigkeit</b> „A → B" = kenne ich A, steht B fest (Bsp.: PLZ → Ort). Die Normalformen bauen aufeinander auf: Wer die 3. NF erfüllt, erfüllt automatisch 2. und 1.</div>
+<div class="box b-def"><b>Warum?</b> Redundanzen vermeiden → keine Anomalien (Änderungs-/Lösch-Probleme, siehe 1.3). <b>Lehrer: 1–3 sehr gut können, 4+5 oberflächlich.</b></div>
+<h4>1. NF – alle Attribute atomar</h4>
+<div class="box b-def"><b>Atomar</b> = nicht weiter zerlegbar: keine Listen in einer Zelle, keine zusammengesetzten Felder (Adresse → besser Straße, PLZ, Ort einzeln).</div>
+<div class="m22">
+<div class="card" style="border-top:4px solid #dc2626"><h5>❌ verletzt 1. NF</h5><table><tr><th>ID</th><th>Name</th><th>Fächer</th></tr><tr><td>1</td><td>Hugo</td><td style="background:#fee2e2">M, E, INF</td></tr></table>Liste in EINER Zelle = nicht atomar.</div>
+<div class="card" style="border-top:4px solid #16a34a"><h5>✓ 1. NF erfüllt</h5><table><tr><th>ID</th><th>Fach</th></tr><tr><td>1</td><td>M</td></tr><tr><td>1</td><td>E</td></tr><tr><td>1</td><td>INF</td></tr></table>je Wert eine eigene Zeile (eigene Tabelle Schüler–Fach).</div>
+</div>
+<h4>2. NF – keine partiellen Abhängigkeiten</h4>
+<div class="box b-def">Nur relevant bei <b>zusammengesetztem PK</b>: Kein Attribut darf nur von einem <b>TEIL</b> des Schlüssels abhängen – immer vom <b>ganzen</b> Schlüssel.</div>
+<div class="svgwrap">
+<svg viewBox="0 0 740 195" xmlns="http://www.w3.org/2000/svg">
+<text x="165" y="20" class="tm ta">zusammengesetzter PK der Tabelle Bestellposition</text>
+<rect x="40" y="30" width="120" height="40" rx="8" fill="#fef9c3" stroke="#ca8a04" stroke-width="2"/><text x="100" y="55" class="tb ta">BestellNr</text>
+<rect x="170" y="30" width="120" height="40" rx="8" fill="#fef9c3" stroke="#ca8a04" stroke-width="2"/><text x="230" y="55" class="tb ta">ArtikelNr</text>
+<rect x="470" y="14" width="130" height="36" rx="8" fill="#dcfce7" stroke="#16a34a"/><text x="535" y="37" class="tb ta">Menge</text>
+<rect x="470" y="120" width="150" height="36" rx="8" fill="#fee2e2" stroke="#dc2626"/><text x="545" y="143" class="tb ta">Artikelname</text>
+<line x1="160" y1="40" x2="465" y2="30" stroke="#16a34a" stroke-width="2" marker-end="url(#arr)"/>
+<line x1="290" y1="44" x2="465" y2="34" stroke="#16a34a" stroke-width="2" marker-end="url(#arr)"/>
+<text x="385" y="62" class="tm ta" fill="#16a34a">hängt vom GANZEN Schlüssel ab ✓</text>
+<line x1="235" y1="70" x2="465" y2="135" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="6 4" marker-end="url(#arrR)"/>
+<text x="320" y="125" class="tm ta" fill="#dc2626">hängt NUR von ArtikelNr ab = partiell ✗</text>
+<text x="370" y="182" class="t ta">Lösung: Artikelname auslagern → eigene Tabelle Artikel(ArtikelNr, Artikelname)</text>
+</svg>
+</div>
+<h4>3. NF – keine transitiven Abhängigkeiten</h4>
+<div class="box b-def">Kein Attribut hängt von einem <b>anderen Nicht-Schlüssel-Attribut</b> ab – also keine Abhängigkeit „über Eck": ID → PLZ → Ort.</div>
+<div class="svgwrap">
+<svg viewBox="0 0 740 130" xmlns="http://www.w3.org/2000/svg">
+<rect x="60" y="30" width="130" height="40" rx="8" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/><text x="125" y="55" class="tb ta">ID (PK)</text>
+<rect x="310" y="30" width="110" height="40" rx="8" fill="#fff" stroke="#475569"/><text x="365" y="55" class="tb ta">PLZ</text>
+<rect x="550" y="30" width="110" height="40" rx="8" fill="#fee2e2" stroke="#dc2626"/><text x="605" y="55" class="tb ta">Ort</text>
+<line x1="190" y1="50" x2="305" y2="50" stroke="#16a34a" stroke-width="2" marker-end="url(#arr)"/><text x="248" y="40" class="tm ta" fill="#16a34a">direkt vom PK ✓</text>
+<line x1="420" y1="50" x2="545" y2="50" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="6 4" marker-end="url(#arrR)"/><text x="483" y="40" class="tm ta" fill="#dc2626">PLZ → Ort: transitiv ✗</text>
+<text x="370" y="110" class="t ta">Lösung: eigene Tabelle Ort(PLZ, Ortsname) – sonst steht „1010 Wien" hundertfach drin (Redundanz!)</text>
+</svg>
+</div>
+<div class="merk">🧠 <b>Eselsbrücke:</b> Jedes Attribut hängt ab … „vom Schlüssel (1. NF), vom GANZEN Schlüssel (2. NF) und NUR vom Schlüssel (3. NF)" – <i>the key, the whole key, and nothing but the key</i>.</div>
+<div class="flow">
+<div class="step">Alle Zellen atomar?<br><b>→ 1. NF</b></div><div class="arr">→</div>
+<div class="step">Alles vom GANZEN PK abhängig?<br><b>→ 2. NF</b></div><div class="arr">→</div>
+<div class="step">Nichts „über Eck" abhängig?<br><b>→ 3. NF</b></div><div class="arr">→</div>
+<div class="step"><b>Boyce-Codd (≈ 3,5)</b><br>jede Abhängigkeit geht von einem Schlüssel aus</div>
+</div>
+<div class="box b-best"><b>ERD mit Hausverstand gezeichnet → automatisch 3. NF.</b> NF brauchen <b>Daten</b> → im Entwurf eher uninteressant.</div>
+<h4>4. + 5. NF – nur ungefähr können</h4>
+<div class="m22">
+<div class="card"><h5>4. NF (Überblick)</h5>Keine <b>mehrwertigen Abhängigkeiten</b>: zwei voneinander unabhängige n:m-Listen (z.&nbsp;B. Lehrer→Fächer und Lehrer→Klassen) nicht in EINE Tabelle mischen – sonst muss jede Kombination als eigene Zeile rein = Redundanz. Lösung: je Beziehung eine eigene Tabelle.</div>
+<div class="card"><h5>5. NF (Überblick)</h5>Keine <b>Join-Abhängigkeiten</b>: Tabelle lässt sich nicht weiter <b>verlustfrei</b> zerlegen. <span style="color:#dc2626">Ab 4. NF: Theorie, praxisfern – „grausliche" Strukturen, quasi 1 Key + 1 Wert pro Tabelle, Struktur geht verloren.</span></div>
+</div>
+<div class="prax">🎯 <b>Praxis-Check:</b> <b>Üben:</b> Tabelle <i>Ausleihe(SchülerID + BuchID | Schülername, Buchtitel, Datum)</i> normalisieren → 1. NF ✓ alles atomar · 2. NF ✗ Schülername hängt nur von SchülerID, Buchtitel nur von BuchID (partiell!) → Schüler- und Buch-Tabelle auslagern · 3. NF: hängt noch etwas „über Eck"? Ergebnis: Schüler, Buch, Ausleihe(SchülerID+BuchID, Datum). <b>Szenario:</b> „In welcher NF ist diese Tabelle?" → immer ab 1. NF aufwärts prüfen und die Verletzung benennen.</div>
+</section>
+<h2 class="korb" id="k2">Themenkorb 2 – Relationales Datenmodell</h2>
+
+<section class="topic" id="t21">
+<h3>2.1 SQL – Structured Query Language</h3>
+<div class="basics">🧱 <b>Basics:</b> SQL ist die Sprache, mit der Programme (und Menschen) mit der DB reden: Man schickt einen Befehl („Statement"), die DB antwortet mit einer Ergebnistabelle. Die Befehle sind in 4 Gruppen geteilt – je nachdem, ob man Strukturen baut, Daten ändert, abfragt oder Rechte verwaltet.</div>
+<h4>4 Subbereiche</h4>
+<div class="cards">
+<div class="card" style="border-top:4px solid #0284c7"><h5>DDL – Definition</h5><b>Strukturen definieren + pflegen</b><br>CREATE TABLE · ALTER TABLE · CREATE INDEX · DROP TABLE/INDEX</div>
+<div class="card" style="border-top:4px solid #16a34a"><h5>DML – Manipulation</h5><b>Datensätze pflegen</b><br>INSERT INTO · UPDATE · DELETE WHERE</div>
+<div class="card" style="border-top:4px solid #ca8a04"><h5>DQL – Query</h5><b>Datenabfragen</b><br>SELECT · FROM · JOIN · WHERE · GROUP BY · HAVING · ORDER BY</div>
+<div class="card" style="border-top:4px solid #dc2626"><h5>DCL – Control</h5><b>Sicherheit + Zugriffsrechte</b><br>GRANT · REVOKE · COMMIT<i class="gl"> (Änderungen endgültig speichern)</i> · ROLLBACK<i class="gl"> (alle offenen Änderungen verwerfen)</i></div>
+</div>
+<h4>SELECT-Skelett</h4>
+<div class="svgwrap">
+<svg viewBox="0 0 700 230" xmlns="http://www.w3.org/2000/svg">
+<rect x="40" y="12" width="280" height="26" rx="6" fill="#0f172a"/><text x="52" y="30" class="tw">SELECT felder, ausdruecke</text>
+<rect x="40" y="42" width="280" height="26" rx="6" fill="#0f172a"/><text x="52" y="60" class="tw">FROM tabelle1</text>
+<rect x="40" y="72" width="280" height="26" rx="6" fill="#0f172a"/><text x="52" y="90" class="tw">JOIN tabelle2 ON ...</text>
+<rect x="40" y="102" width="280" height="26" rx="6" fill="#155e75"/><text x="52" y="120" class="tw">WHERE bedingung</text>
+<rect x="40" y="132" width="280" height="26" rx="6" fill="#0f172a"/><text x="52" y="150" class="tw">GROUP BY felder</text>
+<rect x="40" y="162" width="280" height="26" rx="6" fill="#155e75"/><text x="52" y="180" class="tw">HAVING bedingung</text>
+<rect x="40" y="192" width="280" height="26" rx="6" fill="#0f172a"/><text x="52" y="210" class="tw">ORDER BY felder</text>
+<line x1="330" y1="115" x2="380" y2="115" stroke="#0e7490" stroke-width="2" marker-end="url(#arrA)"/>
+<text x="390" y="112" class="tb">Datensatzebene</text><text x="390" y="128" class="tm">filtert VOR der Gruppierung</text>
+<line x1="330" y1="175" x2="380" y2="175" stroke="#0e7490" stroke-width="2" marker-end="url(#arrA)"/>
+<text x="390" y="172" class="tb">Gruppenebene</text><text x="390" y="188" class="tm">filtert NACH GROUP BY</text>
+</svg>
+</div>
+<h4>Join-Arten</h4>
+<div class="svgwrap">
+<svg viewBox="0 0 760 150" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<clipPath id="cL1"><circle cx="80" cy="60" r="38"/></clipPath>
+<clipPath id="cL2"><circle cx="270" cy="60" r="38"/></clipPath>
+<clipPath id="cR3"><circle cx="500" cy="60" r="38"/></clipPath>
+</defs>
+<!-- INNER -->
+<circle cx="80" cy="60" r="38" fill="#e2e8f0" stroke="#94a3b8"/><circle cx="120" cy="60" r="38" fill="#e2e8f0" stroke="#94a3b8"/>
+<circle cx="120" cy="60" r="38" fill="#0e7490" clip-path="url(#cL1)"/>
+<text x="100" y="122" class="tb ta">INNER</text><text x="100" y="138" class="tm ta">nur Treffer</text>
+<!-- LEFT -->
+<circle cx="270" cy="60" r="38" fill="#0e7490" stroke="#94a3b8"/><circle cx="310" cy="60" r="38" fill="#e2e8f0" stroke="#94a3b8"/>
+<circle cx="310" cy="60" r="38" fill="#0e7490" clip-path="url(#cL2)"/>
+<text x="290" y="122" class="tb ta">LEFT OUTER</text><text x="290" y="138" class="tm ta">linke Seite komplett + NULL</text>
+<!-- RIGHT -->
+<circle cx="460" cy="60" r="38" fill="#e2e8f0" stroke="#94a3b8"/><circle cx="500" cy="60" r="38" fill="#0e7490" stroke="#94a3b8"/>
+<circle cx="460" cy="60" r="38" fill="#0e7490" clip-path="url(#cR3)"/>
+<text x="480" y="122" class="tb ta">RIGHT OUTER</text><text x="480" y="138" class="tm ta">rechte Seite komplett + NULL</text>
+<!-- FULL -->
+<circle cx="650" cy="60" r="38" fill="#0e7490" stroke="#94a3b8"/><circle cx="690" cy="60" r="38" fill="#0e7490" stroke="#94a3b8"/>
+<text x="670" y="122" class="tb ta">FULL</text><text x="670" y="138" class="tm ta">beide Seiten · CROSS = Kreuzprodukt</text>
+</svg>
+</div>
+<h4>DCL im Detail</h4>
+<div class="box b-def"><b>COMMIT</b> = Transaktions-Änderungen dauerhaft schreiben. <b>Davor: nur für mich sichtbar!</b> · <b>ROLLBACK</b> = verwirft alle ungespeicherten Änderungen.</div>
+<pre><code>GRANT  SELECT ON kunden TO praktikant;   -- Leserechte vergeben
+REVOKE SELECT ON kunden FROM praktikant; -- Rechte entziehen
+
+INSERT INTO auto (auto_id, fgestell, kennzeichen, besitzer) VALUES (1,'ABC1233','W4711', NULL);
+UPDATE auto SET besitzer = 13 WHERE auto_id = 1;
+DELETE FROM auto WHERE besitzer IS NULL;</code></pre>
+</section>
+
+<section class="topic" id="t22">
+<h3>2.2 SQL-Trigger</h3>
+<div class="basics">🧱 <b>Basics:</b> <b>PL/SQL</b> = Programmiersprache, die IN der Oracle-DB läuft (Variablen, IF, Schleifen – wie ein Mini-Java in der DB). Ein <b>Trigger</b> ist eine „Wenn-dann-Automatik": Sobald jemand Daten ändert, führt die DB von selbst deinen Code aus – die Anwendung muss nichts davon wissen.</div>
+<div class="box b-def"><b>Trigger</b> = PL/SQL<i class="gl"> (Oracles DB-Programmiersprache)</i>-Block, feuert bei DML<i class="gl"> (Data Manipulation Language: Daten ändern)</i>-Statement (INSERT/UPDATE/DELETE) – wie <b>Events</b>. Erlaubt: SELECT, Cursor<i class="gl"> (Schleife über ein Abfrage-Ergebnis)</i>, INSERT, DELETE, UPDATE. <b style="color:#dc2626">Verboten: CREATE (DDL<i class="gl"> (Data Definition Language: Strukturen anlegen)</i>), COMMIT<i class="gl"> (Änderungen endgültig speichern)</i>/ROLLBACK<i class="gl"> (alle offenen Änderungen verwerfen)</i>.</b></div>
+<div class="svgwrap">
+<svg viewBox="0 0 740 130" xmlns="http://www.w3.org/2000/svg">
+<rect x="10" y="40" width="150" height="50" rx="10" fill="#e0f2fe" stroke="#0284c7"/><text x="85" y="61" class="tb ta">DML-Statement</text><text x="85" y="78" class="tm ta">INSERT / UPDATE / DELETE</text>
+<line x1="160" y1="65" x2="215" y2="65" stroke="#0e7490" stroke-width="2" marker-end="url(#arrA)"/>
+<rect x="220" y="14" width="130" height="44" rx="10" fill="#dcfce7" stroke="#16a34a"/><text x="285" y="32" class="tb ta">BEFORE</text><text x="285" y="48" class="tm ta">vor dem Statement</text>
+<rect x="220" y="72" width="130" height="44" rx="10" fill="#dcfce7" stroke="#16a34a"/><text x="285" y="90" class="tb ta">AFTER</text><text x="285" y="106" class="tm ta">nach dem Statement</text>
+<line x1="350" y1="65" x2="405" y2="65" stroke="#0e7490" stroke-width="2" marker-end="url(#arrA)"/>
+<rect x="410" y="30" width="160" height="68" rx="10" fill="#fef9c3" stroke="#ca8a04"/><text x="490" y="52" class="tb ta">FOR EACH ROW</text><text x="490" y="70" class="tm ta">feuert pro Datensatz</text><text x="490" y="86" class="tm ta">nur so gibt's :new / :old</text>
+<line x1="570" y1="65" x2="625" y2="65" stroke="#0e7490" stroke-width="2" marker-end="url(#arrA)"/>
+<rect x="630" y="40" width="100" height="50" rx="10" fill="#e0f2fe" stroke="#0284c7"/><text x="680" y="61" class="tb ta">Trigger-Body</text><text x="680" y="78" class="tm ta">PL/SQL</text>
+</svg>
+</div>
+<h4>Wozu?</h4>
+<div class="cards">
+<div class="card"><h5>🔍 Prüfungen</h5>über <b>mehrere Datensätze</b> hinweg.</div>
+<div class="card"><h5>🔄 Redundanzen pflegen</h5>Aggregierungsfelder automatisch aktuell → Konsistenz.</div>
+<div class="card"><h5>📝 Protokollierung</h5>Änderungen in eigene 2. Tabelle schreiben.</div>
+<div class="card"><h5>📥 Importschnittstelle</h5>Schnittstellentabelle + Trigger<i class="gl"> (autom. DB-Codeblock bei INSERT/UPDATE/DELETE)</i> versorgen Applikationstabellen automatisch.</div>
+</div>
+<table>
+<tr><th></th><th>:old</th><th>:new</th></tr>
+<tr><td><b>INSERT</b></td><td>leer</td><td>neuer Datensatz</td></tr>
+<tr><td><b>UPDATE</b></td><td>vor Änderung</td><td>nach Änderung</td></tr>
+<tr><td><b>DELETE</b></td><td>alter Datensatz</td><td><b style="color:#dc2626">alle NULL!</b></td></tr>
+</table>
+<div class="box b-warn"><b>Exception<i class="gl"> (Fehler-Ereignis, abfangbar)</i> im Trigger<i class="gl"> (autom. DB-Codeblock bei INSERT/UPDATE/DELETE)</i> (nicht abgefangen) → zugrundeliegendes SQL<i class="gl"> (Structured Query Language)</i>-Statement wird abgebrochen!</b> (praktisch für Validierung) · <b>DROP TABLE → droppt auch alle Trigger!</b></div>
+<pre><code>CREATE OR REPLACE TRIGGER preise_trigg
+BEFORE INSERT OR UPDATE OR DELETE ON preise   -- auch AFTER; 1-3 DML kombinierbar
+FOR EACH ROW
+BEGIN
+  IF INSERTING THEN  DBMS_OUTPUT.PUT_LINE('EINGEFUEGT:' || :new.anr);
+  ELSIF UPDATING THEN DBMS_OUTPUT.PUT_LINE('von:' || :old.preis || ' auf:' || :new.preis);
+  ELSIF DELETING THEN DBMS_OUTPUT.PUT_LINE('DELETE');  -- :new-Werte = NULL!
+  END IF;
+END;
+/</code></pre>
+<div class="box b-best"><b>INSERTING / UPDATING / DELETING</b> = Prädikate zum Unterscheiden · <b>SET SERVEROUTPUT ON</b> → PUT_LINE sichtbar · Auch in MySQL möglich – wenn vorher klar, dass man Trigger<i class="gl"> (autom. DB-Codeblock bei INSERT/UPDATE/DELETE)</i> braucht: <b>PL/SQL<i class="gl"> (Oracles DB-Programmiersprache)</i> bessere Wahl</b>.</div>
+</section>
+
+<section class="topic" id="t23">
+<h3>2.3 SQL-Cursor</h3>
+<div class="basics">🧱 <b>Basics:</b> Ein SELECT liefert viele Zeilen auf einmal – ein Programm kann aber nur eine Zeile nach der anderen verarbeiten. Der <b>Cursor</b> ist der Lesezeiger dafür: öffnen, Zeile für Zeile holen, schließen.</div>
+<div class="box b-def"><b>Problem:</b> DML<i class="gl"> (Data Manipulation Language: Daten ändern)</i> ist <b>mengenorientiert<i class="gl"> (wirkt immer auf ganze Datensatz-Mengen)</i></b>. Pro Datensatz verschiedene Entscheidungen → jeden einzeln betrachten. <b>Cursor</b> = Schleife über ein Select-Ergebnis, Datensatz für Datensatz.</div>
+<div class="svgwrap">
+<svg viewBox="0 0 700 120" xmlns="http://www.w3.org/2000/svg">
+<rect x="30" y="35" width="120" height="50" rx="10" fill="#dcfce7" stroke="#16a34a"/><text x="90" y="56" class="tb ta">OPEN</text><text x="90" y="74" class="tm ta">Daten herrichten</text>
+<line x1="150" y1="60" x2="205" y2="60" stroke="#0e7490" stroke-width="2" marker-end="url(#arrA)"/>
+<rect x="210" y="35" width="120" height="50" rx="10" fill="#e0f2fe" stroke="#0284c7"/><text x="270" y="56" class="tb ta">FETCH</text><text x="270" y="74" class="tm ta">1 Datensatz lesen</text>
+<line x1="330" y1="60" x2="385" y2="60" stroke="#0e7490" stroke-width="2" marker-end="url(#arrA)"/>
+<rect x="390" y="35" width="150" height="50" rx="10" fill="#fef9c3" stroke="#ca8a04"/><text x="465" y="56" class="tb ta">%NOTFOUND?</text><text x="465" y="74" class="tm ta">nein → weiter fetchen</text>
+<path d="M465 35 C 430 5, 305 5, 272 32" stroke="#ca8a04" stroke-width="1.6" fill="none" marker-end="url(#arr)" stroke-dasharray="5 4"/>
+<line x1="540" y1="60" x2="595" y2="60" stroke="#0e7490" stroke-width="2" marker-end="url(#arrA)"/>
+<rect x="600" y="35" width="90" height="50" rx="10" fill="#fee2e2" stroke="#dc2626"/><text x="645" y="56" class="tb ta">CLOSE</text><text x="645" y="74" class="tm ta">aufräumen</text>
+</svg>
+</div>
+<h4>Die 4 Möglichkeiten</h4>
+<div class="cards">
+<div class="card"><h5>1 · Classic Cursor (PL/SQL + MySQL)</h5>DECLARE CURSOR (auch mit Parameter) → manuell OPEN / LOOP FETCH / EXIT bei %NOTFOUND / CLOSE.<br><b>%ROWTYPE</b> = Record passend zum Cursor<i class="gl"> (Schleife über ein Abfrage-Ergebnis)</i> (Zugriff: v_rec.ename) – alle Select-Ausdrücke brauchen Namen (AS).<br><span style="color:#475569">MySQL: DECLARE CONTINUE HANDLER FOR NOT FOUND SET r_done=1 → Flag beendet Loop (LEAVE).</span></div>
+<div class="card"><h5>2 · FOR-EACH, expliziter Cursor (nur PL/SQL)</h5><code>FOR v_rec IN c1 LOOP … END LOOP;</code><br><b>open/fetch/close/exit übernimmt die FOR-Schleife</b> – manuell = fehleranfällig.</div>
+<div class="card"><h5>3 · FOR-EACH, impliziter Cursor (nur PL/SQL)</h5>SELECT direkt in der Schleife, Cursor im Hintergrund.<br><span style="color:#dc2626">Bei langen Selects unübersichtlich</span> → dann Möglichkeit 2.</div>
+<div class="card"><h5>4 · Single Value: SELECT INTO (keine Loop)</h5><code>SELECT sal INTO v_gehalt FROM emp WHERE empno=7369;</code><br><b style="color:#dc2626">0 Zeilen → NO_DATA_FOUND · &gt;1 Zeile → TOO_MANY_ROWS</b></div>
+</div>
+<pre><code>DECLARE
+  CURSOR c1 (p_deptno NUMBER) IS
+    SELECT ename, dname, empno AS nr FROM emp
+    JOIN dept ON emp.deptno = dept.deptno WHERE dept.deptno = p_deptno;
+  v_rec c1%ROWTYPE;
+BEGIN
+  OPEN c1(10);
+  LOOP
+    FETCH c1 INTO v_rec;
+    IF c1%NOTFOUND THEN EXIT; END IF;
+    DBMS_OUTPUT.PUT_LINE(v_rec.ename || ' ' || v_rec.dname || ' ' || v_rec.nr);
+  END LOOP;
+  CLOSE c1;
+END;
+/</code></pre>
+<div class="box b-best">Bonus: <b>geschachtelte Cursor<i class="gl"> (Schleife über ein Abfrage-Ergebnis)</i></b> = Join händisch (äußerer Cursor Lager, innerer parametriert Lagerbuchung).</div>
+</section>
+
+<section class="topic" id="t24">
+<h3>2.4 SQL-Exceptions</h3>
+<div class="basics">🧱 <b>Basics:</b> Wie try/catch in Java: Läuft etwas schief (z.&nbsp;B. keine Zeile gefunden), „fliegt" eine Exception. Fängt man sie, kann man reagieren – fängt man sie nicht, bricht der Block ab und der Fehler wandert nach außen.</div>
+<div class="box b-def"><b>Exception</b> = Abweichung vom „Sunshine Path" – wie in OOP-Sprachen. Abfangen möglich, nicht Pflicht. Vordefiniert: <b>too_many_rows, no_data_found, value_error</b>, … Eigene: Datentyp <b>exception</b>.</div>
+<div class="box b-warn">Im Trigger<i class="gl"> (autom. DB-Codeblock bei INSERT/UPDATE/DELETE)</i> nicht abgefangen → <b>auslösendes SQL<i class="gl"> (Structured Query Language)</i>-Statement bricht ab</b> (wie Oracle-Fehler).</div>
+<div class="m22" style="grid-template-columns:1fr 1fr">
+<div class="card"><h5>Auslösen – 2 Methoden</h5>
+<b>1) RAISE</b> meine_exception; / RAISE value_error;<br>
+<b>2) raise_application_error(-20000, 'Text')</b><br><span class="tm" style="font-size:.8rem;color:#475569">erlaubte Nummern: −20000 … −20999</span></div>
+<div class="card"><h5>Abfangen – 2 Methoden</h5>
+<b>1) EXCEPTION-Teil im Block</b> (Blöcke schachtelbar)<br>
+<b>2) PRAGMA EXCEPTION_INIT</b>(meine_exc, -1422) = Fehlernummer an eigene Exception<i class="gl"> (Fehler-Ereignis, abfangbar)</i> binden (−1422 = too_many_rows)</div>
+</div>
+<div class="svgwrap">
+<svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg">
+<rect x="60" y="12" width="430" height="176" rx="12" fill="#f1f5f9" stroke="#475569"/>
+<text x="80" y="36" class="tb">äußerer Block</text>
+<rect x="90" y="48" width="290" height="80" rx="10" fill="#fff" stroke="#0284c7"/>
+<text x="108" y="70" class="tb">innerer Block</text>
+<text x="108" y="90" class="t">SELECT preis INTO v1 FROM preise;</text>
+<text x="108" y="112" class="t">EXCEPTION WHEN too_many_rows → behandelt</text>
+<text x="80" y="152" class="t">EXCEPTION WHEN no_data_found → behandelt</text>
+<text x="80" y="172" class="t">WHEN OTHERS → SQLCODE || SQLERRM</text>
+<path d="M380 88 C 450 88, 470 60, 500 60" stroke="#dc2626" stroke-width="2" fill="none" marker-end="url(#arrR)"/>
+<text x="510" y="52" class="tb" fill="#dc2626">nicht Abgefangenes</text>
+<text x="510" y="68" class="t">wandert nach außen</text>
+</svg>
+</div>
+<div class="box b-best"><b>SQLCODE</b> = letzte Fehlernummer · <b>SQLERRM</b> = letzter Fehlertext (Systemvariablen) · <b>WHEN OTHERS</b> = fängt den Rest.</div>
+</section>
+<h2 class="korb" id="k3">Themenkorb 3 – Datensicherheit und Datenschutz</h2>
+
+<section class="topic" id="t31">
+<h3>3.1 Kryptographie: RSA</h3>
+<div class="basics">🧱 <b>Basics:</b> <b>Verschlüsseln</b> = Klartext mit einem Schlüssel unlesbar machen; nur der passende Schlüssel macht ihn wieder lesbar. <b>Symmetrisch</b> = beide nutzen denselben Schlüssel (Problem: Wie übergeben?). <b>Asymmetrisch (RSA)</b> = Schlüsselpaar: öffentlich (darf jeder kennen) + privat (bleibt geheim). <b>mod</b> = Rest beim Teilen: 17 mod 5 = 2. <b>Primzahl</b> = nur durch 1 und sich selbst teilbar.</div>
+<div class="box b-def"><b>Restklasse Zn</b> = ganze Zahlen 0 … n−1 · Multiplikation ⊛ im Zn: a ⊛ b = (a·b) mod n · <b>Einheitselement e</b>: a·e = a · <b>Inverses</b>: a·a⁻¹ = e.</div>
+<div class="box b-def"><b>RSA</b> (Rivest, Shamir, Adleman) = <b>asymmetrisch / Public-Key</b>: verschiedene Schlüssel für Ver-/Entschlüsseln. Schlüsseltausch-Symmetrie → <b>Basis für E-Unterschrift</b>.</div>
+<div class="svgwrap">
+<svg viewBox="0 0 740 170" xmlns="http://www.w3.org/2000/svg">
+<rect x="10" y="55" width="120" height="56" rx="10" fill="#e0f2fe" stroke="#0284c7"/><text x="70" y="80" class="tb ta">Klartext m</text><text x="70" y="98" class="tm ta">Sender</text>
+<line x1="130" y1="83" x2="265" y2="83" stroke="#0e7490" stroke-width="2" marker-end="url(#arrA)"/>
+<rect x="150" y="20" width="180" height="40" rx="8" fill="#dcfce7" stroke="#16a34a"/><text x="240" y="37" class="tb ta">c = m^k1 mod n</text><text x="240" y="53" class="tm ta">Public Key des EMPFÄNGERS = (k1, n)</text>
+<rect x="270" y="55" width="140" height="56" rx="10" fill="#fef9c3" stroke="#ca8a04"/><text x="340" y="80" class="tb ta">Geheimtext c</text><text x="340" y="98" class="tm ta">Übertragung</text>
+<line x1="410" y1="83" x2="545" y2="83" stroke="#0e7490" stroke-width="2" marker-end="url(#arrA)"/>
+<rect x="420" y="20" width="180" height="40" rx="8" fill="#fee2e2" stroke="#dc2626"/><text x="510" y="37" class="tb ta">m = c^k2 mod n</text><text x="510" y="53" class="tm ta">Private Key = (k2, n) – nur Empfänger</text>
+<rect x="550" y="55" width="120" height="56" rx="10" fill="#e0f2fe" stroke="#0284c7"/><text x="610" y="80" class="tb ta">Klartext m</text><text x="610" y="98" class="tm ta">Empfänger</text>
+<text x="370" y="145" class="tm ta">funktioniert auch UMGEKEHRT (privat verschlüsseln, öffentlich entschlüsseln) → E-Unterschrift</text>
+</svg>
+</div>
+<h4>Schlüsselerzeugung – 4 Schritte</h4>
+<div class="flow">
+<div class="step"><b>1</b> · 2 Primzahlen <b>p, q</b><br>je 1024 Bit ≈ 300 Dezimalstellen (neuer: 2048/4096)</div><div class="arr">→</div>
+<div class="step"><b>2</b> · <b>n = p·q</b><br><b>φ = (p−1)·(q−1)</b></div><div class="arr">→</div>
+<div class="step"><b>3</b> · <b>k1</b> wählen mit <b>ggT<i class="gl"> (größter gemeinsamer Teiler)</i>(φ, k1) = 1</b> (teilerfremd) → Inverses in Zφ existiert</div><div class="arr">→</div>
+<div class="step"><b>4</b> · <b>k2 = k1⁻¹ in Zφ</b><br>erweiterter Euklid oder Probieren: (k1·k2) mod φ = 1</div>
+</div>
+<div class="box b-best">Primzahlen gibt's „wie Sand am Meer" – Primzahlzählfunktion: <b>π(n) ≈ n / ln(n)</b>.</div>
+<h4>Durchgerechnetes Mini-Beispiel (Prüfungs-Klassiker!)</h4>
+<pre><code>p = 3, q = 11  →  n = 33,  φ = 2·10 = 20
+k1 = 7  (ggT(7,20) = 1)
+k2: (7·k2) mod 20 = 1  →  k2 = 3   (7·3 = 21 = 20+1)
+Public = (7, 33)   Private = (3, 33)
+m = 4:  c = 4^7 mod 33 = 16    (Trick: 4^5 = 1024 = 1 mod 33 → 4^7 = 1·4^2 = 16)
+zurück: 16^3 mod 33 = 4096 mod 33 = 4  →  passt!</code></pre>
+<h4>Rezept: Wer macht was, wann?</h4>
+<table>
+<tr><th>#</th><th>Wer</th><th>Was</th><th>Geheim?</th></tr>
+<tr><td>1</td><td><b>Empfänger</b> (einmalig)</td><td>p, q wählen → n = p·q, φ = (p−1)(q−1) → k1 teilerfremd zu φ → k2 = k1⁻¹ in Zφ</td><td>p, q, φ, k2 = GEHEIM (p, q, φ danach am besten vernichten)</td></tr>
+<tr><td>2</td><td>Empfänger</td><td><b>Public Key (k1, n) veröffentlichen</b> (Webseite, Schlüsselserver)</td><td>öffentlich</td></tr>
+<tr><td>3</td><td>Sender</td><td>holt sich den Public Key DES EMPFÄNGERS</td><td>–</td></tr>
+<tr><td>4</td><td>Sender</td><td>verschlüsselt: <b>c = m^k1 mod n</b> → schickt c (darf jeder sehen!)</td><td>m bleibt geheim</td></tr>
+<tr><td>5</td><td>Empfänger</td><td>entschlüsselt: <b>m = c^k2 mod n</b> – nur er kann das, nur er hat k2</td><td>–</td></tr>
+</table>
+<div class="box b-best"><b>Rechentricks für die Prüfung:</b> ① Nach JEDER Multiplikation sofort <b>mod n</b> nehmen – so bleiben die Zahlen klein. ② Große Exponenten zerlegen (<b>Square &amp; Multiply</b>): Exponent als Summe von 2er-Potenzen, z. B. 27 = 16+8+2+1 → x²⁷ = x¹⁶·x⁸·x²·x¹, und jede Stufe ist nur das <b>Quadrat der vorigen</b>.</div>
+<h4>Zweites Beispiel komplett durchgerechnet (zum Selbst-Üben)</h4>
+<pre><code>1. p = 5, q = 11        → n = 55,  φ = 4·10 = 40
+2. k1 = 3               (ggT(3, 40) = 1 → teilerfremd ✓)
+3. k2: (3·k2) mod 40 = 1 → k2 = 27   (3·27 = 81 = 2·40 + 1 ✓)
+   Public = (3, 55) · Private = (27, 55)
+4. Verschlüsseln m = 7:  c = 7³ mod 55 = 343 mod 55 = 13
+5. Entschlüsseln 13²⁷ mod 55 – Square &amp; Multiply (27 = 16+8+2+1):
+   13² = 169 mod 55 = 4 · 13⁴ = 4² = 16 · 13⁸ = 16² = 256 mod 55 = 36 · 13¹⁶ = 36² = 1296 mod 55 = 31
+   13²⁷ = 31·36·4·13 → 31·36 = 1116 mod 55 = 16 → 16·4 = 64 mod 55 = 9 → 9·13 = 117 mod 55 = 7 ✓</code></pre>
+<h4>RSA hacken / Sicherheit</h4>
+<div class="box b-def"><b>Sicher</b> = Knack-Aufwand übertrifft den Nutzen. Bei RSA<i class="gl"> (asymmetrische Verschlüsselung (Rivest–Shamir–Adleman))</i>: nicht zu Lebzeiten schaffbar.</div>
+<div class="box b-warn"><b>Angriff:</b> n ist öffentlich → <b>Primfaktorzerlegung</b> liefert p, q → φ → k2 berechenbar. <b>Darum riesige Primzahlen.</b> · <b>Quantencomputer</b> = potenzielles Problem.</div>
+<h4>Primzahl-Check: Solovay-Strassen (probabilistisch)</h4>
+<div class="flow">
+<div class="step">zufälliges <b>a</b> wählen<br>1 &lt; a &lt; n</div><div class="arr">→</div>
+<div class="step"><b>ggT<i class="gl"> (größter gemeinsamer Teiler)</i>(a, n) &gt; 1?</b><br>ja → <span style="color:#dc2626"><b>sicher KEINE Primzahl</b></span></div><div class="arr">→</div>
+<div class="step">sonst <b>b = a^((n−1)/2)</b> in Zn</div><div class="arr">→</div>
+<div class="step">b = 1 oder b = n−1 (Inverses von 1) → <b>könnte prim sein</b><br>sonst → <span style="color:#dc2626">keine Primzahl</span></div>
+</div>
+<div class="merk">🧠 Pro Durchlauf <b>halbiert</b> sich die Fehlerwahrscheinlichkeit: x=4 → 1:16, x=30 → 1:10⁹.</div>
+</section>
+
+<section class="topic" id="t32">
+<h3>3.2 Elektronische Unterschrift per RSA</h3>
+<div class="basics">🧱 <b>Basics:</b> Ein <b>Hash</b> ist der „Fingerabdruck" eines Dokuments: eine kurze Prüfzahl, die sich komplett ändert, sobald man nur ein Zeichen ändert. Die E-Unterschrift beweist zwei Dinge: <b>WER</b> es geschickt hat (Authentizität) und <b>DASS</b> nichts verändert wurde (Integrität).</div>
+<div class="box b-def"><b>Kernmerkmal Unterschrift: jeder kann sie überprüfen.</b> Voraussetzung: Verschlüsseln mit <b>privatem</b>, Entschlüsseln mit <b>öffentlichem</b> Schlüssel möglich (Umkehrung!). <b style="color:#dc2626">Nicht jedes Public-Key-Verfahren kann das</b> – RSA<i class="gl"> (asymmetrische Verschlüsselung (Rivest–Shamir–Adleman))</i> ja.</div>
+<div class="svgwrap">
+<svg viewBox="0 0 740 300" xmlns="http://www.w3.org/2000/svg">
+<rect x="10" y="10" width="350" height="130" rx="12" fill="#f0f9ff" stroke="#0284c7"/><text x="26" y="34" class="tb">SENDER</text>
+<rect x="26" y="48" width="100" height="40" rx="8" fill="#fff" stroke="#0284c7"/><text x="76" y="72" class="tb ta">Dokument</text>
+<line x1="126" y1="68" x2="178" y2="68" stroke="#0e7490" stroke-width="2" marker-end="url(#arrA)"/><text x="152" y="60" class="tm ta">1. Hash</text>
+<rect x="182" y="48" width="60" height="40" rx="8" fill="#fef9c3" stroke="#ca8a04"/><text x="212" y="72" class="tb ta">h</text>
+<line x1="242" y1="68" x2="294" y2="68" stroke="#0e7490" stroke-width="2" marker-end="url(#arrA)"/><text x="268" y="60" class="tm ta">2.</text>
+<rect x="298" y="48" width="50" height="40" rx="8" fill="#fee2e2" stroke="#dc2626"/><text x="323" y="72" class="tb ta">u</text>
+<text x="186" y="112" class="tm">u = h verschlüsselt mit PRIVATE Key des Erstellers</text>
+<line x1="185" y1="140" x2="185" y2="172" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+<text x="200" y="160" class="tm">3. Dokument im Klartext + u übertragen</text>
+<rect x="10" y="176" width="720" height="114" rx="12" fill="#f0fdf4" stroke="#16a34a"/><text x="26" y="200" class="tb">EMPFÄNGER</text>
+<rect x="26" y="212" width="100" height="40" rx="8" fill="#fff" stroke="#0284c7"/><text x="76" y="236" class="tb ta">Dokument</text>
+<line x1="126" y1="232" x2="178" y2="232" stroke="#0e7490" stroke-width="2" marker-end="url(#arrA)"/><text x="152" y="224" class="tm ta">4a. Hash</text>
+<rect x="182" y="212" width="60" height="40" rx="8" fill="#fef9c3" stroke="#ca8a04"/><text x="212" y="236" class="tb ta">h'</text>
+<rect x="300" y="212" width="50" height="40" rx="8" fill="#fee2e2" stroke="#dc2626"/><text x="325" y="236" class="tb ta">u</text>
+<line x1="350" y1="232" x2="402" y2="232" stroke="#0e7490" stroke-width="2" marker-end="url(#arrA)"/><text x="376" y="224" class="tm ta">4b. Public Key</text>
+<rect x="406" y="212" width="60" height="40" rx="8" fill="#fef9c3" stroke="#ca8a04"/><text x="436" y="236" class="tb ta">h</text>
+<rect x="510" y="206" width="205" height="52" rx="10" fill="#fff" stroke="#475569"/><text x="612" y="226" class="tb ta">5. Vergleich h' = h ?</text><text x="612" y="244" class="tm ta">gleich → Integrität + Authentizität ✓</text>
+<line x1="242" y1="232" x2="506" y2="265" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4 4"/>
+<line x1="466" y1="232" x2="508" y2="232" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4 4"/>
+<text x="370" y="282" class="tm ta">zwingend SELBE Hashfunktion! · ungleich → anderer Absender ODER manipuliert</text>
+</svg>
+</div>
+<h4>Genaue Reihenfolge + Mini-Zahlenbeispiel</h4>
+<table>
+<tr><th>#</th><th>SENDER (unterschreibt)</th><th>EMPFÄNGER (prüft)</th></tr>
+<tr><td>1</td><td>Hash vom Dokument bilden: h</td><td>–</td></tr>
+<tr><td>2</td><td>h mit dem <b>EIGENEN PRIVATE Key</b> verschlüsseln → Unterschrift u</td><td>–</td></tr>
+<tr><td>3</td><td>Dokument (Klartext!) + u verschicken</td><td>empfängt beides</td></tr>
+<tr><td>4</td><td>–</td><td>selbst Hash vom Dokument bilden (SELBE Hashfunktion!) → h′</td></tr>
+<tr><td>5</td><td>–</td><td>u mit dem <b>PUBLIC Key des Senders</b> entschlüsseln → h</td></tr>
+<tr><td>6</td><td>–</td><td>h′ = h? → echt + unverändert ✓ · sonst: manipuliert ODER falscher Absender ✗</td></tr>
+</table>
+<pre><code>Zahlenbeispiel (Schlüssel von 3.1): Public = (7, 33) · Private = (3, 33)
+Hash des Dokuments: h = 4
+SENDER:    u = h^k2 mod n = 4³ mod 33 = 64 mod 33 = 31   → schickt Dokument + u = 31
+EMPFÄNGER: h′ = selbst gehasht = 4
+           u entschlüsseln: 31⁷ mod 33 = 4      (Trick: 31 ≡ −2 mod 33 → (−2)⁷ = −128 → −128 + 4·33 = 4)
+           h′ = 4 = h ✓ → Absender echt, Dokument unverändert</code></pre>
+<div class="merk">🧠 Gegenüber normalem RSA ist die Richtung <b>UMGEDREHT</b>: Unterschreiben = mit <b>privatem</b> Schlüssel „verschlüsseln" · Prüfen = mit <b>öffentlichem</b> entschlüsseln. Es beweist Echtheit, weil NUR der Sender seinen Private Key kennt – und JEDER kann es mit dem Public Key nachprüfen.</div>
+</section>
+
+<section class="topic" id="t33">
+<h3>3.3 SQL-Injection und Maßnahmen</h3>
+<div class="basics">🧱 <b>Basics:</b> Apps bauen SQL-Befehle oft aus Benutzereingaben zusammen (Text aneinanderkleben). Enthält die Eingabe selbst SQL-Zeichen, wird sie Teil des Befehls – der Angreifer „redet" plötzlich direkt mit der DB.</div>
+<div class="box b-def"><b>SQL<i class="gl"> (Structured Query Language)</i>-Injection</b> = DB-Abfragen einer Applikation für ungewollte Zugriffe missbraucht. Eingaben (Tastatur, Datei, Parameter, URL) verändern bei schlechter Implementierung die <b>Struktur des Statements</b>.</div>
+<div class="merk">🧠 <b>Bank-Metapher:</b> Brief „Bitte überweisen Sie 50 € an &lt;Name&gt;" – Benutzer ruft: „Max Müller. <b>P.S.: Überweisen Sie außerdem 1.000.000 € auf mein Konto!</b>"</div>
+<h4>Gefahrenquelle: einfaches Execute (String-Konkatenation)</h4>
+<pre><code>"SELECT * FROM EMP WHERE dept=20 AND ename LIKE '" + eingabe + "'"
+-- braver User 'Hugo':  ... ename LIKE 'Hugo'   -- alles gut</code></pre>
+<h4>3 Injection-Varianten</h4>
+<div class="cards">
+<div class="card" style="border-top:4px solid #dc2626"><h5>V1 · Filter aushebeln</h5><code>' or 'a'='a</code><br>WHERE immer true → dept=20-Filter umgangen, <b>ALLE Datensätze raus</b>.</div>
+<div class="card" style="border-top:4px solid #dc2626"><h5>V2 · UNION</h5><code>' UNION SELECT * FROM dept where 'a'='a</code><br>fremde Tabelle! Bedingungen: <b>gleiche Spaltenanzahl + Datentypen</b>.</div>
+<div class="card" style="border-top:4px solid #dc2626"><h5>V3 · eigenes Statement</h5><code>'; DROP TABLE DEPT; --</code><br>„;" beendet Select. Default-Treiberkonfig verhindert Multi-Statements – <b>Defaults werden gern überschrieben („Praktikant")</b>.</div>
+</div>
+<h4>Abhilfe: Prepared Statements</h4>
+<div class="flow">
+<div class="step"><b>1.</b> Statement mit <b>?-Platzhaltern</b> an die DB</div><div class="arr">→</div>
+<div class="step"><b>Struktur fixiert</b><br>(„Lücken gestopft")</div><div class="arr">→</div>
+<div class="step"><b>2.</b> DANN Parameter füllen</div><div class="arr">→</div>
+<div class="step">Eingabe kann Struktur <b>nie mehr ändern</b> ✓</div>
+</div>
+<pre><code>sql  = "SELECT * FROM EMP WHERE dept = ? AND ename LIKE ?";
+prep = conn.prepareStatement(sql);
+prep.setInt(1, 20);
+prep.setString(2, eingabe);
+rs = prep.executeQuery();</code></pre>
+<div class="box b-best"><b>Performance-Boost:</b> Zugriffspfad nur 1× berechnet. Einfaches Execute: Befehl immer minimal anders → Optimizer<i class="gl"> (DB wählt den schnellsten Ausführungsweg)</i> rechnet jedes Mal neu. Nur unverfängliche Zeichen zulassen hilft, <b>reicht aber nicht</b>.</div>
+<div class="box b-warn"><b>Fazit:</b> wenig Aufwand, erspart massive Kopfschmerzen. Ausnutzen = <b>illegal + strafbar</b>.</div>
+</section>
+
+<section class="topic" id="t34">
+<h3>3.4 Transaktionen</h3>
+<div class="basics">🧱 <b>Basics:</b> Beispiel Überweisung = 2 Schritte: bei A abbuchen, bei B gutschreiben. Stürzt das System dazwischen ab, fehlt Geld. Darum fasst man die Schritte zu einer <b>Transaktion</b> zusammen: Es passiert alles – oder nichts. <b>Konsistent</b> = die Daten widersprechen sich nicht.</div>
+<div class="box b-def"><b>Transaktion</b> = mehrere Teilaktionen als <b>ein Ganzes</b>. Eine Teilaktion scheitert → <b>gesamte Transaktion scheitert</b>. Nötig, wenn Teilaktionen die DB in einen <b>inkonsistenten Zustand</b> bringen könnten.</div>
+<h4>ACID</h4>
+<div class="cards">
+<div class="card" style="border-top:4px solid #0284c7"><h5>A · Atomicity</h5><b>Ganz oder gar nicht</b> – alle Teilaktionen oder keine.</div>
+<div class="card" style="border-top:4px solid #16a34a"><h5>C · Consistency</h5>DB zu <b>Beginn UND Ende</b> konsistent (FK<i class="gl"> (Fremdschlüssel: Verweis auf fremden PK)</i>-Referenzen, Summe Buchungen = Kontosumme).</div>
+<div class="card" style="border-top:4px solid #ca8a04"><h5>I · Isolation</h5>Betroffene Daten <b>gesperrt</b>; Änderungen erst <b>nach COMMIT<i class="gl"> (Änderungen endgültig speichern)</i></b> für andere sichtbar.</div>
+<div class="card" style="border-top:4px solid #dc2626"><h5>D · Durability</h5>Nach Abschluss <b>persistent<i class="gl"> (dauerhaft gespeichert)</i></b>. Technik: <b>Log-Dateien (Redo/Undo<i class="gl"> (Wiederhol-/Rückgängig-Protokolle)</i>), Recovery<i class="gl"> (Wiederherstellung)</i>, Backup</b>.</div>
+</div>
+<h4>Problemfälle ohne ACID – Lost Update als Zeitstrahl</h4>
+<div class="svgwrap">
+<svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg">
+<line x1="80" y1="30" x2="80" y2="180" stroke="#0284c7" stroke-width="2"/><text x="80" y="20" class="tb ta">Transaktion A</text>
+<line x1="620" y1="30" x2="620" y2="180" stroke="#dc2626" stroke-width="2"/><text x="620" y="20" class="tb ta">Transaktion B</text>
+<rect x="120" y="38" width="170" height="26" rx="6" fill="#e0f2fe" stroke="#0284c7"/><text x="205" y="56" class="t ta">liest Kontostand: 100</text>
+<rect x="410" y="66" width="170" height="26" rx="6" fill="#fee2e2" stroke="#dc2626"/><text x="495" y="84" class="t ta">liest Kontostand: 100</text>
+<rect x="120" y="94" width="170" height="26" rx="6" fill="#e0f2fe" stroke="#0284c7"/><text x="205" y="112" class="t ta">+47 → schreibt 147</text>
+<rect x="410" y="122" width="170" height="26" rx="6" fill="#fee2e2" stroke="#dc2626"/><text x="495" y="140" class="t ta">+53 → schreibt 153</text>
+<rect x="200" y="158" width="300" height="30" rx="8" fill="#fef9c3" stroke="#ca8a04"/><text x="350" y="178" class="tb ta">Ergebnis: 153 statt 200 – letztes Update gewinnt!</text>
+</svg>
+</div>
+<div class="cards">
+<div class="card"><h5>DIRTY READ</h5>B liest Wert, den A danach <b>zurückrollt</b> → B rechnet mit nie gültigen Daten.</div>
+<div class="card"><h5>INKONSISTENTE ANALYSE</h5>A summiert Konten, B bucht währenddessen um → <b>Summe falsch</b> (320 statt 350).</div>
+</div>
+<h4>Locking</h4>
+<div class="box b-best"><b>SELECT … FOR UPDATE</b> = gelesene Datensätze sperren; Sperre fällt mit COMMIT<i class="gl"> (Änderungen endgültig speichern)</i>/ROLLBACK<i class="gl"> (alle offenen Änderungen verwerfen)</i>.</div>
+<pre><code>-- BAD (Lost Update möglich):
+SELECT kontostand INTO v_a FROM bank_a WHERE kontonr = :a;
+UPDATE bank_a SET kontostand = v_a - betrag WHERE kontonr = :a; COMMIT;
+
+-- NICE (Sperren beim Lesen):
+SELECT kontostand INTO v_a FROM bank_a WHERE kontonr = :a FOR UPDATE;
+UPDATE ...; COMMIT;
+EXCEPTION WHEN OTHERS THEN ROLLBACK; RAISE;   -- re-raise</code></pre>
+<h4>Rezept: sichere Überweisung Schritt für Schritt</h4>
+<div class="flow">
+<div class="step"><b>1</b> · Transaktion beginnt<br><span style="color:#475569">(implizit mit erstem Statement)</span></div><div class="arr">→</div>
+<div class="step"><b>2</b> · SELECT … <b>FOR UPDATE</b><br><span style="color:#475569">Zeile wird GESPERRT</span></div><div class="arr">→</div>
+<div class="step"><b>3</b> · prüfen: Deckung?<br><span style="color:#dc2626">nein → ROLLBACK + Fehler</span></div><div class="arr">→</div>
+<div class="step"><b>4</b> · UPDATE Konto A: −100</div><div class="arr">→</div>
+<div class="step"><b>5</b> · UPDATE Konto B: +100</div><div class="arr">→</div>
+<div class="step"><b>6</b> · <b>COMMIT</b><br><span style="color:#475569">Sperren fallen, ab jetzt für alle sichtbar</span></div>
+</div>
+<div class="box b-def"><b>Was heißt „gesperrt" konkret?</b> Will Transaktion B dieselbe Zeile auch mit FOR UPDATE lesen, bleibt sie einfach <b>stehen und wartet</b>, bis A COMMIT/ROLLBACK gemacht hat – dann liest B den NEUEN Stand. Genau dadurch verschwindet das Lost-Update-Problem.</div>
+<div class="box b-def"><b>Absturz mitten in der Transaktion?</b> (z. B. nach Schritt 4): Beim Neustart rollt die DB alles Unbestätigte automatisch über das <b>Undo-Log</b> zurück → ganz oder gar nicht (Atomicity). Nach COMMIT garantiert das <b>Redo-Log</b>, dass nichts mehr verloren geht (Durability).</div>
+<div class="merk">🧠 <b>Wann brauche ich eine Transaktion?</b> Checkliste: Gehören mehrere Änderungen logisch zusammen? Wäre ein Zwischenzustand eine „Lüge" (Geld weg, nirgends angekommen)? → Transaktion!</div>
+</section>
+<h2 class="korb" id="k4">Themenkorb 4 – Datenbanksystemarchitektur</h2>
+
+<section class="topic" id="t41">
+<h3>4.1 B-Baum</h3>
+<div class="basics">🧱 <b>Basics:</b> Ein <b>Baum</b> ist eine Datenstruktur: oben die Wurzel, unten die Blätter; beim Suchen biegt man pro Ebene ab → wenige Schritte statt alles durchsuchen. Festplatten lesen immer <b>ganze Blöcke</b> (z.&nbsp;B. 4 KB) am Stück – darum füllt der B-Baum pro Knoten gleich einen ganzen Block mit Werten. <b>Entartet</b> = Baum wird zur Kette → Suchen wieder langsam.</div>
+<div class="box b-warn"><b>B = BLOCK, nicht binär!</b> Knoten verwalten ganze Datenblöcke. <b>Blockgröße = genau 1 Massenspeicherblock</b> (K passend wählen).</div>
+<div class="box b-def"><b>Motivation:</b> Bäume nur effizient, wenn Ebenen voll. Binärbaum aus vorsortierten Daten <b>entartet zur Liste</b> → Suchaufwand linear. 1 Mio. Elemente: perfekter Baum <b>~20</b> Zugriffe (2²⁰ ≈ 1 Mio.) vs. Liste <b>~500.000</b>. Gegenmittel: Re-Balancieren (zu teuer) oder AVL (Höhendifferenz ≤ 1) – <b>B-Baum: kann GAR NICHT entarten.</b></div>
+<h4>Regeln (fixes K)</h4>
+<div class="flow">
+<div class="step">Block: <b>max. 2·K</b> Elemente</div>
+<div class="step">Block: <b>min. K</b> Elemente<br><span style="color:#475569">Ausnahme: Wurzel<i class="gl"> (oberster Knoten)</i></span></div>
+<div class="step">Neue Elemente <b>immer ins Blatt<i class="gl"> (unterster Baum-Knoten)</i></b></div>
+<div class="step">Suche: <b>O(log n)</b>, Basis 2·K+1<br><span style="color:#475569">Basis bei O() egal – nur konstanter Faktor</span></div>
+</div>
+<h4>Insert mit Split (K=2, Block = 4)</h4>
+<div class="svgwrap">
+<svg viewBox="0 0 740 240" xmlns="http://www.w3.org/2000/svg">
+<text x="180" y="24" class="tb ta">Überlauf: 5 Elemente (2K+1)</text>
+<g>
+<rect x="55" y="36" width="250" height="34" rx="6" fill="#fee2e2" stroke="#dc2626"/>
+<line x1="105" y1="36" x2="105" y2="70" stroke="#dc2626"/><line x1="155" y1="36" x2="155" y2="70" stroke="#dc2626"/><line x1="205" y1="36" x2="205" y2="70" stroke="#dc2626"/><line x1="255" y1="36" x2="255" y2="70" stroke="#dc2626"/>
+<text x="80" y="58" class="tb ta">7</text><text x="130" y="58" class="tb ta">8</text><text x="180" y="58" class="tb ta">11</text><text x="230" y="58" class="tb ta">15</text><text x="280" y="58" class="tb ta">23</text>
+</g>
+<line x1="320" y1="53" x2="395" y2="53" stroke="#0e7490" stroke-width="2.5" marker-end="url(#arrA)"/>
+<text x="357" y="42" class="tm ta">SPLIT</text>
+<text x="560" y="24" class="tb ta">Mitte (11) wandert in den Vaterblock</text>
+<rect x="510" y="36" width="100" height="34" rx="6" fill="#fef9c3" stroke="#ca8a04"/><text x="560" y="58" class="tb ta">11</text>
+<line x1="535" y1="70" x2="475" y2="110" stroke="#475569" stroke-width="1.5"/>
+<line x1="585" y1="70" x2="645" y2="110" stroke="#475569" stroke-width="1.5"/>
+<rect x="410" y="112" width="130" height="34" rx="6" fill="#dcfce7" stroke="#16a34a"/>
+<line x1="475" y1="112" x2="475" y2="146" stroke="#16a34a"/>
+<text x="442" y="134" class="tb ta">7</text><text x="508" y="134" class="tb ta">8</text>
+<rect x="580" y="112" width="130" height="34" rx="6" fill="#dcfce7" stroke="#16a34a"/>
+<line x1="645" y1="112" x2="645" y2="146" stroke="#16a34a"/>
+<text x="612" y="134" class="tb ta">15</text><text x="678" y="134" class="tb ta">23</text>
+<text x="560" y="172" class="tm ta">erste K nach links, letzte K nach rechts</text>
+<text x="370" y="210" class="tm ta">Wurzel läuft über → Wurzel splitten → NEUE Wurzel: Baum wächst um 1 Ebene</text>
+<text x="370" y="228" class="tb ta">= einzige Wachstumsart → Baum wird NIE schief</text>
+</svg>
+</div>
+<div class="box b-def">Bis zu <b>2·K+1 Zeiger</b> je Block; Unterblock enthält nur Werte ZWISCHEN den Einträgen des Vaters.</div>
+<h4>Delete</h4>
+<div class="cards">
+<div class="card"><h5>Im Blatt</h5>einfach löschen.</div>
+<div class="card"><h5>Innerer Knoten</h5>ersetzen durch <b>Predecessor</b> (größter Key links) oder <b>Successor</b> (kleinster Key rechts).</div>
+<div class="card"><h5>Unterlauf (&lt; K)</h5>Nachbar hat &gt; K → über Vater <b>rotieren</b> · beide Nachbarn genau K → <b>mergen</b> (mit mittlerem Vater-Element) – kann sich nach oben fortsetzen.</div>
+<div class="card"><h5>Wurzel-Merge</h5>Baum <b>schrumpft um 1 Ebene</b>. · <b>Update = Delete + Insert</b>.</div>
+</div>
+<div class="merk">🧠 Übungs-Klassiker: 26 Elemente bei K=2 einfügen – Wurzel<i class="gl"> (oberster Knoten)</i> füllen bis 5 → sortieren → Mitte hoch, kleinere links, größere rechts → bei jedem Überlauf: Split, Mitte (sofort sortiert!) in die Wurzel, Zeiger richtigstellen.</div>
+</section>
+
+<section class="topic" id="t42">
+<h3>4.2 Hashtabellen im Hauptspeicher</h3>
+<div class="basics">🧱 <b>Basics:</b> Ein <b>Array</b> ist eine nummerierte Fächerreihe im Hauptspeicher: Kennt man die Fachnummer (Index), greift man in EINEM Schritt zu. Trick der Hashtabelle: Die Fachnummer wird direkt aus dem Schlüssel <b>ausgerechnet</b> – Suchen entfällt.</div>
+<div class="box b-def"><b>Je einfacher die Struktur, desto schneller → Array am besten.</b> Aber: nur schnell, wenn Index<i class="gl"> (Suchstruktur für schnellen Zugriff)</i> bekannt. <b>Hashtabelle = Index aus dem Schlüssel BERECHNEN.</b> Einsatz: wenn (Such-)Bäume zu langsam.</div>
+<div class="svgwrap">
+<svg viewBox="0 0 700 190" xmlns="http://www.w3.org/2000/svg">
+<rect x="20" y="30" width="110" height="34" rx="8" fill="#e0f2fe" stroke="#0284c7"/><text x="75" y="52" class="tb ta">"Huber"</text>
+<line x1="130" y1="47" x2="195" y2="47" stroke="#0e7490" stroke-width="2" marker-end="url(#arrA)"/>
+<rect x="200" y="22" width="170" height="50" rx="10" fill="#fef9c3" stroke="#ca8a04"/><text x="285" y="44" class="tb ta">Hashfunktion</text><text x="285" y="62" class="tm ta">z. B. md5(key) mod Größe</text>
+<line x1="370" y1="47" x2="435" y2="47" stroke="#0e7490" stroke-width="2" marker-end="url(#arrA)"/><text x="403" y="38" class="tm ta">Index 3</text>
+<g>
+<rect x="440" y="30" width="40" height="34" fill="#fff" stroke="#94a3b8"/><rect x="480" y="30" width="40" height="34" fill="#fff" stroke="#94a3b8"/><rect x="520" y="30" width="40" height="34" fill="#bae6fd" stroke="#0284c7"/><rect x="560" y="30" width="40" height="34" fill="#fee2e2" stroke="#dc2626"/><rect x="600" y="30" width="40" height="34" fill="#dcfce7" stroke="#16a34a"/><rect x="640" y="30" width="40" height="34" fill="#fff" stroke="#94a3b8"/>
+<text x="460" y="84" class="tm ta">0</text><text x="500" y="84" class="tm ta">1</text><text x="540" y="84" class="tm ta">2</text><text x="580" y="84" class="tm ta">3</text><text x="620" y="84" class="tm ta">4</text><text x="660" y="84" class="tm ta">5</text>
+</g>
+<path d="M580 64 C 580 110, 620 95, 620 68" stroke="#dc2626" stroke-width="1.8" fill="none" marker-end="url(#arrR)"/>
+<text x="370" y="130" class="tb ta" fill="#dc2626">Kollision (Platz belegt mit ANDEREM Schlüssel) → Open Addressing: Index +1</text>
+<text x="350" y="160" class="tm ta">gleicher Schlüssel → Insert: schon da / Suche: GEFUNDEN · Platz frei → Insert / Suche: existiert NICHT</text>
+</svg>
+</div>
+<h4>Hashfunktion</h4>
+<div class="box b-warn">Naiv (Bytefolge mod Größe): Namen/Wörter <b>ungleich verteilt</b> (Häufungen + „Wüsten") → Kollisionen<i class="gl"> (mehrere Schlüssel → gleicher Index)</i>, tote Indizes<i class="gl"> (Suchstrukturen)</i>.</div>
+<div class="box b-best"><b>Ziel: GLEICHMÄSSIG verteilen</b> (Hash<i class="gl"> (berechneter Kurzwert/Index)</i> = „faschieren"). Kandidaten: <b>md5/sha1 mod Größe</b>; selbst bauen: Shifts, XOR, Permutationen, <b>mod Primzahl</b>. <b>Keine Hashfunktion ist für alle Daten geeignet</b> – zeigt sich erst im Betrieb.</div>
+<h4>Kollisionsbehandlung</h4>
+<div class="cards">
+<div class="card"><h5>Open Addressing</h5>Index<i class="gl"> (Suchstruktur für schnellen Zugriff)</i> einfach <b>+1</b> (linear weiter). <b>Einfachste, bewährte Variante.</b></div>
+<div class="card"><h5>Separate Chaining</h5>Listen/Bäume anhängen – <span style="color:#dc2626">widerspricht dem Geschwindigkeitsziel</span>.</div>
+<div class="card"><h5>Weitere</h5>mehrere Hashfunktionen<i class="gl"> (rechnet Daten → kurzen Zahlenwert)</i> probieren. <b>Keine Idee klar überlegen.</b></div>
+</div>
+<div class="box b-warn"><b>Delete-Falle (Open Addressing<i class="gl"> (bei Kollision: Index +1)</i>): NICHT auf „leer" setzen!</b> Insert ist evtl. schon vorbeigelaufen → Suche bräche fälschlich ab. → Markierung <b>„wieder leer"</b>: Insert darf füllen, Suche sucht weiter.</div>
+<h4>Durchgespieltes Beispiel: Array-Größe 7, h(k) = k mod 7</h4>
+<div class="svgwrap">
+<svg viewBox="0 0 740 170" xmlns="http://www.w3.org/2000/svg">
+<g>
+<rect x="120" y="60" width="64" height="40" fill="#fff" stroke="#94a3b8"/><rect x="184" y="60" width="64" height="40" fill="#fff" stroke="#94a3b8"/><rect x="248" y="60" width="64" height="40" fill="#fff" stroke="#94a3b8"/><rect x="312" y="60" width="64" height="40" fill="#fff" stroke="#94a3b8"/>
+<rect x="376" y="60" width="64" height="40" fill="#bae6fd" stroke="#0284c7"/><rect x="440" y="60" width="64" height="40" fill="#fef9c3" stroke="#ca8a04"/><rect x="504" y="60" width="64" height="40" fill="#fecaca" stroke="#dc2626"/>
+<text x="408" y="85" class="tb ta">18</text><text x="472" y="85" class="tb ta">25</text><text x="536" y="85" class="tb ta">32</text>
+<text x="152" y="116" class="tm ta">0</text><text x="216" y="116" class="tm ta">1</text><text x="280" y="116" class="tm ta">2</text><text x="344" y="116" class="tm ta">3</text><text x="408" y="116" class="tm ta">4</text><text x="472" y="116" class="tm ta">5</text><text x="536" y="116" class="tm ta">6</text>
+</g>
+<text x="408" y="30" class="tm ta">18 → 18 mod 7 = 4 ✓ frei</text>
+<line x1="408" y1="36" x2="408" y2="56" stroke="#0284c7" stroke-width="1.8" marker-end="url(#arr)"/>
+<text x="560" y="44" class="tm ta">25 → 4 belegt ✗ → +1 → 5 ✓</text>
+<line x1="500" y1="48" x2="474" y2="57" stroke="#ca8a04" stroke-width="1.8" marker-end="url(#arr)"/>
+<text x="408" y="146" class="tm ta">32 → 4 ✗ → 5 ✗ → 6 ✓ (Open Addressing: immer +1 weiter)</text>
+</svg>
+</div>
+<pre><code>SUCHE 25:  h = 4 → Platz 4: 18 ≠ 25 → +1 → Platz 5: 25 ✓ GEFUNDEN (2 Zugriffe)
+SUCHE 11:  h = 4 → 4: 18 ✗ → 5: 25 ✗ → 6: 32 ✗ → 0: LEER → existiert NICHT (Stopp bei leer!)
+DELETE 25: Platz 5 NICHT auf „leer", sondern auf „WIEDER LEER" setzen!
+SUCHE 32:  h = 4 → 4: 18 ✗ → 5: „wieder leer" → WEITERSUCHEN → 6: 32 ✓
+           (stünde dort „leer", würde die Suche fälschlich abbrechen!)</code></pre>
+<h4>Zugriffsaufwand: Zugriffe = 1 / (1 − α)</h4>
+<div class="svgwrap">
+<svg viewBox="0 0 700 150" xmlns="http://www.w3.org/2000/svg">
+<text x="60" y="30" class="tb">α = belegt / Größe</text>
+<g>
+<rect x="60" y="44" width="60" height="18" fill="#0e7490"/><text x="130" y="58" class="t">α 0,5 → Ø 2 Zugriffe</text>
+<rect x="60" y="66" width="120" height="18" fill="#0891b2"/><text x="190" y="80" class="t">α 0,75 → 4</text>
+<rect x="60" y="88" width="150" height="18" fill="#ca8a04"/><text x="220" y="102" class="t">α 0,8 → 5</text>
+<rect x="60" y="110" width="300" height="18" fill="#ea580c"/><text x="370" y="124" class="t">α 0,9 → 10</text>
+<rect x="60" y="132" width="600" height="14" fill="#dc2626"/><text x="450" y="128" class="tb" fill="#dc2626">α 0,95 → 20 Zugriffe!</text>
+</g>
+</svg>
+</div>
+<div class="box b-best">Hängt NUR vom Füllgrad ab (Voraussetzung: perfekte Gleichverteilung). <b>Array von Anfang an doppelt so groß wie erwartete Daten → α ≈ 0,5.</b> Anzahl unbekannt → klein starten + reorganisieren.</div>
+<h4>Reorganisation</h4>
+<div class="flow">
+<div class="step"><b>Wann?</b><br>α ≥ 0,75 oder zu viele Kollisionen<i class="gl"> (mehrere Schlüssel → gleicher Index)</i></div><div class="arr">→</div>
+<div class="step"><b>neues Array</b><br>doppelt so groß</div><div class="arr">→</div>
+<div class="step"><b>neue Hashfunktion<i class="gl"> (rechnet Daten → kurzen Zahlenwert)</i></b><br>mod Primzahl → weniger Kollisionen</div><div class="arr">→</div>
+<div class="step"><b>jeden Datensatz übertragen</b><br><span style="color:#dc2626">teuer → Nebenzeiten</span></div>
+</div>
+<div class="box b-warn"><b>Hash Flooding</b> (Angriff mit kollidierenden Keys): Abwehr = bei jeder Reorganisation <b>neuen Random-Seed</b> in die Hashfunktion<i class="gl"> (rechnet Daten → kurzen Zahlenwert)</i>. <b>Fazit:</b> sauschnell (1 Zugriff) oder elend langsam (Liste) – hängt am Know-how.</div>
+</section>
+
+<section class="topic" id="t43">
+<h3>4.3 XML – eXtensible Markup Language</h3>
+<div class="basics">🧱 <b>Basics:</b> <b>Markup</b> = Text mit Auszeichnungs-Tags in spitzen Klammern: &lt;Name&gt;Hugo&lt;/Name&gt;. So wissen zwei Programme beim Datenaustausch genau, welcher Wert was bedeutet – egal, von welchem System die Datei kommt.</div>
+<div class="box b-def"><b>Wieso XML?</b> Weg von der „Datenschaufelei" (welches Byte wofür). <b>CSV-Problem:</b> Komma vs. „;" als Trenner → Chaos. XML: <b>klare syntaktische Vorgabe</b> + definierbar, <b>wie oft was vorkommen darf</b> (Kardinalitäten<i class="gl"> (Anzahl-Vorgabe der Beziehung: 0, 1, n)</i>), nur erlaubte Tags.</div>
+<div class="box b-def">XML<i class="gl"> (eXtensible Markup Language)</i>-basierte Formate: <b>docx = gezipptes XML</b>, svg, xhtml, soap, xsd, xsl.</div>
+<h4>Aufbau</h4>
+<pre><code>&lt;?xml version="1.0" encoding="utf-8"?&gt;          ← Prolog (Version + Zeichensatz)
+&lt;Personen&gt;                                       ← genau 1 Wurzelelement
+  &lt;Person&gt;
+    &lt;Name hautfarbe="blau" geburtsort="Vordertupfing"&gt;Manfred Mueller&lt;/Name&gt;
+  &lt;/Person&gt;                                      ← Attribute: je Element nur 1× gleicher Name
+  &lt;Person&gt;&lt;Name hautfarbe="gruen"&gt;Otto Huber&lt;/Name&gt;&lt;Kind&gt;Xaver&lt;/Kind&gt;&lt;/Person&gt;
+&lt;/Personen&gt;</code></pre>
+<div class="svgwrap">
+<svg viewBox="0 0 700 110" xmlns="http://www.w3.org/2000/svg">
+<rect x="30" y="25" width="260" height="60" rx="10" fill="#e0f2fe" stroke="#0284c7"/>
+<text x="160" y="50" class="tb ta">wohlgeformt</text><text x="160" y="70" class="tm ta">Hierarchien eingehalten, 1 Wurzel</text>
+<line x1="290" y1="55" x2="375" y2="55" stroke="#0e7490" stroke-width="2" marker-end="url(#arrA)"/><text x="332" y="45" class="tm ta">+ Regeln</text>
+<rect x="380" y="25" width="290" height="60" rx="10" fill="#dcfce7" stroke="#16a34a"/>
+<text x="525" y="50" class="tb ta">gültig / korrekt</text><text x="525" y="70" class="tm ta">wohlgeformt UND gehorcht DTD oder XSD</text>
+</svg>
+</div>
+<h4>DTD vs. XSD</h4>
+<div class="m22">
+<div class="card"><h5>DTD – Document Type Definition</h5>Datentyp NUR Strings: <b>#PCDATA</b> (Aufzählungen möglich).<br><b>Kardinalitäten<i class="gl"> (Anzahl-Vorgabe der Beziehung: 0, 1, n)</i>:</b> (nichts) = genau 1 · <b>*</b> = 0..n · <b>+</b> = 1..n · <b>?</b> = 0..1
+<pre style="margin-top:8px"><code>&lt;!DOCTYPE Personen [
+ &lt;!ELEMENT Person (Name, Kind*,
+   Geburtsort?, Adresse+)&gt;
+ &lt;!ELEMENT Name (#PCDATA)&gt; ]&gt;
+-- extern: SYSTEM "Person.dtd"</code></pre>
+<span style="color:#475569;font-size:.82rem">Doku ohne Adresse = wohlgeformt, aber <b>nicht gültig</b> (Adresse+ = min. 1). „Komisches" Eigenformat.</span></div>
+<div class="card"><h5>XSD – XML Schema Definition</h5><b>Moderner, kann viel mehr:</b> echte Datentypen (int, string, date …), klare Grenzen via <b>minOccurs / maxOccurs</b> (Default 1, „unbounded"). <b>Ist selbst XML<i class="gl"> (eXtensible Markup Language)</i></b> (Präfix xsd:).
+<pre style="margin-top:8px"><code>&lt;xsd:element name="Kind"
+  minOccurs="0"
+  maxOccurs="unbounded"/&gt;</code></pre>
+<span style="color:#dc2626;font-size:.82rem">Aber: aus 5 Zeilen DTD<i class="gl"> (Document Type Definition: altes XML-Regelwerk)</i> werden gern 30 Zeilen XSD<i class="gl"> (XML Schema Definition: modernes Regelwerk)</i>.</span></div>
+</div>
+<div class="box b-def"><b>XSL</b> = Steuerdatei für den XSL-Prozessor (bei fast jedem OS dabei): XML<i class="gl"> (eXtensible Markup Language)</i> → PDF, HTML, anderes XML, …</div>
+</section>
+
+<section class="topic" id="t44">
+<h3>4.4 Performanceverbesserung per Index</h3>
+<div class="basics">🧱 <b>Basics:</b> Ohne Index liest die DB die ganze Tabelle durch (<b>Full Table Scan</b>) – wie ein Buch ohne Stichwortverzeichnis. Ein Index ist genau dieses Verzeichnis: Die DB springt direkt zur richtigen Stelle, muss das Verzeichnis aber bei jedem INSERT/UPDATE mitpflegen.</div>
+<div class="box b-def"><b>Index</b> = DB legt Suchstruktur an: <b>B-Baum<i class="gl"> (Block-Baum: kann nie entarten)</i> oder Hashtabelle</b>. Wichtigste Performance-Unterstützung.</div>
+<div class="box b-warn"><b>Indexpflege = Aufwand:</b> zu viele Indexe → schlechtere Performance + <b>Optimizer<i class="gl"> (DB wählt den schnellsten Ausführungsweg)</i> verwirrt</b> → schlechter Zugriffspfad.</div>
+<h4>Wo anlegen?</h4>
+<div class="flow">
+<div class="step"><b>Auf jeden Foreign Key</b></div>
+<div class="step"><b>Auf Felder, nach denen die Applikation sucht</b></div>
+</div>
+<pre><code>CREATE UNIQUE INDEX idxname ON tabelle (feld1, feld2, ...);
+CREATE INDEX idxname ON tabelle (feld1, feld2, ...);</code></pre>
+<div class="m22">
+<div class="card"><h5>Unique Index</h5>Keine doppelte Wertkombination – Duplikat-Insert → <b>sofort Fehler</b> → auch <b>Datenintegrität</b>. Bonus: <b>nach Fund sofort Stopp</b>. Automatisch durch Constraints<i class="gl"> (Zusatzbedingung – die DB passt auf)</i> <b>PRIMARY KEY<i class="gl"> (Primärschlüssel)</i> + UNIQUE</b>.</div>
+<div class="card"><h5>Non-Unique Index</h5>Nur <b>Performance-Boost</b>.</div>
+</div>
+<div class="box b-best"><b>Beispiel mit Zahlen:</b> Tabelle <i>kunden</i> mit 1.000.000 Zeilen. <code>SELECT * FROM kunden WHERE name = 'Huber'</code> – <b>ohne Index</b>: Full Table Scan = alle 1.000.000 Zeilen lesen. <b>Mit Index auf name</b>: B-Baum → ~20 Blockzugriffe → zigtausendfach schneller. <b>Warum jeden FK indizieren?</b> Jeder JOIN sucht über den FK (<code>JOIN bestellung ON bestellung.kunde_id = kunde.id</code>) – ohne Index durchsucht die DB für JEDEN Kunden die ganze Bestelltabelle.</div>
+<div class="box b-warn"><b>Wann KEIN Index?</b> Kleine Tabellen (Scan ist eh schnell) · Felder, die sich dauernd ändern (Indexpflege bei jedem Schreiben) · Spalten mit fast nur gleichen Werten (z. B. Geschlecht – Index hilft kaum).</div>
+<pre><code>EXPLAIN PLAN lesen:
+vorher:   TABLE ACCESS FULL  (kunden)          ← liest ALLES
+nachher:  INDEX RANGE SCAN   (idx_kunden_name) ← springt über den B-Baum
+          TABLE ACCESS BY ROWID (kunden)       ← holt nur die Treffer-Zeilen</code></pre>
+<h4>Stolperfallen</h4>
+<div class="box b-warn"><b>Mehrspaltiger Index<i class="gl"> (Suchstruktur für schnellen Zugriff)</i>:</b> WHERE nur auf FELD2 → Index nicht effizient nutzbar (<b>vorderste Felder müssen belegt sein</b>).</div>
+<div class="box b-warn"><b>Ausdruck statt Feld → Index zieht nicht:</b> feld+0, feld*1, concat(feld,'').</div>
+<pre><code>WHERE dept.deptno     BETWEEN 20 AND 30   -- Index JA
+WHERE dept.deptno + 0 BETWEEN 20 AND 30   -- Ausdruck → Index NEIN</code></pre>
+<div class="box b-best"><b>EXPLAIN PLAN</b> = beschreibt, WIE die DB zugreift (relationale Algebra als Baum: Full Table Scan vs. Indexzugriff) → <b>damit prüfen, ob der Index<i class="gl"> (Suchstruktur für schnellen Zugriff)</i> wirklich benutzt wird</b>.</div>
+</section>
+<h2 class="korb" id="k5">Themenkorb 5 – Betrieb von Informationssystemen</h2>
+
+<section class="topic" id="t51">
+<h3>5.1 RAID – Verbund von Festplatten</h3>
+<div class="basics">🧱 <b>Basics:</b> Festplatten speichern dauerhaft – gehen aber irgendwann kaputt. RAID schaltet mehrere Platten zu EINER logischen zusammen: je nach Level schneller, größer oder ausfallsicher. <b>XOR</b> = Bit-Verknüpfung, mit der man Fehlendes zurückrechnet: P = A⊕B → fällt A aus, gilt A = P⊕B.</div>
+<div class="box b-def"><b>RAID</b> = Redundant Array of Independent Disks. Mehrere Platten → 1 logische Platte mit besseren Eigenschaften. <b>Stellschrauben:</b> Volumen, Ausfallsicherheit, Schreib-, Lesegeschwindigkeit.</div>
+<div class="svgwrap">
+<svg viewBox="0 0 760 270" xmlns="http://www.w3.org/2000/svg">
+<!-- RAID0 -->
+<text x="95" y="22" class="tb ta">RAID 0 – Striping</text>
+<rect x="30" y="34" width="60" height="90" rx="8" fill="#fff" stroke="#475569"/><rect x="100" y="34" width="60" height="90" rx="8" fill="#fff" stroke="#475569"/>
+<rect x="36" y="44" width="48" height="22" fill="#0e7490"/><text x="60" y="60" class="tw ta">A1</text>
+<rect x="106" y="44" width="48" height="22" fill="#0e7490"/><text x="130" y="60" class="tw ta">A2</text>
+<rect x="36" y="72" width="48" height="22" fill="#0891b2"/><text x="60" y="88" class="tw ta">A3</text>
+<rect x="106" y="72" width="48" height="22" fill="#0891b2"/><text x="130" y="88" class="tw ta">A4</text>
+<text x="95" y="142" class="tm ta">N-faches Volumen, Durchsatz ↑</text>
+<text x="95" y="158" class="tm ta" fill="#dc2626">1 Platte kaputt = ALLES weg</text>
+<!-- RAID1 -->
+<text x="305" y="22" class="tb ta">RAID 1 – Mirror</text>
+<rect x="240" y="34" width="60" height="90" rx="8" fill="#fff" stroke="#475569"/><rect x="310" y="34" width="60" height="90" rx="8" fill="#fff" stroke="#475569"/>
+<rect x="246" y="44" width="48" height="22" fill="#16a34a"/><text x="270" y="60" class="tw ta">A1</text>
+<rect x="316" y="44" width="48" height="22" fill="#16a34a"/><text x="340" y="60" class="tw ta">A1</text>
+<rect x="246" y="72" width="48" height="22" fill="#15803d"/><text x="270" y="88" class="tw ta">A2</text>
+<rect x="316" y="72" width="48" height="22" fill="#15803d"/><text x="340" y="88" class="tw ta">A2</text>
+<text x="305" y="142" class="tm ta">identer Inhalt · 1 Ausfall ok</text>
+<text x="305" y="158" class="tm ta">2 Platten → 1× Volumen</text>
+<!-- RAID5 -->
+<text x="590" y="22" class="tb ta">RAID 5 – Striping + Parity (min. 3)</text>
+<rect x="470" y="34" width="60" height="90" rx="8" fill="#fff" stroke="#475569"/><rect x="540" y="34" width="60" height="90" rx="8" fill="#fff" stroke="#475569"/><rect x="610" y="34" width="60" height="90" rx="8" fill="#fff" stroke="#475569"/>
+<rect x="476" y="44" width="48" height="22" fill="#0e7490"/><text x="500" y="60" class="tw ta">A1</text>
+<rect x="546" y="44" width="48" height="22" fill="#0e7490"/><text x="570" y="60" class="tw ta">A2</text>
+<rect x="616" y="44" width="48" height="22" fill="#ca8a04"/><text x="640" y="60" class="tw ta">P-A</text>
+<rect x="476" y="72" width="48" height="22" fill="#0891b2"/><text x="500" y="88" class="tw ta">B1</text>
+<rect x="546" y="72" width="48" height="22" fill="#ca8a04"/><text x="570" y="88" class="tw ta">P-B</text>
+<rect x="616" y="72" width="48" height="22" fill="#0891b2"/><text x="640" y="88" class="tw ta">B2</text>
+<text x="590" y="142" class="tm ta">XOR-Parity ROTIERT (Stripe-Nr. mod N)</text>
+<text x="590" y="158" class="tm ta">Volumen N−1 · 1 Ausfall ok</text>
+<text x="380" y="195" class="tm ta">RAID 2/3/4: entwickelt, verworfen (Vorläufer von 5)</text>
+<text x="380" y="222" class="t ta"><tspan class="tb">RAID 6</tspan> = 2 Parity-Stripes (XOR + Reed-Solomon) → 2 Ausfälle ok · <tspan class="tb">RAID 10</tspan> = min. 4, paarweise Mirror + Stripe (2·N → N)</text>
+<text x="380" y="244" class="t ta"><tspan class="tb">RAID 50</tspan> = min. 6, RAID-5-Gruppen gestript → Volumen = N − Gruppenanzahl</text>
+</svg>
+</div>
+<div class="svgwrap">
+<svg viewBox="0 0 740 235" xmlns="http://www.w3.org/2000/svg">
+<text x="125" y="18" class="tb ta">RAID 6 – 2 Parity (min. 4)</text>
+<rect x="15" y="28" width="50" height="92" rx="7" fill="#fff" stroke="#475569"/><rect x="73" y="28" width="50" height="92" rx="7" fill="#fff" stroke="#475569"/><rect x="131" y="28" width="50" height="92" rx="7" fill="#fff" stroke="#475569"/><rect x="189" y="28" width="50" height="92" rx="7" fill="#fff" stroke="#475569"/>
+<rect x="20" y="36" width="40" height="20" fill="#0e7490"/><text x="40" y="50" class="tw ta">A1</text>
+<rect x="78" y="36" width="40" height="20" fill="#0e7490"/><text x="98" y="50" class="tw ta">A2</text>
+<rect x="136" y="36" width="40" height="20" fill="#ca8a04"/><text x="156" y="50" class="tw ta">P-A</text>
+<rect x="194" y="36" width="40" height="20" fill="#d97706"/><text x="214" y="50" class="tw ta">Q-A</text>
+<rect x="20" y="62" width="40" height="20" fill="#0891b2"/><text x="40" y="76" class="tw ta">B1</text>
+<rect x="78" y="62" width="40" height="20" fill="#ca8a04"/><text x="98" y="76" class="tw ta">P-B</text>
+<rect x="136" y="62" width="40" height="20" fill="#d97706"/><text x="156" y="76" class="tw ta">Q-B</text>
+<rect x="194" y="62" width="40" height="20" fill="#0891b2"/><text x="214" y="76" class="tw ta">B2</text>
+<text x="125" y="140" class="tm ta">P = XOR · Q = 2. Parity (z. B. Reed-Solomon)</text>
+<text x="125" y="156" class="tm ta">2 Ausfälle ok · Volumen N−2</text>
+<text x="380" y="18" class="tb ta">RAID 10 – erst Mirror, dann Stripe (min. 4)</text>
+<text x="380" y="38" class="tm ta">Stripe (RAID 0) über die Paare</text>
+<rect x="275" y="46" width="46" height="74" rx="7" fill="#fff" stroke="#475569"/><rect x="327" y="46" width="46" height="74" rx="7" fill="#fff" stroke="#475569"/>
+<rect x="387" y="46" width="46" height="74" rx="7" fill="#fff" stroke="#475569"/><rect x="439" y="46" width="46" height="74" rx="7" fill="#fff" stroke="#475569"/>
+<rect x="280" y="54" width="36" height="20" fill="#16a34a"/><text x="298" y="68" class="tw ta">A1</text>
+<rect x="332" y="54" width="36" height="20" fill="#16a34a"/><text x="350" y="68" class="tw ta">A1</text>
+<rect x="392" y="54" width="36" height="20" fill="#15803d"/><text x="410" y="68" class="tw ta">A2</text>
+<rect x="444" y="54" width="36" height="20" fill="#15803d"/><text x="462" y="68" class="tw ta">A2</text>
+<rect x="280" y="80" width="36" height="20" fill="#86efac"/><text x="298" y="94" class="t ta">B1</text>
+<rect x="332" y="80" width="36" height="20" fill="#86efac"/><text x="350" y="94" class="t ta">B1</text>
+<rect x="392" y="80" width="36" height="20" fill="#4ade80"/><text x="410" y="94" class="t ta">B2</text>
+<rect x="444" y="80" width="36" height="20" fill="#4ade80"/><text x="462" y="94" class="t ta">B2</text>
+<path d="M275 126 L373 126" stroke="#16a34a" stroke-width="2"/><text x="324" y="142" class="tm ta">Mirror-Paar (RAID 1)</text>
+<path d="M387 126 L485 126" stroke="#16a34a" stroke-width="2"/><text x="436" y="142" class="tm ta">Mirror-Paar (RAID 1)</text>
+<text x="380" y="160" class="tm ta">2·N Platten → N Volumen · je Paar 1 Ausfall ok</text>
+<text x="625" y="18" class="tb ta">RAID 50 – Gruppen gestript (min. 6)</text>
+<text x="625" y="38" class="tm ta">RAID 0 über die Gruppen</text>
+<rect x="520" y="46" width="32" height="60" rx="6" fill="#fff" stroke="#475569"/><rect x="556" y="46" width="32" height="60" rx="6" fill="#fff" stroke="#475569"/><rect x="592" y="46" width="32" height="60" rx="6" fill="#fff" stroke="#475569"/>
+<rect x="640" y="46" width="32" height="60" rx="6" fill="#fff" stroke="#475569"/><rect x="676" y="46" width="32" height="60" rx="6" fill="#fff" stroke="#475569"/><rect x="712" y="46" width="26" height="60" rx="6" fill="#fff" stroke="#475569"/>
+<rect x="524" y="54" width="24" height="18" fill="#0e7490"/><text x="536" y="67" class="tw ta">A1</text>
+<rect x="560" y="54" width="24" height="18" fill="#0e7490"/><text x="572" y="67" class="tw ta">A2</text>
+<rect x="596" y="54" width="24" height="18" fill="#ca8a04"/><text x="608" y="67" class="tw ta">P</text>
+<rect x="644" y="54" width="24" height="18" fill="#0891b2"/><text x="656" y="67" class="tw ta">B1</text>
+<rect x="680" y="54" width="24" height="18" fill="#0891b2"/><text x="692" y="67" class="tw ta">B2</text>
+<rect x="715" y="54" width="20" height="18" fill="#ca8a04"/><text x="725" y="67" class="tw ta">P</text>
+<path d="M520 112 L624 112" stroke="#ca8a04" stroke-width="2"/><text x="572" y="128" class="tm ta">RAID-5-Gruppe</text>
+<path d="M640 112 L738 112" stroke="#ca8a04" stroke-width="2"/><text x="688" y="128" class="tm ta">RAID-5-Gruppe</text>
+<text x="625" y="150" class="tm ta">Volumen = N − Gruppenanzahl</text>
+<text x="370" y="195" class="t ta">Merkbild: RAID 6 = RAID 5 + zweite Parity · RAID 10 = „1 dann 0" (spiegeln, dann strippen) · RAID 50 = „5 dann 0"</text>
+<text x="370" y="218" class="tm ta">RAID 2/3/4: entwickelt und wieder verworfen – Vorläufer von RAID 5</text>
+</svg>
+</div>
+<h4>Hot Spare · Controller · Platten</h4>
+<div class="cards">
+<div class="card"><h5>Hot Spare</h5>Eingebaute, konfigurierte Reserveplatte → Controller startet <b>Recovery<i class="gl"> (Wiederherstellung)</i> automatisch</b> → kritisches Zeitfenster minimal.</div>
+<div class="card"><h5>HW- vs. SW-Controller</h5><b>HW:</b> schnell + sicher; <b>Cache</b> ↑ Durchsatz, <b>Pufferbatterie</b> sichert bei Stromausfall; eigenes BIOS. <b>SW-RAID</b> (OS): wenn Tempo reicht – auch halb so schnell beobachtet.</div>
+<div class="card"><h5>SSD / SAS / SATA</h5><b>SSD<i class="gl"> (Flash-Speicher-Platte)</i>:</b> schneller, <span style="color:#dc2626">limitierte Schreibzyklen</span>. <b>SAS</b> = Server/Dauerbetrieb, seriell · <b>SCSI</b> = Vorläufer, parallel (8/16 Drähte) · <b>SATA</b> = günstig, langsamer.</div>
+</div>
+</section>
+
+<section class="topic" id="t52">
+<h3>5.2 Festplattensysteme: NAS &amp; SAN</h3>
+<div class="basics">🧱 <b>Basics:</b> Viele Server brauchen viel Speicher – wohin damit? Zwei Konzepte: ein Speichergerät im normalen Büro-Netzwerk (<b>NAS</b>, spricht in „Dateien") oder ein eigenes Hochgeschwindigkeits-Speichernetz (<b>SAN</b>, spricht in rohen „Blöcken" = nummerierten Speicherstücken).</div>
+<div class="svgwrap">
+<svg viewBox="0 0 740 320" xmlns="http://www.w3.org/2000/svg">
+<line x1="372" y1="10" x2="372" y2="300" stroke="#94a3b8" stroke-dasharray="6 5"/>
+<text x="185" y="22" class="tb ta">NAS – im normalen Office-Netz</text>
+<rect x="20" y="40" width="90" height="32" rx="8" fill="#e0f2fe" stroke="#0284c7"/><text x="65" y="60" class="t ta">Client</text>
+<rect x="130" y="40" width="90" height="32" rx="8" fill="#e0f2fe" stroke="#0284c7"/><text x="175" y="60" class="t ta">Client</text>
+<rect x="240" y="40" width="90" height="32" rx="8" fill="#e0f2fe" stroke="#0284c7"/><text x="285" y="60" class="t ta">Server</text>
+<rect x="100" y="125" width="160" height="34" rx="8" fill="#fef9c3" stroke="#ca8a04"/><text x="180" y="146" class="t ta">Ethernet-Switch (IP)</text>
+<line x1="65" y1="72" x2="150" y2="123" stroke="#475569" stroke-width="1.6"/>
+<line x1="175" y1="72" x2="178" y2="123" stroke="#475569" stroke-width="1.6"/>
+<line x1="285" y1="72" x2="210" y2="123" stroke="#475569" stroke-width="1.6"/>
+<line x1="180" y1="159" x2="180" y2="200" stroke="#475569" stroke-width="2"/>
+<rect x="85" y="202" width="190" height="74" rx="10" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+<text x="180" y="224" class="tb ta">NAS (eigene IP)</text>
+<text x="180" y="242" class="tm ta">innen: RAID</text>
+<text x="180" y="260" class="tm ta">Dateien: NFS / CIFS / SMB (+ iSCSI)</text>
+<text x="185" y="300" class="tm ta">günstig – aber alle teilen sich das Office-LAN</text>
+<text x="557" y="22" class="tb ta">SAN – eigenes Speichernetz (Fibre Channel)</text>
+<rect x="410" y="40" width="130" height="44" rx="8" fill="#e0f2fe" stroke="#0284c7"/><text x="475" y="58" class="t ta">Server 1</text><rect x="445" y="64" width="60" height="16" rx="5" fill="#7c3aed"/><text x="475" y="76" class="tw ta" style="font-size:9px">HBA</text>
+<rect x="580" y="40" width="130" height="44" rx="8" fill="#e0f2fe" stroke="#0284c7"/><text x="645" y="58" class="t ta">Server 2</text><rect x="615" y="64" width="60" height="16" rx="5" fill="#7c3aed"/><text x="645" y="76" class="tw ta" style="font-size:9px">HBA</text>
+<rect x="480" y="125" width="160" height="34" rx="8" fill="#fef9c3" stroke="#ca8a04"/><text x="560" y="146" class="t ta">FC-Switch (Glasfaser)</text>
+<line x1="475" y1="84" x2="530" y2="123" stroke="#475569" stroke-width="1.6"/>
+<line x1="645" y1="84" x2="590" y2="123" stroke="#475569" stroke-width="1.6"/>
+<line x1="560" y1="159" x2="560" y2="200" stroke="#475569" stroke-width="2"/>
+<rect x="465" y="202" width="190" height="74" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+<text x="560" y="224" class="tb ta">SAN</text>
+<text x="560" y="242" class="tm ta">innen: RAID · LUN je Applikation</text>
+<text x="560" y="260" class="tm ta">blockweise: SCSI-Kommandos über FC</text>
+<text x="557" y="300" class="tm ta">sehr schnell – Office-Netz bleibt frei · Zugriff nur via HBA</text>
+</svg>
+</div>
+<div class="m22">
+<div class="card" style="border-top:4px solid #0284c7"><h5>NAS – Network Attached Storage</h5>
+Speicher im <b>normalen Office-Netz</b> (eigene IP, Ethernet). Innen: RAID<i class="gl"> (Redundant Array of Independent Disks)</i>.<br>
+Bereitstellung als <b>Filesystem</b> · Protokolle <b>NFS, CIFS, SMB<i class="gl"> (Netzwerk-Dateifreigabe-Protokolle)</i></b>, manche <b>iSCSI<i class="gl"> (SCSI-Befehle über das IP-Netz)</i></b> (Blockverwaltung beim Server).<br>
+Kein Mirror<i class="gl"> (1:1-Spiegelung)</i>-Feature – bestenfalls Kopieren auf 2. NAS<i class="gl"> (Network Attached Storage: Speicher im Office-Netz)</i>. OS meist Linux, Web-Interface.<br>
+<span style="color:#16a34a"><b>Pro:</b> günstig; Server + Clients greifen zu; Backup-Platten konzentriert.</span><br>
+<span style="color:#dc2626"><b>Contra:</b> Ethernet/IP für Dateiübertragung suboptimal.</span></div>
+<div class="card" style="border-top:4px solid #7c3aed"><h5>SAN – Storage Area Network</h5>
+Speicher im eigenen <b>Fibre-Channel-Netz</b>; Zugriff nur via <b>HBA</b> (Host Bus Adapter). Innen: RAID<i class="gl"> (Redundant Array of Independent Disks)</i>.<br>
+<b>Blockweiser Zugriff</b>; über FC laufen <b>SCSI<i class="gl"> (klassische (parallele) Platten-Schnittstelle)</i>-Kommandos</b>; FC für große Datenmengen viel effizienter als Ethernet.<br>
+<b>LUN</b> (Logical Unit Number) = Speicheranteil je Applikation, später vergrößerbar.<br>
+<span style="color:#16a34a"><b>Pro:</b> sehr schnell; Backup direkt einbindbar.</span><br>
+<span style="color:#dc2626"><b>Contra:</b> HBA<i class="gl"> (Host Bus Adapter: SAN-Zugangskarte)</i> teuer; Extra-Infrastruktur (FC<i class="gl"> (Fibre Channel: Glasfaser-Speichernetz)</i>-Switches, Glasfaser).</span></div>
+</div>
+<div class="box b-best"><b>SAN<i class="gl"> (Storage Area Network: eigenes Speichernetz)</i> redundant:</b> 2 SANs als <b>Mirror</b> – spiegelt sofort + blockweise. Switches + HBAs redundant; jedes Gerät an <b>2 verschiedene Switches</b>. Sehr hohe Ausfallsicherheit – <span style="color:#dc2626">Mirroring-Lizenz kostet extra</span>.</div>
+</section>
+
+<section class="topic" id="t53">
+<h3>5.3 Hochverfügbare Systeme</h3>
+<div class="basics">🧱 <b>Basics:</b> <b>Hochverfügbar</b> = das System läuft weiter, auch wenn eine Komponente ausfällt. Grundtrick: alles Wichtige doppelt (<b>redundant</b>) – Netzteil, Platte, Netzwerkkarte, notfalls der ganze Rechner.</div>
+<div class="box b-def"><b>SPOF (Single Point of Failure)</b> = Komponente, deren Ausfall alles stoppt. HA-System: <b>jeden SPOF aushalten</b>; gute Systeme auch Mehrfachfehler.</div>
+<div class="merk">🧠 <b>Ausfallreihenfolge (Erfahrung): 1. Festplatte, 2. Netzteil/Strom</b> – dazu kaputte/veränderte Patchungen.</div>
+<h4>Innere Redundanz eines Servers + „Hosenträger"</h4>
+<div class="svgwrap">
+<svg viewBox="0 0 740 230" xmlns="http://www.w3.org/2000/svg">
+<rect x="20" y="20" width="300" height="190" rx="12" fill="#f8fafc" stroke="#475569"/>
+<text x="170" y="44" class="tb ta">Server</text>
+<rect x="40" y="58" width="120" height="34" rx="8" fill="#dcfce7" stroke="#16a34a"/><text x="100" y="79" class="t ta">PSU 1 ← EVU</text>
+<rect x="180" y="58" width="120" height="34" rx="8" fill="#dcfce7" stroke="#16a34a"/><text x="240" y="79" class="t ta">PSU 2 ← USV</text>
+<rect x="40" y="102" width="260" height="34" rx="8" fill="#e0f2fe" stroke="#0284c7"/><text x="170" y="123" class="t ta">RAID statt Einzelplatte</text>
+<rect x="40" y="146" width="120" height="34" rx="8" fill="#fef9c3" stroke="#ca8a04"/><text x="100" y="167" class="t ta">NIC 1</text>
+<rect x="180" y="146" width="120" height="34" rx="8" fill="#fef9c3" stroke="#ca8a04"/><text x="240" y="167" class="t ta">NIC 2</text>
+<text x="170" y="200" class="tm ta">NIC-Team: beide Karten EINE gemeinsame IP!</text>
+<!-- Hosenträger -->
+<text x="565" y="44" class="tb ta">„Hosenträger"-Verkabelung</text>
+<rect x="430" y="60" width="100" height="36" rx="8" fill="#fef9c3" stroke="#ca8a04"/><text x="480" y="83" class="t ta">NIC 1</text>
+<rect x="430" y="150" width="100" height="36" rx="8" fill="#fef9c3" stroke="#ca8a04"/><text x="480" y="173" class="t ta">NIC 2</text>
+<rect x="610" y="60" width="100" height="36" rx="8" fill="#e0f2fe" stroke="#0284c7"/><text x="660" y="83" class="t ta">Switch 1</text>
+<rect x="610" y="150" width="100" height="36" rx="8" fill="#e0f2fe" stroke="#0284c7"/><text x="660" y="173" class="t ta">Switch 2</text>
+<line x1="530" y1="78" x2="610" y2="78" stroke="#16a34a" stroke-width="2"/>
+<line x1="530" y1="168" x2="610" y2="168" stroke="#16a34a" stroke-width="2"/>
+<line x1="530" y1="78" x2="610" y2="168" stroke="#dc2626" stroke-width="2" stroke-dasharray="5 4"/>
+<line x1="530" y1="168" x2="610" y2="78" stroke="#dc2626" stroke-width="2" stroke-dasharray="5 4"/>
+<text x="570" y="212" class="tm ta">2 gerade + 2 gekreuzte Verbindungen = kein SPOF</text>
+</svg>
+</div>
+<h4>Redundantes Rechnersystem (2. Rechner) – 2 Software-Konzepte</h4>
+<div class="m22">
+<div class="card"><h5>Echt redundant</h5>Client verbindet zu <b>BEIDEN</b> Servern, sendet an beide; nur der <b>Betriebsführende</b> antwortet. Rolle machen sich die Server untereinander aus. Redundanter Client → betriebsführender Client sendet an beide Server, betriebsführender Server antwortet an beide Clients.</div>
+<div class="card"><h5>Cluster</h5>Software läuft nur auf 1 Rechner, am 2. installiert + gestoppt. <b>Clustersoftware</b> (auf beiden) entscheidet den Start-Ort. Client: 1 Verbindung; bei Ausfall Reconnect, sobald Server 2 aktiv.<br><b>Cluster-IPs:</b> je Server eigene Admin-IP + <b>3. Dienst-IP</b>, die der aktive Server bedient.</div>
+</div>
+<div class="box b-def" style="font-size:.82rem">PSU Netzteil · CPU Prozessor · RAM Hauptspeicher · DISK Platte · NIC Netzwerkkarte · EVU Energieversorger · USV unterbrechungsfreie Stromversorgung</div>
+</section>
+
+<section class="topic" id="t54">
+<h3>5.4 Backup</h3>
+<div class="basics">🧱 <b>Basics:</b> <b>Backup</b> = Kopie der Daten zu einem Zeitpunkt, getrennt aufbewahrt. Geht etwas verloren (Fehler, Virus, Hacker), spielt man die Kopie zurück (<b>Restore</b>).</div>
+<div class="box b-warn"><b>Warum trotz RAID<i class="gl"> (Redundant Array of Independent Disks)</i>? RAID schützt nur vor Hardwaredefekt.</b> Bleiben: Benutzer-, Software-, Installationsfehler, <b>Viren, Hacker</b>.</div>
+<h4>Strategien</h4>
+<div class="svgwrap">
+<svg viewBox="0 0 740 210" xmlns="http://www.w3.org/2000/svg">
+<text x="30" y="24" class="tb">Differenziell = alles seit letztem FULL</text>
+<rect x="30" y="34" width="46" height="50" rx="6" fill="#0e7490"/><text x="53" y="62" class="tw ta">FULL</text>
+<rect x="86" y="58" width="46" height="26" rx="5" fill="#67e8f9"/><text x="109" y="76" class="t ta">Mo</text>
+<rect x="142" y="48" width="46" height="36" rx="5" fill="#22d3ee"/><text x="165" y="70" class="t ta">Di</text>
+<rect x="198" y="40" width="46" height="44" rx="5" fill="#06b6d4"/><text x="221" y="66" class="t ta">Mi</text>
+<text x="160" y="104" class="tm">wird jeden Tag größer (alles seit Full)</text>
+<text x="430" y="24" class="tb">Inkrementell = alles seit letztem Backup (egal welchem)</text>
+<rect x="430" y="34" width="46" height="50" rx="6" fill="#0e7490"/><text x="453" y="62" class="tw ta">FULL</text>
+<rect x="486" y="58" width="46" height="26" rx="5" fill="#86efac"/><text x="509" y="76" class="t ta">Mo</text>
+<rect x="542" y="58" width="46" height="26" rx="5" fill="#4ade80"/><text x="565" y="76" class="t ta">Di</text>
+<rect x="598" y="58" width="46" height="26" rx="5" fill="#22c55e"/><text x="621" y="76" class="t ta">Mi</text>
+<text x="540" y="104" class="tm">bleibt klein (nur Delta zum Vortag)</text>
+<text x="370" y="140" class="t ta"><tspan class="tb">Fullbackup</tspan> = alles · <tspan class="tb">System-Backup</tspan> = Platten-Image (booten + Restore)</text>
+<text x="370" y="162" class="t ta"><tspan class="tb">Reverse Incremental</tspan> = Inkrement wird mit letztem Full zusammengeführt – nur mit Disks</text>
+<text x="370" y="192" class="tm ta">Wann? Nachts (keine Änderungen) – aber: klemmt der Job, hilft nachts niemand → alternativ untertags Shadowcopy</text>
+</svg>
+</div>
+<h4>Beispiel-Woche zum Durchrechnen (Full 500 GB, täglich ändern sich 20 GB)</h4>
+<table>
+<tr><th></th><th>So</th><th>Mo</th><th>Di</th><th>Mi</th><th>Restore nach Crash am Do?</th></tr>
+<tr><td><b>Differenziell</b></td><td>FULL 500 GB</td><td>20 GB</td><td>40 GB</td><td>60 GB</td><td><b>2 Medien:</b> Full (So) + letzte Diff (Mi) – schnell ✓</td></tr>
+<tr><td><b>Inkrementell</b></td><td>FULL 500 GB</td><td>20 GB</td><td>20 GB</td><td>20 GB</td><td><b>4 Medien:</b> Full + Mo + Di + Mi – ist EIN Band defekt, fehlt alles ab dort ✗</td></tr>
+</table>
+<div class="merk">🧠 <b>Tausch-Regel:</b> Differenziell = mehr Platz, dafür schneller + sicherer Restore · Inkrementell = spart Platz, dafür längerer Restore über die ganze Kette. Klassische Prüfungsfrage: „Welche Medien brauchen Sie für den Restore?"</div>
+<h4>Medien · Rotation · Software</h4>
+<div class="cards">
+<div class="card"><h5>Medien</h5><b>Magnetband = günstigstes Medium</b> (+ Roboter); SSD<i class="gl"> (Flash-Speicher-Platte)</i>/Flash, Disk. Geschichte: Lochkarten, Disketten, CD/DVD, MO<i class="gl"> (magneto-optische Disk)</i>.</div>
+<div class="card"><h5>Rotation</h5><b>Tagesbänder, Monatsbänder (Full), Jahresbänder (Full)</b>. <b style="color:#dc2626">Manches 7 Jahre aufheben!</b> Systemwechsel → konvertieren oder Altsystem inkl. Hardware aufheben.</div>
+<div class="card"><h5>Software</h5>Arcserve, Backup Exec, Acronis, <b>Veeam</b> (VMs<i class="gl"> (virtuelle Maschine)</i>, Community Edition); frei/privat: Barracuda Linux, robocopy, zip.</div>
+<div class="card"><h5>Was?</h5>Dateien vom Filesystem; DB-Tabellen evtl. via <b>speziellem Agent</b>.</div>
+</div>
+<div class="box b-def"><b>Shadowcopy:</b> Filesystem hält selbst Versionen zu Zeitpunkten; <b>10–15 % Platz reservieren</b>. <b style="color:#dc2626">Für DBs meist ungeeignet</b> (riesige, ständig geänderte Datei).</div>
+<div class="box b-best"><b>DB-Backup:</b> Stoppen · <b>Backupmode</b> (Oracle) · Export · Recovery<i class="gl"> (Wiederherstellung)</i>-Log · Agenten für gängige DBs.</div>
+</section>
+
+<h2 class="korb" id="k6">Themenkorb 6 – Datenmodelle und betriebliche Informationssysteme</h2>
+
+<section class="topic" id="t61">
+<h3>6.1 Data Warehouse (DWH)</h3>
+<div class="basics">🧱 <b>Basics:</b> <b>Operative Systeme</b> = die Programme fürs Tagesgeschäft (Kassa, Lager, Buchhaltung) – jedes mit eigener DB. Für Auswertungen übers ganze Unternehmen sammelt man alle Daten zusätzlich in EINER großen Auswertungs-DB: dem Data Warehouse.</div>
+<div class="box b-def"><b>DWH</b> = Ergebnis des Zusammentragens ALLER Unternehmensdaten. Ziel: <b>Auswertungen, um das Geschäft zu steuern</b>. Voraussetzung: <b>unternehmensweites Datenmodell</b> – Daten aus allen Apps (gut <b>50–100</b> Stück). DWH<i class="gl"> (Data Warehouse: zentrale Auswertungs-DB)</i> = <b>Quelle für OLAP<i class="gl"> (Online Analytical Processing: Management-Analyse)</i></b>.</div>
+<div class="box b-warn"><b>NICHT: alle Exports in je eigene Tabellen kippen</b> – sondern gemeinsame Tabellen, Daten passend gebündelt. Operative Systeme nie durch Auswertungen überlasten – der DWH-Rechner darf dafür glühen.</div>
+<h4>ETL-Prozess (monatlich/wöchentlich/täglich; sofort = Online-DWH)</h4>
+<div class="flow">
+<div class="step"><b>Quellen</b><br>50–100 Applikationen</div><div class="arr">→</div>
+<div class="step"><b>Extract</b><br>Flatfile (.csv, .json, .xml) ODER direkter DB-Zugriff</div><div class="arr">→</div>
+<div class="step"><b>Transform</b><br>Strukturen/Wertebereiche angleichen (M/W ↔ 0/1; Attribut → eigener Datensatz)</div><div class="arr">→</div>
+<div class="step"><b>Load</b><br>ins DWH<i class="gl"> (Data Warehouse: zentrale Auswertungs-DB)</i> · kombinierbar mit Transform, <b>Trigger<i class="gl"> (autom. DB-Codeblock bei INSERT/UPDATE/DELETE)</i> eignen sich gut</b></div><div class="arr">→</div>
+<div class="step"><b>DWH</b><br>→ OLAP<i class="gl"> (Online Analytical Processing: Management-Analyse)</i></div>
+</div>
+<h4>Historisierung (Änderungen protokollieren statt überschreiben)</h4>
+<div class="cards">
+<div class="card"><h5>V1 · + gueltig_ab</h5><b>PK<i class="gl"> (Primärschlüssel)</i> = ID + Datum.</b> Schreiben leicht; <span style="color:#dc2626">Stichtagsabfrage komplex/langsam</span> (ORDER BY … DESC LIMIT 1 oder MAX-Subselect).</div>
+<div class="card"><h5>V2 · + gueltig_bis NOT NULL</h5>Abfrage leicht (<b>BETWEEN</b>); Ersatzwert für „offen" nötig (9999-01-01); Altsatz braucht UPDATE.</div>
+<div class="card"><h5>V3 · gueltig_bis nullable</h5>Abfrage mit <b>COALESCE<i class="gl"> (liefert den ersten Nicht-NULL-Wert)</i></b>(gueltig_bis, DATE '9999-01-01').</div>
+<div class="card"><h5>V4 · SaisonID + Saison-Tabelle</h5>Join über gueltig_ab/bis der Saison. Leicht implementierbar; <span style="color:#dc2626">bei ungeplanten Einzel-Änderungen unflexibel</span> („nur das weiße Monster in Aktion").</div>
+</div>
+<pre><code>SELECT * FROM artikel
+WHERE id = :gesucht
+  AND :stichtag BETWEEN gueltig_ab AND COALESCE(gueltig_bis, DATE '9999-01-01');</code></pre>
+<div class="box b-warn"><b>NIE sysdate als COALESCE<i class="gl"> (liefert den ersten Nicht-NULL-Wert)</i>-Ersatz</b> – Stichtag liegt evtl. in der Zukunft! · <b>Problem V2/V3: Überlappungen</b> (z. B. Aktionen) → mehrere Treffer. Lösung: Trigger<i class="gl"> (autom. DB-Codeblock bei INSERT/UPDATE/DELETE)</i> – Achtung, Intervalle überlappen auf viele Arten → <b>wird ein langer Trigger</b>.</div>
+</section>
+
+<section class="topic" id="t62">
+<h3>6.2 NoSQL und Graphdatenbanken</h3>
+<div class="basics">🧱 <b>Basics:</b> <b>Relationale DBs</b> = Tabellen + SQL + Transaktionen. Das passt nicht immer: extrem viele/verteilte Daten, super-hierarchische Strukturen, maximales Tempo. Dafür gibt es andere DB-Familien – NoSQL.</div>
+<div class="box b-def"><b>NoSQL = „Not Only SQL<i class="gl"> (Structured Query Language)</i>"</b>. Entstanden, weil manche Anwendungsfälle besser passen als relationale DBs (und: Tabellen muss man sich VORHER überlegen…). Typisch: <b>Windows Registry</b> (super-hierarchisch), <b>Firewall-Regeln</b> (sauschnell, Transaktionssicherheit unnötig), <b>Verteiltheit</b> (Europa UND Amerika).</div>
+<h4>CAP-Theorem (verteilte DBs, mathematisch bewiesen)</h4>
+<div class="svgwrap">
+<svg viewBox="0 0 700 260" xmlns="http://www.w3.org/2000/svg">
+<circle cx="350" cy="50" r="34" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/><text x="350" y="48" class="tb ta">C</text><text x="350" y="64" class="tm ta">Consistency</text>
+<circle cx="170" cy="200" r="34" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/><text x="170" y="198" class="tb ta">A</text><text x="170" y="214" class="tm ta">Availability</text>
+<circle cx="530" cy="200" r="34" fill="#fef9c3" stroke="#ca8a04" stroke-width="2"/><text x="530" y="198" class="tb ta">P</text><text x="530" y="214" class="tm ta">Partition Tolerance</text>
+<line x1="322" y1="70" x2="198" y2="178" stroke="#475569" stroke-width="2"/>
+<line x1="378" y1="70" x2="502" y2="178" stroke="#475569" stroke-width="2"/>
+<line x1="204" y1="200" x2="496" y2="200" stroke="#475569" stroke-width="2"/>
+<rect x="180" y="105" width="120" height="26" rx="13" fill="#fff" stroke="#475569"/><text x="240" y="123" class="t ta"><tspan class="tb">CA</tspan> = klass. RDBMS</text>
+<rect x="400" y="105" width="130" height="26" rx="13" fill="#fff" stroke="#475569"/><text x="465" y="123" class="t ta"><tspan class="tb">CP</tspan> = Bankomat/Banking</text>
+<rect x="285" y="187" width="130" height="26" rx="13" fill="#fff" stroke="#475569"/><text x="350" y="205" class="t ta"><tspan class="tb">AP</tspan> = DNS, Cloud</text>
+<text x="350" y="250" class="tm ta">Nur 2 von 3 erfüllbar – nicht mal theoretisch alle 3! Kanten = realisierbare Systeme</text>
+</svg>
+</div>
+<div class="box b-def"><b>C</b> – alle Rechner halten gleiche Daten · <b>A</b> – System antwortet immer in vernünftiger Zeit · <b>P</b> – Netz-Teilausfälle verkraften (Problem: 2 Teile sagen Verschiedenes, z. B. Kartenzahlungen – wie sauber mergen?).</div>
+<div class="merk">🧠 <b>BASE<i class="gl"> (Basically Available · Soft State · Eventual Consistency)</i></b> = ACID<i class="gl"> (Atomicity · Consistency · Isolation · Durability)</i>-Pendant für NoSQL<i class="gl"> (Not Only SQL)</i>: <b>B</b>asically <b>A</b>vailable, <b>S</b>oft State, <b>E</b>ventual Consistency – <b>irgendwann</b> konsistent statt sofort.</div>
+<h4>Arten</h4>
+<div class="cards">
+<div class="card" style="border-top:4px solid #dc2626"><h5>Key-Value-Pair · Redis</h5>„quasi Hashsets". Einsatz: Konfigurationsdaten, OS-nahe Dinge. <span style="color:#dc2626">Nimmt alles: alles Strings, keine klaren Keynamen</span> (4711_GebDat vs. 4711_Geburtsdatum) → selber Struktur halten.</div>
+<div class="card" style="border-top:4px solid #16a34a"><h5>Document-DB · MongoDB, Firebase, CouchDB</h5>JSON/XML<i class="gl"> (eXtensible Markup Language)</i>-artig. <b>Fremdschlüssel vermeiden</b> (MongoDB hat FKs wieder abgeschafft – Performance, CAP<i class="gl"> (Consistency · Availability · Partition Tolerance)</i>). Big-Data-tauglich, weil <b>leicht verteilbar</b> (keine Verweise zwischen Dokumenten). <span style="color:#dc2626">DB hilft wenig → Programmierer muss mehr selbst kümmern.</span></div>
+<div class="card" style="border-top:4px solid #0284c7"><h5>Graph-DB · Neo4j</h5>Knoten + Kanten + Properties. Einsatz: <b>Straßennetze, Social Media, Netzwerk-Analyse (Schwarzgeld), Verbindung zwischen 2 Wörtern</b> – <b>Google-Autocomplete läuft über Graph-DB</b>. Traversierung statt teurer Joins.</div>
+</div>
+<div class="box b-warn"><b>Praxis-Warnung Runtastic:</b> Datenqualität – Ausschlag bei Geburtsdatum „0" = 1.1.1970 (Unix-Default einer App-Plattform). Skalierung – MongoDB out-of-the-box nur bis gewisse Größe „leiwand" → <b>teurer Profi für Migration</b>. Ab gewisser Größe: echtes Know-how nötig.</div>
+</section>
+
+<section class="topic" id="t63">
+<h3>6.3 OLAP – Online Analytical Processing</h3>
+<div class="basics">🧱 <b>Basics:</b> Wie eine Pivot-Tabelle in 3D+: Dieselben Zahlen (z.&nbsp;B. Verkäufe) lassen sich nach mehreren Blickwinkeln gleichzeitig aufschlüsseln – Zeit × Produkt × Region. Jeder Blickwinkel = eine <b>Dimension</b> des Würfels.</div>
+<div class="box b-def"><b>OLAP</b> = Analysetools, mit denen das <b>Management selbst</b> Unternehmensdaten durchstöbert. Datenquelle: <b>DWH<i class="gl"> (Data Warehouse: zentrale Auswertungs-DB)</i> – OLAP und DWH sind „verheiratet"</b>; sonst eigener ETL<i class="gl"> (Extract → Transform → Load)</i> nötig.</div>
+<div class="box b-warn"><b>Laden &gt; 2 Sekunden → keine Akzeptanz</b> (Management hat keine Geduld).</div>
+<h4>Datenwürfel (Cube) + Operationen</h4>
+<div class="svgwrap">
+<svg viewBox="0 0 740 240" xmlns="http://www.w3.org/2000/svg">
+<!-- cube -->
+<g stroke="#0284c7" fill="#e0f2fe">
+<polygon points="60,80 180,80 180,200 60,200"/>
+<polygon points="60,80 100,46 220,46 180,80"/>
+<polygon points="180,80 220,46 220,166 180,200"/>
+</g>
+<line x1="100" y1="80" x2="100" y2="200" stroke="#7dd3fc"/><line x1="140" y1="80" x2="140" y2="200" stroke="#7dd3fc"/>
+<line x1="60" y1="120" x2="180" y2="120" stroke="#7dd3fc"/><line x1="60" y1="160" x2="180" y2="160" stroke="#7dd3fc"/>
+<text x="120" y="226" class="tm ta">Dimension: Zeit (Jän–Apr)</text>
+<text x="34" y="140" class="tm ta" transform="rotate(-90 34 140)">Leistung (klein–riesig)</text>
+<text x="230" y="40" class="tm">Farbe</text>
+<text x="120" y="145" class="t ta">Zelle =</text><text x="120" y="160" class="t ta">EINE Zahl</text>
+<!-- ops -->
+<text x="480" y="40" class="tb">Standard-Operationen</text>
+<text x="400" y="70" class="t">🔄 <tspan class="tb">Rotate/Pivot</tspan> – Würfel drehen, andere Fläche nach vorn</text>
+<text x="400" y="98" class="t">🔪 <tspan class="tb">Slicing</tspan> – 1 Wert festhalten (Farbe=blau) → Scheibe, Dimension ↓</text>
+<text x="400" y="126" class="t">🎲 <tspan class="tb">Dicing</tspan> – kleinerer Würfel; Dimensionsanzahl bleibt</text>
+<text x="400" y="154" class="t">🔍 <tspan class="tb">Drill down</tspan> – verfeinern (Monate → Wochen)</text>
+<text x="400" y="182" class="t">🔭 <tspan class="tb">Drill up</tspan> – vergröbern (Wochen → Monate)</text>
+<text x="400" y="214" class="tm">Kategorien pro Achse: Zehner ok – hundert = zu viel · NULL-Werte möglich</text>
+</svg>
+</div>
+<div class="box b-best"><b>Erste Überlegungen:</b> Welche Dimensionen interessieren (meist &gt; 3)? Wie diskretisieren (Achsenbeschriftung)? Kategorisierung per <b>mächtigem SELECT/JOIN/GROUP BY</b> (JOIN dim ON wert BETWEEN von AND bis).</div>
+<h4>Konkret durchgespielt</h4>
+<div class="box b-best"><b>Cube „Verkäufe (Stück)"</b> mit 3 Dimensionen: Zeit (Jän–Apr) × Farbe (rot/blau/grün) × Leistung (klein/mittel/groß). Eine Zelle = EINE Zahl: [Feb, blau, groß] = 42 Stück. <b>Slicing</b> Farbe = blau → übrig bleibt die 2D-Scheibe unten. <b>Drill-down:</b> Klick auf „Feb" → zeigt KW 6–9. <b>Pivot:</b> Würfel drehen → statt Zeit steht Leistung vorne.</div>
+<table>
+<tr><th>Scheibe „blau"</th><th>Jän</th><th>Feb</th><th>Mär</th><th>Apr</th></tr>
+<tr><td><b>klein</b></td><td>12</td><td>18</td><td>15</td><td>20</td></tr>
+<tr><td><b>mittel</b></td><td>30</td><td>35</td><td>28</td><td>33</td></tr>
+<tr><td><b>groß</b></td><td>38</td><td>42</td><td>40</td><td>45</td></tr>
+</table>
+<div class="box b-def"><b>So benutzt es das Management:</b> selbst klicken statt IT-Ticket schreiben – drehen, hineinzoomen, filtern; jede Antwort in &lt; 2 s. Im Star-Schema wäre die 42 eine Zeile der <b>Faktentabelle</b>: (zeit_id=Feb, farb_id=blau, leistungs_id=groß, anzahl=42) + 3 Dimensionstabellen drumherum.</div>
+<h4>Speicherung des Würfels</h4>
+<div class="cards">
+<div class="card"><h5>1 · Mehrdim. Array</h5>für wenige Dimensionen / <b>voll besetzte</b> Würfel – easy, simpel, effizient.</div>
+<div class="card"><h5>2 · Star-Schema</h5><b>Faktentabelle</b> (Fakt = Zahl + FK<i class="gl"> (Fremdschlüssel: Verweis auf fremden PK)</i> je Dimension) + <b>Dimensionstabellen</b> (PK<i class="gl"> (Primärschlüssel)</i> + Ausprägungen). Für <b>dünn besetzte</b> Würfel.</div>
+<div class="card"><h5>3 · Halb besetzt</h5>Array UND Star „zach" → Hersteller-Hybridmodelle (Interna geheim, „vielleicht Propaganda").</div>
+<div class="card"><h5>4 · Snowflake-Schema</h5>Star, dessen Dimensionstabellen wieder eigene Subtabellen (FKs<i class="gl"> (Fremdschlüssel: Verweis auf fremden PK)</i>) haben – „Star im Star".</div>
+</div>
+<div class="merk">🧠 Speicher-Beispiel: 10 Kategorien × 8 Dimensionen × 5 Byte = <b>5·10⁸ Byte</b> → nicht in Sekunden ladbar. Bei 7–8 Dimensionen wird der Würfel <b>nie voll</b> → <b>je mehr Dimensionen, desto leerer</b>.</div>
+</section>
+
+<section class="topic" id="t64">
+<h3>6.4 Mehrfachspeicherungen in Datenbanken</h3>
+<div class="basics">🧱 <b>Basics:</b> Kurz-Thema: dasselbe wie Redundanz (1.3), nur aus der Betriebs-Brille betrachtet.</div>
+<div class="box b-def"><b>Mehrfachspeicherung</b> = Redundanz aus Betriebssicht (Details → 1.3): gleicher Sachverhalt mehrfach (Feld doppelt, verstreut, <b>Aggregat</b> wie sum/max).</div>
+<div class="box b-warn"><b>Risiken: Anomalien<i class="gl"> (Fehlerwirkungen durch Redundanz)</i></b> – Änderung/Löschen/Mehrfachänderung, veraltete Summenfelder, unklare „Wahrheit".</div>
+<div class="box b-best"><b>Vermeidung: Normalisierung</b> (auslagern + FK<i class="gl"> (Fremdschlüssel: Verweis auf fremden PK)</i>; Hausverstand-ERD → 3. NF<i class="gl"> (Normalform)</i>). <b>Gewollt für Performance</b> (Summenfelder, DWH<i class="gl"> (Data Warehouse: zentrale Auswertungs-DB)</i>-/OLAP<i class="gl"> (Online Analytical Processing: Management-Analyse)</i>-Aggregate): <b>Pflege per Trigger<i class="gl"> (autom. DB-Codeblock bei INSERT/UPDATE/DELETE)</i></b> → Konsistenz bleibt.</div>
+<div class="svgwrap">
+<svg viewBox="0 0 700 110" xmlns="http://www.w3.org/2000/svg">
+<line x1="350" y1="20" x2="350" y2="90" stroke="#475569" stroke-width="2"/>
+<polygon points="350,14 343,26 357,26" fill="#475569"/>
+<rect x="60" y="30" width="240" height="50" rx="10" fill="#dcfce7" stroke="#16a34a"/><text x="180" y="52" class="tb ta">Lesen schneller ✓</text><text x="180" y="70" class="tm ta">Aggregate liegen fertig da</text>
+<rect x="400" y="30" width="240" height="50" rx="10" fill="#fee2e2" stroke="#dc2626"/><text x="520" y="52" class="tb ta">Schreiben teurer + Fehlerrisiko ↑</text><text x="520" y="70" class="tm ta">jede Kopie muss gepflegt werden</text>
+</svg>
+</div>
+<div class="merk">🧠 <b>Redundanz<i class="gl"> (gleiche Info mehrfach gespeichert)</i> = immer ein Tausch.</b></div>
+<h4>Konkretes Beispiel: Summenfeld</h4>
+<div class="box b-def"><i>bestellung(nr, datum, <b>summe</b>)</i> + <i>bestellposition(bestell_nr, artikel, preis)</i> → die <b>summe</b> ist ein Aggregat = Mehrfachspeicherung (steckt ja schon in den Positionen).</div>
+<div class="box b-warn"><b>Ohne Pflege:</b> Eine Position wird gelöscht, die Summe bleibt alt → <b>falsche Rechnung</b> beim Kunden (Aggregat veraltet!).</div>
+<div class="m22">
+<div class="card"><h5>Lösung A: gar nicht speichern</h5>Summe bei jeder Abfrage frisch mit SUM() rechnen → immer korrekt, aber bei Millionen Bestellungen <span style="color:#dc2626">langsam</span>.</div>
+<div class="card"><h5>Lösung B: Summenfeld + Trigger</h5>Trigger auf <i>bestellposition</i> (INSERT/UPDATE/DELETE) rechnet die Summe automatisch nach → Lesen blitzschnell, <b>Konsistenz bleibt</b>. Genau so macht man gewollte Redundanz richtig.</div>
+</div>
+</section>
+<p class="foot">DBI · visueller Lernzettel · mündliche Matura · 24 Themen in 6 Körben</p>
+</main>
+</body>
+</html>

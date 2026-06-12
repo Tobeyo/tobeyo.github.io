@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SYP visuell – Mündliche Matura</title>
+<style>
+:root{--ink:#0f172a;--mut:#475569;--line:#e2e8f0;--bg:#f7f6fb;--acc:#7c3aed;--acc2:#5b21b6;--defb:#e0f2fe;--defl:#0284c7;--bsb:#dcfce7;--bsl:#16a34a;--wnb:#fee2e2;--wnl:#dc2626}
+*{box-sizing:border-box}
+body{font-family:system-ui,-apple-system,'Segoe UI<i class="gl"> (User Interface: die Optik/Oberfläche)</i>',sans-serif;color:var(--ink);background:var(--bg);margin:0;line-height:1.45}
+main{max-width:1080px;margin:0 auto;padding:0 16px 60px}
+header.top{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;padding:26px 16px;text-align:center}
+header.top h1{margin:0 0 6px;font-size:1.7rem}
+header.top p{margin:0;opacity:.92;font-size:.95rem}
+.chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.chip{padding:3px 12px;border-radius:99px;font-size:.78rem;font-weight:600}
+.c-def{background:var(--defb);color:#075985}.c-best{background:var(--bsb);color:#14532d}.c-warn{background:var(--wnb);color:#7f1d1d}.c-merk{background:#fef9c3;color:#713f12}
+nav.bar{position:sticky;top:0;z-index:9;background:#ffffffee;backdrop-filter:blur(6px);border-bottom:1px solid var(--line);display:flex;gap:4px;overflow-x:auto;padding:8px 12px}
+nav.bar a{white-space:nowrap;text-decoration:none;color:var(--acc2);font-size:.82rem;font-weight:600;padding:4px 10px;border-radius:8px}
+nav.bar a:hover{background:#ede9fe}
+.toc{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px;margin:16px 0}
+.toc div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:.85rem}
+.toc b{color:var(--acc2)}
+.toc a{color:var(--ink);text-decoration:none;display:block;padding:1.5px 0}
+.toc a:hover{color:var(--acc)}
+h2.korb{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;padding:10px 16px;border-radius:12px;font-size:1.15rem;margin:34px 0 10px}
+section.topic{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 18px 16px;margin:14px 0;box-shadow:0 1px 3px #0f172a0d}
+section.topic h3{color:var(--acc2);margin:2px 0 10px;font-size:1.08rem}
+h4{margin:14px 0 6px;font-size:.92rem;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
+.box{border-radius:10px;padding:8px 12px;margin:6px 0;font-size:.9rem;border-left:4px solid}
+.b-def{background:var(--defb);border-color:var(--defl)}
+.b-best{background:var(--bsb);border-color:var(--bsl)}
+.b-warn{background:var(--wnb);border-color:var(--wnl)}
+.merk{background:#fefce8;border-left:4px solid #ca8a04;border-radius:10px;padding:8px 12px;margin:6px 0;font-size:.9rem}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:10px;margin:8px 0}
+.card{border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:.88rem;background:#fff}
+.card h5{margin:0 0 6px;font-size:.9rem;color:var(--acc2)}
+.flow{display:flex;align-items:stretch;flex-wrap:wrap;gap:6px;margin:10px 0}
+.step{background:#fff;border:1.5px solid var(--acc);border-radius:10px;padding:8px 12px;font-size:.85rem;flex:1;min-width:120px;display:flex;flex-direction:column;justify-content:center;text-align:center}
+.step b{color:var(--acc2)}
+.arr{align-self:center;color:var(--acc);font-weight:700;font-size:1.2rem}
+table{border-collapse:collapse;width:100%;font-size:.86rem;margin:8px 0}
+th{background:var(--acc);color:#fff;text-align:left;padding:6px 10px}
+td{border:1px solid var(--line);padding:5px 10px;background:#fff}
+tr:nth-child(even) td{background:#f8fafc}
+pre{background:#0f172a;color:#e2e8f0;padding:10px 14px;border-radius:10px;font-size:.78rem;overflow-x:auto;line-height:1.5;margin:8px 0}
+code{font-family:ui-monospace,'SF Mono',Consolas,monospace}
+p,li{font-size:.92rem}
+ul{margin:6px 0;padding-left:22px}
+.svgwrap{text-align:center;margin:10px 0}
+.svgwrap svg{max-width:100%;height:auto}
+svg text{font-family:system-ui,sans-serif}
+.t{font-size:12px;fill:#0f172a}.tb{font-size:12px;font-weight:700;fill:#0f172a}.tm{font-size:10.5px;fill:#475569}.tw{font-size:11.5px;font-weight:700;fill:#fff}.ta{text-anchor:middle}
+.m22{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+.q{border-radius:12px;padding:10px 12px;font-size:.88rem}
+.foot{text-align:center;color:var(--mut);font-size:.8rem;margin-top:30px}
+@media print{nav.bar{display:none}section.topic{break-inside:avoid}body{background:#fff}}
+.gl{font-style:normal;font-weight:400;color:#64748b;font-size:.78em}
+section.fav{border:2px solid #f59e0b;box-shadow:0 2px 12px #f59e0b40}
+.favtag{display:inline-block;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:99px;margin-left:10px;vertical-align:2px;white-space:nowrap}
+.basics{background:#eef2ff;border-left:4px solid #6366f1;border-radius:10px;padding:8px 12px;margin:6px 0;font-size:.9rem}
+.prax{background:#fff7ed;border:2px dashed #f59e0b;border-radius:12px;padding:10px 14px;margin:10px 0;font-size:.9rem}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs>
+<marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#475569"/></marker>
+<marker id="arrA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#7c3aed"/></marker>
+<marker id="arrR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#dc2626"/></marker>
+</defs></svg>
+<header class="top">
+<h1>SYP – Visueller Lernzettel</h1>
+<p>Softwareentwicklung &amp; Projektmanagement · 5 Themenkörbe · 30 Themen · 8 ⭐-Favoriten</p>
+<div class="chips"><span class="chip c-def">Blau = Definition</span><span class="chip c-best">Grün = Merkregel / Best Practice</span><span class="chip c-warn">Rot = Risiko / Warnung</span><span class="chip c-merk">Gelb = Merksatz</span><span class="chip" style="background:#fde68a;color:#92400e">⭐ = wahrscheinliches Prüfungsthema</span></div>
+</header>
+<nav class="bar">
+<a href="#k1">1 Projektmanagement</a><a href="#k2">2 SW-Entwicklung</a><a href="#k3">3 Konzeption &amp; Modellierung</a><a href="#k4">4 IKT-Betrieb</a><a href="#k5">5 Sicherheit &amp; Recht</a>
+</nav>
+<a href="index.html" style="position:fixed;top:12px;left:12px;background:rgba(0,0,0,0.6);color:#fff;padding:8px 16px;border-radius:20px;text-decoration:none;font-weight:bold;z-index:999999;backdrop-filter:blur(4px);display:flex;align-items:center;gap:6px;font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:14px;box-shadow:0 2px 10px rgba(0,0,0,0.2);"><span>🏠</span> Nessie-Hub</a>
+<main>
+<div class="toc">
+<div><b>Korb 1 – Projektmanagement</b><a href="#s11" style="font-weight:700;color:#b45309">⭐ 1.1 SWOT &amp; Pitch</a><a href="#s12">1.2 Projektumfeld &amp; Stakeholder</a><a href="#s13">1.3 PSP &amp; Gantt</a><a href="#s14">1.4 Risikomanagement</a><a href="#s16">1.6 Qualitätsmanagement</a><a href="#s17" style="font-weight:700;color:#b45309">⭐ 1.7 Projektphasen (Wasserfall)</a></div>
+<div><b>Korb 2 – Entwicklung von SW-Systemen</b><a href="#s22">2.2 User Stories</a><a href="#s23">2.3 Wasserfall vs. Agil</a><a href="#s24">2.4 Scrum-Rollen</a><a href="#s25" style="font-weight:700;color:#b45309">⭐ 2.5 Sprintablauf</a><a href="#s26">2.6 Testing</a><a href="#s27">2.7 Aufwandsschätzung</a></div>
+<div><b>Korb 3 – Konzeption &amp; Modellierung</b><a href="#s31">3.1 UML</a><a href="#s32">3.2 Software- vs. Systemarchitektur</a><a href="#s33">3.3 Data Warehouse</a><a href="#s34">3.4 Data Mining &amp; Big Data</a><a href="#s35">3.5 Mockups &amp; Wireframes</a><a href="#s36" style="font-weight:700;color:#b45309">⭐ 3.6 UI vs. UX</a></div>
+<div><b>Korb 4 – Betrieb von IKT-Systemen</b><a href="#s41">4.1 SLA · SLO · SLI</a><a href="#s42">4.2 Cloud Computing</a><a href="#s44">4.4 Digitale Kompetenz</a><a href="#s45">4.5 Digitale Transformation</a><a href="#s46" style="font-weight:700;color:#b45309">⭐ 4.6 Outsourcing</a><a href="#s47">4.7 IT-Compliance &amp; NIS-2</a></div>
+<div><b>Korb 5 – Sicherheit und Recht</b><a href="#s51" style="font-weight:700;color:#b45309">⭐ 5.1 Software-Angebote</a><a href="#s52">5.2 Softwarelizenzen</a><a href="#s53" style="font-weight:700;color:#b45309">⭐ 5.3 Software-Verträge</a><a href="#s55" style="font-weight:700;color:#b45309">⭐ 5.5 IT-Security</a><a href="#s56">5.6 Softwarefehler</a><a href="#s57">5.7 Wartungsverträge</a></div>
+</div>
+
+<div class="prax" style="border-style:solid"><b>📋 Fragen-Aufbau in der Prüfung:</b> <b>1)</b> Theorie erklären → <b>2)</b> genauer auf die Theorie eingehen (Detail-Nachfragen) → <b>3)</b> etwas Praktisches: <b>zeichnen</b> oder <b>Szenario-Frage</b> („In dem Fall würden Sie dann …?"). Bei den ⭐-Themen steht dafür jeweils ein 🎯 Praxis-Check.</div>
+<h2 class="korb" id="k1">Themenkorb 1 – Projektmanagement</h2>
+
+<section class="topic fav" id="s11">
+<h3>1.1 SWOT-Analyse &amp; Pitch <span class="favtag">⭐ Wahrscheinlich · mit Arun, Ramin &amp; Eray</span></h3>
+<div class="box b-def"><b>SWOT</b> = Analysewerkzeug: Strengths, Weaknesses, Opportunities, Threats. · <b>Pitch</b> = kurze, überzeugende Präsentation einer Idee vor Investoren/Stakeholdern/Jury – endet <b>immer mit Call to Action</b> (Kapital, Mentoring, Kontakte). · <b>Pitchdeck</b> = ~10–15 Folien: Logo, Bilder, Clickdummy, Architektur. <b style="color:#dc2626">Keine Textwüste!</b></div>
+<h4>Vier-Felder-Matrix</h4>
+<div class="m22">
+<div class="q" style="background:#dcfce7;border:2px solid #16a34a"><b>S – Stärken</b><br>intern · selbst beeinflussbar<br><span style="color:#475569;font-size:.82rem">ausbauen!</span></div>
+<div class="q" style="background:#fee2e2;border:2px solid #dc2626"><b>W – Schwächen</b><br>intern · selbst beeinflussbar<br><span style="color:#475569;font-size:.82rem">reduzieren!</span></div>
+<div class="q" style="background:#e0f2fe;border:2px solid #0284c7"><b>O – Chancen</b><br>extern · Markt/Umfeld<br><span style="color:#475569;font-size:.82rem">nutzen!</span></div>
+<div class="q" style="background:#fef9c3;border:2px solid #ca8a04"><b>T – Bedrohungen</b><br>extern · Markt/Umfeld<br><span style="color:#475569;font-size:.82rem">abwehren!</span></div>
+</div>
+<h4>Ausgefülltes Beispiel: Schüler-Startup „Matura-Lern-App" (Teamsicht)</h4>
+<div class="m22">
+<div class="q" style="background:#dcfce7;border:2px solid #16a34a"><b>S – Stärken (intern)</b><br>• motiviertes 4er-Team, gute Java-/Web-Skills<br>• Idee aus eigener Erfahrung – wir kennen die Zielgruppe<br>• gratis Schul-Infrastruktur zum Testen</div>
+<div class="q" style="background:#fee2e2;border:2px solid #dc2626"><b>W – Schwächen (intern)</b><br>• wenig DB-/Server-Erfahrung<br>• kein Design-Profi im Team<br>• wenig Zeit neben der Schule</div>
+<div class="q" style="background:#e0f2fe;border:2px solid #0284c7"><b>O – Chancen (extern)</b><br>• jedes Jahr neue Maturanten → Markt wächst nach<br>• Förderprogramme für Schüler-Startups<br>• Lehrer als Multiplikatoren</div>
+<div class="q" style="background:#fef9c3;border:2px solid #ca8a04"><b>T – Bedrohungen (extern)</b><br>• große Lernplattformen könnten die Idee kopieren<br>• DSGVO: heikle Schülerdaten<br>• Serverkosten steigen mit der Nutzerzahl</div>
+</div>
+<div class="box b-best"><b>Und was macht man jetzt damit?</b> Aus jedem Feld <b>Maßnahmen ableiten</b>: Stärken ausbauen (schnell MVP bauen, Zielgruppe direkt befragen) · Schwächen reduzieren (DB-Crashkurs, Design-Mentor suchen) · Chancen nutzen (Förderung beantragen) · Bedrohungen abwehren (USP schärfen, DSGVO früh klären). Genau diese Ableitung wird in der Prüfung gern gefragt!</div>
+<div class="box b-best"><b>Zielgruppe/Sichtweise ZUERST festlegen</b> (Team- oder Kunden-Sicht) und in allen 4 Feldern strikt beibehalten. Bsp.: fehlendes DB-Wissen = intern Schwäche (Teamsicht), aber externes Risiko (Kundensicht).</div>
+<div class="box b-def"><b>Wann?</b> Am Projektanfang in der <b>Vorstudie</b>; bei großen Projekten <b>regelmäßig überprüfen</b>. <b>Warum?</b> 1) <b>Variantenentscheidung</b> (Website vs. native App – SWOT<i class="gl"> (Strengths · Weaknesses · Opportunities · Threats)</i> je Variante) · 2) <b>Maßnahmen ableiten</b>.</div>
+<h4>Pitch-Arten</h4>
+<div class="cards">
+<div class="card"><h5>🛗 Elevator Pitch</h5><b>30–60 Sek.</b>, Fokus Alleinstellungsmerkmal.</div>
+<div class="card"><h5>🏆 Startup-/Jury-Pitch</h5>~4 Min. + Q&amp;A, mit Pitchdeck<i class="gl"> (Folien zum Pitch)</i>.</div>
+<div class="card"><h5>⏱️ Speed-Pitching</h5>Idee nacheinander mehreren Investoren in wenigen Minuten.</div>
+<div class="card"><h5>💰 Sales Pitch</h5>an Kunden – <b>Nutzen</b> statt Finanzbedarf im Mittelpunkt.</div>
+</div>
+<div class="box b-def"><b>Inhalte:</b> Problem · Lösung · Zielgruppe · Markt · Geschäftsmodell (Verkauf/Abo/Werbung) · Konkurrenz · <b>USP<i class="gl"> (Alleinstellungsmerkmal (Unique Selling Proposition))</i></b> · Team · <b>Call to Action<i class="gl"> (konkrete Handlungsaufforderung am Schluss)</i></b>. <b>Zielgruppen:</b> Investoren (Markt, Geschäftsmodell, Team), Banken/Förderstellen (realistische Planung, Rückzahlung), Business Angels/VC<i class="gl"> (Venture Capital: Risikokapitalgeber)</i> (Skalierbarkeit), Partner/Mentoren, Kunden.</div>
+<div class="box b-best"><b>Schwächen offen nennen = Risikomanagement:</b> zeigt analytische Fähigkeit + Lösungsstrategien → Professionalität, Vertrauen. <b>Richtiger Zeitpunkt:</b> wenn man konkret etwas braucht – Vorstudie (Freigabe, Startkapital) oder Projektende/Showcase (Weiterführung, Sponsoren).</div>
+<div class="flow">
+<div class="step"><b>1.</b> Umfeldanalyse identifiziert <b>Stakeholder<i class="gl"> (Beteiligte/Betroffene des Projekts)</i></b></div><div class="arr">→</div>
+<div class="step"><b>2.</b> deren Erwartungen = externe <b>Chancen/Risiken in der SWOT<i class="gl"> (Strengths · Weaknesses · Opportunities · Threats)</i></b></div><div class="arr">→</div>
+<div class="step"><b>3.</b> <b>Pitch<i class="gl"> (kurze Überzeugungs-Präsentation)</i></b> = Kommunikationsmittel, um diese Stakeholder zu überzeugen</div>
+</div>
+<div class="prax">🎯 <b>Praxis-Check:</b> <b>Zeichnen können:</b> die 4-Felder-SWOT (oben intern, unten extern) mit Beispiel füllen. <b>Szenario:</b> „Ihr Team hat wenig DB-Erfahrung – wo steht das?" → Teamsicht: interne Schwäche; Kundensicht: externes Risiko. „Investor fragt kritisch nach Schwächen?" → offen nennen + Gegenmaßnahme zeigen = Professionalität &amp; Vertrauen.</div>
+</section>
+
+<section class="topic" id="s12">
+<h3>1.2 Projektumfeld</h3>
+<h4>Projektabgrenzung – 3 Dimensionen</h4>
+<div class="cards">
+<div class="card"><h5>📦 Sachlich</h5>Was gehört zum Projekt, was nicht? Ziel, Inhalt, Kosten, Risiken. <b>Was nicht definiert ist, wird nicht gemacht.</b></div>
+<div class="card"><h5>⏳ Zeitlich</h5>Anfangs- + Endereignis – trennt Projekt von Vorstudie davor und Wartung/Folgeprojekten danach.</div>
+<div class="card"><h5>👥 Sozial</h5>Rollen + Aufgaben: Auftraggeber, Projektleiter, Mitarbeiter. <b>Wer nicht definiert ist, entscheidet nicht mit.</b></div>
+</div>
+<div class="box b-best"><b>Abgrenzung ist dynamisch</b> – im Projektverlauf immer wieder überprüfen und anpassen.</div>
+<h4>Wozu die 3 Dimensionen? Was macht man damit?</h4>
+<div class="basics">🧱 <b>Basics:</b> Die Abgrenzung beantwortet die 3 Streitfragen jedes Projekts, BEVOR gestritten wird: <b>Was</b> gehört dazu? (sachlich) · <b>Von wann bis wann</b>? (zeitlich) · <b>Wer</b> darf mitreden? (sozial). Man geht sie am Projektstart wie eine <b>Checkliste</b> durch und hält die Antworten <b>schriftlich</b> fest (Projektauftrag/Lastenheft).</div>
+<table>
+<tr><th>Dimension</th><th>Leitfrage</th><th>Beispiel Webshop: ✓ drin</th><th>✗ bewusst draußen</th></tr>
+<tr><td><b>sachlich</b></td><td>Was ist Inhalt, was nicht?</td><td>Shop, Bezahlung, Suche</td><td>Handy-App, Wartung nach Go-Live</td></tr>
+<tr><td><b>zeitlich</b></td><td>Start- und Endereignis?</td><td>Start: Vertrag unterschrieben → Ende: Abnahme</td><td>Vorstudie davor, Folgeprojekte danach</td></tr>
+<tr><td><b>sozial</b></td><td>Wer hat welche Rolle?</td><td>Auftraggeber, Projektleiter, 4 Entwickler</td><td>wer nicht definiert ist, entscheidet nicht mit</td></tr>
+</table>
+<div class="box b-best"><b>Der Nutzen:</b> klare Grenzen = realistisches Budget · keine Gratis-Zusatzwünsche (Scope Creep) · jeder weiß, wer entscheidet. Ohne Abgrenzung wächst das Projekt unkontrolliert.</div>
+<div class="box b-def"><b>Kontextanalyse</b> („über den Tellerrand"): <b>sachlich</b> – passt zur Unternehmensstrategie? externe Einflüsse (DSGVO<i class="gl"> (EU-Datenschutz-Grundverordnung)</i>)? Synergie vs. Konkurrenz mit anderen Projekten? · <b>zeitlich</b> – Vorphase (Auslöser, wer entschied?) + Nachphase (Folgeprojekte, Folgekosten) · <b>sozial</b> – Vorarbeit zur Stakeholderanalyse.</div>
+<h4>Stakeholder-Analyse (3 Schritte) + Portfolio</h4>
+<div class="box b-def"><b>Stakeholder</b> = Person/Gruppe/Organisation, die am Projekt interessiert, davon betroffen ist oder es beeinflusst. <b>Intern</b> (Team) vs. <b>extern</b> (Gesetzgeber, Anrainer…). Schritte: <b>1)</b> Identifikation + Art der Betroffenheit · <b>2)</b> Informationssammlung (Ziele, Macht, Profil) · <b>3)</b> Verhaltensvorhersage (fördern oder behindern?).</div>
+<div class="svgwrap">
+<svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg">
+<line x1="90" y1="210" x2="640" y2="210" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+<line x1="90" y1="210" x2="90" y2="30" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+<text x="370" y="240" class="tb ta">Konfliktpotenzial →</text>
+<text x="40" y="120" class="tb ta" transform="rotate(-90 40 120)">Einfluss / Macht →</text>
+<rect x="110" y="45" width="250" height="70" rx="10" fill="#dcfce7" stroke="#16a34a"/><text x="235" y="75" class="tb ta">zufriedenstellen</text><text x="235" y="95" class="tm ta">viel Macht · wenig Konflikt</text>
+<rect x="380" y="45" width="250" height="70" rx="10" fill="#fee2e2" stroke="#dc2626"/><text x="505" y="75" class="tb ta">aktiv einbinden</text><text x="505" y="95" class="tm ta">viel Macht · viel Konflikt</text>
+<rect x="110" y="125" width="250" height="70" rx="10" fill="#f1f5f9" stroke="#94a3b8"/><text x="235" y="155" class="tb ta">beobachten</text><text x="235" y="175" class="tm ta">wenig Macht · wenig Konflikt</text>
+<rect x="380" y="125" width="250" height="70" rx="10" fill="#fef9c3" stroke="#ca8a04"/><text x="505" y="155" class="tb ta">informieren</text><text x="505" y="175" class="tm ta">wenig Macht · viel Konflikt</text>
+</svg>
+</div>
+<div class="box b-warn"><b>Prüfungsschwerpunkt:</b> kein einmaliger Vorgang – Macht und Meinungen ändern sich → <b>laufend neu bewerten</b>.</div>
+<h4>SMARTe Ziele · Anforderungen · Nicht-Ziele</h4>
+<div class="flow">
+<div class="step"><b>S</b>pezifisch</div><div class="step"><b>M</b>essbar</div><div class="step"><b>A</b>ttraktiv / Akzeptiert<br><span style="color:#475569">(Zielvereinbarung)</span></div><div class="step"><b>R</b>ealistisch</div><div class="step"><b>T</b>erminiert</div>
+</div>
+<div class="box b-def"><b>Nicht-Ziele</b> = man schreibt von Anfang an auf, was das Projekt <b>absichtlich NICHT</b> macht. Bsp.: „Die App gibt es nur auf Deutsch – Mehrsprachigkeit ist ein Nicht-Ziel." Sagt der Kunde später „das war doch dabei!", zeigt man auf diese Liste → keine Diskussion, kein Gratis-Mehraufwand (= Schutz des vereinbarten Umfangs).</div>
+<div class="m22">
+<div class="card"><h5>Funktionale Anforderung = WAS kann es?</h5>Eine Funktion, die das System können muss. Bsp.: „User kann sich einloggen", „Suche nach Artikeln", „PDF-Export".</div>
+<div class="card"><h5>Nicht-funktionale = WIE GUT macht es das?</h5>Qualitäts-Eigenschaften dieser Funktionen. Bsp.: „Seite lädt in &lt; 2 Sekunden", „hält 1000 User gleichzeitig aus", „DSGVO-konform", „läuft auf Handy + PC".</div>
+</div>
+<div class="box b-best"><b>Und im agilen Projekt?</b> Jede <b>funktionale</b> Anforderung wird eine eigene <b>User Story</b> im Product Backlog. <b>Nicht-funktionale</b> gelten für ALLE Stories gleichzeitig → sie stehen in der <b>Definition of Done</b> („fertig ist nur, was schnell genug + sicher ist") oder als Akzeptanzkriterium einzelner Stories.</div>
+<div class="box b-warn"><b>Ohne Analyse:</b> mächtige Stakeholder<i class="gl"> (Beteiligte/Betroffene des Projekts)</i> übersehen (Blockade) · am Kontext vorbeientwickeln (illegal/unbrauchbar) · <b>Scope Creep</b> – Anforderungen wachsen unkontrolliert, Budget explodiert. <b>Nachteile der Analyse:</b> zeitaufwendig, subjektiv, heikel in falschen Händen.</div>
+</section>
+
+<section class="topic" id="s13">
+<h3>1.3 Projektstrukturplan (PSP) &amp; Gantt</h3>
+<div class="box b-def"><b>PSP</b> = zentrales Strukturierungshilfsmittel: zerlegt das komplexe Gesamtvorhaben in handhabbare, möglichst unabhängige Teilaufgaben. Voraussetzung für Organisation, Verantwortungsmatrix und Gantt<i class="gl"> (Balkenplan: Zeit × Arbeitspakete)</i>.</div>
+<div class="svgwrap">
+<svg viewBox="0 0 700 220" xmlns="http://www.w3.org/2000/svg">
+<rect x="270" y="14" width="160" height="36" rx="8" fill="#7c3aed"/><text x="350" y="37" class="tw ta">Projekt</text>
+<line x1="350" y1="50" x2="160" y2="84" stroke="#475569" stroke-width="1.5"/>
+<line x1="350" y1="50" x2="350" y2="84" stroke="#475569" stroke-width="1.5"/>
+<line x1="350" y1="50" x2="540" y2="84" stroke="#475569" stroke-width="1.5"/>
+<rect x="80" y="86" width="160" height="34" rx="8" fill="#ede9fe" stroke="#7c3aed"/><text x="160" y="108" class="tb ta">Teilaufgabe A</text>
+<rect x="270" y="86" width="160" height="34" rx="8" fill="#ede9fe" stroke="#7c3aed"/><text x="350" y="108" class="tb ta">Teilaufgabe B</text>
+<rect x="460" y="86" width="160" height="34" rx="8" fill="#ede9fe" stroke="#7c3aed"/><text x="540" y="108" class="tb ta">Teilaufgabe C</text>
+<line x1="160" y1="120" x2="115" y2="152" stroke="#475569" stroke-width="1.5"/>
+<line x1="160" y1="120" x2="205" y2="152" stroke="#475569" stroke-width="1.5"/>
+<line x1="350" y1="120" x2="350" y2="152" stroke="#475569" stroke-width="1.5"/>
+<rect x="50" y="154" width="130" height="34" rx="8" fill="#fff" stroke="#16a34a" stroke-width="2"/><text x="115" y="176" class="t ta">Arbeitspaket A1</text>
+<rect x="190" y="154" width="130" height="34" rx="8" fill="#fff" stroke="#16a34a" stroke-width="2"/><text x="255" y="176" class="t ta">Arbeitspaket A2</text>
+<rect x="285" y="154" width="130" height="34" rx="8" fill="#fff" stroke="#16a34a" stroke-width="2"/><text x="350" y="176" class="t ta">Arbeitspaket B1</text>
+<text x="350" y="212" class="tm ta">Arbeitspaket = kleinste Einheit: klar definierte, in sich geschlossene Aufgabe mit Ergebnis + Termin – wird nicht weiter zerlegt</text>
+</svg>
+</div>
+<div class="merk">🧠 <b>4/40-Regel:</b> AP kleiner als <b>4 Personenstunden</b> → zusammenfassen (sonst frisst die Verwaltung die Arbeit auf) · größer als <b>40 Stunden</b> → zerlegen (sonst <b>Kontrollverlust</b>: man sieht wochenlang nicht, ob es wirklich vorangeht).</div>
+<div class="box b-def"><b>AP = Arbeitspaket</b> = ein konkreter Arbeitsauftrag mit definiertem Ergebnis und Termin, z. B. „Login-Seite programmieren". <b>Verwaltungsaufwand</b> = die Organisations-Arbeit RUND um ein AP, die selbst nichts produziert: anlegen, schätzen, zuweisen, in den Plan eintragen, im Meeting besprechen, Status kontrollieren, abhaken. Bei einem 2-Stunden-Paket dauert dieses Drumherum fast so lange wie die Arbeit selbst → Mini-Aufgaben besser bündeln.</div>
+<h4>Erstellung &amp; Darstellungsformen</h4>
+<div class="m22">
+<div class="card"><h5>Top-down vs. Bottom-up</h5><b>Top-down:</b> vom Endziel schrittweise zerschneiden. <b>Bottom-up:</b> erst alle Aufgaben sammeln, dann ordnen. <b>Praxis: gemischt</b> – grob top-down, Details bottom-up.</div>
+<div class="card"><h5>Strukturierung</h5><b>Objektorientiert</b> (App, Hardware, Backend) · <b>Tätigkeitsorientiert</b> (Programmieren, Designen, Testen) · <b>Phasenorientiert</b> (Planung, Entwicklung, Abschluss) · Gemischt erlaubt, aber <b style="color:#dc2626">pro Ebene nur EIN Zerlegungskriterium!</b></div>
+</div>
+<div class="svgwrap">
+<svg viewBox="0 0 740 215" xmlns="http://www.w3.org/2000/svg">
+<rect x="65" y="22" width="130" height="30" rx="8" fill="#7c3aed"/><text x="130" y="42" class="tw ta">Schul-App</text>
+<line x1="130" y1="52" x2="52" y2="90" stroke="#475569" stroke-width="1.5"/><line x1="130" y1="52" x2="130" y2="90" stroke="#475569" stroke-width="1.5"/><line x1="130" y1="52" x2="208" y2="90" stroke="#475569" stroke-width="1.5"/>
+<rect x="14" y="92" width="76" height="34" rx="7" fill="#ede9fe" stroke="#7c3aed"/><text x="52" y="114" class="t ta">App</text>
+<rect x="96" y="92" width="76" height="34" rx="7" fill="#ede9fe" stroke="#7c3aed"/><text x="134" y="114" class="t ta">Backend</text>
+<rect x="178" y="92" width="76" height="34" rx="7" fill="#ede9fe" stroke="#7c3aed"/><text x="216" y="114" class="t ta">Datenbank</text>
+<text x="130" y="152" class="tb ta">objektorientiert</text><text x="130" y="168" class="tm ta">nach Produkt-Bestandteilen</text>
+<rect x="305" y="22" width="130" height="30" rx="8" fill="#7c3aed"/><text x="370" y="42" class="tw ta">Schul-App</text>
+<line x1="370" y1="52" x2="292" y2="90" stroke="#475569" stroke-width="1.5"/><line x1="370" y1="52" x2="370" y2="90" stroke="#475569" stroke-width="1.5"/><line x1="370" y1="52" x2="448" y2="90" stroke="#475569" stroke-width="1.5"/>
+<rect x="254" y="92" width="76" height="34" rx="7" fill="#dcfce7" stroke="#16a34a"/><text x="292" y="114" class="t ta">Designen</text>
+<rect x="336" y="92" width="76" height="34" rx="7" fill="#dcfce7" stroke="#16a34a"/><text x="374" y="114" class="t ta">Coden</text>
+<rect x="418" y="92" width="76" height="34" rx="7" fill="#dcfce7" stroke="#16a34a"/><text x="456" y="114" class="t ta">Testen</text>
+<text x="370" y="152" class="tb ta">tätigkeitsorientiert</text><text x="370" y="168" class="tm ta">nach Arbeitsschritten</text>
+<rect x="545" y="22" width="130" height="30" rx="8" fill="#7c3aed"/><text x="610" y="42" class="tw ta">Schul-App</text>
+<line x1="610" y1="52" x2="532" y2="90" stroke="#475569" stroke-width="1.5"/><line x1="610" y1="52" x2="610" y2="90" stroke="#475569" stroke-width="1.5"/><line x1="610" y1="52" x2="688" y2="90" stroke="#475569" stroke-width="1.5"/>
+<rect x="494" y="92" width="76" height="34" rx="7" fill="#fef9c3" stroke="#ca8a04"/><text x="532" y="114" class="t ta">Planung</text>
+<rect x="576" y="92" width="76" height="34" rx="7" fill="#fef9c3" stroke="#ca8a04"/><text x="614" y="114" class="t ta">Umsetzung</text>
+<rect x="658" y="92" width="76" height="34" rx="7" fill="#fef9c3" stroke="#ca8a04"/><text x="696" y="114" class="t ta">Abschluss</text>
+<text x="610" y="152" class="tb ta">phasenorientiert</text><text x="610" y="168" class="tm ta">nach zeitlichen Phasen</text>
+<text x="370" y="200" class="t ta">Dasselbe Projekt, 3 Zerlegungs-Kriterien – <tspan class="tb">pro Ebene immer nur EIN Kriterium!</tspan></text>
+</svg>
+</div>
+<div class="box b-best"><b>Vollständigkeit:</b> Teilelemente ergeben zusammen exakt das zerlegte Element · <b>Überdeckungsfreiheit:</b> keine Überschneidungen auf einer Ebene · Strukturieren = <b>kreativer, iterativer Prozess</b>. AP<i class="gl"> (Arbeitspaket)</i> = Basis für Aufwandsschätzung → Ressourcen- und Zeitplanung.</div>
+<h4>Gantt-Diagramm</h4>
+<div class="svgwrap">
+<svg viewBox="0 0 700 190" xmlns="http://www.w3.org/2000/svg">
+<line x1="150" y1="20" x2="150" y2="160" stroke="#94a3b8"/>
+<text x="350" y="180" class="tm ta">X-Achse = Zeit · Y-Achse = Arbeitspakete (aus dem PSP!)</text>
+<text x="140" y="44" class="t" text-anchor="end">AP 1 Analyse</text>
+<rect x="150" y="30" width="140" height="20" rx="5" fill="#7c3aed"/>
+<text x="140" y="84" class="t" text-anchor="end">AP 2 Design</text>
+<rect x="290" y="70" width="120" height="20" rx="5" fill="#8b5cf6"/>
+<line x1="290" y1="50" x2="290" y2="70" stroke="#475569" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="140" y="124" class="t" text-anchor="end">AP 3 Umsetzung</text>
+<rect x="410" y="110" width="180" height="20" rx="5" fill="#a78bfa"/>
+<line x1="410" y1="90" x2="410" y2="110" stroke="#475569" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="140" y="156" class="t" text-anchor="end">Meilenstein</text>
+<path d="M600 138 l9 12 l-9 12 l-9 -12 z" fill="#dc2626"/>
+<text x="622" y="156" class="tm">Dauer 0, speziell markiert</text>
+<text x="350" y="24" class="tm ta">Pfeil = Abhängigkeit (vom Balkenende zur nächsten Aktivität)</text>
+</svg>
+</div>
+<div class="box b-warn"><b>Grenze:</b> bei riesigen Projekten mit vielen Abhängigkeiten unübersichtlich → <b>Netzplantechnik (MPM)</b>.</div>
+<div class="prax">🎯 <b>Praxis-Check:</b> <b>Zeichnen können:</b> zum selben Projekt einen objektorientierten UND einen tätigkeitsorientierten PSP (siehe oben). <b>Szenario:</b> „Ein Arbeitspaket hat 60 Stunden?" → zerlegen (40er-Grenze, sonst Kontrollverlust). „Eines hat 2 Stunden?" → zusammenfassen (4er-Grenze, sonst Verwaltungsaufwand).</div>
+</section>
+
+<section class="topic" id="s14">
+<h3>1.4 Risikomanagement</h3>
+<div class="box b-def"><b>Projektrisiko</b> = Höhe des Schadens, wenn Projektziele nicht erreicht werden. <b>Risikomanagement</b> = Risiken vorhersehen, Eintrittswahrscheinlichkeit abschätzen, Maßnahmen planen (Aufgabe des <b>Projektleiters</b>).</div>
+<div class="box b-best"><b>Zeitpunkte:</b> beginnt im <b>Vorprojekt (Machbarkeitsanalyse)</b> – soll man überhaupt starten? Genauer in der <b>Detailplanung</b>. <b>Laufend im gesamten Projektverlauf neu bewerten!</b></div>
+<div class="m22">
+<div class="card"><h5>Intern</h5>hausgemacht, selbst beeinflussbar (fehlerhafter Code, Budget verrechnet). Technisch → meist intern.</div>
+<div class="card"><h5>Extern</h5>von außen, kein Einfluss – nur Schaden begrenzen (Lieferant pleite, neues Gesetz, Proteste). Wirtschaftlich → oft extern · politisch → immer extern · soziokulturell → meist extern.</div>
+</div>
+<div class="box b-def"><b>Wo kommen Risiken her? (Quellen zum Finden)</b> Den <b>PSP durchgehen</b> (je Arbeitspaket: was kann hier schiefgehen?) · <b>Checklisten</b> aus alten Projekten · <b>Expertenbefragung</b>/Brainstorming · Lessons Learned · Stakeholder-/Umfeldanalyse (liefert die externen!). <b>Typische Kategorien:</b> technisch (meist intern: neue Technologie, Bugs) · wirtschaftlich (oft extern: Lieferant pleite, Preissteigerung) · politisch/rechtlich (immer extern: neues Gesetz, DSGVO) · soziokulturell (meist extern: Proteste, fehlende Akzeptanz) · personell (intern: Schlüsselperson kündigt/krank).</div>
+<h4>Risikoanalyse – 4 Schritte</h4>
+<div class="flow">
+<div class="step"><b>1 · Identifizieren</b><br>PSP<i class="gl"> (Projektstrukturplan)</i>, Checklisten, Expertenbefragung</div><div class="arr">→</div>
+<div class="step"><b>2 · Analysieren</b><br>Ursachen suchen – Ursache-Wirkungs-Diagramm</div><div class="arr">→</div>
+<div class="step"><b>3 · Bewerten</b><br>qualitativ (Matrix) oder quantitativ (<b>EW<i class="gl"> (Eintrittswahrscheinlichkeit)</i> × Kosten</b> in Geld)</div><div class="arr">→</div>
+<div class="step"><b>4 · Gestalten</b><br>Maßnahmen (s. unten)</div>
+</div>
+<div class="cards">
+<div class="card"><h5>🚫 Vermeidung</h5>Plan ändern.</div>
+<div class="card"><h5>📉 Verringerung</h5>Wahrscheinlichkeit/Schaden senken.</div>
+<div class="card"><h5>📤 Überwälzung</h5>Versicherung / Lieferant.</div>
+<div class="card"><h5>✅ Übernahme</h5>akzeptieren + Rücklagen.</div>
+</div>
+<h4>Bewertungsmatrix (EW × Einfluss)</h4>
+<div class="m22">
+<div class="q" style="background:#fef9c3;border:2px solid #ca8a04"><b>B1</b> · EW<i class="gl"> (Eintrittswahrscheinlichkeit)</i> hoch / Einfluss niedrig<br>normale Gegenmaßnahmen<br><span style="font-size:.8rem;color:#475569">kleine UI<i class="gl"> (User Interface: die Optik/Oberfläche)</i>-Bugs</span></div>
+<div class="q" style="background:#fee2e2;border:2px solid #dc2626"><b>A</b> · EW hoch / Einfluss hoch<br><b>Sofortmaßnahmen, sonst Projektabbruch</b><br><span style="font-size:.8rem;color:#475569">Schlüsselmitglied fällt in heißer Phase aus</span></div>
+<div class="q" style="background:#f1f5f9;border:2px solid #94a3b8"><b>C</b> · EW<i class="gl"> (Eintrittswahrscheinlichkeit)</i> niedrig / Einfluss niedrig<br>vernachlässigen<br><span style="font-size:.8rem;color:#475569">Tippfehler in einem Datensatz</span></div>
+<div class="q" style="background:#e0f2fe;border:2px solid #0284c7"><b>B2</b> · EW niedrig / Einfluss hoch<br>Risikovorsorge / Versicherung<br><span style="font-size:.8rem;color:#475569">Hackerangriff löscht DB → tägliches Backup</span></div>
+</div>
+<div class="merk">🧠 Matrix-Achsen: x = Einfluss auf Projekterfolg, y = Eintrittswahrscheinlichkeit. <b>Sinn:</b> Risiken schnell qualitativ einordnen – sofort sichtbar, welche das Projekt gefährden.</div>
+<h4>Einstufen: qualitativ ODER quantitativ – je ein Beispiel</h4>
+<div class="m22">
+<div class="card" style="border-top:4px solid #0284c7"><h5>Qualitativ (mit der Matrix)</h5>Risiko: „Schlüsselentwickler fällt in der heißen Phase aus." → EW: <b>mittel</b>, Auswirkung: <b>hoch</b> → Feld <b>B2/A</b> der Matrix → Maßnahme: Wissen dokumentieren, Pair Programming (= Verringerung).<br><span style="color:#475569">Ohne Geldwerte, schnell, ideal zum Priorisieren: Welche Risiken zuerst behandeln?</span></div>
+<div class="card" style="border-top:4px solid #16a34a"><h5>Quantitativ (in Euro)</h5><b>Risikowert = EW × Schadenskosten.</b> Risiko: „Webshop-Server fällt aus": EW 10 % × Schaden 50.000 € = <b>5.000 €/Jahr</b>. Vergleich: Ausfallsicherer Cluster kostet 3.000 €/Jahr → <b>Maßnahme lohnt sich</b>.<br><span style="color:#475569">In Geld, ideal für Budget, Rücklagen und Versicherungs-Entscheidungen.</span></div>
+</div>
+<div class="prax">🎯 <b>Wenn die Lehrerin fragt: „Kennen Sie eine Methode, Risiken einzustufen?"</b> → „Ja – qualitativ mit der Risikomatrix (Eintrittswahrscheinlichkeit × Auswirkung, Felder A/B1/B2/C) oder quantitativ als Risikowert = EW × Schadenskosten in Euro, z. B. 10 % × 50.000 € = 5.000 €. Qualitativ priorisiert schnell, quantitativ liefert Zahlen fürs Budget."</div>
+</section>
+<section class="topic" id="s16">
+<h3>1.6 Qualitätsmanagement (QM)</h3>
+<div class="box b-def"><b>QM</b> = Prozess zur Sicherung der Qualität, beginnt <b>von Anfang an</b> – nicht nur Testen am Ende. Verhindert Chaos, wenn viele am selben Code arbeiten. <b>Läuft durchgehend über alle Projektphasen mit.</b></div>
+<div class="m22">
+<div class="q" style="background:#e0f2fe;border:2px solid #0284c7"><b>Validation</b><br>„Bauen wir das <b>richtige</b> Produkt?"<br><span style="font-size:.8rem;color:#475569">Kundenwunsch</span></div>
+<div class="q" style="background:#dcfce7;border:2px solid #16a34a"><b>Verifikation</b><br>„Bauen wir das Produkt <b>richtig</b>?"<br><span style="font-size:.8rem;color:#475569">Code = technische Pläne</span></div>
+</div>
+<div class="box b-best">Ziele: Fehler im Vorhinein <b>vermeiden</b> statt später suchen · gutes Arbeitsklima, motivierte Entwickler.</div>
+<h4>Die 4 Methoden-Arten</h4>
+<div class="cards">
+<div class="card"><h5>📋 Planerisch-administrativ</h5>Planung + Standards: <b>ISO<i class="gl"> (internationale Norm)</i> 9000, CMM</b> (5 Reifegrade).</div>
+<div class="card"><h5>🏗️ Konstruktiv (vorbeugend)</h5>gute Vorgehensmodelle, Doku, CASE<i class="gl"> (Computer-Aided Software Engineering)</i>-Tools; <b>Baseline</b> (eingefrorener Stand) + <b>Change Requests<i class="gl"> (formaler Änderungsantrag)</i></b>.</div>
+<div class="card"><h5>🔬 Analytisch (prüfend)</h5><b>statisch</b> = Code läuft NICHT (Reviews, Audits, Walkthrough) · <b>dynamisch</b> = Programm läuft (Black-/White-/Grey-Box, intuitives Testen).</div>
+<div class="card"><h5>🧘 Psychologisch orientiert</h5>Arbeitsklima, Motivation.</div>
+</div>
+<div class="box b-warn"><b>Ohne QM<i class="gl"> (Qualitätsmanagement)</i>:</b> Chaos bei vielen Entwicklern · Produkt am Kundenwunsch vorbei · wilde Codeänderungen zerstören andere Teile (→ Betroffenheitsanalysen, Änderungsanträge).</div>
+<div class="box b-def"><b>Qualität messen:</b> Code-Ebene = <b>White-Box-/Abdeckungstests</b> (jede Zeile aufgerufen?) · System-Ebene = Performance, Effizienz, Skalierbarkeit, Last · Ende = <b>Abnahmetest durch den Kunden</b>.</div>
+</section>
+
+<section class="topic fav" id="s17">
+<h3>1.7 Projektphasen (klassisch / Wasserfall) <span class="favtag">⭐ Wahrscheinlich · mit Sebastian &amp; Julian</span></h3>
+<div class="box b-def"><b>Vorprojektphase:</b> <b>Start-up-Seminar</b> = Information + Diskussion (alle wissen danach alles) · <b>Start-up-Workshop</b> = interaktive Erarbeitung der Vision, „Wir-Gefühl", Konflikte früh erkennen.</div>
+<div class="svgwrap">
+<svg viewBox="0 0 740 330" xmlns="http://www.w3.org/2000/svg">
+<rect x="10" y="10" width="180" height="44" rx="9" fill="#7c3aed"/><text x="100" y="28" class="tw ta">1 · Anforderungsanalyse</text><text x="100" y="44" class="tw ta" style="font-weight:400">Scope schriftlich, PSP, Risiken</text>
+<line x1="100" y1="54" x2="100" y2="64" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="100" y="64" width="180" height="44" rx="9" fill="#8b5cf6"/><text x="190" y="82" class="tw ta">2 · Systemdesign</text><text x="190" y="98" class="tw ta" style="font-weight:400">High- + Low-Level-Design</text>
+<line x1="190" y1="108" x2="190" y2="118" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="190" y="118" width="180" height="44" rx="9" fill="#a78bfa"/><text x="280" y="136" class="tw ta">3 · Implementierung</text><text x="280" y="152" class="tw ta" style="font-weight:400">Pflichtenheft abarbeiten</text>
+<line x1="280" y1="162" x2="280" y2="172" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="280" y="172" width="180" height="44" rx="9" fill="#c4b5fd"/><text x="370" y="190" class="tb ta">4 · Testphase</text><text x="370" y="206" class="tm ta">Verifikation gg. Lasten-/Pflichtenheft</text>
+<line x1="370" y1="216" x2="370" y2="226" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="370" y="226" width="180" height="44" rx="9" fill="#ddd6fe"/><text x="460" y="244" class="tb ta">5 · Bereitstellung</text><text x="460" y="260" class="tm ta">Rollout + Schulung</text>
+<line x1="460" y1="270" x2="460" y2="280" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="460" y="280" width="180" height="44" rx="9" fill="#ede9fe" stroke="#7c3aed"/><text x="550" y="298" class="tb ta">6 · Wartung</text><text x="550" y="314" class="tm ta">Betrieb (oft längste Phase)</text>
+<text x="560" y="40" class="tm">Sign-offs = harte Übergänge,</text>
+<text x="560" y="56" class="tm">Rücksprünge teuer!</text>
+</svg>
+</div>
+<h4>Meetings &amp; Dokumente je Phase</h4>
+<table>
+<tr><th>Phase</th><th>Meetings</th><th>Dokumente</th></tr>
+<tr><td><b>1 Anforderungsanalyse</b></td><td><b>Kick-off</b> (offizieller Start), Anforderungs-Workshops, Sign-off<i class="gl"> (formale Freigabe-Unterschrift)</i>-Review</td><td><b>Lastenheft<i class="gl"> (WAS der Kunde will)</i>, PSP<i class="gl"> (Projektstrukturplan)</i>, Risikolog</b></td></tr>
+<tr><td><b>2 Systemdesign</b></td><td><b>Architecture Review Board (ARB)</b> – Experten prüfen Machbarkeit; Sign-off</td><td><b>Pflichtenheft<i class="gl"> (WIE umgesetzt wird)</i></b>, Architekturdiagramme</td></tr>
+<tr><td><b>3 Implementierung</b></td><td>Status Reports, <b>Code Reviews</b></td><td>Quellcode + Doku</td></tr>
+<tr><td><b>4 Test</b></td><td><b>UAT<i class="gl"> (User Acceptance Test: Kunden-Abnahmetest)</i>-Kick-off</b>, Bug<i class="gl"> (Fehler im System)</i>-Meeting (Priorisierung), <b>Go/No-Go-Meeting</b></td><td>Testprotokolle, <b>UAT-Abnahmeprotokoll</b>, Bug Reports</td></tr>
+<tr><td><b>5 Bereitstellung</b></td><td>Sign-off<i class="gl"> (formale Freigabe-Unterschrift)</i></td><td>Release Notes, Rollout<i class="gl"> (Verteilung/Inbetriebnahme beim Nutzer)</i>-Plan, Betriebsübergabeprotokoll</td></tr>
+<tr><td><b>6 Wartung</b></td><td>Incident<i class="gl"> (Störung im Betrieb)</i> Review, <b>Lessons Learned<i class="gl"> (dokumentierte Projekt-Erkenntnisse)</i></b></td><td><b>SLA<i class="gl"> (Service Level Agreement: vertragliches Service-Versprechen)</i></b>, Projektabschlussbericht</td></tr>
+</table>
+<div class="box b-def"><b>UAT = User Acceptance Test</b> („Benutzer-Abnahmetest"): Der <b>Kunde testet selbst</b>, ob die Software fachlich seinen Anforderungen entspricht – die letzte Hürde vor dem Go-Live. <b>UAT-Kick-off</b> = das Start-Meeting dieser Testphase: Der Kunde bekommt Testumgebung, Testfälle, Zeitplan und die Regeln, wie Fehler gemeldet werden. <b>UAT-Abnahmeprotokoll</b> = das Abschluss-Dokument: Was wurde getestet? Welche Fehler sind noch offen (Kategorien A–D, als <b>Vorbehalt</b> eingetragen)? Unterschrieben wird es im <b>Go/No-Go-Meeting</b> – mit der Unterschrift gilt die Software als abgenommen → <b>Gewährleistung und Zahlung starten</b> (Details: Softwarefehler 5.6).</div>
+<div class="merk">🧠 <b>Lastenheft = WAS</b> (Kunde will) · <b>Pflichtenheft = WIE</b> (Entwickler setzt um).</div>
+<div class="m22">
+<div class="q" style="background:#dcfce7;border:2px solid #16a34a"><b>Vorteile:</b> harte Meilensteine, klare Deadlines, Planungssicherheit, Dokumentationspflicht.</div>
+<div class="q" style="background:#fee2e2;border:2px solid #dc2626"><b>Nachteile:</b> Rücksprünge teuer · Verspätung früher Phasen verschiebt alles · Kunde sieht das Produkt erst ganz am Ende.</div>
+</div>
+<div class="box b-warn">Stakeholder<i class="gl"> (Beteiligte/Betroffene des Projekts)</i> meist nur <b>am Anfang (Anforderungen) und am Ende (Test/Bereitstellung)</b> eingebunden – kaum während Design/Entwicklung.</div>
+<div class="prax">🎯 <b>Praxis-Check:</b> <b>Zeichnen können:</b> die Wasserfall-Treppe mit allen 6 Phasen + je Phase 1 Meeting und 1 Dokument nennen. <b>Szenario:</b> „Kunde will in der Testphase noch eine Funktion?" → nicht einbauen: Change Request → neues Angebot (Phasen sind hart getrennt). „Wann sieht der Kunde das Produkt zum ersten Mal?" → erst ganz am Ende – der große Nachteil.</div>
+</section>
+
+<h2 class="korb" id="k2">Themenkorb 2 – Entwicklung von Softwaresystemen</h2>
+
+<section class="topic" id="s22">
+<h3>2.2 User Stories</h3>
+<div class="box b-def"><b>User Story</b> = ein Feature aus der Sicht des Nutzers, kurz und nicht-technisch formuliert.</div>
+<h4>Hierarchie</h4>
+<div class="svgwrap">
+<svg viewBox="0 0 700 210" xmlns="http://www.w3.org/2000/svg">
+<rect x="250" y="10" width="200" height="36" rx="9" fill="#7c3aed"/><text x="350" y="28" class="tw ta">Epic</text><text x="350" y="42" class="tw ta" style="font-weight:400">sehr großes Feature („Website erstellen")</text>
+<line x1="350" y1="46" x2="350" y2="62" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="230" y="64" width="240" height="36" rx="9" fill="#8b5cf6"/><text x="350" y="82" class="tw ta">User Story</text><text x="350" y="96" class="tw ta" style="font-weight:400">umsetzbarer Teil aus Nutzersicht („Login-Page")</text>
+<line x1="350" y1="100" x2="350" y2="116" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="210" y="118" width="280" height="36" rx="9" fill="#a78bfa"/><text x="350" y="136" class="tb ta">Task</text><text x="350" y="150" class="tm ta">technischer/gestalterischer Einzelschritt (auch Story-Ebene)</text>
+<line x1="350" y1="154" x2="350" y2="170" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="190" y="172" width="320" height="32" rx="9" fill="#ede9fe" stroke="#7c3aed"/><text x="350" y="192" class="tb ta">Sub-Task <tspan class="tm">(z. B. API-Key konfigurieren)</tspan></text>
+<text x="600" y="82" class="tb ta">Bug</text><text x="600" y="98" class="tm ta">Fehler, Folgesprints,</text><text x="600" y="112" class="tm ta">kann Sub-Tasks haben</text>
+</svg>
+</div>
+<div class="box b-def"><b>Use Case</b> = die komplett ausdefinierte Variante: Schritt-für-Schritt-Interaktion Nutzer ↔ System (Anforderungsanalyse).</div>
+<h4>Aufbau einer Story</h4>
+<pre><code>As a &lt;user&gt;
+I would like &lt;to see my user profile in the app&gt;
+so I can &lt;change my basic data&gt;.
+
+Pre-Condition:  User ist eingeloggt
+Post-Condition: Userdaten geändert &amp; gespeichert
+Akzeptanzkriterien: einloggen / Profil öffnen / Daten ändern / speichern</code></pre>
+<div class="cards">
+<div class="card"><h5>Akzeptanzkriterien</h5>wann genau <b>DIESE Story</b> fachlich fertig ist (individuell pro Story).</div>
+<div class="card"><h5>Definition of Done (DoD)</h5>wann Arbeit <b>ALLGEMEIN</b> fertig gilt: Clean Code, Code Review, Tests, AK erfüllt.</div>
+<div class="card"><h5>Definition of Ready (DoR)</h5>wann eine Story <b>bereit für Schätzung + Sprint</b> ist (klar, geschätzt, technische Voraussetzungen geklärt).</div>
+<div class="card"><h5>Ergänzend</h5>User Flow (Ablaufdiagramm) oder Wireframes<i class="gl"> (grobes Struktur-Gerüst (s/w))</i> zur Story.</div>
+</div>
+<h4>Weg im Scrum-Prozess</h4>
+<div class="flow">
+<div class="step"><b>Product Backlog<i class="gl"> (priorisierte Anforderungsliste)</i></b> &amp; Refinement<i class="gl"> (laufende Backlog-Pflege)</i></div><div class="arr">→</div>
+<div class="step"><b>Sprint Planning<i class="gl"> (Auswahl + Schätzung der Sprint-Inhalte)</i></b></div><div class="arr">→</div>
+<div class="step"><b>Sprint Backlog</b></div><div class="arr">→</div>
+<div class="step"><b>Umsetzung</b></div><div class="arr">→</div>
+<div class="step"><b>Review / Abnahme<i class="gl"> (formelle Übernahme-Bestätigung des Kunden)</i></b></div><div class="arr">→</div>
+<div class="step"><b>Done</b> ✓</div>
+</div>
+<div class="box b-def"><b>Einsatz:</b> agile Entwicklung (Scrum/Kanban<i class="gl"> (agile Methode mit Aufgaben-Board)</i>, Jira<i class="gl"> (Ticket-/Projektmanagement-Tool)</i>-Tickets), Anforderungs-/Produktmanagement (verständlich statt technisch), Sprintplanung, Kommunikation.</div>
+</section>
+<section class="topic" id="s23">
+<h3>2.3 PM-Methoden: Wasserfall vs. Agil</h3>
+<h4>Die Umkehrung – das Kernbild</h4>
+<div class="svgwrap">
+<svg viewBox="0 0 740 250" xmlns="http://www.w3.org/2000/svg">
+<text x="190" y="26" class="tb ta">KLASSISCH (Wasserfall)</text>
+<polygon points="60,50 320,50 190,130" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+<text x="190" y="44" class="tm ta">FIX: Scope / Anforderungen (vorab eingefroren)</text>
+<text x="190" y="80" class="t ta">Plan getrieben</text>
+<text x="190" y="160" class="tm ta">VARIABEL: Zeit + Kosten</text>
+<text x="190" y="180" class="tm ta">(früher/später fertig)</text>
+<text x="550" y="26" class="tb ta">AGIL (Scrum, Kanban)</text>
+<polygon points="550,50 420,130 680,130" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+<text x="550" y="44" class="tm ta">VARIABEL: Scope (Backlog, nähert sich iterativ)</text>
+<text x="550" y="115" class="t ta">Wert getrieben</text>
+<text x="550" y="160" class="tm ta">FIX: Zeit + Kosten</text>
+<text x="550" y="180" class="tm ta">(fixes Team für definierte Zeit)</text>
+<text x="370" y="225" class="t ta">Wasserfall: <tspan fill="#dc2626">keine Flexibilität, Kunde sieht Ergebnis spät</tspan> · Agil: <tspan fill="#dc2626">Outcome ungewiss</tspan></text>
+</svg>
+</div>
+<div class="m22">
+<div class="card"><h5>Klassisch – Best Practices</h5>vollständiges Pflichtenheft<i class="gl"> (WIE umgesetzt wird)</i> · PSP<i class="gl"> (Projektstrukturplan)</i> · strikte Change Requests<i class="gl"> (formaler Änderungsantrag)</i> · frühe Risikoanalyse · klare Rollen · <b>V-Modell</b> (jeder Entwicklungsphase ist eine Testphase zugeordnet – Testfälle schon in der Konzeption).</div>
+<div class="card"><h5>Agil – Best Practices</h5>Retrospektive<i class="gl"> (Sprint-Rückblick zur Verbesserung)</i> ernst nehmen · Backlog<i class="gl"> (priorisierte Anforderungsliste)</i> nach <b>Kundenwert</b> priorisieren · kurze Sprints für schnelle Ergebnisse · Daily<i class="gl"> (tägliches Kurz-Meeting)</i> für Feedback. Autonomes Team gleichberechtigter Mitglieder; Markt-/Kundenänderungen fließen laufend ein.</div>
+</div>
+<h4>Wann wird was eingesetzt? (Stacey-Matrix)</h4>
+<div class="svgwrap">
+<svg viewBox="0 0 740 290" xmlns="http://www.w3.org/2000/svg">
+<line x1="110" y1="250" x2="690" y2="250" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+<line x1="110" y1="250" x2="110" y2="36" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+<text x="400" y="278" class="tb ta">Technologie / Lösungsweg: bekannt → unbekannt</text>
+<text x="55" y="145" class="tb ta" transform="rotate(-90 55 145)">Anforderungen: klar → unklar</text>
+<rect x="130" y="150" width="260" height="90" rx="10" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/><text x="260" y="188" class="tb ta">EINFACH</text><text x="260" y="208" class="tm ta">alles bekannt → KLASSISCH (Wasserfall)</text>
+<rect x="410" y="150" width="260" height="90" rx="10" fill="#fef9c3" stroke="#ca8a04" stroke-width="2"/><text x="540" y="188" class="tb ta">KOMPLIZIERT</text><text x="540" y="208" class="tm ta">Technik neu → Experten holen, noch klassisch machbar</text>
+<rect x="130" y="50" width="260" height="90" rx="10" fill="#fef9c3" stroke="#ca8a04" stroke-width="2"/><text x="260" y="88" class="tb ta">KOMPLIZIERT</text><text x="260" y="108" class="tm ta">Anforderungen unklar → eher AGIL</text>
+<rect x="410" y="50" width="260" height="90" rx="10" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/><text x="540" y="88" class="tb ta">KOMPLEX</text><text x="540" y="108" class="tm ta">beides unklar → AGIL (Scrum), kurze Feedback-Zyklen</text>
+<text x="540" y="32" class="tm ta">ganz rechts oben außerhalb: „chaotisch" → erst erforschen / Prototyp bauen</text>
+</svg>
+</div>
+
+<div class="box b-def">Entscheidung nach Projektmerkmalen: <b>Anforderungen + Technologie bekannt?</b> · <b>Klassisch:</b> einfache bis komplizierte Projekte – Ziele, Anforderungen, Lösungsweg von Anfang an bekannt. · <b>Agil:</b> komplexe Projekte – Anforderungen unbekannt/änderlich; Startups, Web-/App-Entwicklung mit schnellem Feedback.</div>
+<h4>Hybrides PM</h4>
+<div class="flow">
+<div class="step"><b>Initiierung + Planung</b><br>klassisch (Budget, Meilensteine, Architektur)</div><div class="arr">→</div>
+<div class="step"><b>Umsetzung</b><br>agil (Scrum)</div><div class="arr">→</div>
+<div class="step"><b>Release / Betrieb</b><br>klassisch</div>
+</div>
+<div class="merk">🧠 <b>Water-Scrum-Fall<i class="gl"> (klassisch planen, agil umsetzen, klassisch releasen)</i></b> – Management will feste Budgets/Verträge/Deadlines, Entwickler arbeiten am besten agil.</div>
+<div class="box b-warn"><b>Schwierigkeiten:</b> Konflikt fester Plan vs. Flexibilität · unklare Rollen (klassischer PM<i class="gl"> (Projektmanagement/-manager)</i> kollidiert mit PO/SM<i class="gl"> (Scrum Master: Prozess-Coach, räumt Hindernisse weg)</i>-Autorität) · doppelte Arbeit (Jira<i class="gl"> (Ticket-/Projektmanagement-Tool)</i> pflegen + Statusberichte).</div>
+</section>
+
+<section class="topic" id="s24">
+<h3>2.4 Rollen im Scrum-Team</h3>
+<div class="cards">
+<div class="card" style="border-top:4px solid #7c3aed"><h5>👔 Product Owner (PO)</h5>vertritt Auftraggeber/Stakeholder<i class="gl"> (Beteiligte/Betroffene des Projekts)</i> im Team · erhebt, beschreibt, <b>priorisiert Anforderungen nach Kunden-/Geschäftswert</b> · verwaltet das <b>Product Backlog<i class="gl"> (priorisierte Anforderungsliste)</i></b>, schreibt User Stories.</div>
+<div class="card" style="border-top:4px solid #16a34a"><h5>🛡️ Scrum Master (SM)</h5>gestaltet + moderiert den Prozess, coacht agile Werte, <b>beseitigt Hindernisse (Impediments)</b> · kein Mitglied des Dev-Teams, <b>kein Chef</b>.</div>
+<div class="card" style="border-top:4px solid #0284c7"><h5>👩‍💻 Developers / Dev-Team</h5>entwickeln die Software · <b>selbstorganisierend</b> – entscheiden WIE umgesetzt wird und WIE VIEL in einen Sprint passt.</div>
+</div>
+<h4>Rollen in den Scrum-Events</h4>
+<table>
+<tr><th>Event</th><th>Wer macht was?</th></tr>
+<tr><td><b>Sprint Planning</b></td><td>PO<i class="gl"> (Product Owner: priorisiert, vertritt den Kunden)</i> stellt wichtigste Backlog<i class="gl"> (priorisierte Anforderungsliste)</i>-Einträge + Sprintziel vor · Team schätzt (Planning Poker<i class="gl"> (verdecktes Schätzen im Team)</i>) und wählt Umfang · SM<i class="gl"> (Scrum Master: Prozess-Coach, räumt Hindernisse weg)</i> hält die <b>Timebox<i class="gl"> (fix begrenztes Zeitfenster)</i></b></td></tr>
+<tr><td><b>Daily Scrum</b> (15 min)</td><td>Event des <b>Dev-Teams</b>: Was erledigt? Was bis morgen? <b>Was hindert mich?</b> · PO max. passiver Zuhörer</td></tr>
+<tr><td><b>Sprint Review</b></td><td>Team demonstriert funktionierende Software · <b>PO<i class="gl"> (Product Owner: priorisiert, vertritt den Kunden)</i> leitet inhaltlich</b>, holt Feedback von Kunden/Stakeholdern</td></tr>
+<tr><td><b>Sprint Retrospective</b></td><td><b>SM<i class="gl"> (Scrum Master: Prozess-Coach, räumt Hindernisse weg)</i> moderiert stark</b> · alle gleichberechtigt · Verbesserungen für den nächsten Sprint</td></tr>
+</table>
+<div class="box b-def"><b>Turnover</b> = kein eigenes Event, sondern Rahmen: Review → Retro<i class="gl"> (Retrospektive: Sprint-Rückblick)</i> → Planning hintereinander – Übergang zwischen zwei Sprints.</div>
+<h4>Was passiert mit dem klassischen Projektleiter?</h4>
+<div class="flow">
+<div class="step">Budget · Risiko · Produktvision · ROI<i class="gl"> (Return on Investment: Rendite)</i><br><b>→ PO<i class="gl"> (Product Owner: priorisiert, vertritt den Kunden)</i></b></div>
+<div class="step">Aufgabenverteilung · Umsetzung · Zeit<br><b>→ Dev-Team</b></div>
+<div class="step">Prozess · Konflikte · Teamentwicklung<br><b>→ SM<i class="gl"> (Scrum Master: Prozess-Coach, räumt Hindernisse weg)</i></b></div>
+</div>
+<div class="merk">🧠 <b>Push vs. Pull:</b> klassisch teilt der PM<i class="gl"> (Projektmanagement/-manager)</i> Aufgaben zu (Push) – in Scrum <b>zieht sich das Team Aufgaben selbst</b> aus dem Backlog<i class="gl"> (priorisierte Anforderungsliste)</i> (Pull). Klassische Rollen (Teamleiter, Architekt, Tester) → in Scrum einfach „Entwickler". Probleme werden im Team gelöst statt eskaliert.</div>
+<div class="box b-warn"><b>Kunde:</b> keine offizielle Scrum-Rolle, aber wichtig – <b>Informationslieferant für den PO<i class="gl"> (Product Owner: priorisiert, vertritt den Kunden)</i> (kein Direktzugriff auf Entwickler!)</b>, Feedback im Sprint Review; Änderungswünsche jederzeit → landen <b>im Product Backlog<i class="gl"> (priorisierte Anforderungsliste)</i>, nie im laufenden Sprint</b>.</div>
+</section>
+
+<section class="topic fav" id="s25">
+<h3>2.5 Sprintablauf <span class="favtag">⭐ Wahrscheinlich · mit Eray</span></h3>
+<div class="svgwrap">
+<svg viewBox="0 0 740 300" xmlns="http://www.w3.org/2000/svg">
+<rect x="10" y="110" width="120" height="70" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/><text x="70" y="138" class="tb ta">Product</text><text x="70" y="154" class="tb ta">Backlog</text><text x="70" y="170" class="tm ta">priorisiert, dynamisch</text>
+<line x1="130" y1="145" x2="195" y2="145" stroke="#7c3aed" stroke-width="2" marker-end="url(#arrA)"/>
+<text x="163" y="135" class="tm ta">Planning</text>
+<rect x="200" y="110" width="110" height="70" rx="10" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/><text x="255" y="138" class="tb ta">Sprint</text><text x="255" y="154" class="tb ta">Backlog</text><text x="255" y="170" class="tm ta">Plan für den Sprint</text>
+<line x1="310" y1="145" x2="375" y2="145" stroke="#7c3aed" stroke-width="2" marker-end="url(#arrA)"/>
+<circle cx="460" cy="145" r="78" fill="none" stroke="#16a34a" stroke-width="3"/>
+<path d="M460 67 A 78 78 0 0 1 538 145" fill="none" stroke="#16a34a" stroke-width="3" marker-end="url(#arr)"/>
+<text x="460" y="130" class="tb ta">SPRINT</text>
+<text x="460" y="148" class="t ta">Timebox 1–4 Wochen</text>
+<text x="460" y="166" class="tm ta">darf nicht überschritten werden</text>
+<rect x="400" y="20" width="120" height="30" rx="15" fill="#fef9c3" stroke="#ca8a04"/><text x="460" y="40" class="t ta">Daily Scrum (15 min)</text>
+<line x1="460" y1="50" x2="460" y2="64" stroke="#ca8a04" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="538" y1="145" x2="600" y2="145" stroke="#7c3aed" stroke-width="2" marker-end="url(#arrA)"/>
+<rect x="604" y="110" width="120" height="70" rx="10" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/><text x="664" y="139" class="tb ta">Increment</text><text x="664" y="156" class="tm ta">auslieferungsfähig =</text><text x="664" y="170" class="tm ta">alle bisherigen + Delta</text>
+<rect x="330" y="240" width="130" height="34" rx="17" fill="#fff" stroke="#7c3aed"/><text x="395" y="262" class="t ta">Sprint Review</text>
+<rect x="480" y="240" width="150" height="34" rx="17" fill="#fff" stroke="#7c3aed"/><text x="555" y="262" class="t ta">Sprint Retrospective</text>
+<line x1="600" y1="180" x2="570" y2="238" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="478" y1="240" x2="462" y2="240" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#arr)"/>
+<path d="M330 257 C 240 257, 200 220, 230 184" stroke="#94a3b8" stroke-width="1.6" fill="none" marker-end="url(#arr)"/>
+<text x="262" y="232" class="tm ta">nächster Sprint beginnt SOFORT (Cadence)</text>
+</svg>
+</div>
+<div class="box b-def"><b>Phasen im Sprint:</b> Planung/Vorbereitung (Sprintziel, Anforderungen) → Umsetzung/Entwicklung → Testen &amp; QS → Abschluss/Lieferung (<b>Increment<i class="gl"> (auslieferungsfähiger Produktstand)</i></b>) → Reflexion &amp; Verbesserung. · <b>Release-Sprint</b> = Sprint, an dessen Ende das Produkt an den Kunden übergeben wird.</div>
+<div class="box b-def"><b>Artefakte:</b> Product Backlog (dynamische, priorisierte Liste) · Sprint Backlog (Plan des aktuellen Sprints) · Inkrement<i class="gl"> (auslieferungsfähiger Produktstand)</i> (<b>Summe aller bisherigen Inkremente + neue Arbeit</b>). Zweck: Arbeit organisieren, <b>Transparenz</b>, Überprüfung + Anpassung, Wert liefern.</div>
+<h4>Sprint bewerten</h4>
+<div class="cards">
+<div class="card"><h5>🎯 Sprintziel erreicht?</h5>nicht jedes Ticket muss fertig sein!</div>
+<div class="card"><h5>✅ DoD erfüllt?</h5>Clean Code, Reviews, Tests…</div>
+<div class="card"><h5>📈 Velocity</h5>Ø Story Points<i class="gl"> (abstraktes Aufwandsmaß)</i> (z. B. Summe der letzten 3 Sprints / 3) – <span style="color:#dc2626">Vorsicht bei Urlauben / ungleichen Sprints</span>.</div>
+<div class="card"><h5>💚 Team-Gesundheit</h5>Retro<i class="gl"> (Retrospektive: Sprint-Rückblick)</i>: Zusammenarbeit, Kommunikation.</div>
+</div>
+<div class="box b-best"><b>Erfolgsmaßnahmen:</b> Backlog<i class="gl"> (priorisierte Anforderungsliste)</i> Refinement<i class="gl"> (laufende Backlog-Pflege)</i> laufend (im Planning sofort startklar) · realistisch planen (nur so viel, wie die Velocity<i class="gl"> (Ø Story Points pro Sprint)</i> hergibt) · <b>Fokus: keine neuen Anforderungen im laufenden Sprint</b> (SM<i class="gl"> (Scrum Master: Prozess-Coach, räumt Hindernisse weg)</i> schützt das Team) · Daily<i class="gl"> (tägliches Kurz-Meeting)</i> konsequent nutzen (Blocker sofort beheben).</div>
+<div class="prax">🎯 <b>Praxis-Check:</b> <b>Zeichnen können:</b> den Sprint-Kreislauf (Product Backlog → Planning → Sprint mit Daily → Review → Retro → Increment). <b>Szenario:</b> „Stakeholder bringt mitten im Sprint eine neue Anforderung?" → ins Product Backlog, nie in den laufenden Sprint – der SM schützt das Team. „Nicht alle Tickets fertig – Sprint gescheitert?" → Nein: entscheidend ist das Sprintziel. Timebox wird NIE verlängert.</div>
+</section>
+
+<section class="topic" id="s26">
+<h3>2.6 Testing</h3>
+<div class="box b-def"><b>Ziele:</b> Qualität sichern; <b>Fehler früh finden</b> statt spät suchen. <b>Validation</b> = „Bauen wir das richtige Produkt?" · <b>Verifikation</b> = „Bauen wir das Produkt richtig?" Testen ist <b>Teil des Entwicklungsprozesses</b>, nicht der letzte Schritt – Mehraufwand vorne spart hinten viel Arbeit.</div>
+<h4>Testpyramide (4-stufig) – ideale Verteilung</h4>
+<div class="svgwrap">
+<svg viewBox="0 0 740 280" xmlns="http://www.w3.org/2000/svg">
+<polygon points="310,30 390,30 420,85 280,85" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+<text x="350" y="55" class="tb ta">4 · Abnahmetests / UAT</text><text x="350" y="73" class="tm ta">~5 % · Endnutzer prüfen fachlich, oft explorativ</text>
+<polygon points="280,90 420,90 455,145 245,145" fill="#fef9c3" stroke="#ca8a04" stroke-width="2"/>
+<text x="350" y="113" class="tb ta">3 · Systemtests</text><text x="350" y="131" class="tm ta">komplettes System als Black Box – Funktion, Stabilität, Performance</text>
+<polygon points="245,150 455,150 495,205 205,205" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+<text x="350" y="173" class="tb ta">2 · Integrationstests (~15 %)</text><text x="350" y="191" class="tm ta">Zusammenspiel mehrerer Module: Schnittstellen + Datenflüsse (z. B. DB)</text>
+<polygon points="205,210 495,210 535,265 165,265" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+<text x="350" y="233" class="tb ta">1 · Unit-Tests (~80 %, Fundament)</text><text x="350" y="251" class="tm ta">kleinste Code-Teile isoliert, Mocks für Externes – schnell (ms) + billig</text>
+<line x1="600" y1="250 " x2="600" y2="45" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+<text x="618" y="90" class="tm">Komplexität,</text><text x="618" y="106" class="tm">Dauer, Skills ↑</text>
+<text x="618" y="200" class="tm">Anzahl ↑, leicht</text><text x="618" y="216" class="tm">automatisierbar ↓</text>
+<line x1="120" y1="45" x2="120" y2="250" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+</svg>
+</div>
+<div class="box b-def"><b>Warum wird die Pyramide nach oben schmäler?</b> Die Breite = <b>ANZAHL der Tests</b>. Unten (Unit): winzig, vollautomatisch, laufen in Millisekunden, kosten fast nichts → man leistet sich tausende davon, und sie melden Fehler sofort beim Programmieren. Je weiter oben: das ganze System muss laufen, oft testen <b>Menschen</b> mit, ein Durchlauf dauert Minuten bis Tage und kostet richtig Geld → davon macht man nur wenige. Wäre es umgekehrt (viele teure System-/UAT-Tests, kaum Unit-Tests = „Eistüten-Anti-Pattern"), würde jeder kleine Fehler erst spät und teuer gefunden. <b>Merksatz: je höher der Test, desto teurer der Fehler-Fund → unten viel, oben wenig.</b></div>
+<div class="box b-def"><b>End-to-End-Test</b> = tiefer Systemtest: kompletter realer Ablauf (App starten → anmelden → Dokument hochladen → ausloggen), oft über UI<i class="gl"> (User Interface: die Optik/Oberfläche)</i>-Tests.</div>
+<div class="box b-best"><b>Regressionstests:</b> sichern, dass Bestehendes nach Änderungen noch funktioniert – keine Nebenwirkungen, alte Fehler kommen nicht zurück. <b>Strategien:</b> Akzeptanzkriterien je Story → direkt Testfälle · <b>TDD</b> (erst Test, dann Code) · <b>DoD<i class="gl"> (Definition of Done: wann Arbeit allgemein fertig ist)</i></b>: fertig erst, wenn alle Tests bestanden. <b>Systematisch</b> = planvoll; im <b>V-Modell<i class="gl"> (je Entwicklungsphase eine zugeordnete Testphase)</i></b> wird schon bei der Anforderungsdefinition überlegt, wie getestet wird.</div>
+<h4>Automatisieren / CI-CD</h4>
+<div class="flow">
+<div class="step"><b>Commit</b></div><div class="arr">→</div>
+<div class="step"><b>Build</b></div><div class="arr">→</div>
+<div class="step"><b>Smoke-Test<i class="gl"> (schneller Grob-Funktionscheck)</i></b></div><div class="arr">→</div>
+<div class="step"><b>Akzeptanztests</b></div><div class="arr">→</div>
+<div class="step"><b>Release</b></div>
+</div>
+<div class="box b-def"><b>CI/CD</b> (Continuous Integration/Delivery): bei jedem Commit laufen automatisch Tests. Großteil heute automatisiert (v. a. untere Ebenen): schneller, effektiver, kürzere Releases, nimmt Entwicklern Wiederholarbeit ab.</div>
+</section>
+
+<section class="topic" id="s27">
+<h3>2.7 Aufwandsschätzungen</h3>
+<div class="m22">
+<div class="card"><h5>Klassische Schätzung</h5>Basis: detaillierte Planung + Risikoanalyse. <b>Gesamtaufwand = Basisaufwand + Risikoaufschlag.</b><br><b>Optimistisch vs. pessimistisch:</b> Best/Worst Case – die Differenz = <b>Puffer/Risikoaufschlag</b>.<br><span style="color:#dc2626"><b>Kein Gewinn in die Schätzung!</b> Entwickler schätzen reinen Arbeitsaufwand – Preise/Margen = Sache der Sales-Mitarbeiter.</span></div>
+<div class="card"><h5>Agile Schätzung</h5><b>T-Shirt-Sizing:</b> grob relativ XS–XL, Referenzaufgabe = „M" – ideal für Epics<i class="gl"> (sehr großes Sammel-Feature)</i>.<br><b>Story Points:</b> abstrakt – <b>Aufwand + Komplexität + Risiko</b>; KEINE Zeiteinheit! Relativ zu Referenzstory; <b>Fibonacci<i class="gl"> (Reihe 1·2·3·5·8·13·21)</i></b> – je größer, desto unsicherer.<br><b>Planning Poker:</b> alle schätzen <b>verdeckt</b>, Abweichungen diskutieren bis Konsens.<br><b>Velocity:</b> Ø SP<i class="gl"> (Story Points)</i> pro Sprint → wird mit Erfahrung genauer.</div>
+</div>
+<div class="svgwrap">
+<svg viewBox="0 0 700 80" xmlns="http://www.w3.org/2000/svg">
+<g>
+<rect x="40" y="15" width="50" height="50" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/><text x="65" y="46" class="tb ta">1</text>
+<rect x="105" y="15" width="50" height="50" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/><text x="130" y="46" class="tb ta">2</text>
+<rect x="170" y="15" width="50" height="50" rx="8" fill="#d9f99d" stroke="#65a30d" stroke-width="2"/><text x="195" y="46" class="tb ta">3</text>
+<rect x="235" y="15" width="50" height="50" rx="8" fill="#fef9c3" stroke="#ca8a04" stroke-width="2"/><text x="260" y="46" class="tb ta">5</text>
+<rect x="300" y="15" width="50" height="50" rx="8" fill="#fed7aa" stroke="#ea580c" stroke-width="2"/><text x="325" y="46" class="tb ta">8</text>
+<rect x="365" y="15" width="50" height="50" rx="8" fill="#fecaca" stroke="#dc2626" stroke-width="2"/><text x="390" y="46" class="tb ta">13</text>
+<rect x="430" y="15" width="50" height="50" rx="8" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/><text x="455" y="46" class="tb ta">21</text>
+</g>
+<text x="560" y="38" class="tb">Fibonacci:</text>
+<text x="560" y="56" class="tm">je größer, desto unsicherer</text>
+</svg>
+</div>
+<table>
+<tr><th></th><th>＋ Vorteile</th><th>− Nachteile</th></tr>
+<tr><td><b>Klassisch</b></td><td>klare Zahlen (Stunden/Tage), leichte Budgetplanung</td><td>hoher Schätzaufwand zu Beginn (wenn Wissen am geringsten), oft Fehleinschätzungen, trügerische Sicherheit</td></tr>
+<tr><td><b>Agil</b></td><td>schneller, fördert Kommunikation, Risiko/Komplexität integriert, via Velocity<i class="gl"> (Ø Story Points pro Sprint)</i> immer genauer</td><td>für Management/Kunden anfangs schwer greifbar („Was kostet ein Story Point<i class="gl"> (abstraktes Aufwandsmaß)</i>?"), braucht agile Erfahrung</td></tr>
+</table>
+<h4>Angebotsgestaltung &amp; Change Requests</h4>
+<div class="cards">
+<div class="card"><h5>Fixpreis (klassisch)</h5>fester Preis für festen Scope<i class="gl"> (Leistungsumfang)</i>; Mehraufwand-Risiko beim Auftragnehmer → <b>hohe Risikoaufschläge</b>. CRs: formaler Prozess – analysieren, neu schätzen, <b>kostenpflichtiges Zusatzangebot</b>; zeitaufwendig, Spannungen.</div>
+<div class="card"><h5>Agiles Angebot</h5>Time &amp; Material oder „agiler Festpreis" – budgetiert wird das <b>Team für n Sprints</b>; Scope flexibel, Risiko partnerschaftlich geteilt. CRs<i class="gl"> (Change Request = Änderungsantrag)</i> systemimmanent erlaubt: neue Anforderungen ins <b>Backlog<i class="gl"> (priorisierte Anforderungsliste)</i></b>, PO<i class="gl"> (Product Owner: priorisiert, vertritt den Kunden)</i> priorisiert; bei Scope<i class="gl"> (Leistungsumfang)</i>-Tausch oft keine Mehrkosten.</div>
+<div class="card"><h5>Hybrid (Praxis, z. B. Bank)</h5>Kunde braucht Planzahlen → Story Points in Stunden umgerechnet (<span style="color:#dc2626">Abstraktion geht verloren</span>).</div>
+</div>
+<div class="box b-warn"><b>Schätzprobleme:</b> Qualität/NFR<i class="gl"> (nicht-funktionale Anforderungen)</i> übersehen (Performance, Security, Tests) → Aufwand explodiert · Junior vs. Senior unklar · unklare Anforderungen → falsche Annahmen · fehlende Expertise bei neuen Technologien · Kommunikationslücken Kunde ↔ Sales ↔ Dev.</div>
+</section>
+<h2 class="korb" id="k3">Themenkorb 3 – Konzeption &amp; Modellierung betrieblicher Informationssysteme</h2>
+
+<section class="topic" id="s31">
+<h3>3.1 UML – Unified Modeling Language</h3>
+<div class="basics">🧱 <b>Basics:</b> Bevor man codet, skizziert man – UML ist die genormte „Zeichensprache" dafür, damit ALLE (Kunde, Designer, Programmierer) dasselbe Bild vom System haben. Faustregel: <b>WAS</b> soll es können → Use-Case · <b>WIE läuft ein Vorgang ab</b> → Aktivität · <b>WIE ist der Code aufgebaut</b> → Klassen · <b>WER schickt wem wann Nachrichten</b> → Sequenz · <b>WELCHE Zustände</b> hat ein Objekt → Zustand.</div>
+<div class="box b-def"><b>UML</b> = grafische Beschreibungssprache zur Visualisierung, Spezifikation, Konstruktion und Dokumentation von Softwaresystemen. <b>Kein Vorgehensmodell</b>, sondern Darstellungswerkzeug. Standard seit 1997, Herausgeber <b>OMG</b> (Object Management Group).</div>
+<div class="m22">
+<div class="card" style="border-top:4px solid #0284c7"><h5>Strukturdiagramme (statisch)</h5>Klassen- · Objekt- · Paket- · Komponenten- · Verteilungs- · Kompositionsstruktur- · Profildiagramm</div>
+<div class="card" style="border-top:4px solid #16a34a"><h5>Verhaltensdiagramme (dynamisch)</h5>Use-Case- · Aktivitäts- · Zustands- · Sequenz- · Kommunikations- · Timing- · Interaktionsübersichtsdiagramm</div>
+</div>
+<h4>Wer erstellt wann welches Diagramm?</h4>
+<table>
+<tr><th>Rolle</th><th>Sicht</th><th>Diagramm</th></tr>
+<tr><td>Benutzer</td><td>Funktionalität</td><td><b>Use-Case-Diagramm</b> (Anforderungsanalyse)</td></tr>
+<tr><td>Analytiker/Designer</td><td>logische Struktur</td><td><b>Klassendiagramm</b> (Design)</td></tr>
+<tr><td>Programmierer</td><td>Artefakte/Quellcode</td><td><b>Komponentendiagramm</b></td></tr>
+<tr><td>Systemintegrator</td><td>Verhalten/Dynamik</td><td><b>Verhaltensdiagramme</b></td></tr>
+<tr><td>Systemingenieur</td><td>Hardware</td><td><b>Verteilungsdiagramm</b></td></tr>
+</table>
+<h4>Use-Case-Diagramm: include vs. extend</h4>
+<div class="svgwrap">
+<svg viewBox="0 0 740 250" xmlns="http://www.w3.org/2000/svg">
+<rect x="190" y="16" width="430" height="210" rx="10" fill="#faf5ff" stroke="#7c3aed" stroke-width="1.6"/>
+<text x="405" y="38" class="tb ta">Systemgrenze (Rahmen + Systemname)</text>
+<!-- actor -->
+<circle cx="80" cy="90" r="13" fill="none" stroke="#0f172a" stroke-width="2"/>
+<line x1="80" y1="103" x2="80" y2="140" stroke="#0f172a" stroke-width="2"/>
+<line x1="58" y1="115" x2="102" y2="115" stroke="#0f172a" stroke-width="2"/>
+<line x1="80" y1="140" x2="62" y2="168" stroke="#0f172a" stroke-width="2"/>
+<line x1="80" y1="140" x2="98" y2="168" stroke="#0f172a" stroke-width="2"/>
+<text x="80" y="190" class="tb ta">Akteur</text><text x="80" y="206" class="tm ta">Person, Prozess oder</text><text x="80" y="220" class="tm ta">externes System (Rolle!)</text>
+<ellipse cx="300" cy="100" rx="75" ry="30" fill="#fff" stroke="#7c3aed" stroke-width="2"/><text x="300" y="105" class="t ta">Geld beheben</text>
+<line x1="93" y1="112" x2="225" y2="103" stroke="#0f172a" stroke-width="1.6"/>
+<ellipse cx="540" cy="60" rx="80" ry="28" fill="#fff" stroke="#0284c7" stroke-width="2"/><text x="540" y="65" class="t ta">PIN prüfen</text>
+<line x1="368" y1="86" x2="462" y2="68" stroke="#0284c7" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#arr)"/>
+<text x="420" y="58" class="tm ta">«include»</text>
+<text x="540" y="100" class="tm ta">verpflichtend · Pfeil: Basis → eingebundener UC</text>
+<ellipse cx="540" cy="175" rx="80" ry="28" fill="#fff" stroke="#16a34a" stroke-width="2"/><text x="540" y="180" class="t ta">Bon drucken</text>
+<line x1="463" y1="160" x2="372" y2="115" stroke="#16a34a" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#arr)"/>
+<text x="430" y="148" class="tm ta">«extend»</text>
+<text x="540" y="216" class="tm ta">optional (Extension Point) · Pfeil: erweiternder UC → Basis</text>
+</svg>
+</div>
+<div class="box b-best"><b>Entwurfsregeln:</b> Systemname = Zielwort · wichtigste Akteure/UCs links oben · jeder Akteur mit ≥ 1 UC verbunden · Akteure nur mit Use Cases<i class="gl"> (Schritt-für-Schritt-Ablauf aus Nutzersicht)</i> verbinden.</div>
+<h4>Aktivitätsdiagramm – Kernelemente</h4>
+<div class="cards">
+<div class="card"><h5>Grundelemente</h5>Start-/Endknoten · <b>Aktion</b> (atomar) vs. <b>Aktivität</b> (mehrere Aktionen) · <b>Token</b> = wandernde Fortschrittsmarke.</div>
+<div class="card"><h5>Raute</h5>Verzweigung/Zusammenführung – jeder Zweig mit <b>[Bedingung]</b>.</div>
+<div class="card"><h5>Dicke Linie</h5><b>fork</b> (parallel starten) / <b>join</b> (warten bis alle fertig) – <b>jede Gabelung braucht ihre Zusammenführung!</b></div>
+<div class="card"><h5>Swimlanes</h5>= Verantwortlichkeiten · Objektknoten/Pins = Datenfluss · Unterbrechungsbereich, Exception-Handler, Schleifenknoten.</div>
+</div>
+<h4>Beispiel Aktivitätsdiagramm: Login-Ablauf</h4>
+<div class="svgwrap">
+<svg viewBox="0 0 740 210" xmlns="http://www.w3.org/2000/svg">
+<circle cx="40" cy="100" r="10" fill="#0f172a"/>
+<line x1="50" y1="100" x2="88" y2="100" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="92" y="80" width="160" height="40" rx="12" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/><text x="172" y="105" class="t ta">Login-Daten eingeben</text>
+<line x1="252" y1="100" x2="296" y2="100" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+<polygon points="330,72 364,100 330,128 296,100" fill="#fef9c3" stroke="#ca8a04" stroke-width="2"/>
+<text x="330" y="62" class="tm ta">Daten korrekt?</text>
+<line x1="364" y1="100" x2="468" y2="100" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/><text x="416" y="92" class="tm ta">[ja]</text>
+<rect x="472" y="80" width="160" height="40" rx="12" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/><text x="552" y="105" class="t ta">Startseite anzeigen</text>
+<line x1="632" y1="100" x2="676" y2="100" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+<circle cx="692" cy="100" r="11" fill="none" stroke="#0f172a" stroke-width="2"/><circle cx="692" cy="100" r="6" fill="#0f172a"/>
+<line x1="330" y1="128" x2="330" y2="158" stroke="#dc2626" stroke-width="2" marker-end="url(#arrR)"/><text x="352" y="148" class="tm">[nein]</text>
+<rect x="250" y="160" width="160" height="36" rx="12" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/><text x="330" y="183" class="t ta">Fehlermeldung zeigen</text>
+<path d="M250 178 C 150 178, 130 140, 160 122" stroke="#dc2626" stroke-width="2" fill="none" marker-end="url(#arrR)"/>
+<text x="370" y="32" class="tm ta">● Start · ◉ Ende · Raute = Verzweigung (jeder Zweig mit [Bedingung]) · der „Token" wandert den Pfeilen entlang</text>
+</svg>
+</div>
+<h4>Klassendiagramm-Notation</h4>
+<div class="svgwrap">
+<svg viewBox="0 0 740 200" xmlns="http://www.w3.org/2000/svg">
+<rect x="30" y="30" width="170" height="100" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+<line x1="30" y1="60" x2="200" y2="60" stroke="#0f172a" stroke-width="2"/>
+<line x1="30" y1="95" x2="200" y2="95" stroke="#0f172a" stroke-width="2"/>
+<text x="115" y="50" class="tb ta">Klassenname</text>
+<text x="40" y="80" class="t">− attribut: Typ</text>
+<text x="40" y="115" class="t">+ operation(): Typ</text>
+<text x="115" y="155" class="tm ta">+ public · − private</text>
+<text x="115" y="171" class="tm ta"># protected · ~ package</text>
+<!-- inheritance -->
+<line x1="300" y1="120" x2="300" y2="60" stroke="#0f172a" stroke-width="1.8"/>
+<polygon points="300,42 291,60 309,60" fill="#fff" stroke="#0f172a" stroke-width="1.8"/>
+<text x="300" y="150" class="tm ta">Vererbung =</text><text x="300" y="165" class="tm ta">Dreieckspfeil</text>
+<!-- aggregation -->
+<line x1="420" y1="60" x2="500" y2="60" stroke="#0f172a" stroke-width="1.8"/>
+<polygon points="402,60 411,53 420,60 411,67" fill="#fff" stroke="#0f172a" stroke-width="1.8"/>
+<text x="460" y="90" class="tm ta">Aggregation = leere Raute</text>
+<text x="460" y="105" class="tm ta">Teil existiert OHNE Ganzes</text>
+<!-- composition -->
+<line x1="590" y1="60" x2="670" y2="60" stroke="#0f172a" stroke-width="1.8"/>
+<polygon points="572,60 581,53 590,60 581,67" fill="#0f172a"/>
+<text x="630" y="90" class="tm ta">Komposition = volle Raute</text>
+<text x="630" y="105" class="tm ta">existenzabhängig!</text>
+<text x="545" y="150" class="tm ta">Multiplizitäten: 1 · * · 0..1 · 1..*</text>
+</svg>
+</div>
+<h4>Beispiel Klassendiagramm: Fuhrpark</h4>
+<div class="svgwrap">
+<svg viewBox="0 0 740 250" xmlns="http://www.w3.org/2000/svg">
+<rect x="40" y="30" width="150" height="76" fill="#fff" stroke="#0f172a" stroke-width="2"/><line x1="40" y1="56" x2="190" y2="56" stroke="#0f172a"/><line x1="40" y1="80" x2="190" y2="80" stroke="#0f172a"/>
+<text x="115" y="48" class="tb ta">Person</text><text x="50" y="73" class="t">− name: String</text><text x="50" y="98" class="t">+ kaufen()</text>
+<rect x="320" y="30" width="170" height="76" fill="#fff" stroke="#0f172a" stroke-width="2"/><line x1="320" y1="56" x2="490" y2="56" stroke="#0f172a"/><line x1="320" y1="80" x2="490" y2="80" stroke="#0f172a"/>
+<text x="405" y="48" class="tb ta">Fahrzeug</text><text x="330" y="73" class="t">− kennzeichen: String</text><text x="330" y="98" class="t">+ fahren()</text>
+<line x1="190" y1="68" x2="320" y2="68" stroke="#0f172a" stroke-width="1.8"/><text x="255" y="60" class="tm ta">besitzt ▶</text><text x="202" y="84" class="tm">1</text><text x="300" y="84" class="tm">0..*</text>
+<rect x="600" y="36" width="120" height="64" fill="#fff" stroke="#0f172a" stroke-width="2"/><line x1="600" y1="62" x2="720" y2="62" stroke="#0f172a"/>
+<text x="660" y="54" class="tb ta">Motor</text><text x="610" y="80" class="t">− ps: int</text>
+<line x1="490" y1="68" x2="582" y2="68" stroke="#0f172a" stroke-width="1.8"/>
+<polygon points="490,68 504,61 518,68 504,75" fill="#0f172a"/>
+<text x="540" y="58" class="tm ta">1</text>
+<text x="536" y="92" class="tm ta">Komposition: Motor stirbt mit dem Fahrzeug</text>
+<rect x="250" y="170" width="120" height="50" fill="#fff" stroke="#0f172a" stroke-width="2"/><line x1="250" y1="196" x2="370" y2="196" stroke="#0f172a"/><text x="310" y="190" class="tb ta">PKW</text><text x="260" y="213" class="t">− sitze: int</text>
+<rect x="440" y="170" width="120" height="50" fill="#fff" stroke="#0f172a" stroke-width="2"/><line x1="440" y1="196" x2="560" y2="196" stroke="#0f172a"/><text x="500" y="190" class="tb ta">LKW</text><text x="450" y="213" class="t">− zuladung: int</text>
+<line x1="310" y1="170" x2="395" y2="124" stroke="#0f172a" stroke-width="1.8"/>
+<line x1="500" y1="170" x2="415" y2="124" stroke="#0f172a" stroke-width="1.8"/>
+<polygon points="405,106 392,124 418,124" fill="#fff" stroke="#0f172a" stroke-width="1.8"/>
+<text x="405" y="146" class="tm ta">Vererbung (is-a): PKW und LKW ERBEN kennzeichen + fahren()</text>
+</svg>
+</div>
+<h4>Beispiel Sequenz- und Zustandsdiagramm</h4>
+<div class="svgwrap">
+<svg viewBox="0 0 740 250" xmlns="http://www.w3.org/2000/svg">
+<rect x="60" y="14" width="90" height="28" rx="6" fill="#ede9fe" stroke="#7c3aed"/><text x="105" y="33" class="t ta">:User</text>
+<rect x="300" y="14" width="90" height="28" rx="6" fill="#ede9fe" stroke="#7c3aed"/><text x="345" y="33" class="t ta">:Webshop</text>
+<rect x="540" y="14" width="90" height="28" rx="6" fill="#ede9fe" stroke="#7c3aed"/><text x="585" y="33" class="t ta">:DB</text>
+<line x1="105" y1="42" x2="105" y2="230" stroke="#94a3b8" stroke-dasharray="5 4"/>
+<line x1="345" y1="42" x2="345" y2="230" stroke="#94a3b8" stroke-dasharray="5 4"/>
+<line x1="585" y1="42" x2="585" y2="230" stroke="#94a3b8" stroke-dasharray="5 4"/>
+<rect x="100" y="60" width="10" height="130" fill="#c4b5fd"/>
+<rect x="340" y="70" width="10" height="100" fill="#c4b5fd"/>
+<rect x="580" y="95" width="10" height="30" fill="#c4b5fd"/>
+<line x1="110" y1="70" x2="338" y2="70" stroke="#0f172a" stroke-width="1.8" marker-end="url(#arr)"/><text x="224" y="62" class="tm ta">login(name, pw) – synchron: Sender wartet</text>
+<line x1="350" y1="100" x2="578" y2="100" stroke="#0f172a" stroke-width="1.8" marker-end="url(#arr)"/><text x="464" y="92" class="tm ta">prüfeUser()</text>
+<line x1="578" y1="125" x2="352" y2="125" stroke="#475569" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#arr)"/><text x="464" y="142" class="tm ta">ok (Antwort gestrichelt)</text>
+<line x1="338" y1="165" x2="112" y2="165" stroke="#475569" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#arr)"/><text x="224" y="182" class="tm ta">Startseite</text>
+<text x="345" y="222" class="tm ta">Zeit läuft von oben nach unten · Balken = Objekt „arbeitet gerade"</text>
+</svg>
+</div>
+<div class="svgwrap">
+<svg viewBox="0 0 740 150" xmlns="http://www.w3.org/2000/svg">
+<circle cx="36" cy="60" r="9" fill="#0f172a"/><line x1="45" y1="60" x2="78" y2="60" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="82" y="40" width="110" height="40" rx="14" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/><text x="137" y="65" class="tb ta">Rot</text>
+<line x1="192" y1="60" x2="248" y2="60" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/><text x="220" y="50" class="tm ta">[Timer]</text>
+<rect x="252" y="40" width="110" height="40" rx="14" fill="#fef9c3" stroke="#ca8a04" stroke-width="2"/><text x="307" y="65" class="tb ta">Rot-Gelb</text>
+<line x1="362" y1="60" x2="418" y2="60" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/><text x="390" y="50" class="tm ta">[Timer]</text>
+<rect x="422" y="40" width="110" height="40" rx="14" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/><text x="477" y="65" class="tb ta">Grün</text>
+<line x1="532" y1="60" x2="588" y2="60" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/><text x="560" y="50" class="tm ta">[Timer]</text>
+<rect x="592" y="40" width="110" height="40" rx="14" fill="#fef9c3" stroke="#ca8a04" stroke-width="2"/><text x="647" y="65" class="tb ta">Gelb</text>
+<path d="M647 80 C 647 125, 200 125, 140 82" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#arr)"/>
+<text x="390" y="138" class="tm ta">Zustandsdiagramm Ampel: Zustand = abgerundetes Rechteck · Pfeil = Transition mit [Trigger/Guard] · perfekt für Automaten (Aufzug, Parser)</text>
+</svg>
+</div>
+<div class="box b-def"><b>Weitere kompakt:</b> <b>Zustandsdiagramm</b> – Zustände + Transitionen (Trigger, [Guard], Aktivität); gut für Automaten (Aufzug, Parser) · <b>Sequenzdiagramm</b> – zeitlicher Nachrichtenaustausch; Lebenslinien, Aktivierungsbalken; synchron = volle Pfeilspitze (Sender wartet), asynchron = offene; Fragmente: alt, opt, par, loop · <b>Kommunikationsdiagramm</b> – Alternative ohne Zeitachse (nummerierte Nachrichten) · <b>Paketdiagramm</b> (Schichten/3-Tier) · <b>Komponentendiagramm</b> (Laufzeitkomponenten, Schnittstellen) · <b>Verteilungsdiagramm</b> (welche Software auf welchem Knoten/Server).</div>
+</section>
+
+<section class="topic" id="s32">
+<h3>3.2 Software- vs. Systemarchitektur</h3>
+<div class="box b-def"><b>Architektur</b> = geplante Struktur, die Funktionen + Anforderungen erfüllt – <b>Bauplan + Fundament</b> des IT-Projekts. <b>Systemarchitektur</b> = übergeordnete IT-Landschaft inkl. Hardware, Netzwerke, Infrastruktur · <b>Softwarearchitektur</b> = Struktur EINER Anwendung (Code-Ebene: Schichten/Services).</div>
+<div class="box b-best"><b>Wann?</b> Am <b>Ende der Anforderungsanalyse, vor der Implementierung</b> – erst wenn klar ist WAS, kann entschieden werden WIE. <b>Inputs:</b> fachlich (funktionale + nicht-funktionale Anforderungen, Ziele, Zielgruppen, DSGVO<i class="gl"> (EU-Datenschutz-Grundverordnung)</i>) + technisch (Systemlast/Userzahlen, Plattformen, Randsysteme, Sicherheit, Technologien).</div>
+<div class="box b-warn"><b>Spätere Änderung sehr teuer:</b> hohe Kosten, technische Schulden, im schlimmsten Fall kompletter Rewrite. <b>Warum Konzept?</b> Struktur + Ordnung, <b>Trennung von Verantwortlichkeiten</b>, Modularität, Skalierbarkeit, Wartbarkeit, Performance, Sicherheit, Teamarbeit.</div>
+<h4>Je ein konkretes Beispiel</h4>
+<div class="svgwrap">
+<svg viewBox="0 0 740 320" xmlns="http://www.w3.org/2000/svg">
+<line x1="372" y1="10" x2="372" y2="300" stroke="#94a3b8" stroke-dasharray="6 5"/>
+<text x="185" y="22" class="tb ta">Systemarchitektur „Schul-App"</text>
+<text x="185" y="40" class="tm ta">WO läuft was? Geräte, Netz, Server</text>
+<rect x="40" y="52" width="120" height="32" rx="8" fill="#e0f2fe" stroke="#0284c7"/><text x="100" y="72" class="t ta">📱 Handy-App</text>
+<rect x="210" y="52" width="120" height="32" rx="8" fill="#e0f2fe" stroke="#0284c7"/><text x="270" y="72" class="t ta">💻 Browser</text>
+<rect x="115" y="112" width="140" height="30" rx="8" fill="#f1f5f9" stroke="#94a3b8"/><text x="185" y="131" class="t ta">Internet</text>
+<line x1="100" y1="84" x2="160" y2="110" stroke="#475569" stroke-width="1.6"/><line x1="270" y1="84" x2="210" y2="110" stroke="#475569" stroke-width="1.6"/>
+<rect x="115" y="162" width="140" height="30" rx="8" fill="#fee2e2" stroke="#dc2626"/><text x="185" y="181" class="t ta">Firewall</text>
+<line x1="185" y1="142" x2="185" y2="160" stroke="#475569" stroke-width="1.6"/>
+<rect x="60" y="212" width="120" height="34" rx="8" fill="#ede9fe" stroke="#7c3aed"/><text x="120" y="233" class="t ta">Web-/App-Server</text>
+<rect x="200" y="212" width="110" height="34" rx="8" fill="#ede9fe" stroke="#7c3aed"/><text x="255" y="233" class="t ta">DB-Server</text>
+<line x1="160" y1="192" x2="125" y2="210" stroke="#475569" stroke-width="1.6"/><line x1="180" y1="229" x2="200" y2="229" stroke="#475569" stroke-width="1.6"/>
+<rect x="200" y="266" width="110" height="28" rx="8" fill="#dcfce7" stroke="#16a34a"/><text x="255" y="284" class="t ta">Backup / NAS</text>
+<line x1="255" y1="246" x2="255" y2="264" stroke="#475569" stroke-width="1.6"/>
+<text x="557" y="22" class="tb ta">Softwarearchitektur derselben App</text>
+<text x="557" y="40" class="tm ta">WIE ist der Code EINER Anwendung gegliedert? (3-Schichten)</text>
+<rect x="430" y="54" width="255" height="46" rx="9" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/><text x="557" y="73" class="tb ta">Präsentationsschicht</text><text x="557" y="91" class="tm ta">Screens, Buttons, Eingaben (UI)</text>
+<line x1="557" y1="100" x2="557" y2="116" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="430" y="118" width="255" height="46" rx="9" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/><text x="557" y="137" class="tb ta">Geschäftslogik</text><text x="557" y="155" class="tm ta">Regeln: „Durchschnitt berechnen", „Prüfung anlegen"</text>
+<line x1="557" y1="164" x2="557" y2="180" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="430" y="182" width="255" height="46" rx="9" fill="#fef9c3" stroke="#ca8a04" stroke-width="2"/><text x="557" y="201" class="tb ta">Datenzugriffsschicht</text><text x="557" y="219" class="tm ta">SQL, Speichern &amp; Laden</text>
+<line x1="557" y1="228" x2="557" y2="244" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="470" y="246" width="175" height="36" rx="12" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/><text x="557" y="269" class="t ta">🗄️ Datenbank</text>
+<text x="557" y="306" class="tm ta">Vorteil Schichten: UI austauschbar, Logik testbar, klare Zuständigkeit</text>
+</svg>
+</div>
+<h4>Architekturtypen</h4>
+<div class="svgwrap">
+<svg viewBox="0 0 740 260" xmlns="http://www.w3.org/2000/svg">
+<!-- Monolith -->
+<rect x="20" y="30" width="120" height="130" rx="10" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+<text x="80" y="60" class="t ta">UI</text><line x1="35" y1="72" x2="125" y2="72" stroke="#dc2626"/>
+<text x="80" y="95" class="t ta">Logik</text><line x1="35" y1="107" x2="125" y2="107" stroke="#dc2626"/>
+<text x="80" y="135" class="t ta">Daten</text>
+<text x="80" y="180" class="tb ta">Monolith</text>
+<text x="80" y="196" class="tm ta">eine Einheit · Komplett-</text><text x="80" y="210" class="tm ta">Deployment · „Spaghetti"</text>
+<text x="80" y="224" class="tm ta">frühes Amazon/Netflix</text>
+<!-- Client-Server -->
+<rect x="185" y="30" width="60" height="34" rx="8" fill="#e0f2fe" stroke="#0284c7"/><text x="215" y="52" class="t ta">Client</text>
+<rect x="255" y="30" width="60" height="34" rx="8" fill="#e0f2fe" stroke="#0284c7"/><text x="285" y="52" class="t ta">Client</text>
+<rect x="218" y="110" width="100" height="44" rx="8" fill="#0284c7"/><text x="268" y="137" class="tw ta">Server</text>
+<line x1="215" y1="64" x2="255" y2="108" stroke="#475569" stroke-width="1.6"/>
+<line x1="285" y1="64" x2="278" y2="108" stroke="#475569" stroke-width="1.6"/>
+<text x="255" y="180" class="tb ta">Client-Server</text>
+<text x="255" y="196" class="tm ta">Server = schlau (Logik)</text><text x="255" y="210" class="tm ta">Client = dumm (Darstellung)</text>
+<text x="255" y="224" class="tm ta">Browser, Bankomat</text>
+<!-- SOA -->
+<rect x="360" y="30" width="74" height="32" rx="8" fill="#fef9c3" stroke="#ca8a04"/><text x="397" y="50" class="t ta">Buchhaltung</text>
+<rect x="444" y="30" width="74" height="32" rx="8" fill="#fef9c3" stroke="#ca8a04"/><text x="481" y="50" class="t ta">HR</text>
+<rect x="360" y="110" width="158" height="30" rx="8" fill="#ca8a04"/><text x="439" y="129" class="tw ta">Enterprise Service Bus</text>
+<line x1="397" y1="62" x2="410" y2="108" stroke="#475569" stroke-width="1.6"/>
+<line x1="481" y1="62" x2="468" y2="108" stroke="#475569" stroke-width="1.6"/>
+<text x="439" y="180" class="tb ta">SOA</text>
+<text x="439" y="196" class="tm ta">Services entlang der Geschäftsprozesse,</text><text x="439" y="210" class="tm ta">zentrale Middleware, oft gemeinsame DB</text>
+<text x="439" y="224" class="tm ta">SAP, Banken</text>
+<!-- Microservices -->
+<g>
+<rect x="560" y="30" width="50" height="44" rx="8" fill="#dcfce7" stroke="#16a34a"/><text x="585" y="48" class="t ta">Svc A</text><text x="585" y="64" class="tm ta">DB A</text>
+<rect x="620" y="30" width="50" height="44" rx="8" fill="#dcfce7" stroke="#16a34a"/><text x="645" y="48" class="t ta">Svc B</text><text x="645" y="64" class="tm ta">DB B</text>
+<rect x="680" y="30" width="50" height="44" rx="8" fill="#dcfce7" stroke="#16a34a"/><text x="705" y="48" class="t ta">Svc C</text><text x="705" y="64" class="tm ta">DB C</text>
+<line x1="585" y1="74" x2="645" y2="100" stroke="#16a34a" stroke-width="1.4"/>
+<line x1="645" y1="74" x2="645" y2="100" stroke="#16a34a" stroke-width="1.4"/>
+<line x1="705" y1="74" x2="645" y2="100" stroke="#16a34a" stroke-width="1.4"/>
+<text x="645" y="120" class="tm ta">APIs (REST/JSON)</text>
+</g>
+<text x="645" y="180" class="tb ta">Microservices</text>
+<text x="645" y="196" class="tm ta">je eigene DB + Deployment · Loose Coupling:</text><text x="645" y="210" class="tm ta">ein Ausfall reißt nicht alles mit</text>
+<text x="645" y="224" class="tm ta">heutiges Netflix/Amazon, Cloud</text>
+<!-- P2P note -->
+<text x="370" y="252" class="t ta"><tspan class="tb">Peer-to-Peer:</tspan> alle Knoten gleichwertig, jeder Peer Client UND Server, kein zentraler Kontrollpunkt (BitTorrent, Blockchain)</text>
+</svg>
+</div>
+<table>
+<tr><th></th><th>Monolith</th><th>Client-Server</th><th>SOA</th><th>Microservices</th></tr>
+<tr><td>Skalierbarkeit</td><td>kaum</td><td>mittel</td><td>mittel</td><td><b>sehr hoch</b></td></tr>
+<tr><td>Flexibilität</td><td>niedrig</td><td>mittel</td><td>mittel</td><td><b>sehr hoch</b></td></tr>
+<tr><td>Eigene DB/Service</td><td>nein</td><td>nein</td><td>geteilt</td><td><b>ja</b></td></tr>
+<tr><td>Beispiel</td><td>früher Amazon</td><td>Webbrowser</td><td>SAP</td><td>Netflix heute</td></tr>
+</table>
+<div class="box b-best"><b>Wahlkriterien:</b> Userzahlen, Performance-Anforderungen, Zugriffsmuster, Komplexitätsgrad, Teamgröße, Budget.</div>
+</section>
+
+<section class="topic" id="s33">
+<h3>3.3 Data Warehouse (DWH)</h3>
+<div class="basics">🧱 <b>Basics:</b> Warum ein eigenes System? Die operative DB (Kassa, Webshop) ist auf <b>viele kleine, schnelle Schreibzugriffe</b> optimiert – fette Auswertungen über Jahre würden das Tagesgeschäft lähmen. Außerdem überschreibt das Tagesgeschäft Daten – fürs Analysieren braucht man aber die <b>Historie</b>. Lösung: Daten regelmäßig in eine eigene, getrennte Auswertungs-DB kopieren = das DWH. <b>BI (Business Intelligence)</b> = der Überbegriff: aus Daten Entscheidungen machen.</div>
+<div class="box b-def"><b>DWH</b> = von operativen Systemen <b>separiertes</b> Datenbanksystem, das Daten verschiedener <b>heterogener Quellen</b> zusammenführt, verdichtet und langfristig archiviert – Datenbasis für <b>Business Intelligence (BI)</b>, Berichte und strategische Analysen.</div>
+<div class="flow">
+<div class="step"><b>Datenquellen</b><br>ERP<i class="gl"> (Unternehmenssoftware (Enterprise Resource Planning))</i>, CRM<i class="gl"> (Kundenverwaltung (Customer Relationship Management))</i>, Excel, Social Media, IoT<i class="gl"> (Internet of Things: vernetzte Geräte)</i></div><div class="arr">→</div>
+<div class="step"><b>ETL</b><br>Extract · Transform · Load</div><div class="arr">→</div>
+<div class="step"><b>DWH<i class="gl"> (Data Warehouse: zentrale Auswertungs-DB)</i></b><br>(+ Staging Area davor, Data Marts danach)</div><div class="arr">→</div>
+<div class="step"><b>Auswertung / BI<i class="gl"> (Business Intelligence: datenbasierte Analyse)</i></b><br>Dashboards, Berichte, OLAP<i class="gl"> (mehrdimensionale Analyse (Online Analytical Processing))</i>, Data Mining<i class="gl"> (Muster in großen Datenmengen finden)</i></div>
+</div>
+<div class="box b-best"><b>Beispiel – vom Kassenbon zum Bericht:</b> <b>1)</b> Kassa Graz speichert: „12.06., Artikel 4711, 19,99 €" (operativ/OLTP). <b>2)</b> Nachts holt der <b>ETL</b>-Job alle Bons (Extract); Transform: Datumsformate vereinheitlichen (12.6.26 ↔ 2026-06-12), Filial-Codes angleichen, „M/W" ↔ „0/1", Summen je Tag+Filiale bilden; Load: ins DWH schreiben – <b>Altes bleibt liegen</b> (non-volatile, Zeitreihe!). <b>3)</b> Die Chefin öffnet ihr Dashboard und sieht in 2 Sekunden: „Region Süd: +18 % Umsatz im Q3" – ohne dass eine einzige Kassa langsamer wird.</div>
+<h4>Kernmerkmale</h4>
+<div class="flow">
+<div class="step"><b>themenorientiert</b><br>nach Geschäftsbereichen</div>
+<div class="step"><b>integriert</b><br>einheitliches Format</div>
+<div class="step"><b>historisiert</b><br>Zeitstempel</div>
+<div class="step"><b>non-volatile</b><br>nie überschreiben/löschen</div>
+<div class="step"><b>separiert</b><br>kein Einfluss aufs Tagesgeschäft · meist nur Lesezugriff</div>
+</div>
+<div class="m22">
+<div class="card"><h5>Operative Daten (OLTP)</h5>entstehen im Tagesgeschäft (Kauf, Rechnung) · aktuell, kleinteilig, laufend verändert (INSERT/UPDATE/DELETE) · Quellen: ERP<i class="gl"> (Unternehmenssoftware (Enterprise Resource Planning))</i>, CRM<i class="gl"> (Kundenverwaltung (Customer Relationship Management))</i>, Kassen.</div>
+<div class="card"><h5>Dispositive Daten (OLAP/DWH)</h5>per ETL erzeugt · historisch, aggregiert, verdichtet · <b>nur gelesen</b> – für Analyse + Entscheidungen („Region Süd: +18 % Umsatz in Q3").</div>
+</div>
+<h4>ETL im Detail</h4>
+<div class="cards">
+<div class="card"><h5>Extract</h5>automatisiert in Intervallen (zeitkritisch öfter); Fehlerhaftes/Irrelevantes gar nicht erst übernehmen.</div>
+<div class="card"><h5>Transform</h5>bereinigen + ans Zielschema anpassen: Veraltetes löschen, Fehler korrigieren, Formate vereinheitlichen, sortieren, aggregieren.</div>
+<div class="card"><h5>Load</h5>initialer Bulk-Load oder regelmäßige Updates; <b>nicht überschreiben → lückenlose Zeitreihe</b>.</div>
+<div class="card"><h5>Staging Area / Data Mart</h5><b>Staging</b> = Zwischenspeicher vor Transformation (schützt DWH<i class="gl"> (Data Warehouse: zentrale Auswertungs-DB)</i>) · <b>Data Mart</b> = abteilungsbezogener Teilauszug (Vertrieb, Finanz).</div>
+</div>
+<h4>Sternschema vs. Schneeflockenschema</h4>
+<div class="svgwrap">
+<svg viewBox="0 0 700 210" xmlns="http://www.w3.org/2000/svg">
+<rect x="140" y="80" width="120" height="50" rx="10" fill="#7c3aed"/><text x="200" y="101" class="tw ta">Faktentabelle</text><text x="200" y="118" class="tw ta" style="font-weight:400">Umsatz + FKs</text>
+<rect x="40" y="14" width="90" height="34" rx="8" fill="#ede9fe" stroke="#7c3aed"/><text x="85" y="36" class="t ta">Zeit</text>
+<rect x="270" y="14" width="90" height="34" rx="8" fill="#ede9fe" stroke="#7c3aed"/><text x="315" y="36" class="t ta">Produkt</text>
+<rect x="40" y="160" width="90" height="34" rx="8" fill="#ede9fe" stroke="#7c3aed"/><text x="85" y="182" class="t ta">Region</text>
+<rect x="270" y="160" width="90" height="34" rx="8" fill="#ede9fe" stroke="#7c3aed"/><text x="315" y="182" class="t ta">Kunde</text>
+<line x1="120" y1="48" x2="165" y2="80" stroke="#475569" stroke-width="1.5"/>
+<line x1="280" y1="48" x2="235" y2="80" stroke="#475569" stroke-width="1.5"/>
+<line x1="120" y1="162" x2="165" y2="130" stroke="#475569" stroke-width="1.5"/>
+<line x1="280" y1="162" x2="235" y2="130" stroke="#475569" stroke-width="1.5"/>
+<text x="200" y="206" class="tm ta">Stern: einfach, schnelle Abfragen</text>
+<rect x="480" y="80" width="110" height="44" rx="10" fill="#7c3aed"/><text x="535" y="106" class="tw ta">Fakten</text>
+<rect x="440" y="14" width="80" height="30" rx="8" fill="#ede9fe" stroke="#7c3aed"/><text x="480" y="34" class="t ta">Produkt</text>
+<rect x="545" y="14" width="80" height="30" rx="8" fill="#fff" stroke="#94a3b8"/><text x="585" y="34" class="t ta">Kategorie</text>
+<line x1="520" y1="29" x2="543" y2="29" stroke="#94a3b8" stroke-width="1.5"/>
+<line x1="480" y1="44" x2="515" y2="80" stroke="#475569" stroke-width="1.5"/>
+<rect x="440" y="160" width="80" height="30" rx="8" fill="#ede9fe" stroke="#7c3aed"/><text x="480" y="180" class="t ta">Region</text>
+<rect x="545" y="160" width="80" height="30" rx="8" fill="#fff" stroke="#94a3b8"/><text x="585" y="180" class="t ta">Land</text>
+<line x1="520" y1="175" x2="543" y2="175" stroke="#94a3b8" stroke-width="1.5"/>
+<line x1="480" y1="160" x2="515" y2="124" stroke="#475569" stroke-width="1.5"/>
+<text x="535" y="206" class="tm ta">Schneeflocke: Dimensionen normalisiert – weniger Redundanz, komplexere Abfragen</text>
+</svg>
+</div>
+<div class="merk">🧠 <b>„Garbage in, garbage out"</b> – Datenqualität: Vollständigkeit, Konsistenz, Aktualität, Korrektheit, keine Duplikate.</div>
+<div class="box b-warn"><b>Herausforderungen:</b> hohe Kosten/Komplexität, Integration heterogener Quellen, Latenz zwischen Entstehung und Verfügbarkeit.</div>
+<div class="box b-best"><b>Nutzen:</b> unternehmensweite einheitliche Datenbasis, fundierte Entscheidungen, Entlastung der operativen Systeme, Historie für Trends. Bereitstellung: Dashboards + KPIs<i class="gl"> (Kennzahl (Key Performance Indicator))</i>, Standardberichte, <b>OLAP<i class="gl"> (mehrdimensionale Analyse (Online Analytical Processing))</i></b> (Umsatz nach Region × Produkt × Zeit), <b>Data Mining</b>.</div>
+</section>
+
+<section class="topic" id="s34">
+<h3>3.4 Data Mining &amp; Big Data</h3>
+<div class="basics">🧱 <b>Basics:</b> Unterschied zum normalen Bericht: Beim Bericht/OLAP stelle <b>ich</b> eine konkrete Frage („Wie viel Umsatz in Graz?"). Beim Data Mining kenne ich die Frage noch gar nicht – der <b>Algorithmus durchsucht die Daten selbst</b> nach Mustern und überrascht mich („Wer A kauft, kauft oft auch B"). Grundlage sind die sauberen Massendaten aus dem DWH.</div>
+<div class="box b-def"><b>Data Mining</b> („Datenschürfung") = zielführende Auswertung großer Datenmengen, um <b>neue, nützliche Muster</b> zu finden – mit Statistik, KI<i class="gl"> (künstliche Intelligenz)</i>, Mustererkennung. Teilschritt des <b>KDD</b> (Knowledge Discovery in Databases).</div>
+<div class="merk">🧠 <b>Bottom-up:</b> KEINE vorab definierte Hypothese – der Algorithmus sucht selbstständig (induktiv, datengetrieben). Gegensatz: hypothesengeleitete Forschung (top-down).</div>
+<h4>Big Data – die V's</h4>
+<div class="flow">
+<div class="step"><b>Volume</b><br>Menge</div>
+<div class="step"><b>Velocity<i class="gl"> (Ø Story Points pro Sprint)</i></b><br>Geschwindigkeit, Echtzeit</div>
+<div class="step"><b>Variety</b><br>Formate: Text, Bild, Audio, Sensorik</div>
+<div class="step"><b>+ Veracity</b><br>Qualität (optional)</div>
+<div class="step"><b>+ Value</b><br>Nutzen (optional)</div>
+</div>
+<div class="box b-def"><b>Big Data</b> = Datenmengen, die so groß/komplex sind, dass <b>herkömmliche Software sie nicht mehr verarbeiten kann</b>. Treiber: mobile Nutzung, Social Media, Geo-Tracking, Cloud, IoT<i class="gl"> (Internet of Things: vernetzte Geräte)</i> – Datenmenge verdoppelt sich ca. alle 2 Jahre. <b>DWH<i class="gl"> (Data Warehouse: zentrale Auswertungs-DB)</i> liefert die bereinigte Basis fürs Mining.</b></div>
+<h4>Prozesse</h4>
+<div class="flow">
+<div class="step"><b>CRISP-DM</b> (Industriestandard):</div>
+<div class="step">Business Understanding</div><div class="arr">→</div>
+<div class="step">Data Understanding</div><div class="arr">→</div>
+<div class="step">Data Preparation</div><div class="arr">→</div>
+<div class="step">Modeling</div><div class="arr">→</div>
+<div class="step">Evaluation</div><div class="arr">→</div>
+<div class="step">Deployment</div>
+</div>
+<div class="box b-def">Auch: <b>KDD<i class="gl"> (Knowledge Discovery in Databases)</i></b> (Selektion → Vorverarbeitung → Transformation → Data Mining<i class="gl"> (Muster in großen Datenmengen finden)</i> → Evaluation) · <b>SEMMA</b> (SAS: Sample → Explore → Modify → Model → Assess). Gemeinsames Grundprinzip: <b>Sammeln → Verstehen → Vorbereiten → Modeling → Evaluieren</b>.</div>
+<h4>Methoden</h4>
+<div class="cards">
+<div class="card"><h5>🏷️ Klassifikation</h5>Daten <b>vordefinierten</b> Klassen zuordnen (Kundensegmente) – Entscheidungsbaum, Naive Bayes, kNN<i class="gl"> (k nächste Nachbarn)</i>, neuronale Netze.</div>
+<div class="card"><h5>🫧 Clusteranalyse</h5>nach Ähnlichkeit gruppieren – Klassen vorher <b>unbekannt</b>.</div>
+<div class="card"><h5>📈 Regression / Prognose</h5>Abhängigkeiten modellieren, Werte vorhersagen (Absatzprognose).</div>
+<div class="card"><h5>🛒 Assoziationsanalyse</h5>„Wer A kauft, kauft auch B" (Warenkorb) · <b>Ausreißer-Erkennung:</b> Ungewöhnliches finden (Kreditkartenbetrug).</div>
+</div>
+<div class="box b-best"><b>Berühmte Beispiele zum Erzählen:</b> 🛒 <b>„Windeln &amp; Bier"</b> (Assoziation): Supermarkt entdeckt, dass beides oft gemeinsam gekauft wird → Regale/Aktionen danach ausrichten. · 🎬 <b>Netflix/Amazon-Empfehlungen</b>: „Kunden wie du sahen auch …". · 🏦 <b>Kreditwürdigkeit</b> (Klassifikation, Entscheidungsbaum): Einkommen? Schulden? Zahlungshistorie? → Klasse „Kredit ja/nein". · 👥 <b>Kundengruppen</b> (Clustering): Shop entdeckt von selbst „Schnäppchenjäger" vs. „Markenkäufer" → getrenntes Marketing. · 💳 <b>Betrugserkennung</b> (Ausreißer): Karte zahlt plötzlich um 3 Uhr in anderem Land → sperren + SMS.</div>
+<div class="box b-def"><b>Einsatz:</b> E-Commerce (Empfehlungen), Marketing (Segmentierung), Medizin (Krankheitserkennung), Industrie (Produktionsoptimierung), Finanzen (Betrugserkennung).</div>
+<div class="box b-warn"><b>Grenzen:</b> liefert nur Muster, keine fertigen Antworten (menschliche Interpretation nötig) · Algorithmuswahl subjektiv · Datenqualität entscheidend. <b>Datenschutz:</b> DSGVO<i class="gl"> (EU-Datenschutz-Grundverordnung)</i>-konform; Gefahr von Persönlichkeitsprofilen → <b>Anonymisierung/Pseudonymisierung</b>.</div>
+</section>
+<section class="topic" id="s35">
+<h3>3.5 Mockups &amp; Wireframes</h3>
+<div class="svgwrap">
+<svg viewBox="0 0 740 240" xmlns="http://www.w3.org/2000/svg">
+<!-- wireframe -->
+<rect x="30" y="20" width="150" height="150" rx="10" fill="#fff" stroke="#94a3b8" stroke-width="2"/>
+<rect x="42" y="32" width="126" height="22" fill="#e2e8f0"/>
+<rect x="42" y="62" width="80" height="10" fill="#e2e8f0"/>
+<rect x="42" y="78" width="126" height="40" fill="#e2e8f0"/><line x1="42" y1="78" x2="168" y2="118" stroke="#94a3b8"/><line x1="168" y1="78" x2="42" y2="118" stroke="#94a3b8"/>
+<rect x="42" y="128" width="60" height="18" rx="4" fill="#cbd5e1"/>
+<text x="105" y="192" class="tb ta">Wireframe</text>
+<text x="105" y="208" class="tm ta">Blueprint, s/w, Platzhalter</text>
+<text x="105" y="222" class="tm ta">Struktur, User Journey = UX</text>
+<line x1="195" y1="95" x2="245" y2="95" stroke="#7c3aed" stroke-width="2.5" marker-end="url(#arrA)"/>
+<!-- mockup -->
+<rect x="260" y="20" width="150" height="150" rx="10" fill="#fff" stroke="#7c3aed" stroke-width="2"/>
+<rect x="272" y="32" width="126" height="22" rx="4" fill="#7c3aed"/>
+<rect x="272" y="62" width="80" height="10" rx="3" fill="#c4b5fd"/>
+<rect x="272" y="78" width="126" height="40" rx="4" fill="#ddd6fe"/>
+<rect x="272" y="128" width="60" height="18" rx="9" fill="#16a34a"/>
+<text x="335" y="192" class="tb ta">Mockup</text>
+<text x="335" y="208" class="tm ta">detailgetreu poliert, Farben/Schriften</text>
+<text x="335" y="222" class="tm ta">sieht fertig aus, KEINE Logik = UI</text>
+<line x1="425" y1="95" x2="475" y2="95" stroke="#7c3aed" stroke-width="2.5" marker-end="url(#arrA)"/>
+<!-- clickdummy -->
+<rect x="490" y="20" width="150" height="150" rx="10" fill="#fff" stroke="#16a34a" stroke-width="2"/>
+<rect x="502" y="32" width="126" height="22" rx="4" fill="#7c3aed"/>
+<rect x="502" y="78" width="126" height="40" rx="4" fill="#ddd6fe"/>
+<rect x="502" y="128" width="60" height="18" rx="9" fill="#16a34a"/>
+<path d="M560 130 l12 22 l6 -9 l10 8" stroke="#0f172a" stroke-width="2" fill="none"/>
+<text x="565" y="192" class="tb ta">Click-Dummy</text>
+<text x="565" y="208" class="tm ta">verlinkte Wireframes/Mockups – klickbar,</text>
+<text x="565" y="222" class="tm ta">Screenwechsel, keine echte Logik (keine DB)</text>
+</svg>
+</div>
+<div class="m22">
+<div class="card"><h5>Wireframe (frühe Phase)</h5>Fokus: <b>Struktur, Seitenhierarchie, Informationsarchitektur, User Journey</b>. Leitfragen: Welche Screens helfen der Zielgruppe? Welche Infos pro Screen?<br><span style="color:#16a34a"><b>Vorteile:</b> extrem schnell + günstig; Team früh auf gemeinsames Ziel; Nutzerführungs-Probleme früh erkannt.</span></div>
+<div class="card"><h5>Mockup (spätere Entwurfsphase)</h5>Fokus: finales <b>UI<i class="gl"> (User Interface: die Optik/Oberfläche)</i>-Design</b> (Farben, Schriften, Bilder); nach Wireframe<i class="gl"> (grobes Struktur-Gerüst (s/w))</i>-Freigabe, vor dem Coden.<br><span style="color:#16a34a"><b>Vorteile:</b> greifbar für Stakeholder<i class="gl"> (Beteiligte/Betroffene des Projekts)</i>, gezieltes Optik-Feedback, Designkonsistenz, Vorlage für Entwickler.</span></div>
+</div>
+<div class="merk">🧠 Wireframe = „Wie ist es aufgebaut / wie läuft es ab?" (<b>UX<i class="gl"> (User Experience: das Nutzer-ERLEBNIS)</i></b>) · Mockup<i class="gl"> (detailgetreues Design-Bild ohne Logik)</i> = „Wie sieht es aus?" (<b>UI<i class="gl"> (User Interface: die Optik/Oberfläche)</i></b>).</div>
+<div class="box b-def"><b>Anforderungsanalyse-Support:</b> Wireframes<i class="gl"> (grobes Struktur-Gerüst (s/w))</i> klären funktionale Anforderungen ohne Design-Ablenkung („Fehlt ein Login-Button?") · Mockups sichern ästhetische/nicht-funktionale Erwartungen ab. <b>Prototyping</b> = iterativ früh + günstig unfertige Modelle bauen – agile <b>Risikominimierung</b> („Probieren geht über Studieren").</div>
+<div class="box b-warn"><b>Risiken:</b> Kunde hält Mockup<i class="gl"> (detailgetreues Design-Bild ohne Logik)</i> für fertige Software („bald live!") · Kunde diskutiert Farben statt Logik · nur Happy Path gezeichnet – Fehlerfälle (Login schlägt fehl, Passwort-Reset) vergessen · schnell gezeichnete Details (Animationen) kosten in der Entwicklung viel · zu große Ausschnitte → Fokus auf Kernfunktionen verloren.</div>
+<div class="box b-best"><b>Agiler Zusammenhang:</b> im Backlog<i class="gl"> (priorisierte Anforderungsliste)</i> Refinement<i class="gl"> (laufende Backlog-Pflege)</i> je Feature Wireframe<i class="gl"> (grobes Struktur-Gerüst (s/w))</i> → Mockup<i class="gl"> (detailgetreues Design-Bild ohne Logik)</i> → Prototyp; erst nach Kunden-OK im Sprint umgesetzt → <b>ständige Feedback-Loops</b> statt Big-Picture-Prototyp.</div>
+</section>
+
+<section class="topic fav" id="s36">
+<h3>3.6 UI- vs. UX-Design <span class="favtag">⭐ Wahrscheinlich · mit Arun &amp; Eray</span></h3>
+<div class="m22">
+<div class="q" style="background:#ede9fe;border:2px solid #7c3aed"><b>UX-Design (User Experience)</b><br>das <b>Erlebnis</b> bei der Interaktion: Userforschung (Bedürfnisse, Verhalten) → Struktur via Wireframes<i class="gl"> (grobes Struktur-Gerüst (s/w))</i>/Prototypen → <b>iterativ</b> durch Usability<i class="gl"> (Benutzbarkeit)</i>-Tests verbessert.</div>
+<div class="q" style="background:#e0f2fe;border:2px solid #0284c7"><b>UI-Design (User Interface)</b><br>rein <b>visuelle Gestaltung</b>: Farben, Schriften, Symbole, Layouts · <b>Responsive Design</b>, Animationen, <b>Styleguides</b> für Einheitlichkeit.</div>
+</div>
+<h4>4 Säulen der UX</h4>
+<div class="cards">
+<div class="card"><h5>🎯 Nützlichkeit</h5>echter Mehrwert, löst reale Probleme – Technik allein reicht nicht.</div>
+<div class="card"><h5>🖱️ Benutzbarkeit</h5>einfach, effizient, intuitiv; Nutzer bei Fehlern unterstützen.</div>
+<div class="card"><h5>🎨 Ästhetik</h5>gutes Design signalisiert Qualität, baut Vertrauen auf.</div>
+<div class="card"><h5>♿ Zugänglichkeit</h5>für alle nutzbar (Alter, Einschränkungen) – Barrierefreiheit = Kern guter UX<i class="gl"> (User Experience: das Nutzer-ERLEBNIS)</i> + rechtlich relevant.</div>
+</div>
+<div class="box b-best"><b>Gestaltungsprinzipien:</b> Hierarchie (Wichtigstes am auffälligsten) · Ausrichtung (unsichtbare Linien = Ordnung) · Kontrast (Lesbarkeit) · Wiederholung (Wiedererkennung) · Konsistenz (Zurück-Button immer am selben Ort → Vorhersehbarkeit).</div>
+<div class="box b-def"><b>Zielgruppe entscheidet:</b> Notaufnahme-Ärzte → alles in Sekundenbruchteilen, max. 2 Klicks (UX<i class="gl"> (User Experience: das Nutzer-ERLEBNIS)</i>-Fokus) · Kinder-App → bunt, große Buttons · Senioren-Banking → hohe Kontraste, große Schrift, seriös (UI<i class="gl"> (User Interface: die Optik/Oberfläche)</i>-Fokus).</div>
+<h4>User-Centered Design (UCD) – 4 Phasen, iterativ</h4>
+<div class="flow">
+<div class="step"><b>1 · Kontextanalyse</b><br>wer nutzt es, in welchem Kontext (Beobachtung/Befragung)</div><div class="arr">→</div>
+<div class="step"><b>2 · Anforderungen definieren</b></div><div class="arr">→</div>
+<div class="step"><b>3 · Gestaltung</b><br>Wireframes<i class="gl"> (grobes Struktur-Gerüst (s/w))</i>, Mockups<i class="gl"> (detailgetreues Design-Bild ohne Logik)</i>, Prototypen</div><div class="arr">→</div>
+<div class="step"><b>4 · Evaluation</b><br>Nutzertests, Umfragen</div><div class="arr">↺</div>
+</div>
+<div class="merk">🧠 <b>Der Nutzer steht im Zentrum, nicht die Technik</b> – UI<i class="gl"> (User Interface: die Optik/Oberfläche)</i>/UX<i class="gl"> (User Experience: das Nutzer-ERLEBNIS)</i> von Beginn an einbeziehen statt erst am Ende Feedback holen. Prinzipien: klares Nutzer-/Aufgabenverständnis · Nutzer aktiv einbezogen · Feedback leitet Designentscheidungen · enge Teamarbeit.</div>
+<div class="box b-best"><b>Agil:</b> UI/UX = ständiger Teil der Entwicklung – PO<i class="gl"> (Product Owner: priorisiert, vertritt den Kunden)</i> bereitet Wireframes<i class="gl"> (grobes Struktur-Gerüst (s/w))</i>/Mockups<i class="gl"> (detailgetreues Design-Bild ohne Logik)</i> Sprints im Voraus vor → <b>Feedback-Loop</b> mit dem Kunden (klassisch: nur in Analyse + Design). Kunde einbinden durch: Wireframes, Mockups, Click-Dummies, Feedback-Schleifen.</div>
+<div class="prax">🎯 <b>Praxis-Check:</b> <b>Zeichnen können:</b> den UCD-Kreislauf (Kontextanalyse → Anforderungen → Gestaltung → Evaluation) oder UX vs. UI gegenüberstellen. <b>Szenario:</b> „Banking-App für Senioren?" → UI: große Schrift, hohe Kontraste, seriös. „Software für die Notaufnahme?" → UX: alles in Sekundenbruchteilen, max. 2 Klicks.</div>
+</section>
+
+<h2 class="korb" id="k4">Themenkorb 4 – Betrieb von IKT-Systemen</h2>
+
+<section class="topic" id="s41">
+<h3>4.1 Service Management: SLA · SLO · SLI</h3>
+<div class="svgwrap">
+<svg viewBox="0 0 740 230" xmlns="http://www.w3.org/2000/svg">
+<rect x="60" y="20" width="620" height="56" rx="12" fill="#7c3aed"/>
+<text x="370" y="44" class="tw ta">SLA – Service Level Agreement · VERTRAG zwischen Dienstleister + Kunde</text>
+<text x="370" y="64" class="tw ta" style="font-weight:400">Supportzeiten (24/7), Reaktionszeiten, enthält die SLOs · Verfehlung → Pönale/Gutschrift · „Was ist GARANTIERT?"</text>
+<line x1="370" y1="76" x2="370" y2="92" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="120" y="94" width="500" height="56" rx="12" fill="#a78bfa"/>
+<text x="370" y="118" class="tw ta">SLO – Service Level Objective · internes LeistungsZIEL</text>
+<text x="370" y="138" class="tw ta" style="font-weight:400">„99,9 % Verfügbarkeit", „&lt; 200 ms", Incident-Einstufungen · „Was soll ERREICHT werden?"</text>
+<line x1="370" y1="150" x2="370" y2="166" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="180" y="168" width="380" height="56" rx="12" fill="#ede9fe" stroke="#7c3aed"/>
+<text x="370" y="192" class="tb ta">SLI – Service Level Indicator · realer MESSWERT</text>
+<text x="370" y="212" class="tm ta">gemessene 99,84 %, Ø-Antwortzeit, Fehlerquote · „Was wird GEMESSEN?"</text>
+</svg>
+</div>
+<div class="flow">
+<div class="step"><b>SLI misst:</b><br>Juni = 99,83 %</div><div class="arr">→</div>
+<div class="step"><b>SLO<i class="gl"> (Service Level Objective: internes Leistungsziel)</i>-Ziel 99,9 %</b><br>verfehlt!</div><div class="arr">→</div>
+<div class="step"><b>SLA<i class="gl"> (Service Level Agreement: vertragliches Service-Versprechen)</i> greift:</b><br>Kunde erhält z. B. 10 % Gutschrift auf die Monatsgebühr</div>
+</div>
+<div class="merk">🧠 <b>Error Budget:</b> interne SLOs strenger als das SLA → die Differenz ist der Puffer für Fehler/Updates ohne Vertragsstrafe.</div>
+<div class="box b-best"><b>Zeitpunkt:</b> beim <b>Übergang von Go-Live<i class="gl"> (Produktivstart)</i> zu Betrieb – unbedingt VOR dem Betrieb vereinbaren</b>, sonst wird die Kommunikation bei Störungen schwierig. <b>Inhalt:</b> abgedeckte Services, Verfügbarkeiten, Reaktions-/Behebungszeiten, Eskalationswege, Mess-/Reportingregeln, Konsequenzen. <b>Kunden abholen:</b> klar + detailliert; wann muss wer wie reagieren; was ist (nicht) enthalten.</div>
+</section>
+
+<section class="topic" id="s42">
+<h3>4.2 Cloud Computing</h3>
+<div class="box b-def"><b>Cloud-Architektur</b> = Erweiterung klassischer System-/Softwarearchitektur in eine <b>verteilte Online-Umgebung</b>: Rechenressourcen, Daten, Anwendungen über mehrere Maschinen verteilt.</div>
+<div class="box b-best"><b>8 Hauptvorteile:</b> Skalierbarkeit · Fehlertoleranz (andere Komponenten übernehmen) · Lastverteilung · dezentrale Datenverarbeitung · breiter Netzwerkzugriff · Resource Pooling · schnelle Elastizität (Auto-Skalierung) · Measured Service (nutzungsbasierte Abrechnung).</div>
+<h4>Cloud-Arten</h4>
+<div class="cards">
+<div class="card"><h5>🌍 Public Cloud</h5>Drittanbieter (AWS<i class="gl"> (Amazon Web Services)</i>, Azure, Google), übers Internet geteilt.<br><span style="color:#16a34a">＋ skalierbar, kosteneffizient</span><br><span style="color:#dc2626">− keine Kontrolle über Hardware</span></div>
+<div class="card"><h5>🏠 Private Cloud</h5>exklusiv für EIN Unternehmen.<br><span style="color:#16a34a">＋ Sicherheit, volle Kontrolle</span><br><span style="color:#dc2626">− teuer, eigener Wartungsaufwand</span></div>
+<div class="card"><h5>🔗 Hybrid Cloud</h5>integrierte Kombination Public + Private.<br><span style="color:#16a34a">＋ Flexibilität (sensibel privat, Lastspitzen public)</span><br><span style="color:#dc2626">− komplexe Verwaltung/Integration</span></div>
+<div class="card"><h5>🧩 Multi Cloud</h5>mehrere Anbieter gleichzeitig.<br><span style="color:#16a34a">＋ Redundanz, weniger Anbieterabhängigkeit</span><br><span style="color:#dc2626">− Verwaltungsaufwand, Kosten</span></div>
+</div>
+<h4>Service-Modelle – Verantwortung wandert zum Anbieter</h4>
+<div class="svgwrap">
+<svg viewBox="0 0 740 250" xmlns="http://www.w3.org/2000/svg">
+<text x="135" y="28" class="tb ta">On-Premises</text>
+<text x="305" y="28" class="tb ta">IaaS</text>
+<text x="475" y="28" class="tb ta">PaaS</text>
+<text x="645" y="28" class="tb ta">SaaS</text>
+<!-- legend rows: Anwendung, Daten, Laufzeit/OS, Server/Speicher/Netz -->
+<g>
+<rect x="60" y="40" width="150" height="38" rx="7" fill="#e0f2fe" stroke="#0284c7"/><text x="135" y="64" class="t ta">Anwendung</text>
+<rect x="60" y="84" width="150" height="38" rx="7" fill="#e0f2fe" stroke="#0284c7"/><text x="135" y="108" class="t ta">Daten</text>
+<rect x="60" y="128" width="150" height="38" rx="7" fill="#e0f2fe" stroke="#0284c7"/><text x="135" y="152" class="t ta">Laufzeit + OS</text>
+<rect x="60" y="172" width="150" height="38" rx="7" fill="#e0f2fe" stroke="#0284c7"/><text x="135" y="196" class="t ta">Server · Speicher · Netz</text>
+</g>
+<g>
+<rect x="230" y="40" width="150" height="38" rx="7" fill="#e0f2fe" stroke="#0284c7"/><text x="305" y="64" class="t ta">Anwendung</text>
+<rect x="230" y="84" width="150" height="38" rx="7" fill="#e0f2fe" stroke="#0284c7"/><text x="305" y="108" class="t ta">Daten</text>
+<rect x="230" y="128" width="150" height="38" rx="7" fill="#e0f2fe" stroke="#0284c7"/><text x="305" y="152" class="t ta">Laufzeit + OS</text>
+<rect x="230" y="172" width="150" height="38" rx="7" fill="#7c3aed"/><text x="305" y="196" class="tw ta">Anbieter (AWS EC2)</text>
+</g>
+<g>
+<rect x="400" y="40" width="150" height="38" rx="7" fill="#e0f2fe" stroke="#0284c7"/><text x="475" y="64" class="t ta">Anwendung</text>
+<rect x="400" y="84" width="150" height="38" rx="7" fill="#e0f2fe" stroke="#0284c7"/><text x="475" y="108" class="t ta">Daten</text>
+<rect x="400" y="128" width="150" height="38" rx="7" fill="#7c3aed"/><text x="475" y="152" class="tw ta">Anbieter</text>
+<rect x="400" y="172" width="150" height="38" rx="7" fill="#7c3aed"/><text x="475" y="196" class="tw ta">Anbieter (Heroku, Azure App Service)</text>
+</g>
+<g>
+<rect x="570" y="40" width="150" height="38" rx="7" fill="#7c3aed"/><text x="645" y="64" class="tw ta">Anbieter</text>
+<rect x="570" y="84" width="150" height="38" rx="7" fill="#7c3aed"/><text x="645" y="108" class="tw ta">Anbieter</text>
+<rect x="570" y="128" width="150" height="38" rx="7" fill="#7c3aed"/><text x="645" y="152" class="tw ta">Anbieter</text>
+<rect x="570" y="172" width="150" height="38" rx="7" fill="#7c3aed"/><text x="645" y="196" class="tw ta">Anbieter (PayPal, MS 365)</text>
+</g>
+<text x="370" y="238" class="tm ta">blau = du verwaltest selbst · violett = Anbieter managt · Zusatz: BaaS = fertiges Backend (Auth, DB, Push) z. B. Firebase</text>
+</svg>
+</div>
+<h4>Cloud vs. On-Premises</h4>
+<div class="m22">
+<div class="card"><h5>Cloud</h5>geringe Anfangsinvestition (<b>OPEX<i class="gl"> (laufende Betriebskosten)</i></b>), schnelle Skalierung, Wartung beim Anbieter, Zugriff überall. <b>Wann?</b> Schwankende Last, wenig eigene IT, schneller Start.</div>
+<div class="card"><h5>On-Premises</h5>volle Kontrolle + Datenhoheit, hohe Anschaffungskosten (<b>CAPEX<i class="gl"> (einmalige Investitionskosten)</i></b>), eigene Wartung, Skalierung träge. <b>Wann?</b> Strenge Datenschutz-/Compliance-Vorgaben, sehr sensible Daten, vorhandene Infrastruktur. Oft <b>Hybrid</b> als Mittelweg.</div>
+</div>
+</section>
+
+<section class="topic" id="s44">
+<h3>4.4 Digitale Kompetenz im IT-Betrieb</h3>
+<div class="box b-def"><b>Digitale Kompetenz</b> = Fähigkeit, digitale Technologien sicher, kritisch und produktiv zu nutzen – Grundlage für „digitale Mündigkeit". <b>Referenz Österreich: DigComp 2.3 AT</b> – <b>6 Kompetenzbereiche, 27 Einzelkompetenzen, 8 Kompetenzstufen</b>.</div>
+<h4>Die 6 Kompetenzbereiche (0–5)</h4>
+<div class="cards">
+<div class="card"><h5>0 · Grundlagen &amp; Zugang</h5>Geräte, Software, Netzwerke, digitale Identitäten, Basis-Sicherheit, Datenablage.</div>
+<div class="card"><h5>1 · Informationen &amp; Daten</h5>suchen + filtern, <b>bewerten</b> (Quellenkritik, Fake News), verwalten.</div>
+<div class="card"><h5>2 · Kommunikation &amp; Zusammenarbeit</h5>interagieren, teilen, E-Government, Kollaborationstools, Netiquette, digitaler Fußabdruck.</div>
+<div class="card"><h5>3 · Kreation &amp; Produktion</h5>Inhalte entwickeln, weiterverarbeiten, <b>Urheberrecht/Lizenzen, Programmieren</b>.</div>
+<div class="card"><h5>4 · Sicherheit</h5>Geräte schützen, Daten/DSGVO<i class="gl"> (EU-Datenschutz-Grundverordnung)</i>, Gesundheit (Ergonomie, digitale Sucht), Umwelt (Green IT).</div>
+<div class="card"><h5>5 · Problemlösung &amp; Weiterlernen</h5>Troubleshooting, passende Tools finden, kreative Nutzung, eigene Kompetenzlücken erkennen.</div>
+</div>
+<h4>Die 8 Kompetenzstufen (an NQR angelehnt)</h4>
+<div class="svgwrap">
+<svg viewBox="0 0 740 150" xmlns="http://www.w3.org/2000/svg">
+<rect x="30" y="100" width="160" height="34" rx="7" fill="#dcfce7" stroke="#16a34a"/><text x="110" y="115" class="tb ta">1–2 elementar</text><text x="110" y="129" class="tm ta">unter Anleitung / selbstständig</text>
+<rect x="210" y="72" width="160" height="34" rx="7" fill="#fef9c3" stroke="#ca8a04"/><text x="290" y="87" class="tb ta">3–4 mittel</text><text x="290" y="101" class="tm ta">Routine / komplexe Aufgaben</text>
+<rect x="390" y="44" width="160" height="34" rx="7" fill="#fed7aa" stroke="#ea580c"/><text x="470" y="59" class="tb ta">5–6 fortgeschritten</text><text x="470" y="73" class="tm ta">andere anleiten / kritisch evaluieren</text>
+<rect x="570" y="16" width="160" height="34" rx="7" fill="#fecaca" stroke="#dc2626"/><text x="650" y="31" class="tb ta">7–8 hoch spezialisiert</text><text x="650" y="45" class="tm ta">neue Konzepte / Innovation, Forschung</text>
+</svg>
+</div>
+<div class="box b-best"><b>Relevanz fürs Unternehmen:</b> Mitarbeiterkompetenz = Fundament digitaler Geschäftsprozesse (XRechnung, digitaler Planversand, E-Ausschreibung) → effizientes, dezentrales Arbeiten. Unternehmenskompetenz: welche Prozesse mit welchen Tools (SaaS<i class="gl"> (fertige Software mieten (Software as a Service))</i>, Apps), Datenspeicherung, Kommunikationsregeln.</div>
+<div class="box b-warn"><b>Vor der Digitalisierung Prozesse standardisieren</b> – sonst Mehraufwand oder „Datenmüll". <b>Schulungen</b> bei neuen Prozessen zwingend; auch <b>Kundenschulungen</b> für eigene Produkte.</div>
+</section>
+
+<section class="topic" id="s45">
+<h3>4.5 Digitale Transformation</h3>
+<div class="m22">
+<div class="card"><h5>Digitalisierung</h5>analoge Informationen/Abläufe in digitale Systeme überführen · <b>technisch-operativ, prozessorientiert</b> · Ziel: Effizienz + Kostensenkung.<br><span style="color:#475569">Bsp.: Jira<i class="gl"> (Ticket-/Projektmanagement-Tool)</i>, CRM<i class="gl"> (Kundenverwaltung (Customer Relationship Management))</i>, ERP<i class="gl"> (Unternehmenssoftware (Enterprise Resource Planning))</i>, Mailserver, PDF statt Papier.</span></div>
+<div class="card"><h5>Digitale Transformation</h5><b>strategischer, langfristiger, ganzheitlicher Veränderungsprozess</b>: Struktur, Führung, <b>Kultur</b>; verbindet Technologien, Prozesse, Menschen; digitalisiert <b>Geschäftsmodelle</b>. Einsatz: Cloud, KI<i class="gl"> (künstliche Intelligenz)</i>, Automatisierung, IoT<i class="gl"> (Internet of Things: vernetzte Geräte)</i>. <b>Ein Mindset</b>, in der Strategie verankert.</div>
+</div>
+<div class="box b-def"><b>Wie wird ein Unternehmen digital?</b> Digitale <b>Geschäftsmodelle</b> (neue Erlösquellen) · digitale <b>Prozesse</b> (automatisierte Workflows) · digitale <b>Services</b> (Self-Service, Apps) · digitale <b>Kundenbeziehungen</b> (Omnichannel, Daten-Feedback).</div>
+<h4>Die 6 Stufen der Transformation (Journey)</h4>
+<div class="flow">
+<div class="step"><b>1</b><br>Business as Usual</div><div class="arr">→</div>
+<div class="step"><b>2</b><br>Present and Active<br><span style="color:#475569">erste Experimente</span></div><div class="arr">→</div>
+<div class="step"><b>3</b><br>Formalized<br><span style="color:#475569">Suche nach Führungs-Support</span></div><div class="arr">→</div>
+<div class="step"><b>4</b><br>Strategic<br><span style="color:#475569">Gruppen bündeln Erkenntnisse zu Plänen</span></div><div class="arr">→</div>
+<div class="step"><b>5</b><br>Converged<br><span style="color:#475569">eigenes DT<i class="gl"> (digitale Transformation)</i>-Team, neue Strukturen/Rollen</span></div><div class="arr">→</div>
+<div class="step"><b>6</b><br>Innovative and Adaptive<br><span style="color:#475569">Wandel als Konstante</span></div>
+</div>
+<h4>5 Erfolgsfaktoren / Kompetenzen</h4>
+<div class="cards">
+<div class="card"><h5>🔄 Veränderungskompetenz</h5>Wunsch nach Veränderung, offenes Mindset, „Digital Adoption".</div>
+<div class="card"><h5>💡 Innovationskraft</h5>alte Abläufe/Infrastruktur aufbrechen.</div>
+<div class="card"><h5>📚 Fach- &amp; Methodenkompetenz</h5>schnell neues Wissen aneignen (Digital Adoption Platforms).</div>
+<div class="card"><h5>🤝 Zusammenarbeit</h5>eigene Stärken/Grenzen kennen, externe Unterstützung.</div>
+<div class="card"><h5>📊 Datenkompetenz</h5>sich anhand von Daten laufend prüfen + am Markt ausrichten.</div>
+</div>
+<div class="merk">🧠 <b>DT<i class="gl"> (digitale Transformation)</i> ist primär ein KULTURWANDEL:</b> Fehlerkultur, Experimentierfreude, flache Hierarchien, kontinuierliches Lernen – Technologie allein transformiert nicht.</div>
+<div class="box b-def"><b>Digitale Souveränität Europas:</b> starke Abhängigkeit von US-Clouds (≈ 65 % Markt) → Vendor Lock-in, Datenschutz-Dilemma; Ziel: Selbstbestimmung + technische Kontrollierbarkeit.</div>
+</section>
+
+<section class="topic fav" id="s46">
+<h3>4.6 Outsourcing <span class="favtag">⭐ Wahrscheinlich · alleine</span></h3>
+<h4>Standort-Modelle</h4>
+<div class="svgwrap">
+<svg viewBox="0 0 740 130" xmlns="http://www.w3.org/2000/svg">
+<line x1="60" y1="70" x2="700" y2="70" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
+<text x="700" y="100" class="tm ta">Entfernung / Zeitzonen</text>
+<circle cx="110" cy="70" r="9" fill="#16a34a"/><text x="110" y="44" class="tb ta">Onshore</text><text x="110" y="98" class="tm ta">gleiches Land (Wien)</text><text x="110" y="112" class="tm ta">einfach, teuerste Variante</text>
+<circle cx="330" cy="70" r="9" fill="#ca8a04"/><text x="330" y="44" class="tb ta">Nearshore</text><text x="330" y="98" class="tm ta">nahe Region (Polen, Rumänien)</text><text x="330" y="112" class="tm ta">Kostenvorteil + gute Erreichbarkeit</text>
+<circle cx="560" cy="70" r="9" fill="#dc2626"/><text x="560" y="44" class="tb ta">Offshore</text><text x="560" y="98" class="tm ta">weit weg (Indien, Vietnam) – am günstigsten,</text><text x="560" y="112" class="tm ta">Sprach-/Kultur-/Zeitzonenhürden</text>
+</svg>
+</div>
+<div class="box b-def"><b>Freelancing</b> = einzelne Selbstständige für kurze, klar umrissene Aufgaben – flexibel, aber Abhängigkeit von Einzelpersonen.</div>
+<h4>Outsourcing-Modelle</h4>
+<div class="m22">
+<div class="card"><h5>Staff Augmentation</h5>Externe werden <b>ins eigene Team integriert</b> („fast in-house") – eigenes Unternehmen führt; schnelle Kapazitäts-/Know-how-Erweiterung.</div>
+<div class="card"><h5>External Vendor</h5>Anbieter liefert <b>Ergebnisse</b>: dediziertes Team, projektbasiert (klarer Umfang, oft Festpreis), <b>Managed Services</b> (SLAs<i class="gl"> (Service Level Agreement: vertragliches Service-Versprechen)</i>/KPIs<i class="gl"> (Kennzahl (Key Performance Indicator))</i>), <b>BOT</b> (Build-Operate-Transfer), eigenes Nearshore<i class="gl"> (nahe Region, kleine Zeitdifferenz)</i>-Center. Mischformen: hybrides Co-Sourcing, Freelancer<i class="gl"> (Selbstständige für Einzelaufgaben)</i> punktuell.</div>
+</div>
+<h4>Inhouse vs. Outsourcing – 4 Dimensionen</h4>
+<table>
+<tr><th></th><th>Inhouse</th><th>Outsourcing</th></tr>
+<tr><td><b>Know-how</b></td><td>bleibt im Haus („know your product", Identifikation)</td><td>Wissen muss übergeben werden; dafür Fachwissen des Dienstleisters (Code-Wiederverwendung)</td></tr>
+<tr><td><b>Kommunikation</b></td><td>eng + flexibel („working friends")</td><td>Kommunikation, Workflows, Tools müssen <b>fest als Projektteil definiert</b> werden</td></tr>
+<tr><td><b>Kosten</b></td><td>Spezialisten teuer + Overhead</td><td>klarer Kostenrahmen, man zahlt nur die Software; <b>Change Requests<i class="gl"> (formaler Änderungsantrag)</i> kosten extra</b></td></tr>
+<tr><td><b>Flexibilität</b></td><td>schnelle Änderungen, Überstunden, Plan B</td><td>Außensicht; Ausfälle kompensiert der Dienstleister; Änderungen kostenpflichtig</td></tr>
+</table>
+<div class="box b-best"><b>Vor dem Start:</b> vollständige Feature Map, spezifizierte Use Cases<i class="gl"> (Schritt-für-Schritt-Ablauf aus Nutzersicht)</i> (+ Workflow-Skizzen, Mockups<i class="gl"> (detailgetreues Design-Bild ohne Logik)</i>), abgestimmte Zeitpläne, abgeschlossenes Konzept als Basis.</div>
+<div class="flow">
+<div class="step"><b>Estimation</b><br>Machbarkeit</div><div class="arr">→</div>
+<div class="step"><b>Offer</b></div><div class="arr">→</div>
+<div class="step"><b>Start of Implementation</b></div><div class="arr">→</div>
+<div class="step"><b>Continuous Implementation</b><br>Kunde + Dienstleister <b>gemeinsam</b> verantwortlich</div>
+</div>
+<div class="box b-def"><b>Entscheidungsgründe:</b> Unternehmensstrategie, vorhandenes Know-how, Kosten, Team-Ressourcen, Zeitpläne, organisatorische Fähigkeiten.</div>
+<div class="prax">🎯 <b>Praxis-Check:</b> <b>Zeichnen können:</b> die Shore-Achse (Onshore → Nearshore → Offshore: Kosten sinken, Hürden steigen). <b>Szenario:</b> „Konzept komplett fertig, knappes Budget?" → External Vendor, projektbasiert (Festpreis), evtl. Nearshore. „Know-how soll im Haus bleiben, eigenes Team führt?" → Staff Augmentation.</div>
+</section>
+
+<section class="topic" id="s47">
+<h3>4.7 IT-Compliance</h3>
+<div class="box b-def"><b>IT-Compliance</b> = Einhaltung aller <b>gesetzlichen, regulatorischen und unternehmensinternen Vorgaben</b> in der IT. Ziel: Datenschutz, Informationssicherheit, Verfügbarkeit – <b>rechtssicher dokumentiert</b>. <b>Abgrenzung:</b> IT-Sicherheit <b>schützt</b> aktiv – Compliance macht die Schutzmaßnahmen <b>nachweisbar + regelkonform</b>. Vorgaben: <b>DSGVO<i class="gl"> (EU-Datenschutz-Grundverordnung)</i>, NIS-2<i class="gl"> (EU-Cybersicherheits-Richtlinie)</i>/NISG<i class="gl"> (österreichisches NIS-Gesetz)</i> 2026</b>, IT-Sicherheitsgesetz, <b>ISO<i class="gl"> (internationale Norm)</i>/IEC 27001</b> (ISMS<i class="gl"> (Informationssicherheits-Managementsystem)</i>).</div>
+<h4>Code of Conduct (Verhaltenskodex)</h4>
+<div class="box b-def">Verpflichtung oft schon bei Vertragsunterzeichnung; Ordnungsvorschriften als Betriebsvereinbarung erzwingbar. Ziele/Themen legt die <b>Führungsebene</b> fest, <b>Belegschaft einbeziehen</b>; gilt für alle (z. T. auch Lieferanten). <b>Inhalte:</b> Gleichbehandlung, Chancengleichheit, Verantwortlichkeiten, Konsequenzen, klare <b>Meldewege</b> inkl. anonymer Kanäle (<b>Whistleblowing</b>).</div>
+<div class="box b-warn"><b>Nur sinnvoll, wenn aktiv gelebt</b> – nicht bloß Worthülsen.</div>
+<h4>NISG 2026 (NIS-2-Umsetzung Österreich)</h4>
+<div class="box b-def">Statt ~100 nun <b>~4.000 betroffene Unternehmen</b>; gilt fürs gesamte Unternehmen. Kriterien: <b>Sektor</b> (hohe Kritikalität: Energie, Verkehr, Banken, Gesundheit, digitale Infrastruktur…) + <b>Größe</b> (ab 50 MA<i class="gl"> (Mitarbeiter)</i> bzw. &gt; 10 Mio. € Umsatz).</div>
+<div class="m22">
+<div class="q" style="background:#fee2e2;border:2px solid #dc2626"><b>Wesentliche Einrichtungen</b><br>anlasslose Prüfungen · Strafen bis <b>10 Mio. € / 2 %</b> Weltumsatz</div>
+<div class="q" style="background:#fef9c3;border:2px solid #ca8a04"><b>Wichtige Einrichtungen</b><br>Prüfung nur bei Verdacht · bis <b>7 Mio. € / 1,4 %</b></div>
+</div>
+<h4>Meldepflichten bei erheblichen Vorfällen (an das CSIRT)</h4>
+<div class="flow">
+<div class="step"><b>24 h</b><br>Frühwarnung</div><div class="arr">→</div>
+<div class="step"><b>72 h</b><br>Detailmeldung</div><div class="arr">→</div>
+<div class="step"><b>1 Monat</b><br>Abschlussbericht</div><div class="arr">＋</div>
+<div class="step">bei Datenabfluss zusätzlich <b>DSGVO<i class="gl"> (EU-Datenschutz-Grundverordnung)</i>-Meldung</b></div>
+</div>
+<div class="box b-warn"><b>Pflichten:</b> Risikomanagement nach Stand der Technik, Notfall-/Backup-Konzepte, <b>Lieferkettensicherheit</b>, MFA<i class="gl"> (Multi-Faktor-Authentifizierung)</i>, Verschlüsselung, Schulungen/„Cyberhygiene". <b>Persönliche Haftung der Geschäftsführung</b> – verpflichtende Schulungen; im Extremfall Entzug der Betriebsgenehmigung.</div>
+<div class="box b-best"><b>Nutzen:</b> Bußgelder vermeiden, <b>Kundenvertrauen</b> + Wettbewerbsvorteil (ISO<i class="gl"> (internationale Norm)</i> 27001). <b>Herausforderungen:</b> laufender Prozess (kein Einmalprojekt), viele parallele Vorgaben, Dokumentationsaufwand, Kosten – Software-Unterstützung hilft.</div>
+</section>
+<h2 class="korb" id="k5">Themenkorb 5 – Sicherheit und Recht</h2>
+
+<section class="topic fav" id="s51">
+<h3>5.1 Software-Angebote / Angebotserstellung <span class="favtag">⭐ Wahrscheinlich · mit Eray, Arun &amp; Ramin</span></h3>
+<div class="box b-def"><b>Angebot</b> = einseitiger Vorschlag des Anbieters, eine bestimmte Leistung zu einem bestimmten Preis zu erbringen. In der IT wird das unterschriebene Angebot oft selbst zum Vertrag (+ Anhänge: AGB<i class="gl"> (Allgemeine Geschäftsbedingungen)</i>, SLA<i class="gl"> (Service Level Agreement: vertragliches Service-Versprechen)</i>, Pflichtenheft<i class="gl"> (WIE umgesetzt wird)</i>). <b>Zweck:</b> Entscheidungsgrundlage für den Kunden (Was? Wie viel? Wie lange?).</div>
+<div class="flow">
+<div class="step"><b>Kundenanfrage</b></div><div class="arr">→</div>
+<div class="step"><b>Vorarbeit</b><br>Anfrage analysieren, grobe Anforderungsaufnahme, Aufwandsschätzung, Machbarkeit/Risiken</div><div class="arr">→</div>
+<div class="step"><b>Angebot</b><br>nicht bindend bis zur Annahme · üblich 7–14 Tage gültig</div><div class="arr">→</div>
+<div class="step"><b>Annahme in der Frist</b><br>= gültiger Vertrag (<b>§ 861 ABGB<i class="gl"> (Allgemeines bürgerliches Gesetzbuch (AT))</i></b>)</div>
+</div>
+<div class="box b-warn"><b>Auch Werbeaussagen im Angebot sind rechtlich bindend</b> – nie mehr versprechen, als man halten kann: „100 % Verfügbarkeit" → Haftung bei jedem Ausfall; besser „99,5 % im Jahresmittel", messbar im SLA<i class="gl"> (Service Level Agreement: vertragliches Service-Versprechen)</i>.</div>
+<div class="merk">🧠 <b>Angebot vs. Kostenvoranschlag:</b> Angebot = Fixpreis<i class="gl"> (fester Preis für festen Umfang)</i> · KVA = Schätzung. <b>B2B<i class="gl"> (Geschäft Firma ↔ Firma)</i>:</b> KVA meist unverbindlich · <b>B2C<i class="gl"> (Geschäft Firma ↔ Privatkunde)</i>:</b> verbindlich, sofern nicht ausdrücklich „unverbindlich".</div>
+<div class="box b-def"><b>Bestandteile:</b> Leistungsbeschreibung (klar aufgeschlüsselt) · Preis (netto/brutto, Tages-/Stundensätze) · Zeitplan + Liefertermine · Zahlungsbedingungen (Anzahlung, Meilensteine) · Gültigkeitsdauer + Versionierung · <b>Verweis auf AGB<i class="gl"> (Allgemeine Geschäftsbedingungen)</i> + Gerichtsstand</b> · <b>Mitwirkungspflicht des Kunden</b> (Zugänge/Daten/Testsysteme rechtzeitig, feste Ansprechpartner, schnelle Freigaben – sonst gehen Verzögerungen nicht zulasten des Anbieters).</div>
+<div class="flow">
+<div class="step"><b>Angebot</b><br>grob, einseitig (Preis + Umfang)</div><div class="arr">→</div>
+<div class="step"><b>Pflichtenheft<i class="gl"> (WIE umgesetzt wird)</i> / Konzept</b><br>detaillierte technische Spezifikation (WIE)</div><div class="arr">→</div>
+<div class="step"><b>Vertrag</b><br>rechtlich bindend (Abnahme<i class="gl"> (formelle Übernahme-Bestätigung des Kunden)</i>, Haftung, Nutzungsrechte)</div>
+</div>
+<div class="m22">
+<div class="card"><h5>Klassisch (Pauschal/Festpreis)</h5>detaillierte Leistungsbeschreibung vorab, fixer Preis + Termine; Budgetsicherheit, <span style="color:#dc2626">schwer änderbar</span>.</div>
+<div class="card"><h5>Agil (Time &amp; Material)</h5>Leistung über Aufwand (Tagessätze + geschätztes Volumen); flexibel, <span style="color:#dc2626">Budgetrisiko beim Kunden</span>. <b>Capped T&amp;M:</b> nach Aufwand mit Obergrenze – flexibel + Budgetkontrolle.</div>
+</div>
+<div class="box b-best"><b>Gutes Angebot:</b> einfache klare Sprache, realistisch, saubere Struktur, nichts überversprechen, <b>vor Unterschrift mit dem Kunden besprechen</b>, klare Zuständigkeiten, Risiken/Worst Case offen ansprechen – und den <b>„Vertrag leben"</b>.</div>
+<div class="box b-warn"><b>Schlechte Angebote:</b> Missverständnisse über Umfang → Streit/Nachforderungen · unrealistische Versprechen → Gewährleistung<i class="gl"> (gesetzliche Gratis-Mängelhaftung ab Abnahme)</i>/Haftung · unklarer Preis → Budgetüberschreitung/Verlust · gesetzeswidrige Klauseln sind ungültig.</div>
+<div class="prax">🎯 <b>Praxis-Check:</b> <b>Zeichnen können:</b> den Weg Anfrage → Angebot → Annahme → Vertrag (§ 861 ABGB). <b>Szenario:</b> „Kunde will ‚100 % Verfügbarkeit’ im Angebot?" → ablehnen: auch Werbeaussagen binden rechtlich → besser „99,5 % im Jahresmittel", messbar im SLA. „Kunde liefert Zugänge zu spät?" → Mitwirkungspflicht: Verzögerung geht nicht zulasten des Anbieters.</div>
+</section>
+
+<section class="topic" id="s52">
+<h3>5.2 Softwarelizenzen</h3>
+<div class="box b-def"><b>Softwarelizenz</b> = das <b>Recht, eine Software zu nutzen</b>, ohne Eigentümer zu werden – „Erlaubnisschein", die Software bleibt beim Hersteller. <b>Warum:</b> Software ist <b>urheberrechtlich geschützt</b> – ohne Lizenz keine Nutzung, kein Kopieren, keine Weitergabe. <b>Worauf achten:</b> privat/kommerziell? Anzahl Geräte/Nutzer? Weitergabe? Quellcode-Zugriff? Pflichten (Copyleft<i class="gl"> (Ableitungen müssen offen + gleich lizenziert bleiben)</i>)? Laufzeit (Abo vs. dauerhaft)?</div>
+<h4>Proprietär / kommerziell (Quellcode verschlossen · Vertrag = EULA)</h4>
+<div class="cards">
+<div class="card"><h5>Subscription</h5>Abo – Nutzung nur in der Laufzeit (MS 365, Adobe CC).</div>
+<div class="card"><h5>Floating</h5>n Lizenzen für wechselnde Nutzer (10 × AutoCAD für 30 User).</div>
+<div class="card"><h5>Volumenlizenz</h5>Bündel fürs Unternehmen, günstiger, z. B. Downgrade-Rechte.</div>
+<div class="card"><h5>Perpetual</h5>Einmalkauf, dauerhafte Nutzung, Updates oft befristet.</div>
+</div>
+<h4>Open Source: das Lizenz-Spektrum</h4>
+<div class="svgwrap">
+<svg viewBox="0 0 740 150" xmlns="http://www.w3.org/2000/svg">
+<line x1="50" y1="70" x2="700 " y2="70" stroke="#475569" stroke-width="3" marker-end="url(#arr)"/>
+<text x="60" y="26" class="tb" fill="#16a34a">permissiv („mach was du willst")</text>
+<text x="690" y="26" class="tb ta" fill="#dc2626">starkes Copyleft (offen bleiben!)</text>
+<circle cx="110" cy="70" r="8" fill="#16a34a"/><text x="110" y="50" class="tb ta">MIT</text><text x="110" y="95" class="tm ta">nur Copyright-Hinweis</text><text x="110" y="109" class="tm ta">(React, Rails)</text>
+<circle cx="270" cy="70" r="8" fill="#65a30d"/><text x="270" y="50" class="tb ta">Apache 2.0</text><text x="270" y="95" class="tm ta">wie MIT + Patentschutz</text><text x="270" y="109" class="tm ta">(Kubernetes)</text>
+<circle cx="430" cy="70" r="8" fill="#ca8a04"/><text x="430" y="50" class="tb ta">LGPL</text><text x="430" y="95" class="tm ta">schwaches Copyleft: Bibliothek auch proprietär</text><text x="430" y="109" class="tm ta">nutzbar, nur Bibliotheks-Änderungen offenlegen</text>
+<circle cx="570" cy="70" r="8" fill="#ea580c"/><text x="570" y="50" class="tb ta">GPL</text><text x="570" y="95" class="tm ta">verändert + weitergegeben →</text><text x="570" y="109" class="tm ta">quelloffen, selbe Lizenz (Linux, GIMP)</text>
+<circle cx="670" cy="70" r="8" fill="#dc2626"/><text x="670" y="50" class="tb ta">AGPL</text><text x="670" y="95" class="tm ta">wie GPL, auch bei Netz-/</text><text x="670" y="109" class="tm ta">Web-Bereitstellung („Cloud-Lücke")</text>
+<text x="370" y="140" class="tm ta">Copyleft = Pflicht, abgeleitete Werke unter derselben freien Lizenz weiterzugeben – Code bleibt dauerhaft offen</text>
+</svg>
+</div>
+<div class="box b-def"><b>Dual Licensing:</b> gleiche Software unter 2 Lizenzen – gratis Open Source (GPL mit Copyleft) ODER kommerzielle Lizenz für Closed Source (Qt, MySQL). · <b>Freeware</b> = kostenlos nutzbar, Quellcode <b>nicht zwingend offen</b>, Urheberrecht beim Entwickler (Adobe Reader). <b>Kostenlos ≠ quelloffen!</b></div>
+<div class="merk">🧠 <b>GPL-Risiko-Klassiker:</b> GPL<i class="gl"> (starkes Copyleft)</i>-Bibliothek in kommerzieller App → <b>gesamter App-Code müsste offengelegt werden</b>; mit MIT<i class="gl"> (permissive Open-Source-Lizenz)</i>/Apache-Bibliothek bliebe er geschlossen. <b>Eigenes Produkt verkaufen + Code schützen → proprietär.</b> Gratis-Tool nutzen → prüfen, ob kommerzielle Nutzung erlaubt.</div>
+</section>
+
+<section class="topic fav" id="s53">
+<h3>5.3 Software-Verträge <span class="favtag">⭐ Wahrscheinlich · mit Eray</span></h3>
+<div class="box b-def"><b>SW-Entwicklungsvertrag:</b> Entwickler verpflichtet sich zur Erstellung einer Software <b>nach konkreten Vorgaben des Bestellers</b>. <b>Unterschied zum Angebot:</b> Angebot = einseitig, grob, unverbindlich bis Annahme; Vertrag = rechtlich bindend, sehr detailliert (Scope<i class="gl"> (Leistungsumfang)</i> via Pflichtenheft<i class="gl"> (WIE umgesetzt wird)</i>, Abnahmekriterien, Haftung, Nutzungsrechte, DSGVO<i class="gl"> (EU-Datenschutz-Grundverordnung)</i>, Änderungsmanagement, Pönalen).</div>
+<div class="m22">
+<div class="q" style="background:#e0f2fe;border:2px solid #0284c7"><b>Werkvertrag</b><br><b>Erfolg</b> geschuldet (fertige Software)<br>→ typisch <b>Festpreis</b></div>
+<div class="q" style="background:#dcfce7;border:2px solid #16a34a"><b>Dienstvertrag</b><br>nur <b>Tätigkeit</b> geschuldet<br>→ typisch <b>Time &amp; Material<i class="gl"> (Abrechnung nach tatsächlichem Aufwand)</i></b></div>
+</div>
+<div class="box b-def"><b>Typische Bestandteile:</b> Pflichtenheft<i class="gl"> (WIE umgesetzt wird)</i> (Anhang) · Lieferumfang (Quellcode? Doku? Schulung?) · Entwicklungsmethode (Wasserfall/Scrum) · Zeitplan + Meilensteine · <b>Abnahmekriterien</b> · Vergütungsmodell + Zahlungsplan · <b>Nutzungsrechte</b> (wem gehören Software + Quellcode?) · Haftung/Gewährleistung<i class="gl"> (gesetzliche Gratis-Mängelhaftung ab Abnahme)</i>/<b>Pönale</b> (Vertragsstrafe bei Verzug) · Datenschutz + Geheimhaltung · Änderungsmanagement.</div>
+<div class="box b-warn"><b>Betrieb/Wartung stehen NICHT im Entwicklungsvertrag</b> → separat in SLA<i class="gl"> (Service Level Agreement: vertragliches Service-Versprechen)</i> bzw. Wartungsvertrag (→ 5.7). · <b>Abnahme</b> = formelle Bestätigung – startet Gewährleistung und Zahlung. <b>Lastenheft = WAS, Pflichtenheft = WIE.</b></div>
+<h4>Die 3 Vertragstypen</h4>
+<div class="cards">
+<div class="card" style="border-top:4px solid #0284c7"><h5>Pauschalvertrag (Festpreis)</h5>fester Preis für definierten Umfang; <b>Risiko beim Entwickler</b>.<br><span style="color:#16a34a">＋ Budget + Termine fix</span><br><span style="color:#dc2626">− Änderungen schwierig, detaillierte Analyse nötig, Qualität leidet bei Zeitdruck</span><br>→ klare, stabile Projekte (einfache Firmenwebsite)</div>
+<div class="card" style="border-top:4px solid #16a34a"><h5>Time &amp; Material</h5>Abrechnung nach tatsächlichen Stunden/Ressourcen; Anpassungen jederzeit.<br><span style="color:#16a34a">＋ flexibel, enge Zusammenarbeit, Qualität</span><br><span style="color:#dc2626">− Kosten können Budget sprengen, Kunde muss intensiv mitarbeiten</span><br>→ unklarer/dynamischer Umfang (agile Produktentwicklung)</div>
+<div class="card" style="border-top:4px solid #ca8a04"><h5>Rahmenvertrag</h5>langfristige Grundklauseln (Leistungen, Vergütung, Rechte, Abnahme<i class="gl"> (formelle Übernahme-Bestätigung des Kunden)</i>, Haftung, Datenschutz) – kein neuer Vertrag pro Teilprojekt.<br><span style="color:#16a34a">＋ keine Neuverhandlung, klare Rechtelage</span><br><span style="color:#dc2626">− keine Preissicherheit (Tagessätze), keine Abnahmepflicht des Kunden, zu niedrige Sätze = Verlust</span><br>→ laufende Scrum-Zusammenarbeit</div>
+</div>
+<div class="merk">🧠 stabil + klar definiert → <b>Pauschal</b> · dynamisch, einzelnes Projekt → <b>T&amp;M<i class="gl"> (Time &amp; Material: Abrechnung nach Aufwand)</i></b> · langfristig wiederkehrend → <b>Rahmenvertrag</b>.</div>
+<div class="prax">🎯 <b>Praxis-Check:</b> <b>Szenario:</b> „Langfristige Scrum-Zusammenarbeit über viele Sprints?" → Rahmenvertrag. „Einfache Firmenwebsite, alles klar definiert?" → Pauschalvertrag (Festpreis). „Unklarer, dynamischer Umfang?" → Time &amp; Material. Immer dazusagen: Abnahmekriterien + Nutzungsrechte (wem gehört der Quellcode?) regeln!</div>
+</section>
+
+<section class="topic fav" id="s55">
+<h3>5.5 IT-Security <span class="favtag">⭐ Wahrscheinlich · mit Arun &amp; Eray</span></h3>
+<h4>Schutzziele: CIA-Triade</h4>
+<div class="svgwrap">
+<svg viewBox="0 0 700 230" xmlns="http://www.w3.org/2000/svg">
+<polygon points="350,25 140,195 560,195" fill="#ede9fe" stroke="#7c3aed" stroke-width="2.5"/>
+<text x="350" y="18" class="tb ta">Confidentiality – Vertraulichkeit</text>
+<text x="350" y="55" class="tm ta" >nur Berechtigte greifen zu –</text><text x="350" y="70" class="tm ta">Verschlüsselung, Zugriffsrechte</text>
+<text x="105" y="212" class="tb ta">Integrity – Integrität</text>
+<text x="105" y="228" class="tm ta">keine unbemerkte Veränderung – Prüfsummen/Hashes</text>
+<text x="600" y="212" class="tb ta">Availability – Verfügbarkeit</text>
+<text x="600" y="228" class="tm ta">verfügbar, wenn gebraucht – Backups, Redundanz</text>
+<text x="350" y="140" class="t ta">Spannungsverhältnis: sehr strenge</text>
+<text x="350" y="158" class="t ta">Zugriffskontrolle ↑ Vertraulichkeit,</text>
+<text x="350" y="176" class="t ta">↓ Verfügbarkeit</text>
+</svg>
+</div>
+<h4>Malware-Arten</h4>
+<div class="cards">
+<div class="card"><h5>🦠 Virus</h5>hängt sich an Dateien, verbreitet sich beim Ausführen.</div>
+<div class="card"><h5>🪱 Wurm</h5>verbreitet sich <b>selbstständig</b> übers Netz.</div>
+<div class="card"><h5>🐴 Trojaner</h5>tarnt sich als nützlich, öffnet Hintertür.</div>
+<div class="card"><h5>🔒 Ransomware</h5>verschlüsselt Daten, Lösegeld. <b>WannaCry</b> (2017, + wurmartig über Windows-Lücke).</div>
+<div class="card"><h5>🕵️ Spyware</h5>späht Passwörter/Daten aus. Auch: <b>Emotet</b> (täuschend echte E-Mails, Office-Makros).</div>
+</div>
+<h4>Social Engineering – Manipulation von MENSCHEN statt Technik</h4>
+<div class="cards">
+<div class="card"><h5>🎣 Phishing</h5>gefälschte Mails/Webseiten → Zugangsdaten/Anhänge.</div>
+<div class="card"><h5>📞 Vishing</h5>dasselbe per <b>Telefon</b> (falscher IT-Support/Bank).</div>
+<div class="card"><h5>🎯 Spear-Phishing</h5>gezielt auf eine Person.</div>
+<div class="card"><h5>👔 CEO-Fraud</h5>Angreifer als „Chef" → dringende Überweisung. Schutz: Sensibilisierung + fester Freigabeprozess + Meldeweg.</div>
+</div>
+<div class="merk">🧠 <b>Der Mensch ist das größte Sicherheitsrisiko</b> – umgeht jede Firewall, weil eine Person getäuscht wird, kein System geknackt.</div>
+<h4>Gefahren &amp; Schutzmaßnahmen</h4>
+<table>
+<tr><th>Ebene</th><th>Gefahren</th><th>Schutz</th></tr>
+<tr><td><b>Technisch</b></td><td>Malware<i class="gl"> (Schadsoftware)</i>, Hacker, unsichere Software, fehlende Updates, schwache Passwörter</td><td>Firewall + Virenschutz, Updates/Patches, Verschlüsselung, Backups, Zugriffsrechte, <b>MFA<i class="gl"> (Multi-Faktor-Authentifizierung)</i></b></td></tr>
+<tr><td><b>Strukturell / organisatorisch</b></td><td>fehlende Richtlinien, keine Backups, unklare Zuständigkeiten, kein Notfallplan</td><td>klare Richtlinien, Bildschirm sperren, Clean Desk, Ausweispflicht, Besucher begleiten</td></tr>
+<tr><td><b>Menschlich</b></td><td>ungeschult, Social Engineering, Fehlbedienung · <b>unabsichtlich</b> (Phishing<i class="gl"> (Daten-Angeln per Fake-Mail/-Website)</i>-Klick, USB-Stick) oder <b>absichtlich</b> (Datendiebstahl Unzufriedener)</td><td>Sensibilisierung, regelmäßige Schulungen, Phishing-Tests, klare Meldewege</td></tr>
+</table>
+<div class="m22">
+<div class="q" style="background:#dcfce7;border:2px solid #16a34a"><b>3-2-1-Backup-Regel</b><br><b>3</b> Kopien · auf <b>2</b> verschiedenen Medien · <b>1</b> davon offsite (anderer Standort/Cloud) – v. a. gegen Ransomware<i class="gl"> (verschlüsselt Daten, fordert Lösegeld)</i>.</div>
+<div class="q" style="background:#e0f2fe;border:2px solid #0284c7"><b>Verschlüsselung</b><br><b>symmetrisch</b> = EIN gemeinsamer Schlüssel, sehr schnell, Schlüsselübergabe-Problem (AES) · <b>asymmetrisch</b> = Public/Private-Paar, langsamer, löst die Übergabe (RSA).</div>
+</div>
+<div class="prax">🎯 <b>Praxis-Check:</b> <b>Zeichnen können:</b> CIA-Dreieck oder 3-2-1-Backup-Regel. <b>Szenario:</b> „‚Dringende’ Chef-Mail verlangt sofortige Überweisung?" → CEO-Fraud: nicht zahlen – fester Freigabeprozess + Meldeweg + Schulungen. „Bester Schutz gegen Ransomware?" → 3-2-1-Backup (1 Kopie offsite) + Updates + geschulte Mitarbeiter.</div>
+</section>
+
+<section class="topic" id="s56">
+<h3>5.6 Softwarefehler</h3>
+<div class="box b-def"><b>Software-Fehler (Bug)</b> = Programm weicht vom Soll-Zustand ab. <b>Software-Mangel</b> = Fehler, für den der Anbieter <b>rechtlich geradestehen muss</b>: nach <b>§ 922 ABGB<i class="gl"> (Allgemeines bürgerliches Gesetzbuch (AT))</i></b> mangelhaft, wenn die Software nicht das Vereinbarte (Pflichtenheft<i class="gl"> (WIE umgesetzt wird)</i>) kann oder nicht leistet, was man bei vergleichbaren Programmen <b>gewöhnlich erwarten</b> darf.</div>
+<h4>Fehlerkategorien A–D</h4>
+<div class="svgwrap">
+<svg viewBox="0 0 740 190" xmlns="http://www.w3.org/2000/svg">
+<rect x="30" y="20" width="160" height="76" rx="10" fill="#dc2626"/><text x="110" y="48" class="tw ta">A · sehr schwer</text><text x="110" y="66" class="tw ta" style="font-weight:400">Systemausfall,</text><text x="110" y="82" class="tw ta" style="font-weight:400">KEINE Umgehung</text>
+<rect x="210" y="20" width="160" height="76" rx="10" fill="#ea580c"/><text x="290" y="48" class="tw ta">B · schwer</text><text x="290" y="66" class="tw ta" style="font-weight:400">wichtige Funktionen defekt;</text><text x="290" y="82" class="tw ta" style="font-weight:400">Umgehung = mühsame Notlösung</text>
+<rect x="395" y="20" width="160" height="76" rx="10" fill="#ca8a04"/><text x="475" y="48" class="tw ta">C · mittel</text><text x="475" y="66" class="tw ta" style="font-weight:400">unwichtigere Funktionen;</text><text x="475" y="82" class="tw ta" style="font-weight:400">Umgehung zumutbar</text>
+<rect x="575" y="20" width="140" height="76" rx="10" fill="#16a34a"/><text x="645" y="48" class="tw ta">D · leicht</text><text x="645" y="66" class="tw ta" style="font-weight:400">kleine (optische) Störung</text><text x="645" y="82" class="tw ta" style="font-weight:400">ohne Ablaufstörung</text>
+<line x1="383" y1="10" x2="383" y2="115" stroke="#dc2626" stroke-width="3" stroke-dasharray="7 5"/>
+<text x="200" y="130" class="tb ta" fill="#dc2626">A + B = abnahmeverhindernd → sofort beheben (Notfall-Release)</text>
+<text x="560" y="130" class="tb ta" fill="#16a34a">C + D verhindern Abnahme NICHT → nächster regulärer Patch</text>
+<text x="370" y="165" class="tm ta">Diverse Normen (BITKOM, DIN, TL9000) · Achtung: Skala wird manchmal umgekehrt verwendet! · Grad der Auswirkung bestimmt die Kategorie</text>
+</svg>
+</div>
+<h4>Abnahme &amp; Gewährleistung</h4>
+<div class="box b-def"><b>UAT<i class="gl"> (User Acceptance Test: Kunden-Abnahmetest)</i>-Abnahmeprotokoll</b> = zentrales Dokument am Ende der Testphase, unterschrieben im <b>Go/No-Go-Meeting</b> – offizielle Live-Entscheidung. <b>Alle bekannten Restfehler müssen ins Protokoll</b> („wir gehen live, ABER diese Fehler werden noch repariert") = der <b>Vorbehalt</b>.</div>
+<div class="box b-best"><b>Gewährleistung<i class="gl"> (gesetzliche Gratis-Mängelhaftung ab Abnahme)</i></b> beginnt <b>mit der Abnahme<i class="gl"> (formelle Übernahme-Bestätigung des Kunden)</i></b>: Anbieter haftet, dass die Software bei Übergabe mangelfrei war. <b>Rügepflicht:</b> Kunde muss entdeckte Mängel aktiv melden. <b>Einschränkung:</b> nach der Abnahme nur Mängel reklamierbar, die bei der Abnahmeprüfung <b>noch nicht erkennbar</b> waren – bekannte Fehler nur bei ausdrücklichem <b>Vorbehalt</b> im Protokoll.</div>
+</section>
+
+<section class="topic" id="s57">
+<h3>5.7 Wartungsverträge</h3>
+<div class="box b-def"><b>Wartungsvertrag</b> = regelt alles <b>nach Fertigstellung</b> der Software, damit sie langfristig fehlerfrei und sicher läuft. <b>Zielgruppe:</b> Unternehmen, die wirtschaftlich auf Individualsoftware/SaaS<i class="gl"> (fertige Software mieten (Software as a Service))</i> angewiesen sind (Webshop, Kassensystem). <b>Zeitpunkt:</b> startet <b>mit dem Go-Live<i class="gl"> (Produktivstart)</i></b> („Überwachung im laufenden Betrieb").</div>
+<h4>Die 4 Arten der Wartung</h4>
+<div class="cards">
+<div class="card"><h5>🔧 Korrektiv</h5>klassische Fehlerbehebung (Abstürze, Bugs).</div>
+<div class="card"><h5>🛡️ Präventiv</h5>unsichtbare Schwachstellen beheben, <b>bevor</b> sie zu Ausfällen führen.</div>
+<div class="card"><h5>⚡ Perfektionierend</h5>Performance verbessern, kleine neue Funktionen.</div>
+<div class="card"><h5>🔄 Adaptiv</h5>Anpassung an neue Umgebungen (neues OS, neue Hardware).</div>
+</div>
+<div class="merk">🧠 <b>Update</b> = Aktualisierung in derselben Version (Bugfixes, Sicherheit) · <b>Upgrade</b> = Höherstufung auf neue Version mit deutlich mehr Funktionen.</div>
+<h4>Struktur des Vertrags</h4>
+<div class="box b-def"><b>Leistungsdefinition</b> (nur Sicherheitsupdates oder auch Upgrades?) · <b>Grenzen der Wartung</b>: harte Trennung „echter Fehler" (inkludiert) vs. „neuer Kundenwunsch" (extra bezahlt) · <b>SLA<i class="gl"> (Service Level Agreement: vertragliches Service-Versprechen)</i>-Teil</b>: Reaktionszeit (wie schnell meldet sich der Support) + Behebungszeit (wie schnell ist der Fehler weg) · <b>Datenschutz &amp; Fernwartung</b>: Zugriff von außen → DSGVO<i class="gl"> (EU-Datenschutz-Grundverordnung)</i>, <b>AVV</b> (Auftragsverarbeitungsvertrag).</div>
+<h4>Kostenmodelle (4 Varianten)</h4>
+<div class="cards">
+<div class="card"><h5>% der Gesamtkosten</h5>jährlich fixer Prozentwert (oft <b>15–20 %</b>) der ursprünglichen Entwicklungskosten.</div>
+<div class="card"><h5>Stundenpaket</h5>festes Kontingent pro Monat (z. B. 20 h), darüber hinaus extra.</div>
+<div class="card"><h5>Nach Aufwand (T&amp;M)</h5>exakt die geleistete Zeit wird verrechnet.</div>
+<div class="card"><h5>Monatliche Pauschale</h5>Flatrate – gleicher Betrag, egal wie viel anfällt.</div>
+</div>
+<div class="m22">
+<div class="q" style="background:#dcfce7;border:2px solid #16a34a"><b>Gewährleistung</b> = <b>gesetzliches Recht, gratis</b>: Fehler, die schon bei Übergabe (unbemerkt) im Code waren, behebt der Entwickler kostenlos.</div>
+<div class="q" style="background:#e0f2fe;border:2px solid #0284c7"><b>Wartungsvertrag</b> = <b>freiwilliger, bezahlter Zusatzvertrag</b> für Service, Updates und später entstehende Fehler.</div>
+</div>
+<div class="box b-best"><b>Überschneidung sauber regeln:</b> solange Gewährleistung<i class="gl"> (gesetzliche Gratis-Mängelhaftung ab Abnahme)</i> läuft, sind Mängel günstiger/gratis – dem Kunden dafür nichts über den Wartungsvertrag verrechnen; mit dem Kunden vereinbaren.</div>
+</section>
+
+<p class="foot">SYP · visueller Lernzettel · mündliche Matura · 30 Themen in 5 Körben · ⭐ = wahrscheinliches Prüfungsthema</p>
+</main>
+</body>
+</html>
