@@ -470,13 +470,28 @@
           const awayScore = parseInt(away.score, 10) || 0;
           
           const old = espnPreviousScores[id];
+          const hName = typeof translateTeam === "function" ? translateTeam(home.team.displayName) : home.team.displayName;
+          const aName = typeof translateTeam === "function" ? translateTeam(away.team.displayName) : away.team.displayName;
+          
           if (old) {
-            const hName = typeof translateTeam === "function" ? translateTeam(home.team.displayName) : home.team.displayName;
-            const aName = typeof translateTeam === "function" ? translateTeam(away.team.displayName) : away.team.displayName;
             if (homeScore > old.home) notifyGoal(hName, homeScore, aName, awayScore);
             if (awayScore > old.away) notifyGoal(aName, awayScore, hName, homeScore);
           }
           espnPreviousScores[id] = { home: homeScore, away: awayScore };
+
+          // Update local match state if found
+          let updated = false;
+          allMatches.forEach(m => {
+            if (m.home.name === hName && m.away.name === aName && m.status !== "FINISHED") {
+              if (m.homeScore !== homeScore || m.awayScore !== awayScore || m.status !== "IN_PLAY") {
+                m.homeScore = homeScore;
+                m.awayScore = awayScore;
+                m.status = "IN_PLAY";
+                updated = true;
+              }
+            }
+          });
+          if (updated) renderAll();
         }
       });
     } catch (e) {
@@ -626,10 +641,14 @@
       if (iWon && !celebratedWins.has(m.id)) newWins.push(m.id);
       const chip = STAGE_DE[m.stage] + (m.group ? " · " + m.group.replace("GROUP_", "Gruppe ") : "");
 
-      // Mittelteil: Ergebnis oder "gegen"
-      const middle = finished
-        ? '<div class="score">' + m.homeScore + '<span class="sep">:</span>' + m.awayScore + '</div>'
-        : '<div class="vs">gegen</div>';
+      const isLive = m.status === "IN_PLAY" || m.status === "PAUSED" || m.status === "LIVE";
+      const hasScore = m.homeScore !== null && m.awayScore !== null;
+      let middle = '<div class="vs">gegen</div>';
+      if (finished) {
+        middle = '<div class="score">' + m.homeScore + '<span class="sep">:</span>' + m.awayScore + '</div>';
+      } else if (isLive && hasScore) {
+        middle = '<div class="score" style="position:relative; color:var(--accent);">' + m.homeScore + '<span class="sep">:</span>' + m.awayScore + '<div class="dot live" style="position:absolute; top:-18px; left:50%; transform:translateX(-50%); font-size:0.4em;">LIVE</div></div>';
+      }
 
       // Tipp-Knöpfe
       let betRow = "";
