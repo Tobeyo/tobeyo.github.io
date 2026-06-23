@@ -622,18 +622,24 @@
     const live = matches.find((m) => ["IN_PLAY", "PAUSED", "LIVE"].indexOf(m.status) !== -1);
     if (live) return live.id;
     const now = Date.now();
-    const upcoming = matches.find((m) => new Date(m.utcDate).getTime() >= now && m.status !== "FINISHED");
+    let upcoming = null;
+    let latestPast = null;
+    matches.forEach((m) => {
+      const ts = new Date(m.utcDate).getTime();
+      if (!Number.isFinite(ts)) return;
+      if (ts >= now && (!upcoming || ts < upcoming.ts)) upcoming = { id: m.id, ts: ts };
+      if (ts <= now && (!latestPast || ts > latestPast.ts)) latestPast = { id: m.id, ts: ts };
+    });
     if (upcoming) return upcoming.id;
-    for (let i = matches.length - 1; i >= 0; i--) {
-      if (new Date(matches[i].utcDate).getTime() <= now) return matches[i].id;
-    }
+    if (latestPast) return latestPast.id;
     return matches.length ? matches[0].id : null;
   }
   function autoScrollToCurrentMatch(matches) {
     if (didAutoScrollToCurrent || !currentUser || !matches.length) return;
     const id = pickCurrentMatchId(matches);
     if (!id) return;
-    const target = el("matchList").querySelector('.match[data-match-id="' + id + '"]');
+    const safeId = (window.CSS && CSS.escape) ? CSS.escape(String(id)) : String(id).replace(/["\\]/g, "\\$&");
+    const target = el("matchList").querySelector('.match[data-match-id="' + safeId + '"]');
     if (!target) return;
     didAutoScrollToCurrent = true;
     requestAnimationFrame(() => {
