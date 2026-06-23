@@ -526,6 +526,7 @@
   let allBets = [];
   let activeStage = "ALL";
   let animateNextRender = true;
+  let didAutoScrollToCurrent = false;
 
   const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const pendingBets = new Set();   // Spiele, deren Tipp gerade gespeichert wird (gegen Doppelklick)
@@ -617,6 +618,28 @@
     const b = allBets.find((x) => x.matchId === matchId && x.userKey === userKey);
     return b ? b.pick : null;
   }
+  function pickCurrentMatchId(matches) {
+    const live = matches.find((m) => ["IN_PLAY", "PAUSED", "LIVE"].indexOf(m.status) !== -1);
+    if (live) return live.id;
+    const now = Date.now();
+    const upcoming = matches.find((m) => new Date(m.utcDate).getTime() >= now && m.status !== "FINISHED");
+    if (upcoming) return upcoming.id;
+    for (let i = matches.length - 1; i >= 0; i--) {
+      if (new Date(matches[i].utcDate).getTime() <= now) return matches[i].id;
+    }
+    return matches.length ? matches[0].id : null;
+  }
+  function autoScrollToCurrentMatch(matches) {
+    if (didAutoScrollToCurrent || !currentUser || !matches.length) return;
+    const id = pickCurrentMatchId(matches);
+    if (!id) return;
+    const target = el("matchList").querySelector('.match[data-match-id="' + id + '"]');
+    if (!target) return;
+    didAutoScrollToCurrent = true;
+    requestAnimationFrame(() => {
+      target.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
+    });
+  }
 
   function pickLabel(m, pick) {
     if (pick === "HOME") return m.home.name;
@@ -694,7 +717,7 @@
         others = '<div class="others"><h4>Tipps der Familie (' + bets.length + ")</h4>" + lines + "</div>";
       }
 
-      return '<div class="match' + (iWon ? ' win-card' : '') + '" style="--i:' + idx + '">' +
+      return '<div class="match' + (iWon ? ' win-card' : '') + '" data-match-id="' + m.id + '" style="--i:' + idx + '">' +
         '<div class="match-top"><span class="chip">' + escapeHtml(chip) + "</span>" +
         '<span class="match-date">' + fmtDate(m.utcDate) + "</span></div>" +
         '<div class="teams">' +
@@ -718,6 +741,7 @@
     list.querySelectorAll(".bet-btn:not(:disabled)").forEach((btn) => {
       btn.addEventListener("click", () => placeBet(btn.dataset.match, btn.dataset.pick, btn));
     });
+    autoScrollToCurrentMatch(matches);
 
     // Sieg-Konfetti (einmalig pro Spiel)
     if (newWins.length) {
@@ -805,6 +829,7 @@
     if (!name) return;
     currentUser = name;
     userKey = keyOf(name);
+    didAutoScrollToCurrent = false;
     localStorage.setItem("wm2026_name", name);
     showApp();
     renderAll();
