@@ -526,6 +526,7 @@
   let allBets = [];
   let activeStage = "ALL";
   let animateNextRender = true;
+  let didAutoScrollToCurrent = false;
 
   const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const pendingBets = new Set();   // Spiele, deren Tipp gerade gespeichert wird (gegen Doppelklick)
@@ -617,6 +618,40 @@
     const b = allBets.find((x) => x.matchId === matchId && x.userKey === userKey);
     return b ? b.pick : null;
   }
+  function pickCurrentMatchId(matches) {
+    const live = matches.find((m) => ["IN_PLAY", "PAUSED", "LIVE"].includes(m.status));
+    if (live) return live.id;
+    const now = Date.now();
+    let upcoming = null;
+    let latestPast = null;
+    matches.forEach((m) => {
+      const ts = new Date(m.utcDate).getTime();
+      if (Number.isNaN(ts)) return;
+      if (ts >= now && (!upcoming || ts < upcoming.ts)) upcoming = { id: m.id, ts };
+      if (ts < now && (!latestPast || ts > latestPast.ts)) latestPast = { id: m.id, ts };
+    });
+    if (upcoming) return upcoming.id;
+    if (latestPast) return latestPast.id;
+    return matches.length ? matches[0].id : null;
+  }
+  function autoScrollToCurrentMatch(matches) {
+    if (didAutoScrollToCurrent || !currentUser || !matches.length) return;
+    const id = pickCurrentMatchId(matches);
+    if (!id) return;
+    const listEl = el("matchList");
+    if (!listEl) return;
+    const cards = listEl.querySelectorAll(".match");
+    const idStr = String(id);
+    let target = null;
+    for (const card of cards) {
+      if (card.dataset.matchId === idStr) { target = card; break; }
+    }
+    if (!target) return;
+    didAutoScrollToCurrent = true;
+    requestAnimationFrame(() => {
+      target.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
+    });
+  }
 
   function pickLabel(m, pick) {
     if (pick === "HOME") return m.home.name;
@@ -694,7 +729,7 @@
         others = '<div class="others"><h4>Tipps der Familie (' + bets.length + ")</h4>" + lines + "</div>";
       }
 
-      return '<div class="match' + (iWon ? ' win-card' : '') + '" style="--i:' + idx + '">' +
+      return '<div class="match' + (iWon ? ' win-card' : '') + '" data-match-id="' + m.id + '" style="--i:' + idx + '">' +
         '<div class="match-top"><span class="chip">' + escapeHtml(chip) + "</span>" +
         '<span class="match-date">' + fmtDate(m.utcDate) + "</span></div>" +
         '<div class="teams">' +
@@ -718,6 +753,7 @@
     list.querySelectorAll(".bet-btn:not(:disabled)").forEach((btn) => {
       btn.addEventListener("click", () => placeBet(btn.dataset.match, btn.dataset.pick, btn));
     });
+    autoScrollToCurrentMatch(matches);
 
     // Sieg-Konfetti (einmalig pro Spiel)
     if (newWins.length) {
@@ -805,6 +841,7 @@
     if (!name) return;
     currentUser = name;
     userKey = keyOf(name);
+    didAutoScrollToCurrent = false;
     localStorage.setItem("wm2026_name", name);
     showApp();
     renderAll();
