@@ -638,7 +638,9 @@
     if (didAutoScrollToCurrent || !currentUser || !matches.length) return;
     const id = pickCurrentMatchId(matches);
     if (!id) return;
-    const cards = el("matchList").querySelectorAll(".match");
+    const listEl = el("matchList");
+    if (!listEl) return;
+    const cards = listEl.querySelectorAll(".match");
     let target = null;
     for (const card of cards) {
       if (card.dataset.matchId === String(id)) { target = card; break; }
