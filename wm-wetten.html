@@ -627,8 +627,8 @@
     matches.forEach((m) => {
       const ts = new Date(m.utcDate).getTime();
       if (Number.isNaN(ts)) return;
-      if (ts >= now && (!upcoming || ts < upcoming.ts)) upcoming = { id: m.id, ts: ts };
-      if (ts < now && (!latestPast || ts > latestPast.ts)) latestPast = { id: m.id, ts: ts };
+      if (ts >= now && (!upcoming || ts < upcoming.ts)) upcoming = { id: m.id, ts };
+      if (ts < now && (!latestPast || ts > latestPast.ts)) latestPast = { id: m.id, ts };
     });
     if (upcoming) return upcoming.id;
     if (latestPast) return latestPast.id;
@@ -641,9 +641,10 @@
     const listEl = el("matchList");
     if (!listEl) return;
     const cards = listEl.querySelectorAll(".match");
+    const idStr = String(id);
     let target = null;
     for (const card of cards) {
-      if (card.dataset.matchId === String(id)) { target = card; break; }
+      if (card.dataset.matchId === idStr) { target = card; break; }
     }
     if (!target) return;
     didAutoScrollToCurrent = true;
