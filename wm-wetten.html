@@ -628,7 +628,7 @@
       const ts = new Date(m.utcDate).getTime();
       if (!Number.isFinite(ts)) return;
       if (ts >= now && (!upcoming || ts < upcoming.ts)) upcoming = { id: m.id, ts: ts };
-      if (ts <= now && (!latestPast || ts > latestPast.ts)) latestPast = { id: m.id, ts: ts };
+      if (ts < now && (!latestPast || ts > latestPast.ts)) latestPast = { id: m.id, ts: ts };
     });
     if (upcoming) return upcoming.id;
     if (latestPast) return latestPast.id;
@@ -638,8 +638,7 @@
     if (didAutoScrollToCurrent || !currentUser || !matches.length) return;
     const id = pickCurrentMatchId(matches);
     if (!id) return;
-    const safeId = (window.CSS && CSS.escape) ? CSS.escape(String(id)) : String(id).replace(/["\\]/g, "\\$&");
-    const target = el("matchList").querySelector('.match[data-match-id="' + safeId + '"]');
+    const target = Array.from(el("matchList").querySelectorAll(".match")).find((node) => node.dataset.matchId === String(id));
     if (!target) return;
     didAutoScrollToCurrent = true;
     requestAnimationFrame(() => {
