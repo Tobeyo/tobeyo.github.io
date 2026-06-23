@@ -619,7 +619,7 @@
     return b ? b.pick : null;
   }
   function pickCurrentMatchId(matches) {
-    const live = matches.find((m) => ["IN_PLAY", "PAUSED", "LIVE"].indexOf(m.status) !== -1);
+    const live = matches.find((m) => ["IN_PLAY", "PAUSED", "LIVE"].includes(m.status));
     if (live) return live.id;
     const now = Date.now();
     let upcoming = null;
@@ -638,7 +638,11 @@
     if (didAutoScrollToCurrent || !currentUser || !matches.length) return;
     const id = pickCurrentMatchId(matches);
     if (!id) return;
-    const target = Array.from(el("matchList").querySelectorAll(".match")).find((node) => node.dataset.matchId === String(id));
+    const cards = el("matchList").querySelectorAll(".match");
+    let target = null;
+    for (let i = 0; i < cards.length; i++) {
+      if (cards[i].dataset.matchId === String(id)) { target = cards[i]; break; }
+    }
     if (!target) return;
     didAutoScrollToCurrent = true;
     requestAnimationFrame(() => {
