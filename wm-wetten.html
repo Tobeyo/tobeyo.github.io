@@ -131,6 +131,24 @@
     }
     .refresh button:hover{ border-color:var(--border2); background:var(--surface2); }
 
+    /* Kategorien (ausklappbar) */
+    .cat{ margin-bottom:10px; }
+    .cat-head{
+      width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding:14px 16px; background:var(--surface); border:1px solid var(--border); border-radius:14px;
+      color:var(--text); font-weight:800; font-size:1.02em; cursor:pointer; backdrop-filter:blur(6px);
+      -webkit-tap-highlight-color:transparent; transition:border-color .2s, background .2s;
+    }
+    .cat-head:hover{ border-color:var(--border2); background:var(--surface2); }
+    .cat-title{ letter-spacing:-0.01em; }
+    .cat-meta{ display:flex; align-items:center; gap:10px; }
+    .cat-count{ font-size:0.72em; font-weight:700; color:var(--muted); background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:999px; padding:2px 9px; }
+    .cat-chev{ color:var(--muted); font-size:0.85em; transition:transform .25s; }
+    .cat.open .cat-chev{ transform:rotate(180deg); }
+    .cat-body{ display:grid; grid-template-rows:0fr; transition:grid-template-rows .3s ease; }
+    .cat.open .cat-body{ grid-template-rows:1fr; }
+    .cat-inner{ overflow:hidden; min-height:0; padding-top:10px; }
+
     /* Match card */
     .match{
       position:relative; background:var(--surface); border:1px solid var(--border); border-radius:20px;
@@ -193,6 +211,30 @@
     .lb-pts{ font-weight:800; font-size:1.2em; color:var(--accent); }
     .lb-pts .lb-sub{ color:var(--muted); }
     .lb-row.top1 .lb-pts{ color:var(--gold); }
+
+    /* Teams / Tabellen */
+    .teams-intro{ color:var(--muted); font-size:0.88em; margin:2px 4px 14px; }
+    .grp-card{ background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:6px 14px 10px; margin-bottom:14px; backdrop-filter:blur(6px); }
+    .grp-head{ display:flex; justify-content:space-between; align-items:baseline; padding:12px 4px 6px; border-bottom:1px solid var(--border); margin-bottom:2px; }
+    .grp-title{ font-weight:800; font-size:1.05em; letter-spacing:-0.01em; }
+    .grp-legend{ font-size:0.68em; color:var(--muted); font-weight:700; letter-spacing:0.04em; text-transform:uppercase; }
+    .team-row{ display:flex; align-items:center; gap:11px; padding:11px 4px; border-bottom:1px solid var(--border); }
+    .team-row:last-child{ border-bottom:none; }
+    .tr-rank{ width:22px; text-align:center; font-weight:800; font-size:0.95em; color:var(--muted); flex:none; position:relative; }
+    .team-row.qual .tr-rank{ color:var(--accent); }
+    .team-row.qual .tr-rank::before{ content:""; position:absolute; left:-6px; top:50%; transform:translateY(-50%); width:3px; height:20px; border-radius:2px; background:linear-gradient(var(--accent),var(--accent2)); }
+    .tr-flag{ flex:none; width:30px; text-align:center; font-size:1.3em; line-height:1; }
+    .tr-flag img{ width:28px; height:20px; object-fit:contain; border-radius:3px; filter:drop-shadow(0 2px 5px rgba(0,0,0,.5)); }
+    .tr-main{ flex:1; min-width:0; }
+    .tr-name{ font-weight:700; font-size:0.95em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .tr-sub{ font-size:0.74em; color:var(--muted); margin-top:1px; }
+    .tr-form{ display:flex; gap:3px; margin-top:5px; }
+    .fdot{ width:15px; height:15px; border-radius:5px; font-size:0.6em; font-weight:800; display:flex; align-items:center; justify-content:center; color:#04160d; }
+    .fdot.w{ background:var(--accent); }
+    .fdot.d{ background:var(--gold); }
+    .fdot.l{ background:var(--danger); color:#fff; }
+    .tr-pts{ flex:none; font-weight:800; font-size:1.25em; color:var(--accent); text-align:right; min-width:46px; }
+    .tr-pts span{ display:block; font-size:0.42em; color:var(--muted); font-weight:700; letter-spacing:0.04em; text-transform:uppercase; margin-top:-1px; }
 
     /* Footer */
     footer{ text-align:center; margin-top:30px; color:var(--muted); font-size:0.8em; }
@@ -257,16 +299,20 @@
 
       <div class="tabs">
         <button class="tab active" id="tabMatches">⚽ Spiele</button>
+        <button class="tab" id="tabTeams">📊 Teams</button>
         <button class="tab" id="tabBoard">🏆 Rangliste</button>
       </div>
 
       <!-- Spiele -->
       <div id="matchesView">
-        <div class="filterbar">
-          <select id="stageFilter"><option value="ALL">Alle Spiele</option></select>
-        </div>
         <div class="refresh"><button id="refreshBtn">🔄 Ergebnisse aktualisieren</button></div>
         <div id="matchList"></div>
+      </div>
+
+      <!-- Teams -->
+      <div id="teamsView" class="hidden">
+        <p class="teams-intro">Aktuelle Daten &amp; Leistung jedes Teams – damit du besser einschätzen kannst, auf wen du tippst.</p>
+        <div id="teamsList"></div>
       </div>
 
       <!-- Rangliste -->
@@ -513,7 +559,6 @@
 
     allMatches = matches;
     allMatches.sort((a, b) => new Date(a.utcDate) - new Date(b.utcDate));
-    buildStageFilter();
     animateNextRender = true;
     renderAll();
   }
@@ -524,9 +569,8 @@
   let currentUser = localStorage.getItem("wm2026_name") || "";
   let userKey = "";
   let allBets = [];
-  let activeStage = "ALL";
+  let openStages = null;          // welche Phasen-Kategorien aufgeklappt sind
   let animateNextRender = true;
-  let didAutoScrollToCurrent = false;
 
   const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const pendingBets = new Set();   // Spiele, deren Tipp gerade gespeichert wird (gegen Doppelklick)
@@ -579,15 +623,6 @@
   }
   function clearNotice() { el("noticeArea").innerHTML = ""; }
 
-  function buildStageFilter() {
-    const present = [];
-    STAGE_ORDER.forEach((s) => { if (allMatches.some((m) => m.stage === s)) present.push(s); });
-    const sel = el("stageFilter");
-    sel.innerHTML = '<option value="ALL">Alle Spiele</option>' +
-      present.map((s) => '<option value="' + s + '">' + STAGE_DE[s] + '</option>').join("");
-    sel.value = activeStage;
-  }
-
   function fmtDate(iso) {
     try {
       return new Date(iso).toLocaleString("de-DE", {
@@ -634,25 +669,6 @@
     if (latestPast) return latestPast.id;
     return matches.length ? matches[0].id : null;
   }
-  function autoScrollToCurrentMatch(matches) {
-    if (didAutoScrollToCurrent || !currentUser || !matches.length) return;
-    const id = pickCurrentMatchId(matches);
-    if (!id) return;
-    const listEl = el("matchList");
-    if (!listEl) return;
-    const cards = listEl.querySelectorAll(".match");
-    const idStr = String(id);
-    let target = null;
-    for (const card of cards) {
-      if (card.dataset.matchId === idStr) { target = card; break; }
-    }
-    if (!target) return;
-    didAutoScrollToCurrent = true;
-    requestAnimationFrame(() => {
-      target.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
-    });
-  }
-
   function pickLabel(m, pick) {
     if (pick === "HOME") return m.home.name;
     if (pick === "AWAY") return m.away.name;
@@ -661,12 +677,13 @@
 
   function renderMatches() {
     const list = el("matchList");
-    const matches = allMatches.filter((m) => activeStage === "ALL" || m.stage === activeStage);
+    const matches = allMatches;
     if (!matches.length) { list.innerHTML = '<div class="empty-hint">Keine Spiele vorhanden.</div>'; return; }
 
     const newWins = [];
+    let idx = 0;
 
-    list.innerHTML = matches.map((m, idx) => {
+    function cardHtml(m) {
       const locked = isLocked(m);
       const known = teamsKnown(m);
       const finished = m.status === "FINISHED" && m.outcome;
@@ -729,7 +746,7 @@
         others = '<div class="others"><h4>Tipps der Familie (' + bets.length + ")</h4>" + lines + "</div>";
       }
 
-      return '<div class="match' + (iWon ? ' win-card' : '') + '" data-match-id="' + m.id + '" style="--i:' + idx + '">' +
+      return '<div class="match' + (iWon ? ' win-card' : '') + '" data-match-id="' + m.id + '" style="--i:' + (idx++) + '">' +
         '<div class="match-top"><span class="chip">' + escapeHtml(chip) + "</span>" +
         '<span class="match-date">' + fmtDate(m.utcDate) + "</span></div>" +
         '<div class="teams">' +
@@ -738,6 +755,32 @@
           '<div class="team">' + crestHtml(m.away) + '<div class="tname">' + escapeHtml(m.away.name) + "</div></div>" +
         "</div>" +
         betRow + resultLine + others +
+      "</div>";
+    }
+
+    // Spiele nach Phase gruppieren – jede Phase ist eine ausklappbare Kategorie
+    const byStage = {};
+    matches.forEach((m) => { (byStage[m.stage] = byStage[m.stage] || []).push(m); });
+    const stages = STAGE_ORDER.filter((s) => byStage[s] && byStage[s].length);
+
+    // Beim ersten Aufbau: Phase des aktuellen Spiels offen, der Rest zugeklappt
+    if (openStages === null) {
+      openStages = new Set();
+      const cur = matches.find((m) => m.id === pickCurrentMatchId(matches));
+      openStages.add(cur ? cur.stage : (stages[0] || "GROUP_STAGE"));
+    }
+
+    list.innerHTML = stages.map((stage) => {
+      const grp = byStage[stage];
+      const open = openStages.has(stage);
+      const cards = grp.map(cardHtml).join("");
+      return '<div class="cat' + (open ? " open" : "") + '">' +
+        '<button class="cat-head" type="button" data-stage="' + stage + '">' +
+          '<span class="cat-title">' + escapeHtml(STAGE_DE[stage]) + "</span>" +
+          '<span class="cat-meta"><span class="cat-count">' + grp.length + "</span>" +
+          '<span class="cat-chev">▾</span></span>' +
+        "</button>" +
+        '<div class="cat-body"><div class="cat-inner">' + cards + "</div></div>" +
       "</div>";
     }).join("");
 
@@ -749,11 +792,19 @@
       list.classList.remove("animate-in");
     }
 
+    // Kategorie auf-/zuklappen
+    list.querySelectorAll(".cat-head").forEach((head) => {
+      head.addEventListener("click", () => {
+        const cat = head.parentElement;
+        if (cat.classList.toggle("open")) openStages.add(head.dataset.stage);
+        else openStages.delete(head.dataset.stage);
+      });
+    });
+
     // Klicks an die Tipp-Knöpfe hängen
     list.querySelectorAll(".bet-btn:not(:disabled)").forEach((btn) => {
       btn.addEventListener("click", () => placeBet(btn.dataset.match, btn.dataset.pick, btn));
     });
-    autoScrollToCurrentMatch(matches);
 
     // Sieg-Konfetti (einmalig pro Spiel)
     if (newWins.length) {
@@ -826,7 +877,117 @@
     }).join("");
   }
 
-  function renderAll() { renderMatches(); renderLeaderboard(); }
+  // =====================================================================
+  // TEAM-DATEN: Tabelle & Leistung pro Mannschaft (aus den Spielen errechnet)
+  // =====================================================================
+  function computeTeamStats() {
+    const teams = {};
+    const ensure = (team) => {
+      const name = team.name;
+      if (!teams[name]) {
+        teams[name] = { name: name, crest: team.crest || "", group: null,
+          played: 0, win: 0, draw: 0, loss: 0, gf: 0, ga: 0, points: 0, form: [] };
+      }
+      if (!teams[name].crest && team.crest) teams[name].crest = team.crest;
+      return teams[name];
+    };
+
+    // Alle Gruppen-Teams erfassen (auch ohne gespieltes Spiel), Gruppe zuordnen
+    allMatches.forEach((m) => {
+      if (m.stage === "GROUP_STAGE" && teamsKnown(m)) {
+        ensure(m.home).group = m.group;
+        ensure(m.away).group = m.group;
+      }
+    });
+
+    // allMatches ist nach Datum sortiert -> Form bleibt chronologisch
+    allMatches.forEach((m) => {
+      const finished = m.status === "FINISHED" && m.outcome && m.homeScore !== null && m.awayScore !== null;
+      if (!finished || !teamsKnown(m)) return;
+      const h = ensure(m.home), a = ensure(m.away);
+
+      // Tabellen-Wertung (Punkte/Tore) nur aus der Gruppenphase
+      if (m.stage === "GROUP_STAGE") {
+        h.played++; a.played++;
+        h.gf += m.homeScore; h.ga += m.awayScore;
+        a.gf += m.awayScore; a.ga += m.homeScore;
+        if (m.outcome === "HOME") { h.win++; a.loss++; h.points += 3; }
+        else if (m.outcome === "AWAY") { a.win++; h.loss++; a.points += 3; }
+        else { h.draw++; a.draw++; h.points++; a.points++; }
+      }
+
+      // Form über alle entschiedenen Spiele (auch K.-o.)
+      h.form.push(m.outcome === "DRAW" ? "D" : (m.outcome === "HOME" ? "W" : "L"));
+      a.form.push(m.outcome === "DRAW" ? "D" : (m.outcome === "AWAY" ? "W" : "L"));
+    });
+
+    return teams;
+  }
+
+  function formHtml(form) {
+    if (!form.length) return "";
+    const map = { W: ["w", "S"], D: ["d", "U"], L: ["l", "N"] };
+    const dots = form.slice(-5).map((r) => {
+      const x = map[r] || ["d", "?"];
+      return '<span class="fdot ' + x[0] + '">' + x[1] + "</span>";
+    }).join("");
+    return '<div class="tr-form">' + dots + "</div>";
+  }
+
+  function renderTeams() {
+    const container = el("teamsList");
+    if (!container) return;
+    const teams = computeTeamStats();
+
+    const groups = {};
+    Object.values(teams).forEach((t) => {
+      if (t.group) { (groups[t.group] = groups[t.group] || []).push(t); }
+    });
+    const groupKeys = Object.keys(groups).sort();
+
+    if (!groupKeys.length) {
+      container.innerHTML = '<div class="empty-hint">Noch keine Team-Daten – sobald die Gruppen feststehen, siehst du hier Tabellen und Leistung. ⚽</div>';
+      return;
+    }
+
+    container.innerHTML = groupKeys.map((gk) => {
+      const list = groups[gk].sort((a, b) =>
+        b.points - a.points ||
+        (b.gf - b.ga) - (a.gf - a.ga) ||
+        b.gf - a.gf ||
+        a.name.localeCompare(b.name)
+      );
+      const title = gk.replace("GROUP_", "Gruppe ");
+
+      const rows = list.map((t, i) => {
+        const diff = t.gf - t.ga;
+        const diffStr = (diff > 0 ? "+" : "") + diff;
+        const qual = i < 2 ? " qual" : "";
+        const sub = t.played
+          ? t.played + " Sp · " + t.win + "S " + t.draw + "U " + t.loss + "N · " + t.gf + ":" + t.ga + " (" + diffStr + ")"
+          : "Noch kein Spiel";
+        return '<div class="team-row' + qual + '">' +
+            '<div class="tr-rank">' + (i + 1) + "</div>" +
+            '<div class="tr-flag">' + (t.crest && t.crest.indexOf("http") === 0
+              ? '<img src="' + t.crest + '" alt="">' : (t.crest || "⚽")) + "</div>" +
+            '<div class="tr-main">' +
+              '<div class="tr-name">' + escapeHtml(t.name) + "</div>" +
+              '<div class="tr-sub">' + escapeHtml(sub) + "</div>" +
+              formHtml(t.form) +
+            "</div>" +
+            '<div class="tr-pts">' + t.points + "<span>Pkt</span></div>" +
+          "</div>";
+      }).join("");
+
+      return '<div class="grp-card">' +
+          '<div class="grp-head"><span class="grp-title">' + escapeHtml(title) + "</span>" +
+          '<span class="grp-legend">Form · neueste rechts</span></div>' +
+          rows +
+        "</div>";
+    }).join("");
+  }
+
+  function renderAll() { renderMatches(); renderLeaderboard(); renderTeams(); }
 
   // =====================================================================
   // LOGIN / NAVIGATION
@@ -841,7 +1002,6 @@
     if (!name) return;
     currentUser = name;
     userKey = keyOf(name);
-    didAutoScrollToCurrent = false;
     localStorage.setItem("wm2026_name", name);
     showApp();
     renderAll();
@@ -872,16 +1032,18 @@
   });
 
   el("tabMatches").addEventListener("click", () => switchTab("matches"));
+  el("tabTeams").addEventListener("click", () => switchTab("teams"));
   el("tabBoard").addEventListener("click", () => switchTab("board"));
   function switchTab(which) {
-    const m = which === "matches";
-    el("tabMatches").classList.toggle("active", m);
-    el("tabBoard").classList.toggle("active", !m);
-    el("matchesView").classList.toggle("hidden", !m);
-    el("boardView").classList.toggle("hidden", m);
+    el("tabMatches").classList.toggle("active", which === "matches");
+    el("tabTeams").classList.toggle("active", which === "teams");
+    el("tabBoard").classList.toggle("active", which === "board");
+    el("matchesView").classList.toggle("hidden", which !== "matches");
+    el("teamsView").classList.toggle("hidden", which !== "teams");
+    el("boardView").classList.toggle("hidden", which !== "board");
+    if (which === "teams") renderTeams();
   }
 
-  el("stageFilter").addEventListener("change", (e) => { activeStage = e.target.value; animateNextRender = true; renderMatches(); });
   el("refreshBtn").addEventListener("click", async () => {
     el("refreshBtn").textContent = "⏳ Lädt…";
     await loadSchedule();
