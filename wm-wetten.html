@@ -131,6 +131,24 @@
     }
     .refresh button:hover{ border-color:var(--border2); background:var(--surface2); }
 
+    /* Kategorien (ausklappbar) */
+    .cat{ margin-bottom:10px; }
+    .cat-head{
+      width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding:14px 16px; background:var(--surface); border:1px solid var(--border); border-radius:14px;
+      color:var(--text); font-weight:800; font-size:1.02em; cursor:pointer; backdrop-filter:blur(6px);
+      -webkit-tap-highlight-color:transparent; transition:border-color .2s, background .2s;
+    }
+    .cat-head:hover{ border-color:var(--border2); background:var(--surface2); }
+    .cat-title{ letter-spacing:-0.01em; }
+    .cat-meta{ display:flex; align-items:center; gap:10px; }
+    .cat-count{ font-size:0.72em; font-weight:700; color:var(--muted); background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:999px; padding:2px 9px; }
+    .cat-chev{ color:var(--muted); font-size:0.85em; transition:transform .25s; }
+    .cat.open .cat-chev{ transform:rotate(180deg); }
+    .cat-body{ display:grid; grid-template-rows:0fr; transition:grid-template-rows .3s ease; }
+    .cat.open .cat-body{ grid-template-rows:1fr; }
+    .cat-inner{ overflow:hidden; min-height:0; padding-top:10px; }
+
     /* Match card */
     .match{
       position:relative; background:var(--surface); border:1px solid var(--border); border-radius:20px;
@@ -287,9 +305,6 @@
 
       <!-- Spiele -->
       <div id="matchesView">
-        <div class="filterbar">
-          <select id="stageFilter"><option value="ALL">Alle Spiele</option></select>
-        </div>
         <div class="refresh"><button id="refreshBtn">🔄 Ergebnisse aktualisieren</button></div>
         <div id="matchList"></div>
       </div>
@@ -544,7 +559,6 @@
 
     allMatches = matches;
     allMatches.sort((a, b) => new Date(a.utcDate) - new Date(b.utcDate));
-    buildStageFilter();
     animateNextRender = true;
     renderAll();
   }
@@ -555,9 +569,8 @@
   let currentUser = localStorage.getItem("wm2026_name") || "";
   let userKey = "";
   let allBets = [];
-  let activeStage = "ALL";
+  let openStages = null;          // welche Phasen-Kategorien aufgeklappt sind
   let animateNextRender = true;
-  let didAutoScrollToCurrent = false;
 
   const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const pendingBets = new Set();   // Spiele, deren Tipp gerade gespeichert wird (gegen Doppelklick)
@@ -610,15 +623,6 @@
   }
   function clearNotice() { el("noticeArea").innerHTML = ""; }
 
-  function buildStageFilter() {
-    const present = [];
-    STAGE_ORDER.forEach((s) => { if (allMatches.some((m) => m.stage === s)) present.push(s); });
-    const sel = el("stageFilter");
-    sel.innerHTML = '<option value="ALL">Alle Spiele</option>' +
-      present.map((s) => '<option value="' + s + '">' + STAGE_DE[s] + '</option>').join("");
-    sel.value = activeStage;
-  }
-
   function fmtDate(iso) {
     try {
       return new Date(iso).toLocaleString("de-DE", {
@@ -665,25 +669,6 @@
     if (latestPast) return latestPast.id;
     return matches.length ? matches[0].id : null;
   }
-  function autoScrollToCurrentMatch(matches) {
-    if (didAutoScrollToCurrent || !currentUser || !matches.length) return;
-    const id = pickCurrentMatchId(matches);
-    if (!id) return;
-    const listEl = el("matchList");
-    if (!listEl) return;
-    const cards = listEl.querySelectorAll(".match");
-    const idStr = String(id);
-    let target = null;
-    for (const card of cards) {
-      if (card.dataset.matchId === idStr) { target = card; break; }
-    }
-    if (!target) return;
-    didAutoScrollToCurrent = true;
-    requestAnimationFrame(() => {
-      target.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
-    });
-  }
-
   function pickLabel(m, pick) {
     if (pick === "HOME") return m.home.name;
     if (pick === "AWAY") return m.away.name;
@@ -692,12 +677,13 @@
 
   function renderMatches() {
     const list = el("matchList");
-    const matches = allMatches.filter((m) => activeStage === "ALL" || m.stage === activeStage);
+    const matches = allMatches;
     if (!matches.length) { list.innerHTML = '<div class="empty-hint">Keine Spiele vorhanden.</div>'; return; }
 
     const newWins = [];
+    let idx = 0;
 
-    list.innerHTML = matches.map((m, idx) => {
+    function cardHtml(m) {
       const locked = isLocked(m);
       const known = teamsKnown(m);
       const finished = m.status === "FINISHED" && m.outcome;
@@ -760,7 +746,7 @@
         others = '<div class="others"><h4>Tipps der Familie (' + bets.length + ")</h4>" + lines + "</div>";
       }
 
-      return '<div class="match' + (iWon ? ' win-card' : '') + '" data-match-id="' + m.id + '" style="--i:' + idx + '">' +
+      return '<div class="match' + (iWon ? ' win-card' : '') + '" data-match-id="' + m.id + '" style="--i:' + (idx++) + '">' +
         '<div class="match-top"><span class="chip">' + escapeHtml(chip) + "</span>" +
         '<span class="match-date">' + fmtDate(m.utcDate) + "</span></div>" +
         '<div class="teams">' +
@@ -769,6 +755,32 @@
           '<div class="team">' + crestHtml(m.away) + '<div class="tname">' + escapeHtml(m.away.name) + "</div></div>" +
         "</div>" +
         betRow + resultLine + others +
+      "</div>";
+    }
+
+    // Spiele nach Phase gruppieren – jede Phase ist eine ausklappbare Kategorie
+    const byStage = {};
+    matches.forEach((m) => { (byStage[m.stage] = byStage[m.stage] || []).push(m); });
+    const stages = STAGE_ORDER.filter((s) => byStage[s] && byStage[s].length);
+
+    // Beim ersten Aufbau: Phase des aktuellen Spiels offen, der Rest zugeklappt
+    if (openStages === null) {
+      openStages = new Set();
+      const cur = matches.find((m) => m.id === pickCurrentMatchId(matches));
+      openStages.add(cur ? cur.stage : (stages[0] || "GROUP_STAGE"));
+    }
+
+    list.innerHTML = stages.map((stage) => {
+      const grp = byStage[stage];
+      const open = openStages.has(stage);
+      const cards = grp.map(cardHtml).join("");
+      return '<div class="cat' + (open ? " open" : "") + '">' +
+        '<button class="cat-head" type="button" data-stage="' + stage + '">' +
+          '<span class="cat-title">' + escapeHtml(STAGE_DE[stage]) + "</span>" +
+          '<span class="cat-meta"><span class="cat-count">' + grp.length + "</span>" +
+          '<span class="cat-chev">▾</span></span>' +
+        "</button>" +
+        '<div class="cat-body"><div class="cat-inner">' + cards + "</div></div>" +
       "</div>";
     }).join("");
 
@@ -780,11 +792,19 @@
       list.classList.remove("animate-in");
     }
 
+    // Kategorie auf-/zuklappen
+    list.querySelectorAll(".cat-head").forEach((head) => {
+      head.addEventListener("click", () => {
+        const cat = head.parentElement;
+        if (cat.classList.toggle("open")) openStages.add(head.dataset.stage);
+        else openStages.delete(head.dataset.stage);
+      });
+    });
+
     // Klicks an die Tipp-Knöpfe hängen
     list.querySelectorAll(".bet-btn:not(:disabled)").forEach((btn) => {
       btn.addEventListener("click", () => placeBet(btn.dataset.match, btn.dataset.pick, btn));
     });
-    autoScrollToCurrentMatch(matches);
 
     // Sieg-Konfetti (einmalig pro Spiel)
     if (newWins.length) {
@@ -982,7 +1002,6 @@
     if (!name) return;
     currentUser = name;
     userKey = keyOf(name);
-    didAutoScrollToCurrent = false;
     localStorage.setItem("wm2026_name", name);
     showApp();
     renderAll();
@@ -1025,7 +1044,6 @@
     if (which === "teams") renderTeams();
   }
 
-  el("stageFilter").addEventListener("change", (e) => { activeStage = e.target.value; animateNextRender = true; renderMatches(); });
   el("refreshBtn").addEventListener("click", async () => {
     el("refreshBtn").textContent = "⏳ Lädt…";
     await loadSchedule();
