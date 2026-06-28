@@ -582,16 +582,68 @@
     }
   }
 
+  // =====================================================================
+  // ROBUSTHEIT: Einmal bekannte Paarungen (z. B. Sechzehntelfinale) dauerhaft
+  // merken, damit sie nicht wieder auf "Noch offen" zurückspringen, wenn der
+  // Worker mal nicht erreichbar ist. Gespeichert wird pro Spiel-ID – die ID
+  // bleibt gleich, deshalb bleiben bereits abgegebene Tipps gültig.
+  // =====================================================================
+  const KNOWN_TEAMS_KEY = "wm2026_known_teams";
+  const SCHEDULE_CACHE_KEY = "wm2026_schedule_cache";
+
+  function teamOpen(team) { return !team || !team.name || team.name === "Noch offen"; }
+  function loadKnownTeams() {
+    try { return JSON.parse(localStorage.getItem(KNOWN_TEAMS_KEY)) || {}; } catch (e) { return {}; }
+  }
+
+  function reconcileTeams(matches) {
+    const known = loadKnownTeams();
+    let changed = false;
+    matches.forEach((m) => {
+      // Bekannte Teams aus dem Gedächtnis einsetzen, falls aktuell "Noch offen"
+      if (known[m.id]) {
+        if (teamOpen(m.home) && known[m.id].home) m.home = Object.assign({}, known[m.id].home);
+        if (teamOpen(m.away) && known[m.id].away) m.away = Object.assign({}, known[m.id].away);
+      }
+      // Sobald echte Teams bekannt sind, dauerhaft merken
+      if (!teamOpen(m.home) || !teamOpen(m.away)) {
+        const entry = known[m.id] || {};
+        if (!teamOpen(m.home)) entry.home = { name: m.home.name, crest: m.home.crest || "" };
+        if (!teamOpen(m.away)) entry.away = { name: m.away.name, crest: m.away.crest || "" };
+        known[m.id] = entry; changed = true;
+      }
+    });
+    if (changed) { try { localStorage.setItem(KNOWN_TEAMS_KEY, JSON.stringify(known)); } catch (e) {} }
+    return matches;
+  }
+
   async function loadSchedule() {
-    let matches;
+    let matches = null, live = false;
     try {
       matches = await fetchLiveSchedule();
+      live = !!(matches && matches.length);
+    } catch (e) { live = false; }
+
+    if (live) {
       usingFallback = false;
       clearNotice();
-    } catch (e) {
-      matches = fallbackSchedule();
-      usingFallback = true;
-      showNotice("ℹ️ Echter WM-Spielplan ist geladen – Tippen funktioniert vollständig. Live-Ergebnisse werden automatisch ergänzt, sobald dein Worker erreichbar ist (zurzeit nicht).");
+      reconcileTeams(matches);
+      // Letzten erfolgreichen Live-Plan sichern (echte Teams & Stände)
+      try { localStorage.setItem(SCHEDULE_CACHE_KEY, JSON.stringify(matches)); } catch (e) {}
+    } else {
+      // Bei Ausfall zuerst den zuletzt geladenen Live-Plan nehmen, sonst Rückfall
+      let cached = null;
+      try { cached = JSON.parse(localStorage.getItem(SCHEDULE_CACHE_KEY)); } catch (e) {}
+      if (cached && cached.length) {
+        matches = cached;
+        usingFallback = false;
+        clearNotice();
+      } else {
+        matches = fallbackSchedule();
+        usingFallback = true;
+        showNotice("ℹ️ Echter WM-Spielplan ist geladen – Tippen funktioniert vollständig. Live-Ergebnisse werden automatisch ergänzt, sobald dein Worker erreichbar ist (zurzeit nicht).");
+      }
+      reconcileTeams(matches);
     }
 
     allMatches = matches;
