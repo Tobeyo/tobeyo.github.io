@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Mein ELBA</title>
+<meta name="description" content="Prank-App">
+<meta name="theme-color" content="#000000">
+<link rel="icon" type="image/png" href="logo.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mein ELBA">
+<style>
+:root{
+  --yellow:#FFE500;
+  --yellow-dim:#e6ce00;
+  --bg:#000000;
+  --card:#1c1c1e;
+  --card2:#2c2c2e;
+  --card3:#3a3a3c;
+  --text:#ffffff;
+  --muted:#8e8e93;
+  --muted2:#636366;
+  --green:#7bc47f;
+  --red:#ff6b6b;
+  --link:#4a9eff;
+  --divider:rgba(255,255,255,0.08);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+input,select,textarea{font-family:inherit;font-size:16px;}
+#root{max-width:520px;margin:0 auto;min-height:100vh;position:relative;padding-bottom:env(safe-area-inset-bottom);}
+
+/* ---------- Logo ---------- */
+.rai-logo{display:inline-flex;align-items:center;justify-content:center;background:var(--yellow);border-radius:6px;}
+.rai-logo svg{display:block;}
+
+/* ---------- Buttons ---------- */
+.btn-yellow{background:var(--yellow);color:#111;font-weight:700;border-radius:14px;padding:17px;width:100%;font-size:17px;transition:transform .1s,opacity .2s;}
+.btn-yellow:active{transform:scale(.98);}
+.btn-yellow:disabled{background:var(--card3);color:var(--muted);}
+.btn-ghost{color:var(--text);font-weight:600;padding:14px;width:100%;font-size:16px;text-align:center;}
+.btn-dark{background:var(--card2);color:var(--text);font-weight:600;border-radius:14px;padding:16px;width:100%;font-size:16px;}
+
+/* ---------- Welcome ---------- */
+#screen-welcome{min-height:100vh;display:flex;flex-direction:column;background:var(--bg);}
+.welcome-hero{position:relative;height:46vh;min-height:340px;background:linear-gradient(160deg,#2b3a4a 0%,#3a4a3a 45%,#6b6b3a 100%);overflow:hidden;}
+.welcome-hero::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 75% 30%,rgba(255,229,0,.18),transparent 55%);}
+.welcome-hero .promo-bubble{position:absolute;z-index:2;top:26px;left:22px;width:120px;height:120px;border-radius:50%;background:var(--yellow);color:#111;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;line-height:1.05;box-shadow:0 8px 20px rgba(0,0,0,.3);}
+.welcome-hero .promo-bubble b{font-size:26px;}
+.welcome-hero .promo-bubble small{font-size:12px;}
+.welcome-logo{position:absolute;z-index:2;left:50%;bottom:-38px;transform:translateX(-50%);width:96px;height:96px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.4);}
+.welcome-body{flex:1;padding:60px 20px 30px;display:flex;flex-direction:column;justify-content:flex-start;}
+.welcome-card{background:var(--card2);border-radius:22px;padding:26px 20px;text-align:center;}
+.welcome-card h2{font-size:26px;font-weight:700;margin-bottom:26px;}
+.welcome-card .btn-yellow{margin-bottom:6px;}
+.welcome-pay{display:flex;gap:14px;margin-top:26px;}
+.pay-chip{flex:1;border-radius:26px;padding:14px;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:700;font-size:15px;}
+.pay-chip.rai{background:#fff;color:#111;}
+.pay-chip.blue{background:#1a63c9;color:#fff;}
+
+/* ---------- PIN ---------- */
+#screen-pin{min-height:100vh;display:flex;flex-direction:column;padding:0 22px calc(20px + env(safe-area-inset-bottom));}
+.pin-top{display:flex;align-items:center;height:64px;position:relative;justify-content:center;}
+.pin-top .back{position:absolute;left:0;width:44px;height:44px;border-radius:50%;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:20px;}
+.pin-top h1{font-size:19px;font-weight:700;}
+.pin-instr{font-size:23px;line-height:1.35;margin:24px 4px 0;font-weight:400;}
+.pin-instr b{font-weight:700;}
+.pin-dots{display:flex;gap:18px;justify-content:center;margin:44px 0 8px;}
+.pin-dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--muted);transition:.15s;}
+.pin-dot.filled{background:var(--yellow);border-color:var(--yellow);}
+.pin-error{color:var(--red);text-align:center;font-size:14px;height:20px;margin-bottom:4px;}
+.pin-forgot{text-align:center;font-weight:700;font-size:17px;margin-top:10px;color:var(--text);}
+.keypad{margin-top:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding-top:20px;}
+.key{height:66px;border-radius:18px;background:var(--card2);font-size:27px;font-weight:500;display:flex;align-items:center;justify-content:center;transition:background .1s;}
+.key:active{background:var(--card3);}
+.key.blank{background:none;}
+.key.action{background:none;font-size:16px;font-weight:600;}
+
+/* ---------- App shell ---------- */
+#app{display:none;min-height:100vh;padding-bottom:96px;}
+.appbar{position:sticky;top:0;z-index:30;background:var(--bg);display:flex;align-items:center;justify-content:center;height:58px;padding:0 16px;gap:10px;}
+.appbar .title{font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px;}
+.appbar .logout{position:absolute;right:16px;width:44px;height:44px;border-radius:50%;background:var(--card2);display:flex;align-items:center;justify-content:center;}
+.section-h{font-size:27px;font-weight:800;padding:22px 18px 12px;}
+.section-h.row{display:flex;align-items:center;justify-content:space-between;}
+.section-h .link{font-size:17px;font-weight:700;color:var(--link);}
+
+/* promo carousel */
+.promo{margin:6px 0 0;position:relative;}
+.promo-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;}
+.promo-track::-webkit-scrollbar{display:none;}
+.promo-slide{min-width:100%;scroll-snap-align:start;display:flex;height:150px;}
+.promo-slide .pic{width:44%;object-fit:cover;}
+.promo-slide .txt{flex:1;background:#264d33;padding:16px;display:flex;flex-direction:column;justify-content:center;}
+.promo-slide .txt b{font-size:17px;line-height:1.25;color:#e8f0e8;}
+.promo-slide .txt span{font-size:13px;color:#a8c0a8;margin-top:8px;}
+.promo-dots{display:flex;gap:7px;justify-content:center;padding:14px 0 4px;}
+.promo-dots i{width:8px;height:8px;border-radius:50%;background:var(--card3);transition:.2s;}
+.promo-dots i.on{background:#fff;}
+
+/* account card */
+.acct{background:var(--card2);border-radius:18px;margin:0 14px 16px;overflow:hidden;border:2px solid transparent;}
+.acct.hl{border-color:var(--yellow);}
+.acct-main{padding:16px 18px 14px;position:relative;}
+.acct-type{color:var(--muted);font-size:15px;}
+.acct-holder{font-size:20px;font-weight:600;margin-top:2px;}
+.acct-iban{color:var(--muted);font-size:16px;letter-spacing:.5px;margin-top:4px;font-variant-numeric:tabular-nums;}
+.acct-bal-row{display:flex;justify-content:space-between;align-items:flex-end;margin-top:16px;}
+.acct-bal{font-size:26px;font-weight:700;color:var(--green);}
+.acct-avail{text-align:right;color:var(--muted);font-size:14px;}
+.acct-avail b{display:block;color:#c8c8cc;font-size:17px;font-weight:600;margin-top:2px;}
+.acct-badge{position:absolute;top:14px;right:14px;width:34px;height:34px;}
+.acct-foot{border-top:1px solid var(--divider);display:flex;align-items:center;}
+.acct-foot .transfer{flex:1;padding:16px 18px;font-size:18px;font-weight:700;text-align:left;}
+.acct-foot .dots{width:56px;padding:16px;font-size:22px;color:#c8c8cc;border-left:1px solid var(--divider);}
+.more-hint{text-align:center;color:#c8c8cc;font-size:18px;line-height:1.4;padding:8px 20px 4px;}
+.more-hint .chev{font-size:20px;color:var(--muted);margin-top:4px;}
+
+/* generic list rows (manage/contact) */
+.list{background:var(--card2);border-radius:16px;margin:0 14px 20px;overflow:hidden;}
+.row{display:flex;align-items:center;gap:14px;padding:17px 16px;position:relative;}
+.row+.row::before{content:"";position:absolute;top:0;left:56px;right:0;height:1px;background:var(--divider);}
+.row .ico{width:26px;display:flex;justify-content:center;color:#c8c8cc;flex-shrink:0;}
+.row .lbl{flex:1;font-size:17px;}
+.row .chev{color:var(--muted);font-size:18px;}
+.row .val{color:var(--muted);font-size:15px;}
+.profile-row{background:var(--card2);border-radius:16px;margin:0 14px 14px;padding:16px;display:flex;align-items:center;gap:14px;}
+.avatar{width:52px;height:52px;border-radius:50%;background:#8e8e93;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.profile-row .nm{flex:1;font-size:20px;font-weight:500;}
+.promo-invite{background:#5c3a63;border-radius:16px;margin:0 14px 20px;padding:18px;display:flex;align-items:center;gap:14px;color:#e9d5ef;}
+.promo-invite .t{flex:1;font-size:17px;line-height:1.3;}
+
+/* contact quick actions */
+.qa-row{display:flex;justify-content:space-around;margin:8px 14px 24px;}
+.qa{display:flex;flex-direction:column;align-items:center;gap:10px;}
+.qa .circle{width:62px;height:62px;border-radius:50%;background:var(--card2);display:flex;align-items:center;justify-content:center;}
+.qa span{font-size:15px;}
+
+/* bottom nav */
+.tabbar{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);width:calc(100% - 24px);max-width:496px;background:rgba(40,40,42,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-radius:30px;display:flex;justify-content:space-around;padding:10px 6px;z-index:40;box-shadow:0 8px 30px rgba(0,0,0,.5);}
+.tab{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;color:var(--muted);font-size:11px;position:relative;padding:4px 0;}
+.tab.active{color:#fff;}
+.tab .ti{position:relative;}
+.tab .badge{position:absolute;top:-4px;right:-8px;background:#ff3b30;color:#fff;font-size:10px;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 3px;}
+.tab.active .ti .pill{position:absolute;inset:-6px -14px;background:rgba(255,255,255,.14);border-radius:14px;z-index:-1;}
+
+/* ---------- Pushed pages / modals ---------- */
+.page{position:fixed;inset:0;max-width:520px;margin:0 auto;background:var(--bg);z-index:60;overflow-y:auto;padding-bottom:40px;transform:translateX(100%);transition:transform .28s cubic-bezier(.3,.7,.3,1);}
+.page.open{transform:translateX(0);}
+.page-bar{position:sticky;top:0;background:var(--bg);display:flex;align-items:center;height:56px;padding:0 12px;z-index:5;}
+.page-bar .back{width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--yellow);}
+.page-bar h1{font-size:18px;font-weight:700;flex:1;text-align:center;padding-right:44px;}
+.page-body{padding:8px 18px;}
+
+/* forms */
+.field{margin-bottom:18px;}
+.field label{display:block;font-size:14px;color:var(--muted);margin-bottom:7px;padding-left:2px;}
+.field input,.field select,.field textarea{width:100%;background:var(--card2);border:1px solid transparent;border-radius:13px;padding:15px;color:#fff;font-size:16px;outline:none;}
+.field input:focus,.field select,.field textarea:focus{border-color:var(--yellow);}
+.field select{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238e8e93' stroke-width='2.5'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 15px center;}
+.field .hint{font-size:12px;color:var(--muted2);margin-top:6px;padding-left:2px;}
+.form-actions{margin-top:26px;display:flex;flex-direction:column;gap:12px;}
+.danger{color:var(--red);font-weight:600;text-align:center;padding:14px;width:100%;}
+
+/* review / success */
+.review{background:var(--card2);border-radius:16px;padding:4px 16px;margin-bottom:22px;}
+.review .r{display:flex;justify-content:space-between;padding:15px 0;border-bottom:1px solid var(--divider);gap:16px;}
+.review .r:last-child{border-bottom:none;}
+.review .r .k{color:var(--muted);font-size:15px;flex-shrink:0;}
+.review .r .v{text-align:right;font-weight:600;word-break:break-word;}
+.review .r .v.amt{color:var(--green);font-size:20px;}
+.success{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:16vh 24px;}
+.check{width:96px;height:96px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;margin-bottom:26px;animation:pop .4s cubic-bezier(.2,1.4,.5,1);}
+.success h2{font-size:24px;margin-bottom:10px;}
+.success p{color:var(--muted);font-size:16px;line-height:1.5;margin-bottom:6px;}
+@keyframes pop{0%{transform:scale(0);}100%{transform:scale(1);}}
+.check svg path{stroke-dasharray:40;stroke-dashoffset:40;animation:draw .4s .2s forwards ease-out;}
+@keyframes draw{to{stroke-dashoffset:0;}}
+
+/* transactions */
+.tx{display:flex;align-items:center;gap:14px;padding:15px 4px;border-bottom:1px solid var(--divider);}
+.tx .ti{width:42px;height:42px;border-radius:50%;background:var(--card3);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.tx .m{flex:1;min-width:0;}
+.tx .m b{font-size:16px;font-weight:600;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tx .m span{font-size:13px;color:var(--muted);}
+.tx .a{font-weight:700;font-size:16px;white-space:nowrap;}
+.tx .a.pos{color:var(--green);}
+.detail-head{padding:6px 18px 18px;}
+.detail-head .t{color:var(--muted);font-size:15px;}
+.detail-head .b{font-size:34px;font-weight:700;color:var(--green);margin-top:4px;}
+.detail-head .ib{color:var(--muted);font-size:15px;margin-top:6px;}
+
+.empty{text-align:center;color:var(--muted);padding:40px 20px;font-size:15px;}
+.reset-wrap{padding:30px 18px;}
+.toast{position:fixed;bottom:110px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--card3);color:#fff;padding:12px 22px;border-radius:24px;font-size:15px;z-index:100;opacity:0;transition:.25s;pointer-events:none;max-width:90%;text-align:center;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.card-note{background:var(--card2);border-radius:14px;padding:14px 16px;margin:0 0 18px;color:var(--muted);font-size:13px;line-height:1.5;}
+.add-btn{display:flex;align-items:center;gap:10px;justify-content:center;padding:16px;color:var(--yellow);font-weight:700;font-size:16px;width:100%;background:var(--card2);border-radius:14px;margin-bottom:20px;}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   Raiffeisen "Mein ELBA" – Prank Klon
+   Rein zu Unterhaltungszwecken. Kein echtes Banking.
+   ============================================================ */
+
+const LOGO_SVG = (size=96,r=8)=>`<span class="rai-logo" style="width:${size}px;height:${size}px;border-radius:${r}px">
+<svg width="${size*0.66}" height="${size*0.66}" viewBox="0 0 100 100">
+ <g fill="#000" transform="translate(50,50)">
+  <rect x="-13" y="-46" width="26" height="92" rx="13" transform="rotate(45)"/>
+  <rect x="-13" y="-46" width="26" height="92" rx="13" transform="rotate(-45)"/>
+ </g>
+</svg></span>`;
+
+const KEY = 'raiffeisen_prank_v1';
+
+const DEFAULT_STATE = {
+  pin: '0000',
+  profileName: 'Tobias Nesvadba',
+  verfnr: 'ELVIE-32-VAV-353802',
+  accounts: [
+    {
+      id: id(),
+      type: 'Giro',
+      holder: 'Nesvadba Tobias',
+      iban: 'AT12 3456 7890 1234 5678',
+      balance: 0.00,
+      available: 0.00,
+      tx: [
+        {id:id(), title:'BILLA DANKT', purpose:'Kartenzahlung', amount:-38.47, date:'2026-07-03'},
+        {id:id(), title:'Gehalt', purpose:'Lohn/Gehalt', amount:2145.00, date:'2026-07-01'},
+        {id:id(), title:'SPOTIFY', purpose:'Abo', amount:-10.99, date:'2026-06-28'},
+        {id:id(), title:'OMV Tankstelle', purpose:'Kartenzahlung', amount:-72.30, date:'2026-06-25'},
+      ]
+    }
+  ]
+};
+
+function id(){ return Math.random().toString(36).slice(2,10); }
+function load(){
+  try{ const s = JSON.parse(localStorage.getItem(KEY)); if(s && s.accounts) return s; }catch(e){}
+  return structuredClone(DEFAULT_STATE);
+}
+function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+let state = load();
+
+/* ---------- helpers ---------- */
+function fmt(n){ return new Intl.NumberFormat('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n); }
+function eur(n){ return fmt(n)+' EUR'; }
+function esc(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function dateLabel(d){
+  try{ return new Date(d+'T00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'}); }
+  catch(e){ return d; }
+}
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function toast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2200);
+}
+const root = ()=>document.getElementById('root');
+
+/* icons */
+const IC = {
+  logout:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>',
+  back:'‹',
+  overview:(c)=>`<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>`,
+  gear:(c)=>`<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
+  compass:(c)=>`<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>`,
+  chat:(c)=>`<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
+  finance:(c)=>`<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>`,
+  phone:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c8c8cc" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.98.36 1.94.7 2.85a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.87.57 2.85.7A2 2 0 0 1 22 16.92z"/></svg>',
+  gift:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e9d5ef" stroke-width="1.8"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>',
+  user:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1c1c1e" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+  phoneS:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c8c8cc" stroke-width="1.7"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg>',
+  lock:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c8c8cc" stroke-width="1.7"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
+  bell:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c8c8cc" stroke-width="1.7"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>',
+  gavel:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c8c8cc" stroke-width="1.7"><path d="m14 13-8.5 8.5a2.12 2.12 0 1 1-3-3L11 10"/><path d="m16 16 6-6"/><path d="m8 8 6-6"/><path d="m9 7 8 8"/><path d="m21 11-8-8"/></svg>',
+  card:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c8c8cc" stroke-width="1.7"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>',
+  headset:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c8c8cc" stroke-width="1.7"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>',
+  bank:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c8c8cc" stroke-width="1.7"><line x1="3" y1="21" x2="21" y2="21"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="5 10 5 21"/><polyline points="19 10 19 21"/><polyline points="9 10 9 21"/><polyline points="15 10 15 21"/><polygon points="12 2 20 7 4 7"/></svg>',
+  mail:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#c8c8cc" stroke-width="1.7"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+  msg:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M4 4h16v12H5.17L4 17.17z"/><line x1="8" y1="9" x2="16" y2="9"/></svg>',
+  callf:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.98.36 1.94.7 2.85a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6"/><polyline points="15 8 20 8 20 3"/></svg>',
+  cal:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="10" y1="16" x2="14" y2="16"/></svg>',
+};
+
+/* ============================================================
+   NAV
+   ============================================================ */
+let currentTab = 'overview';
+
+function showWelcome(){
+  root().innerHTML = viewWelcome();
+  bindWelcome();
+}
+
+function showPin(mode){
+  root().innerHTML = viewPin();
+  bindPin();
+}
+
+function enterApp(){
+  root().innerHTML = '<div id="app" style="display:block"></div>';
+  currentTab='overview';
+  renderTab();
+}
+
+function renderTab(){
+  const app = document.getElementById('app');
+  if(!app) return;
+  let content='';
+  if(currentTab==='overview') content=tabOverview();
+  else if(currentTab==='manage') content=tabManage();
+  else if(currentTab==='discover') content=tabDiscover();
+  else if(currentTab==='contact') content=tabContact();
+  else if(currentTab==='finance') content=tabFinance();
+  app.innerHTML = content + tabBar();
+  bindTab();
+}
+
+function switchTab(t){ currentTab=t; renderTab(); window.scrollTo(0,0); }
+
+/* ============================================================
+   VIEWS
+   ============================================================ */
+function viewWelcome(){
+  return `
+  <div id="screen-welcome">
+    <div class="welcome-hero">
+      <div class="promo-bubble"><small>Bis zu</small><b>100 Ös</b><small>pro Monat<br>zusätzlich</small></div>
+      <img class="welcome-logo" src="data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='96' height='96'><rect width='96' height='96' rx='8' fill='#FFE500'/><g fill='#000' transform='translate(48,48)'><rect x='-13' y='-46' width='26' height='92' rx='13' transform='rotate(45)'/><rect x='-13' y='-46' width='26' height='92' rx='13' transform='rotate(-45)'/></g></svg>`)}" alt="">
+    </div>
+    <div class="welcome-body">
+      <div class="welcome-card">
+        <h2>Herzlich willkommen</h2>
+        <button class="btn-yellow" id="loginMain">Als ${esc(state.profileName.split(' ')[0])} ${esc((state.profileName.split(' ')[1]||'')[0]||'')}. anmelden</button>
+        <button class="btn-ghost" id="loginOther">Anderen Benutzer anmelden</button>
+      </div>
+      <div class="welcome-pay">
+        <div class="pay-chip rai">✕ RaiPay</div>
+        <div class="pay-chip blue">▶ bluecode</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function viewPin(){
+  return `
+  <div id="screen-pin">
+    <div class="pin-top">
+      <button class="back" id="pinBack">${IC.back}</button>
+      <h1>Login</h1>
+    </div>
+    <div class="pin-instr">Bitte geben Sie Ihren ${state.pin.length}-stelligen push-TAN Signaturcode der Verfügernummer <b>${esc(state.verfnr)}</b> ein.</div>
+    <div class="pin-dots" id="pinDots"></div>
+    <div class="pin-error" id="pinErr"></div>
+    <div class="pin-forgot">Signaturcode vergessen</div>
+    <div class="keypad" id="keypad"></div>
+  </div>`;
+}
+
+function tabBar(){
+  const t=(id,icon,label,badge='')=>`
+    <button class="tab ${currentTab===id?'active':''}" data-tab="${id}">
+      <span class="ti">${badge?`<span class="badge">${badge}</span>`:''}${currentTab===id?'<span class="pill"></span>':''}${icon(currentTab===id?'#fff':'#8e8e93')}</span>
+      <span>${label}</span>
+    </button>`;
+  return `<nav class="tabbar">
+    ${t('overview',IC.overview,'Übersicht','1')}
+    ${t('manage',IC.gear,'Verwalten')}
+    ${t('discover',IC.compass,'Entdecken')}
+    ${t('contact',IC.chat,'Kontakt')}
+    ${t('finance',IC.finance,'Finanzmanager')}
+  </nav>`;
+}
+
+function appbar(title){
+  return `<div class="appbar">
+    <div class="title">${LOGO_SVG(26,4)} ${esc(title)}</div>
+    <button class="logout" id="logoutBtn">${IC.logout}</button>
+  </div>`;
+}
+
+/* ---- Overview ---- */
+function tabOverview(){
+  const promos=[
+    {t:'Für eine Zukunft, die wächst – und ein Konto, das mitgeht',s:'Investiere heute in die Welt von morgen.',c:'#264d33'},
+    {t:'Dein Bausparen mit Top-Zinsen',s:'Jetzt Prämie sichern.',c:'#3a3a5a'},
+    {t:'Kreditkarte kostenlos testen',s:'Weltweit bezahlen ohne Sorgen.',c:'#5a3a3a'},
+  ];
+  const slides=promos.map(p=>`
+    <div class="promo-slide">
+      <div class="pic" style="background:#33443a"></div>
+      <div class="txt" style="background:${p.c}"><b>${p.t}</b><span>${p.s}</span></div>
+    </div>`).join('');
+  const dots=promos.map((_,i)=>`<i class="${i===0?'on':''}"></i>`).join('');
+
+  const cards = state.accounts.map((a,i)=>`
+    <div class="acct ${i===0?'hl':''}">
+      <div class="acct-main">
+        <div class="acct-type">${esc(a.type)}</div>
+        <div class="acct-holder">${esc(a.holder)}</div>
+        <div class="acct-iban">${esc(a.iban)}</div>
+        <svg class="acct-badge" viewBox="0 0 40 40"><circle cx="30" cy="10" r="9" fill="#ff3b30"/><text x="30" y="14" font-size="10" fill="#fff" text-anchor="middle" font-weight="700">${(a.tx||[]).length}</text><rect x="4" y="14" width="20" height="13" rx="2" fill="none" stroke="#c8c8cc" stroke-width="2"/></svg>
+        <div class="acct-bal-row">
+          <div class="acct-bal">${eur(a.balance)}</div>
+          <div class="acct-avail">verfügbar<b>${eur(a.available ?? a.balance)}</b></div>
+        </div>
+      </div>
+      <div class="acct-foot">
+        <button class="transfer" data-transfer="${a.id}">Neue Überweisung</button>
+        <button class="dots" data-detail="${a.id}">⋮</button>
+      </div>
+    </div>`).join('');
+
+  return appbar('Übersicht') + `
+    <div class="promo">
+      <div class="promo-track" id="promoTrack">${slides}</div>
+      <div class="promo-dots" id="promoDots">${dots}</div>
+    </div>
+    <div class="section-h row">Meine Produkte <span class="link" data-tab="manage">Anpassen ›</span></div>
+    ${cards}
+    <div class="more-hint">Mehr anzeigen<br>(z.B.: Versicherung, Bausparen, etc.)<div class="chev">⌄</div></div>
+  `;
+}
+
+/* ---- Manage ---- */
+function tabManage(){
+  const rows = state.accounts.map(a=>`
+    <div class="row" data-editacct="${a.id}">
+      <span class="ico">${IC.card}</span>
+      <span class="lbl">${esc(a.type)} · ${esc(a.iban.slice(-9))}</span>
+      <span class="val">${eur(a.balance)}</span>
+      <span class="chev">›</span>
+    </div>`).join('');
+
+  return appbar('Verwalten') + `
+    <div class="section-h">Profil</div>
+    <div class="profile-row" data-editprofile>
+      <span class="avatar">${IC.user}</span>
+      <span class="nm">${esc(state.profileName)}</span>
+      <span class="chev" style="color:var(--muted)">›</span>
+    </div>
+    <div class="promo-invite">
+      <span>${IC.gift}</span>
+      <span class="t">Jetzt Freunde einladen und gemeinsam verdienen!</span>
+      <span>⤴</span>
+    </div>
+
+    <div class="section-h">Meine Konten</div>
+    <div class="list">${rows||''}</div>
+    <button class="add-btn" data-addacct>＋ Neues Konto hinzufügen</button>
+
+    <div class="section-h">Allgemein</div>
+    <div class="list">
+      <div class="row"><span class="ico">${IC.phoneS}</span><span class="lbl">App-Einstellungen verwalten</span><span class="chev">›</span></div>
+      <div class="row" data-changepin><span class="ico">${IC.lock}</span><span class="lbl">Login und Sicherheit verwalten</span><span class="chev">›</span></div>
+      <div class="row"><span class="ico">${IC.bell}</span><span class="lbl">Mitteilungen verwalten</span><span class="chev">›</span></div>
+      <div class="row"><span class="ico">${IC.gavel}</span><span class="lbl">Rechtliches anzeigen</span><span class="chev">›</span></div>
+    </div>
+
+    <div class="section-h">Karten</div>
+    <div class="list">
+      <div class="row"><span class="ico">${IC.card}</span><span class="lbl">Karten verwalten</span><span class="chev">›</span></div>
+    </div>
+
+    <div class="reset-wrap">
+      <button class="danger" data-reset>Prank zurücksetzen</button>
+    </div>
+  `;
+}
+
+/* ---- Discover ---- */
+function tabDiscover(){
+  return appbar('Entdecken') + `
+    <div class="section-h">Entdecken</div>
+    <div class="card-note" style="margin:0 14px 18px">Angebote &amp; Produkte – in dieser Prank-App nur Deko. 😉</div>
+    <div class="list">
+      <div class="row"><span class="ico">💳</span><span class="lbl">Kreditkarte beantragen</span><span class="chev">›</span></div>
+      <div class="row"><span class="ico">🏠</span><span class="lbl">Wohnkredit-Rechner</span><span class="chev">›</span></div>
+      <div class="row"><span class="ico">📈</span><span class="lbl">Wertpapiere &amp; Fonds</span><span class="chev">›</span></div>
+      <div class="row"><span class="ico">🛡️</span><span class="lbl">Versicherungen</span><span class="chev">›</span></div>
+    </div>`;
+}
+
+/* ---- Contact ---- */
+function tabContact(){
+  const qa=(icon,label)=>`<div class="qa"><span class="circle">${icon}</span><span>${label}</span></div>`;
+  return appbar('Kontakt') + `
+    <div class="section-h">Berater</div>
+    <div class="profile-row"><span class="avatar">${IC.user}</span><span class="nm">Service KAGRAN</span><span class="chev" style="color:var(--muted)">⌄</span></div>
+    <div class="qa-row">
+      ${qa(IC.msg,'Nachricht')}
+      ${qa(IC.callf,'Anrufen')}
+      ${qa(IC.cal,'Termin')}
+      ${qa(IC.callf,'Rückruf')}
+    </div>
+    <div class="section-h">Allgemeiner Kontakt</div>
+    <div class="list">
+      <div class="row"><span class="ico">${IC.headset}</span><span class="lbl">Hotlines</span><span class="chev">›</span></div>
+      <div class="row"><span class="ico">${IC.bank}</span><span class="lbl">Bankstelle</span><span class="chev">›</span></div>
+    </div>
+    <div class="section-h">Mailbox</div>
+    <div class="list">
+      <div class="row"><span class="ico">${IC.mail}</span><span class="lbl">Persönliche Nachrichten</span><span class="chev">›</span></div>
+    </div>`;
+}
+
+/* ---- Finance ---- */
+function tabFinance(){
+  const total = state.accounts.reduce((s,a)=>s+a.balance,0);
+  const income = state.accounts.flatMap(a=>a.tx||[]).filter(t=>t.amount>0).reduce((s,t)=>s+t.amount,0);
+  const spend = state.accounts.flatMap(a=>a.tx||[]).filter(t=>t.amount<0).reduce((s,t)=>s+t.amount,0);
+  return appbar('Finanzmanager') + `
+    <div class="section-h">Finanzmanager</div>
+    <div class="acct" style="border:none">
+      <div class="acct-main">
+        <div class="acct-type">Vermögen gesamt</div>
+        <div class="acct-bal" style="font-size:32px;margin-top:6px">${eur(total)}</div>
+      </div>
+    </div>
+    <div class="list">
+      <div class="row"><span class="ico">⬆️</span><span class="lbl">Einnahmen</span><span class="val" style="color:var(--green)">${eur(income)}</span></div>
+      <div class="row"><span class="ico">⬇️</span><span class="lbl">Ausgaben</span><span class="val" style="color:var(--red)">${eur(spend)}</span></div>
+    </div>`;
+}
+
+/* ============================================================
+   PUSHED PAGES
+   ============================================================ */
+function openPage(html){
+  const p=document.createElement('div');
+  p.className='page';
+  p.innerHTML=html;
+  document.body.appendChild(p);
+  requestAnimationFrame(()=>p.classList.add('open'));
+  p.querySelector('[data-close]')?.addEventListener('click',()=>closePage(p));
+  return p;
+}
+function closePage(p){
+  p.classList.remove('open');
+  setTimeout(()=>p.remove(),280);
+  renderTab();
+}
+function pageBar(title){
+  return `<div class="page-bar"><button class="back" data-close>${IC.back}</button><h1>${esc(title)}</h1></div>`;
+}
+
+/* ---- Account detail / transactions ---- */
+function openDetail(acctId){
+  const a = state.accounts.find(x=>x.id===acctId); if(!a) return;
+  const txs=(a.tx||[]).slice().sort((x,y)=>y.date.localeCompare(x.date));
+  const list = txs.length? txs.map(t=>`
+    <div class="tx">
+      <div class="ti">${t.amount>0?'+':'−'}</div>
+      <div class="m"><b>${esc(t.title)}</b><span>${esc(t.purpose||'')} · ${dateLabel(t.date)}</span></div>
+      <div class="a ${t.amount>0?'pos':''}">${t.amount>0?'+':''}${fmt(t.amount)}</div>
+    </div>`).join('') : '<div class="empty">Noch keine Umsätze.</div>';
+
+  const p=openPage(pageBar(a.type)+`
+    <div class="detail-head">
+      <div class="t">${esc(a.holder)}</div>
+      <div class="b">${eur(a.balance)}</div>
+      <div class="ib">${esc(a.iban)}</div>
+    </div>
+    <div class="page-body">
+      <button class="btn-yellow" data-newtransfer="${a.id}" style="margin-bottom:18px">Neue Überweisung</button>
+      <div class="section-h" style="padding:8px 0 6px;font-size:20px">Umsätze</div>
+      ${list}
+    </div>`);
+  p.querySelector('[data-newtransfer]')?.addEventListener('click',()=>{ closePage(p); openTransfer(a.id); });
+}
+
+/* ---- Transfer ---- */
+function openTransfer(acctId){
+  const a = state.accounts.find(x=>x.id===acctId) || state.accounts[0];
+  if(!a){ toast('Kein Konto vorhanden'); return; }
+  const opts = state.accounts.map(x=>`<option value="${x.id}" ${x.id===a.id?'selected':''}>${esc(x.type)} · ${esc(x.iban.slice(-9))} (${eur(x.balance)})</option>`).join('');
+  const p=openPage(pageBar('Neue Überweisung')+`
+    <div class="page-body">
+      <div class="field">
+        <label>Von Konto</label>
+        <select id="tFrom">${opts}</select>
+      </div>
+      <div class="field">
+        <label>Empfänger</label>
+        <input id="tName" placeholder="Name des Empfängers" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>IBAN</label>
+        <input id="tIban" placeholder="AT.. .... .... .... ...." autocomplete="off" inputmode="text">
+      </div>
+      <div class="field">
+        <label>Betrag (EUR)</label>
+        <input id="tAmount" placeholder="0,00" inputmode="decimal">
+      </div>
+      <div class="field">
+        <label>Verwendungszweck</label>
+        <input id="tPurpose" placeholder="z.B. Miete Juli" autocomplete="off">
+      </div>
+      <div class="form-actions">
+        <button class="btn-yellow" id="tNext">Weiter</button>
+      </div>
+    </div>`);
+
+  const ibanEl=p.querySelector('#tIban');
+  ibanEl.addEventListener('input',()=>{
+    let v=ibanEl.value.toUpperCase().replace(/[^A-Z0-9]/g,'');
+    ibanEl.value=v.replace(/(.{4})/g,'$1 ').trim();
+  });
+
+  p.querySelector('#tNext').addEventListener('click',()=>{
+    const fromId=p.querySelector('#tFrom').value;
+    const from=state.accounts.find(x=>x.id===fromId);
+    const name=p.querySelector('#tName').value.trim();
+    const iban=p.querySelector('#tIban').value.trim();
+    const amtRaw=p.querySelector('#tAmount').value.trim().replace(/\./g,'').replace(',','.');
+    const amount=parseFloat(amtRaw);
+    const purpose=p.querySelector('#tPurpose').value.trim();
+    if(!name){ toast('Bitte Empfänger eingeben'); return; }
+    if(iban.replace(/\s/g,'').length<8){ toast('Bitte gültige IBAN eingeben'); return; }
+    if(!(amount>0)){ toast('Bitte gültigen Betrag eingeben'); return; }
+    if(amount>from.balance){ toast('Nicht genügend Deckung'); return; }
+    closePage(p);
+    openReview(from.id,{name,iban,amount,purpose});
+  });
+}
+
+function openReview(fromId,data){
+  const from=state.accounts.find(x=>x.id===fromId);
+  const p=openPage(pageBar('Überweisung prüfen')+`
+    <div class="page-body">
+      <div class="review">
+        <div class="r"><span class="k">Von</span><span class="v">${esc(from.type)}<br><small style="color:var(--muted);font-weight:400">${esc(from.iban)}</small></span></div>
+        <div class="r"><span class="k">Empfänger</span><span class="v">${esc(data.name)}</span></div>
+        <div class="r"><span class="k">IBAN</span><span class="v">${esc(data.iban)}</span></div>
+        <div class="r"><span class="k">Verwendungszweck</span><span class="v">${esc(data.purpose||'—')}</span></div>
+        <div class="r"><span class="k">Betrag</span><span class="v amt">${eur(data.amount)}</span></div>
+      </div>
+      <div class="card-note">Mit dem Unterschreiben bestätigen Sie die Überweisung mit Ihrem push-TAN Signaturcode.</div>
+      <button class="btn-yellow" id="tSign">Jetzt unterschreiben</button>
+    </div>`);
+  p.querySelector('#tSign').addEventListener('click',()=>{
+    openTanPad(()=>{
+      // execute transfer
+      from.balance = Math.round((from.balance-data.amount)*100)/100;
+      from.available = Math.round(((from.available ?? from.balance)-data.amount)*100)/100;
+      from.tx = from.tx||[];
+      from.tx.unshift({id:id(),title:data.name,purpose:data.purpose||'Überweisung',amount:-data.amount,date:todayISO()});
+      // if IBAN matches one of own accounts -> credit it
+      const target=state.accounts.find(x=>x.iban.replace(/\s/g,'')===data.iban.replace(/\s/g,'') && x.id!==from.id);
+      if(target){
+        target.balance=Math.round((target.balance+data.amount)*100)/100;
+        target.available=Math.round(((target.available ?? target.balance)+data.amount)*100)/100;
+        target.tx=target.tx||[];
+        target.tx.unshift({id:id(),title:from.holder,purpose:data.purpose||'Überweisung',amount:data.amount,date:todayISO()});
+      }
+      save();
+      closePage(p);
+      openSuccess(data);
+    });
+  });
+}
+
+function openSuccess(data){
+  const p=openPage(`
+    <div class="page-bar"></div>
+    <div class="success">
+      <div class="check"><svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg></div>
+      <h2>Überweisung erfolgreich</h2>
+      <p><b style="color:#fff">${eur(data.amount)}</b> an ${esc(data.name)}</p>
+      <p>wurden erfolgreich beauftragt.</p>
+      <button class="btn-yellow" id="sDone" style="margin-top:34px;max-width:300px">Fertig</button>
+    </div>`);
+  p.querySelector('#sDone').addEventListener('click',()=>closePage(p));
+}
+
+/* TAN pad = same keypad, verifies pin */
+function openTanPad(onOk){
+  const p=openPage(`
+    <div id="screen-pin" style="padding-top:0">
+      <div class="pin-top"><button class="back" data-close>${IC.back}</button><h1>Signatur</h1></div>
+      <div class="pin-instr">Bitte geben Sie Ihren ${state.pin.length}-stelligen push-TAN Signaturcode ein, um die Überweisung zu unterschreiben.</div>
+      <div class="pin-dots" id="tanDots"></div>
+      <div class="pin-error" id="tanErr"></div>
+      <div class="keypad" id="tanPad"></div>
+    </div>`);
+  runKeypad(p.querySelector('#tanPad'),p.querySelector('#tanDots'),p.querySelector('#tanErr'),()=>{ closePage(p); onOk(); });
+}
+
+/* ---- Edit profile ---- */
+function openEditProfile(){
+  const p=openPage(pageBar('Profil')+`
+    <div class="page-body">
+      <div class="field"><label>Name (Profil)</label><input id="pName" value="${esc(state.profileName)}"></div>
+      <div class="field"><label>Verfügernummer</label><input id="pVerf" value="${esc(state.verfnr)}"></div>
+      <div class="form-actions"><button class="btn-yellow" id="pSave">Speichern</button></div>
+    </div>`);
+  p.querySelector('#pSave').addEventListener('click',()=>{
+    state.profileName=p.querySelector('#pName').value.trim()||state.profileName;
+    state.verfnr=p.querySelector('#pVerf').value.trim()||state.verfnr;
+    save(); toast('Gespeichert'); closePage(p);
+  });
+}
+
+/* ---- Edit / add account ---- */
+function openEditAccount(acctId){
+  const a = acctId ? state.accounts.find(x=>x.id===acctId) : null;
+  const isNew=!a;
+  const cur=a||{type:'Giro',holder:state.profileName.split(' ').reverse().join(' '),iban:'AT00 0000 0000 0000 0000',balance:0,available:0};
+  const types=['Giro','Sparbuch','Kreditkarte','Bausparen','Wertpapierdepot','Verrechnungskonto','Jugendkonto'];
+  const opts=types.map(t=>`<option ${t===cur.type?'selected':''}>${t}</option>`).join('');
+  const p=openPage(pageBar(isNew?'Neues Konto':'Konto bearbeiten')+`
+    <div class="page-body">
+      <div class="field"><label>Konto-Art</label><select id="aType">${opts}</select></div>
+      <div class="field"><label>Kontoinhaber (Name)</label><input id="aHolder" value="${esc(cur.holder)}"></div>
+      <div class="field"><label>IBAN</label><input id="aIban" value="${esc(cur.iban)}"></div>
+      <div class="field"><label>Saldo (EUR)</label><input id="aBal" inputmode="decimal" value="${fmt(cur.balance)}"></div>
+      <div class="field"><label>Verfügbar (EUR)</label><input id="aAvail" inputmode="decimal" value="${fmt(cur.available ?? cur.balance)}"><div class="hint">Leer lassen = gleich wie Saldo</div></div>
+      <div class="form-actions">
+        <button class="btn-yellow" id="aSave">Speichern</button>
+        ${!isNew?'<button class="danger" id="aDel">Konto löschen</button>':''}
+      </div>
+    </div>`);
+  const ibanEl=p.querySelector('#aIban');
+  ibanEl.addEventListener('input',()=>{
+    let v=ibanEl.value.toUpperCase().replace(/[^A-Z0-9]/g,'');
+    ibanEl.value=v.replace(/(.{4})/g,'$1 ').trim();
+  });
+  const parseNum=(v)=>{ const n=parseFloat(String(v).trim().replace(/\./g,'').replace(',','.')); return isNaN(n)?0:n; };
+  p.querySelector('#aSave').addEventListener('click',()=>{
+    const bal=parseNum(p.querySelector('#aBal').value);
+    const availRaw=p.querySelector('#aAvail').value.trim();
+    const avail=availRaw===''?bal:parseNum(availRaw);
+    const obj={
+      type:p.querySelector('#aType').value,
+      holder:p.querySelector('#aHolder').value.trim()||'Konto',
+      iban:p.querySelector('#aIban').value.trim()||'AT00',
+      balance:bal, available:avail
+    };
+    if(isNew){ state.accounts.push({id:id(),tx:[],...obj}); }
+    else{ Object.assign(a,obj); }
+    save(); toast('Gespeichert'); closePage(p);
+  });
+  if(!isNew){
+    p.querySelector('#aDel').addEventListener('click',()=>{
+      if(state.accounts.length<=1){ toast('Mindestens ein Konto nötig'); return; }
+      if(confirm('Dieses Konto wirklich löschen?')){
+        state.accounts=state.accounts.filter(x=>x.id!==a.id);
+        save(); toast('Konto gelöscht'); closePage(p);
+      }
+    });
+  }
+}
+
+/* ---- Change PIN ---- */
+function openChangePin(){
+  const p=openPage(pageBar('Login und Sicherheit')+`
+    <div class="page-body">
+      <div class="section-h" style="padding:8px 0 8px;font-size:20px">Signaturcode / PIN</div>
+      <div class="card-note">Aktueller Code: <b style="color:#fff">${esc(state.pin)}</b> · Standard ist 0000.</div>
+      <div class="field"><label>Neuer Code (Ziffern)</label><input id="npin" inputmode="numeric" pattern="[0-9]*" value="${esc(state.pin)}" maxlength="8"></div>
+      <div class="form-actions"><button class="btn-yellow" id="pinSave">Code speichern</button></div>
+    </div>`);
+  p.querySelector('#pinSave').addEventListener('click',()=>{
+    const v=p.querySelector('#npin').value.replace(/\D/g,'');
+    if(v.length<4||v.length>8){ toast('4 bis 8 Ziffern'); return; }
+    state.pin=v; save(); toast('Code geändert'); closePage(p);
+  });
+}
+
+/* ============================================================
+   KEYPAD ENGINE
+   ============================================================ */
+function renderDots(container,count,total){
+  container.innerHTML = Array.from({length:total},(_,i)=>`<span class="pin-dot ${i<count?'filled':''}"></span>`).join('');
+}
+function buildKeypad(container){
+  const keys=['1','2','3','4','5','6','7','8','9','','0','⌫'];
+  container.innerHTML=keys.map(k=>{
+    if(k==='') return `<div class="key blank"></div>`;
+    if(k==='⌫') return `<button class="key" data-k="del">⌫</button>`;
+    return `<button class="key" data-k="${k}">${k}</button>`;
+  }).join('');
+}
+function runKeypad(padEl,dotsEl,errEl,onSuccess){
+  let entered='';
+  const total=state.pin.length;
+  buildKeypad(padEl);
+  renderDots(dotsEl,0,total);
+  padEl.querySelectorAll('[data-k]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const k=btn.dataset.k;
+      if(k==='del'){ entered=entered.slice(0,-1); }
+      else if(entered.length<total){ entered+=k; }
+      renderDots(dotsEl,entered.length,total);
+      if(errEl) errEl.textContent='';
+      if(entered.length===total){
+        setTimeout(()=>{
+          if(entered===state.pin){ onSuccess(); }
+          else{
+            if(errEl) errEl.textContent='Falscher Signaturcode. Bitte erneut versuchen.';
+            entered='';
+            renderDots(dotsEl,0,total);
+            if(navigator.vibrate) navigator.vibrate(200);
+          }
+        },140);
+      }
+    });
+  });
+}
+
+/* ============================================================
+   BINDINGS
+   ============================================================ */
+function bindWelcome(){
+  document.getElementById('loginMain').addEventListener('click',()=>showPin());
+  document.getElementById('loginOther').addEventListener('click',()=>showPin());
+}
+function bindPin(){
+  document.getElementById('pinBack').addEventListener('click',()=>showWelcome());
+  runKeypad(document.getElementById('keypad'),document.getElementById('pinDots'),document.getElementById('pinErr'),()=>enterApp());
+}
+function bindTab(){
+  document.getElementById('logoutBtn')?.addEventListener('click',()=>{ showWelcome(); });
+  document.querySelectorAll('.tab[data-tab]').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
+  document.querySelectorAll('[data-tab]:not(.tab)').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
+  // overview
+  document.querySelectorAll('[data-transfer]').forEach(b=>b.addEventListener('click',()=>openTransfer(b.dataset.transfer)));
+  document.querySelectorAll('[data-detail]').forEach(b=>b.addEventListener('click',()=>openDetail(b.dataset.detail)));
+  // manage
+  document.querySelector('[data-editprofile]')?.addEventListener('click',openEditProfile);
+  document.querySelectorAll('[data-editacct]').forEach(b=>b.addEventListener('click',()=>openEditAccount(b.dataset.editacct)));
+  document.querySelector('[data-addacct]')?.addEventListener('click',()=>openEditAccount(null));
+  document.querySelector('[data-changepin]')?.addEventListener('click',openChangePin);
+  document.querySelector('[data-reset]')?.addEventListener('click',()=>{
+    if(confirm('Prank komplett zurücksetzen? Alle eingegebenen Daten gehen verloren.')){
+      state=structuredClone(DEFAULT_STATE); save(); toast('Zurückgesetzt'); showWelcome();
+    }
+  });
+  // promo carousel dots
+  const track=document.getElementById('promoTrack');
+  if(track){
+    track.addEventListener('scroll',()=>{
+      const i=Math.round(track.scrollLeft/track.clientWidth);
+      document.querySelectorAll('#promoDots i').forEach((d,idx)=>d.classList.toggle('on',idx===i));
+    });
+  }
+}
+
+/* ---------- boot ---------- */
+showWelcome();
+</script>
+</body>
+</html>
