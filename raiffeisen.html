@@ -13,856 +13,1241 @@
 <style>
 :root{
   --yellow:#FFE500;
-  --yellow-dim:#e6ce00;
   --bg:#000000;
-  --card:#1c1c1e;
-  --card2:#2c2c2e;
-  --card3:#3a3a3c;
+  --c1:#1c1c1e;
+  --c2:#2c2c2e;
+  --c3:#3a3a3c;
   --text:#ffffff;
   --muted:#8e8e93;
   --muted2:#636366;
   --green:#7bc47f;
-  --red:#ff6b6b;
+  --red:#ff453a;
   --link:#4a9eff;
-  --divider:rgba(255,255,255,0.08);
+  --purple:#5c3a63;
+  --line:rgba(255,255,255,0.09);
+  --sat:env(safe-area-inset-top);
+  --sab:env(safe-area-inset-bottom);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;}
-body{
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  overflow-x:hidden;
-  -webkit-font-smoothing:antialiased;
-}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg);color:var(--text);overflow-x:hidden;-webkit-font-smoothing:antialiased;font-size:17px;}
 button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
 input,select,textarea{font-family:inherit;font-size:16px;}
-#root{max-width:520px;margin:0 auto;min-height:100vh;position:relative;padding-bottom:env(safe-area-inset-bottom);}
+#root{max-width:520px;margin:0 auto;min-height:100vh;position:relative;}
+.hide{display:none !important;}
 
-/* ---------- Logo ---------- */
-.rai-logo{display:inline-flex;align-items:center;justify-content:center;background:var(--yellow);border-radius:6px;}
-.rai-logo svg{display:block;}
+/* buttons */
+.btn-y{background:var(--yellow);color:#111;font-weight:700;border-radius:12px;padding:17px;width:100%;font-size:17px;transition:transform .1s;}
+.btn-y:active{transform:scale(.985);}
+.btn-y:disabled{background:var(--c3);color:var(--muted2);cursor:default;}
+.btn-d{background:var(--c2);color:#fff;font-weight:600;border-radius:12px;padding:16px;width:100%;font-size:16px;}
+.btn-ghost{color:#fff;font-weight:600;padding:15px;width:100%;font-size:16px;text-align:center;}
+.danger{color:var(--red);font-weight:600;text-align:center;padding:15px;width:100%;}
 
-/* ---------- Buttons ---------- */
-.btn-yellow{background:var(--yellow);color:#111;font-weight:700;border-radius:14px;padding:17px;width:100%;font-size:17px;transition:transform .1s,opacity .2s;}
-.btn-yellow:active{transform:scale(.98);}
-.btn-yellow:disabled{background:var(--card3);color:var(--muted);}
-.btn-ghost{color:var(--text);font-weight:600;padding:14px;width:100%;font-size:16px;text-align:center;}
-.btn-dark{background:var(--card2);color:var(--text);font-weight:600;border-radius:14px;padding:16px;width:100%;font-size:16px;}
+/* ============ WELCOME ============ */
+#welcome{min-height:100vh;display:flex;flex-direction:column;}
+.hero{position:relative;height:52vh;min-height:360px;overflow:hidden;
+  background:linear-gradient(150deg,#7a8fa0 0%,#9aa88c 40%,#c9a06a 75%,#8d6b4a 100%);}
+.hero::before{content:"";position:absolute;inset:0;
+  background:radial-gradient(ellipse at 70% 25%,rgba(255,255,255,.35),transparent 55%),
+             radial-gradient(ellipse at 20% 80%,rgba(40,60,80,.45),transparent 60%);}
+.hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:38%;
+  background:linear-gradient(to bottom,transparent,rgba(0,0,0,.55));}
+.hero .oes{position:absolute;z-index:3;top:calc(22px + var(--sat));left:20px;width:118px;height:118px;border-radius:50%;
+  background:var(--yellow);color:#111;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;line-height:1.1;box-shadow:0 6px 18px rgba(0,0,0,.28);}
+.hero .oes small{font-size:12px;font-weight:600;}
+.hero .oes b{font-size:25px;line-height:1;margin:1px 0;}
+.hero .info{position:absolute;z-index:3;top:calc(24px + var(--sat));right:20px;width:44px;height:44px;border-radius:50%;
+  background:rgba(60,60,60,.65);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;
+  font-size:19px;font-style:italic;font-weight:600;color:#fff;}
+.hero .joe{position:absolute;z-index:3;top:128px;left:118px;width:66px;height:66px;border-radius:50% 50% 50% 6px;
+  background:#a8813c;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:23px;
+  box-shadow:0 4px 12px rgba(0,0,0,.3);}
+.hero .rlogo{position:absolute;z-index:4;left:50%;bottom:-42px;transform:translateX(-50%);width:112px;height:112px;
+  border-radius:4px;box-shadow:0 10px 26px rgba(0,0,0,.45);}
+.wbody{flex:1;padding:66px 18px calc(22px + var(--sab));display:flex;flex-direction:column;}
+.wcard{background:var(--c2);border-radius:20px;padding:24px 18px 14px;text-align:center;}
+.wcard h2{font-size:25px;font-weight:600;margin-bottom:24px;}
+.wpay{display:flex;gap:13px;margin-top:auto;padding-top:26px;}
+.paychip{flex:1;border-radius:28px;padding:15px;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:700;font-size:16px;}
+.paychip.a{background:#fff;color:#111;}
+.paychip.b{background:#1a63c9;color:#fff;}
+.homebar{width:135px;height:5px;border-radius:3px;background:rgba(255,255,255,.35);margin:14px auto 0;}
 
-/* ---------- Welcome ---------- */
-#screen-welcome{min-height:100vh;display:flex;flex-direction:column;background:var(--bg);}
-.welcome-hero{position:relative;height:46vh;min-height:340px;background:linear-gradient(160deg,#2b3a4a 0%,#3a4a3a 45%,#6b6b3a 100%);overflow:hidden;}
-.welcome-hero::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 75% 30%,rgba(255,229,0,.18),transparent 55%);}
-.welcome-hero .promo-bubble{position:absolute;z-index:2;top:26px;left:22px;width:120px;height:120px;border-radius:50%;background:var(--yellow);color:#111;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;line-height:1.05;box-shadow:0 8px 20px rgba(0,0,0,.3);}
-.welcome-hero .promo-bubble b{font-size:26px;}
-.welcome-hero .promo-bubble small{font-size:12px;}
-.welcome-logo{position:absolute;z-index:2;left:50%;bottom:-38px;transform:translateX(-50%);width:96px;height:96px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.4);}
-.welcome-body{flex:1;padding:60px 20px 30px;display:flex;flex-direction:column;justify-content:flex-start;}
-.welcome-card{background:var(--card2);border-radius:22px;padding:26px 20px;text-align:center;}
-.welcome-card h2{font-size:26px;font-weight:700;margin-bottom:26px;}
-.welcome-card .btn-yellow{margin-bottom:6px;}
-.welcome-pay{display:flex;gap:14px;margin-top:26px;}
-.pay-chip{flex:1;border-radius:26px;padding:14px;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:700;font-size:15px;}
-.pay-chip.rai{background:#fff;color:#111;}
-.pay-chip.blue{background:#1a63c9;color:#fff;}
+/* ============ LOGIN ============ */
+#login{min-height:100vh;display:flex;flex-direction:column;padding:0 18px calc(24px + var(--sab));}
+.navbar{display:flex;align-items:center;justify-content:center;height:60px;margin-top:var(--sat);position:relative;}
+.navbar h1{font-size:19px;font-weight:700;}
+.navbar .circ{position:absolute;width:46px;height:46px;border-radius:50%;background:var(--c2);
+  display:flex;align-items:center;justify-content:center;}
+.navbar .circ.l{left:0;} .navbar .circ.r{right:0;}
+.li-text{font-size:22px;line-height:1.38;margin:26px 2px 0;font-weight:400;}
+.codebox{margin-top:34px;background:var(--c2);border-bottom:2px solid var(--yellow);border-radius:6px 6px 0 0;
+  padding:11px 14px 9px;display:flex;align-items:flex-end;gap:10px;}
+.codebox .cbin{flex:1;}
+.codebox label{display:block;font-size:13px;color:var(--muted);margin-bottom:2px;}
+.codebox input{width:100%;background:none;border:none;outline:none;color:#fff;font-size:20px;letter-spacing:5px;
+  padding:3px 0;font-variant-numeric:tabular-nums;}
+.codebox input::placeholder{letter-spacing:normal;color:var(--muted2);}
+.codebox .eye{padding:4px;color:#c8c8cc;}
+.li-err{color:var(--red);font-size:14px;min-height:20px;margin-top:9px;padding-left:2px;}
+.li-forgot{text-align:center;font-weight:700;font-size:17px;margin-top:22px;}
+.li-btn{margin-top:62px;}
+.li-btn .btn-y:disabled{background:var(--yellow);color:#8a8a8a;}
+.bio{text-align:center;color:var(--muted);font-size:14px;margin-top:16px;}
 
-/* ---------- PIN ---------- */
-#screen-pin{min-height:100vh;display:flex;flex-direction:column;padding:0 22px calc(20px + env(safe-area-inset-bottom));}
-.pin-top{display:flex;align-items:center;height:64px;position:relative;justify-content:center;}
-.pin-top .back{position:absolute;left:0;width:44px;height:44px;border-radius:50%;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:20px;}
-.pin-top h1{font-size:19px;font-weight:700;}
-.pin-instr{font-size:23px;line-height:1.35;margin:24px 4px 0;font-weight:400;}
-.pin-instr b{font-weight:700;}
-.pin-dots{display:flex;gap:18px;justify-content:center;margin:44px 0 8px;}
-.pin-dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--muted);transition:.15s;}
-.pin-dot.filled{background:var(--yellow);border-color:var(--yellow);}
-.pin-error{color:var(--red);text-align:center;font-size:14px;height:20px;margin-bottom:4px;}
-.pin-forgot{text-align:center;font-weight:700;font-size:17px;margin-top:10px;color:var(--text);}
-.keypad{margin-top:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding-top:20px;}
-.key{height:66px;border-radius:18px;background:var(--card2);font-size:27px;font-weight:500;display:flex;align-items:center;justify-content:center;transition:background .1s;}
-.key:active{background:var(--card3);}
-.key.blank{background:none;}
-.key.action{background:none;font-size:16px;font-weight:600;}
+/* ============ APP ============ */
+#app{display:none;min-height:100vh;padding-bottom:112px;}
+.appbar{position:sticky;top:0;z-index:30;background:var(--bg);display:flex;align-items:center;justify-content:center;
+  height:58px;padding:var(--sat) 16px 0;margin-top:var(--sat);}
+.appbar .ttl{font-size:19px;font-weight:700;display:flex;align-items:center;gap:9px;}
+.appbar .out{position:absolute;right:16px;width:44px;height:44px;border-radius:50%;background:var(--c2);
+  display:flex;align-items:center;justify-content:center;}
+.rlogo-sm{display:inline-flex;align-items:center;justify-content:center;background:var(--yellow);border-radius:3px;}
+.h1big{font-size:28px;font-weight:800;padding:22px 18px 12px;letter-spacing:-.3px;}
+.h1big.row{display:flex;align-items:center;justify-content:space-between;}
+.h1big .lnk{font-size:17px;font-weight:600;color:var(--link);text-decoration:underline;}
 
-/* ---------- App shell ---------- */
-#app{display:none;min-height:100vh;padding-bottom:96px;}
-.appbar{position:sticky;top:0;z-index:30;background:var(--bg);display:flex;align-items:center;justify-content:center;height:58px;padding:0 16px;gap:10px;}
-.appbar .title{font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px;}
-.appbar .logout{position:absolute;right:16px;width:44px;height:44px;border-radius:50%;background:var(--card2);display:flex;align-items:center;justify-content:center;}
-.section-h{font-size:27px;font-weight:800;padding:22px 18px 12px;}
-.section-h.row{display:flex;align-items:center;justify-content:space-between;}
-.section-h .link{font-size:17px;font-weight:700;color:var(--link);}
-
-/* promo carousel */
-.promo{margin:6px 0 0;position:relative;}
-.promo-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;}
-.promo-track::-webkit-scrollbar{display:none;}
-.promo-slide{min-width:100%;scroll-snap-align:start;display:flex;height:150px;}
-.promo-slide .pic{width:44%;object-fit:cover;}
-.promo-slide .txt{flex:1;background:#264d33;padding:16px;display:flex;flex-direction:column;justify-content:center;}
-.promo-slide .txt b{font-size:17px;line-height:1.25;color:#e8f0e8;}
-.promo-slide .txt span{font-size:13px;color:#a8c0a8;margin-top:8px;}
-.promo-dots{display:flex;gap:7px;justify-content:center;padding:14px 0 4px;}
-.promo-dots i{width:8px;height:8px;border-radius:50%;background:var(--card3);transition:.2s;}
-.promo-dots i.on{background:#fff;}
+/* promo */
+.promo{position:relative;margin-top:4px;}
+.ptrack{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;}
+.ptrack::-webkit-scrollbar{display:none;}
+.pslide{min-width:100%;scroll-snap-align:start;display:flex;height:152px;}
+.pslide .pic{width:32%;position:relative;background-size:cover;background-position:center;}
+.pslide .txt{flex:1;padding:15px 16px;display:flex;flex-direction:column;justify-content:center;}
+.pslide .txt b{font-size:17px;line-height:1.26;font-weight:700;}
+.pslide .txt span{font-size:13.5px;opacity:.82;margin-top:7px;line-height:1.3;}
+.parr{position:absolute;top:50%;transform:translateY(-50%);color:var(--yellow);font-size:30px;font-weight:800;
+  z-index:2;padding:6px 8px;line-height:1;text-shadow:0 1px 6px rgba(0,0,0,.5);}
+.parr.l{left:2px;} .parr.r{left:calc(32% - 30px);}
+.pdots{display:flex;gap:8px;justify-content:center;padding:14px 0 2px;}
+.pdots i{width:8px;height:8px;border-radius:50%;background:#48484a;}
+.pdots i.on{background:#fff;}
 
 /* account card */
-.acct{background:var(--card2);border-radius:18px;margin:0 14px 16px;overflow:hidden;border:2px solid transparent;}
+.acct{background:var(--c2);border-radius:16px;margin:0 14px 14px;overflow:hidden;border:2px solid transparent;}
 .acct.hl{border-color:var(--yellow);}
-.acct-main{padding:16px 18px 14px;position:relative;}
-.acct-type{color:var(--muted);font-size:15px;}
-.acct-holder{font-size:20px;font-weight:600;margin-top:2px;}
-.acct-iban{color:var(--muted);font-size:16px;letter-spacing:.5px;margin-top:4px;font-variant-numeric:tabular-nums;}
-.acct-bal-row{display:flex;justify-content:space-between;align-items:flex-end;margin-top:16px;}
-.acct-bal{font-size:26px;font-weight:700;color:var(--green);}
-.acct-avail{text-align:right;color:var(--muted);font-size:14px;}
-.acct-avail b{display:block;color:#c8c8cc;font-size:17px;font-weight:600;margin-top:2px;}
-.acct-badge{position:absolute;top:14px;right:14px;width:34px;height:34px;}
-.acct-foot{border-top:1px solid var(--divider);display:flex;align-items:center;}
-.acct-foot .transfer{flex:1;padding:16px 18px;font-size:18px;font-weight:700;text-align:left;}
-.acct-foot .dots{width:56px;padding:16px;font-size:22px;color:#c8c8cc;border-left:1px solid var(--divider);}
-.more-hint{text-align:center;color:#c8c8cc;font-size:18px;line-height:1.4;padding:8px 20px 4px;}
-.more-hint .chev{font-size:20px;color:var(--muted);margin-top:4px;}
+.acct .main{padding:15px 17px 13px;position:relative;}
+.acct .ty{color:var(--muted);font-size:15px;}
+.acct .ho{font-size:20px;font-weight:600;margin-top:1px;}
+.acct .ib{color:var(--muted);font-size:15.5px;margin-top:3px;font-variant-numeric:tabular-nums;letter-spacing:.2px;}
+.acct .brow{display:flex;justify-content:space-between;align-items:flex-end;margin-top:15px;}
+.acct .bal{font-size:25px;font-weight:700;color:var(--green);}
+.acct .bal.neg{color:var(--red);}
+.acct .av{text-align:right;color:var(--muted);font-size:13.5px;}
+.acct .av b{display:block;color:#c8c8cc;font-size:16px;font-weight:600;margin-top:1px;}
+.acct .cbadge{position:absolute;top:13px;right:14px;}
+.acct .foot{border-top:1px solid var(--line);display:flex;align-items:stretch;}
+.acct .foot .tf{flex:1;padding:15px 17px;font-size:17.5px;font-weight:700;text-align:left;}
+.acct .foot .dots{width:54px;font-size:21px;color:#d0d0d4;border-left:1px solid var(--line);}
+.morebtn{display:block;width:100%;text-align:center;color:#e4e4e8;font-size:17.5px;line-height:1.4;padding:10px 20px 6px;}
+.morebtn .cv{display:block;font-size:19px;color:var(--muted);margin-top:2px;}
 
-/* generic list rows (manage/contact) */
-.list{background:var(--card2);border-radius:16px;margin:0 14px 20px;overflow:hidden;}
-.row{display:flex;align-items:center;gap:14px;padding:17px 16px;position:relative;}
-.row+.row::before{content:"";position:absolute;top:0;left:56px;right:0;height:1px;background:var(--divider);}
-.row .ico{width:26px;display:flex;justify-content:center;color:#c8c8cc;flex-shrink:0;}
+/* lists */
+.list{background:var(--c2);border-radius:14px;margin:0 14px 18px;overflow:hidden;}
+.row{display:flex;align-items:center;gap:14px;padding:16px 15px;position:relative;width:100%;text-align:left;}
+.row+.row::before{content:"";position:absolute;top:0;left:54px;right:0;height:1px;background:var(--line);}
+.row .ico{width:26px;display:flex;justify-content:center;flex-shrink:0;color:#c8c8cc;}
 .row .lbl{flex:1;font-size:17px;}
-.row .chev{color:var(--muted);font-size:18px;}
+.row .lbl small{display:block;font-size:13.5px;color:var(--muted);margin-top:2px;font-weight:400;}
 .row .val{color:var(--muted);font-size:15px;}
-.profile-row{background:var(--card2);border-radius:16px;margin:0 14px 14px;padding:16px;display:flex;align-items:center;gap:14px;}
-.avatar{width:52px;height:52px;border-radius:50%;background:#8e8e93;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.profile-row .nm{flex:1;font-size:20px;font-weight:500;}
-.promo-invite{background:#5c3a63;border-radius:16px;margin:0 14px 20px;padding:18px;display:flex;align-items:center;gap:14px;color:#e9d5ef;}
-.promo-invite .t{flex:1;font-size:17px;line-height:1.3;}
+.row .chev{color:var(--muted2);font-size:19px;}
+.prow{background:var(--c2);border-radius:14px;margin:0 14px 13px;padding:15px;display:flex;align-items:center;gap:14px;}
+.av-c{width:52px;height:52px;border-radius:50%;background:#8e8e93;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.prow .nm{flex:1;font-size:20px;font-weight:500;}
+.invite{background:var(--purple);border-radius:14px;margin:0 14px 20px;padding:17px;display:flex;align-items:center;gap:14px;color:#eddcf2;}
+.invite .t{flex:1;font-size:16.5px;line-height:1.32;}
+.addbtn{display:flex;align-items:center;justify-content:center;gap:8px;padding:16px;color:var(--yellow);font-weight:700;
+  font-size:16px;width:calc(100% - 28px);margin:0 14px 18px;background:var(--c2);border-radius:14px;}
 
 /* contact quick actions */
-.qa-row{display:flex;justify-content:space-around;margin:8px 14px 24px;}
-.qa{display:flex;flex-direction:column;align-items:center;gap:10px;}
-.qa .circle{width:62px;height:62px;border-radius:50%;background:var(--card2);display:flex;align-items:center;justify-content:center;}
+.qarow{display:flex;justify-content:space-around;margin:10px 10px 26px;}
+.qa{display:flex;flex-direction:column;align-items:center;gap:10px;flex:1;}
+.qa .c{width:62px;height:62px;border-radius:50%;background:var(--c2);display:flex;align-items:center;justify-content:center;}
 .qa span{font-size:15px;}
 
-/* bottom nav */
-.tabbar{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);width:calc(100% - 24px);max-width:496px;background:rgba(40,40,42,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-radius:30px;display:flex;justify-content:space-around;padding:10px 6px;z-index:40;box-shadow:0 8px 30px rgba(0,0,0,.5);}
-.tab{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;color:var(--muted);font-size:11px;position:relative;padding:4px 0;}
+/* tabbar */
+.tabbar{position:fixed;bottom:calc(12px + var(--sab));left:50%;transform:translateX(-50%);width:calc(100% - 20px);
+  max-width:500px;background:rgba(48,48,50,.9);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-radius:32px;display:flex;padding:9px 4px;z-index:40;box-shadow:0 8px 28px rgba(0,0,0,.55);}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted);font-size:10.5px;padding:4px 0;position:relative;}
 .tab.active{color:#fff;}
-.tab .ti{position:relative;}
-.tab .badge{position:absolute;top:-4px;right:-8px;background:#ff3b30;color:#fff;font-size:10px;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 3px;}
-.tab.active .ti .pill{position:absolute;inset:-6px -14px;background:rgba(255,255,255,.14);border-radius:14px;z-index:-1;}
+.tab .ti{position:relative;display:flex;align-items:center;justify-content:center;width:52px;height:30px;}
+.tab.active .ti::before{content:"";position:absolute;inset:0;background:rgba(255,255,255,.16);border-radius:15px;}
+.tab .ti svg{position:relative;}
+.tab .bdg{position:absolute;top:-2px;right:8px;background:#ff3b30;color:#fff;font-size:10px;font-weight:700;
+  min-width:17px;height:17px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 4px;z-index:2;}
 
-/* ---------- Pushed pages / modals ---------- */
-.page{position:fixed;inset:0;max-width:520px;margin:0 auto;background:var(--bg);z-index:60;overflow-y:auto;padding-bottom:40px;transform:translateX(100%);transition:transform .28s cubic-bezier(.3,.7,.3,1);}
+/* pages */
+.page{position:fixed;inset:0;max-width:520px;margin:0 auto;background:var(--bg);z-index:60;overflow-y:auto;
+  transform:translateX(100%);transition:transform .3s cubic-bezier(.32,.72,.28,1);padding-bottom:40px;}
 .page.open{transform:translateX(0);}
-.page-bar{position:sticky;top:0;background:var(--bg);display:flex;align-items:center;height:56px;padding:0 12px;z-index:5;}
-.page-bar .back{width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--yellow);}
-.page-bar h1{font-size:18px;font-weight:700;flex:1;text-align:center;padding-right:44px;}
-.page-body{padding:8px 18px;}
+.pbar{position:sticky;top:0;background:rgba(0,0,0,.9);backdrop-filter:blur(12px);display:flex;align-items:center;
+  height:56px;padding:var(--sat) 8px 0;margin-top:var(--sat);z-index:5;}
+.pbar .bk{width:46px;height:46px;display:flex;align-items:center;justify-content:center;font-size:30px;color:var(--yellow);}
+.pbar h1{font-size:17.5px;font-weight:700;flex:1;text-align:center;padding-right:46px;}
+.pbar .act{position:absolute;right:12px;font-size:15px;color:var(--yellow);font-weight:600;}
+.pbody{padding:6px 18px;}
 
 /* forms */
-.field{margin-bottom:18px;}
-.field label{display:block;font-size:14px;color:var(--muted);margin-bottom:7px;padding-left:2px;}
-.field input,.field select,.field textarea{width:100%;background:var(--card2);border:1px solid transparent;border-radius:13px;padding:15px;color:#fff;font-size:16px;outline:none;}
-.field input:focus,.field select,.field textarea:focus{border-color:var(--yellow);}
-.field select{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238e8e93' stroke-width='2.5'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 15px center;}
-.field .hint{font-size:12px;color:var(--muted2);margin-top:6px;padding-left:2px;}
-.form-actions{margin-top:26px;display:flex;flex-direction:column;gap:12px;}
-.danger{color:var(--red);font-weight:600;text-align:center;padding:14px;width:100%;}
-
-/* review / success */
-.review{background:var(--card2);border-radius:16px;padding:4px 16px;margin-bottom:22px;}
-.review .r{display:flex;justify-content:space-between;padding:15px 0;border-bottom:1px solid var(--divider);gap:16px;}
-.review .r:last-child{border-bottom:none;}
-.review .r .k{color:var(--muted);font-size:15px;flex-shrink:0;}
-.review .r .v{text-align:right;font-weight:600;word-break:break-word;}
-.review .r .v.amt{color:var(--green);font-size:20px;}
-.success{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:16vh 24px;}
-.check{width:96px;height:96px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;margin-bottom:26px;animation:pop .4s cubic-bezier(.2,1.4,.5,1);}
-.success h2{font-size:24px;margin-bottom:10px;}
-.success p{color:var(--muted);font-size:16px;line-height:1.5;margin-bottom:6px;}
-@keyframes pop{0%{transform:scale(0);}100%{transform:scale(1);}}
-.check svg path{stroke-dasharray:40;stroke-dashoffset:40;animation:draw .4s .2s forwards ease-out;}
-@keyframes draw{to{stroke-dashoffset:0;}}
+.fld{margin-bottom:17px;}
+.fld label{display:block;font-size:13.5px;color:var(--muted);margin-bottom:7px;padding-left:2px;}
+.fld input,.fld select,.fld textarea{width:100%;background:var(--c2);border:1.5px solid transparent;border-radius:12px;
+  padding:15px;color:#fff;font-size:16px;outline:none;}
+.fld input:focus,.fld select:focus,.fld textarea:focus{border-color:var(--yellow);}
+.fld select{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238e8e93' stroke-width='2.5'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 15px center;}
+.fld .hint{font-size:12.5px;color:var(--muted2);margin-top:6px;padding-left:2px;}
+.frow{display:flex;gap:12px;} .frow .fld{flex:1;}
+.facts{margin-top:24px;display:flex;flex-direction:column;gap:11px;}
+.note{background:var(--c1);border-radius:12px;padding:14px 15px;margin-bottom:18px;color:var(--muted);font-size:13.5px;line-height:1.5;}
+.seg{display:flex;background:var(--c1);border-radius:11px;padding:3px;margin-bottom:18px;}
+.seg button{flex:1;padding:10px;border-radius:9px;font-size:14.5px;font-weight:600;color:var(--muted);}
+.seg button.on{background:var(--c3);color:#fff;}
+.sw{width:52px;height:31px;border-radius:16px;background:var(--c3);position:relative;transition:.2s;flex-shrink:0;}
+.sw.on{background:#34c759;}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;transition:.2s;}
+.sw.on::after{transform:translateX(21px);}
 
 /* transactions */
-.tx{display:flex;align-items:center;gap:14px;padding:15px 4px;border-bottom:1px solid var(--divider);}
-.tx .ti{width:42px;height:42px;border-radius:50%;background:var(--card3);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.srch{display:flex;align-items:center;gap:10px;background:var(--c2);border-radius:11px;padding:11px 14px;margin:2px 0 6px;}
+.srch input{flex:1;background:none;border:none;outline:none;color:#fff;font-size:16px;}
+.filters{display:flex;gap:8px;overflow-x:auto;padding:8px 0 12px;scrollbar-width:none;}
+.filters::-webkit-scrollbar{display:none;}
+.chip{padding:8px 14px;border-radius:18px;background:var(--c2);font-size:14px;white-space:nowrap;color:#d8d8dc;}
+.chip.on{background:var(--yellow);color:#111;font-weight:700;}
+.daylbl{font-size:13px;font-weight:700;color:var(--muted);padding:16px 0 7px;text-transform:uppercase;letter-spacing:.4px;}
+.tx{display:flex;align-items:center;gap:13px;padding:12px 0;width:100%;text-align:left;}
+.tx .ci{width:43px;height:43px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
 .tx .m{flex:1;min-width:0;}
-.tx .m b{font-size:16px;font-weight:600;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.tx .m span{font-size:13px;color:var(--muted);}
-.tx .a{font-weight:700;font-size:16px;white-space:nowrap;}
+.tx .m b{font-size:16.5px;font-weight:600;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tx .m span{font-size:13.5px;color:var(--muted);}
+.tx .a{font-weight:700;font-size:16.5px;white-space:nowrap;font-variant-numeric:tabular-nums;}
 .tx .a.pos{color:var(--green);}
-.detail-head{padding:6px 18px 18px;}
-.detail-head .t{color:var(--muted);font-size:15px;}
-.detail-head .b{font-size:34px;font-weight:700;color:var(--green);margin-top:4px;}
-.detail-head .ib{color:var(--muted);font-size:15px;margin-top:6px;}
+.txsep{height:1px;background:var(--line);margin-left:56px;}
+.dhead{padding:8px 18px 16px;}
+.dhead .t{color:var(--muted);font-size:15px;}
+.dhead .b{font-size:33px;font-weight:800;color:var(--green);margin-top:2px;letter-spacing:-.5px;}
+.dhead .b.neg{color:var(--red);}
+.dhead .i{color:var(--muted);font-size:14.5px;margin-top:6px;}
+.dactions{display:flex;gap:10px;margin-top:14px;}
+.dactions button{flex:1;background:var(--c2);border-radius:12px;padding:12px 6px;display:flex;flex-direction:column;
+  align-items:center;gap:7px;font-size:12.5px;font-weight:600;}
+.empty{text-align:center;color:var(--muted);padding:44px 20px;font-size:15px;}
 
-.empty{text-align:center;color:var(--muted);padding:40px 20px;font-size:15px;}
-.reset-wrap{padding:30px 18px;}
-.toast{position:fixed;bottom:110px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--card3);color:#fff;padding:12px 22px;border-radius:24px;font-size:15px;z-index:100;opacity:0;transition:.25s;pointer-events:none;max-width:90%;text-align:center;}
+/* review / success */
+.rev{background:var(--c2);border-radius:14px;padding:2px 16px;margin-bottom:20px;}
+.rev .r{display:flex;justify-content:space-between;gap:16px;padding:15px 0;border-bottom:1px solid var(--line);}
+.rev .r:last-child{border-bottom:none;}
+.rev .k{color:var(--muted);font-size:15px;flex-shrink:0;}
+.rev .v{text-align:right;font-weight:600;word-break:break-word;}
+.rev .v.amt{color:var(--yellow);font-size:21px;font-weight:800;}
+.succ{display:flex;flex-direction:column;align-items:center;text-align:center;padding:15vh 24px 24px;}
+.chk{width:94px;height:94px;border-radius:50%;background:#34c759;display:flex;align-items:center;justify-content:center;
+  margin-bottom:24px;animation:pop .42s cubic-bezier(.2,1.4,.5,1);}
+@keyframes pop{from{transform:scale(0);}to{transform:scale(1);}}
+.succ h2{font-size:24px;margin-bottom:10px;}
+.succ p{color:var(--muted);font-size:16px;line-height:1.5;margin-bottom:4px;}
+
+/* card visual */
+.bank-card{border-radius:16px;padding:18px;height:200px;display:flex;flex-direction:column;justify-content:space-between;
+  background:linear-gradient(135deg,#2b2b2d,#161617);border:1px solid #3a3a3c;position:relative;overflow:hidden;margin-bottom:18px;}
+.bank-card.blocked{opacity:.5;}
+.bank-card .yl{position:absolute;top:16px;right:16px;width:40px;height:40px;border-radius:3px;background:var(--yellow);
+  display:flex;align-items:center;justify-content:center;}
+.bank-card .num{font-size:21px;letter-spacing:2.5px;font-variant-numeric:tabular-nums;}
+.bank-card .bot{display:flex;justify-content:space-between;align-items:flex-end;font-size:13px;color:#c8c8cc;}
+.bank-card .chip{width:38px;height:28px;border-radius:5px;background:linear-gradient(135deg,#d9c46a,#a8873a);padding:0;}
+.blocked-tag{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:19px;
+  font-weight:800;color:var(--red);letter-spacing:2px;}
+
+/* bars (finanzmanager) */
+.bar{height:9px;border-radius:5px;background:var(--c3);overflow:hidden;margin-top:8px;}
+.bar i{display:block;height:100%;border-radius:5px;}
+.catrow{padding:13px 0;border-bottom:1px solid var(--line);}
+.catrow:last-child{border-bottom:none;}
+.catrow .top{display:flex;align-items:center;gap:11px;}
+.catrow .dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;}
+.catrow .nm{flex:1;font-size:16px;}
+.catrow .vl{font-weight:700;font-variant-numeric:tabular-nums;}
+.statgrid{display:flex;gap:12px;margin-bottom:18px;}
+.stat{flex:1;background:var(--c2);border-radius:14px;padding:15px;}
+.stat .l{font-size:13px;color:var(--muted);}
+.stat .v{font-size:21px;font-weight:800;margin-top:5px;font-variant-numeric:tabular-nums;}
+
+/* sheet */
+.bd{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:75;opacity:0;pointer-events:none;transition:.28s;}
+.bd.open{opacity:1;pointer-events:auto;}
+.sheet{position:fixed;left:0;right:0;bottom:0;max-width:520px;margin:0 auto;background:var(--c1);
+  border-radius:20px 20px 0 0;z-index:80;transform:translateY(110%);transition:transform .32s cubic-bezier(.32,.72,.28,1);
+  padding:10px 0 calc(14px + var(--sab));}
+.sheet.open{transform:translateY(0);}
+.sheet .grab{width:38px;height:5px;border-radius:3px;background:#48484a;margin:0 auto 8px;}
+.sheet h3{font-size:17px;font-weight:700;padding:10px 18px;text-align:center;color:var(--muted);}
+.sheet .si{display:flex;align-items:center;gap:14px;padding:16px 20px;font-size:17px;width:100%;text-align:left;}
+.sheet .si:active{background:var(--c2);}
+.sheet .si .ico{width:24px;display:flex;justify-content:center;color:#c8c8cc;}
+
+.toast{position:fixed;bottom:130px;left:50%;transform:translateX(-50%) translateY(16px);background:#48484a;color:#fff;
+  padding:13px 22px;border-radius:24px;font-size:15px;z-index:100;opacity:0;transition:.25s;pointer-events:none;
+  max-width:88%;text-align:center;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-.card-note{background:var(--card2);border-radius:14px;padding:14px 16px;margin:0 0 18px;color:var(--muted);font-size:13px;line-height:1.5;}
-.add-btn{display:flex;align-items:center;gap:10px;justify-content:center;padding:16px;color:var(--yellow);font-weight:700;font-size:16px;width:100%;background:var(--card2);border-radius:14px;margin-bottom:20px;}
+.resetw{padding:26px 18px 10px;}
+.legal{text-align:center;color:var(--muted2);font-size:11.5px;padding:6px 30px 24px;line-height:1.5;}
 </style>
 </head>
 <body>
 <div id="root"></div>
+<div class="bd" id="bd"></div>
 <div class="toast" id="toast"></div>
 
 <script>
-/* ============================================================
-   Raiffeisen "Mein ELBA" – Prank Klon
-   Rein zu Unterhaltungszwecken. Kein echtes Banking.
-   ============================================================ */
+/* ==========================================================================
+   Mein ELBA (Raiffeisen) – Prank-Klon.  Reine Spaß-App, kein echtes Banking.
+   ========================================================================== */
+const KEY='raiffeisen_prank_v2';
+const uid=()=>Math.random().toString(36).slice(2,10);
+const iso=d=>d.toISOString().slice(0,10);
+const daysAgo=n=>iso(new Date(Date.now()-n*864e5));
 
-const LOGO_SVG = (size=96,r=8)=>`<span class="rai-logo" style="width:${size}px;height:${size}px;border-radius:${r}px">
-<svg width="${size*0.66}" height="${size*0.66}" viewBox="0 0 100 100">
- <g fill="#000" transform="translate(50,50)">
-  <rect x="-13" y="-46" width="26" height="92" rx="13" transform="rotate(45)"/>
-  <rect x="-13" y="-46" width="26" height="92" rx="13" transform="rotate(-45)"/>
- </g>
-</svg></span>`;
-
-const KEY = 'raiffeisen_prank_v1';
-
-const DEFAULT_STATE = {
-  pin: '0000',
-  profileName: 'Tobias Nesvadba',
-  verfnr: 'ELVIE-32-VAV-353802',
-  accounts: [
-    {
-      id: id(),
-      type: 'Giro',
-      holder: 'Nesvadba Tobias',
-      iban: 'AT12 3456 7890 1234 5678',
-      balance: 0.00,
-      available: 0.00,
-      tx: [
-        {id:id(), title:'BILLA DANKT', purpose:'Kartenzahlung', amount:-38.47, date:'2026-07-03'},
-        {id:id(), title:'Gehalt', purpose:'Lohn/Gehalt', amount:2145.00, date:'2026-07-01'},
-        {id:id(), title:'SPOTIFY', purpose:'Abo', amount:-10.99, date:'2026-06-28'},
-        {id:id(), title:'OMV Tankstelle', purpose:'Kartenzahlung', amount:-72.30, date:'2026-06-25'},
-      ]
-    }
-  ]
+const DEFAULT_STATE={
+  pin:'0000',
+  profile:{name:'Tobias Nesvadba',verfnr:'ELVIE-32-VAV-353802',email:'t.nesvadba@example.at',phone:'+43 660 1234567'},
+  berater:{name:'Service KAGRAN',bankstelle:'Raiffeisenbank Wien-Kagran',tel:'+43 1 21136-0'},
+  accounts:[
+    {id:uid(),type:'Giro',holder:'Nesvadba Tobias',iban:'AT12 3456 7890 1234 5678',balance:2480.55,available:2480.55,primary:true,
+     tx:[
+      {id:uid(),title:'BILLA DANKT 4711',purpose:'Kartenzahlung',amount:-38.47,date:daysAgo(1),cat:'lebensmittel'},
+      {id:uid(),title:'Gehalt',purpose:'Lohn/Gehalt',amount:2145.00,date:daysAgo(3),cat:'einkommen'},
+      {id:uid(),title:'SPOTIFY AB',purpose:'Abo',amount:-10.99,date:daysAgo(5),cat:'freizeit'},
+      {id:uid(),title:'OMV Tankstelle',purpose:'Kartenzahlung',amount:-72.30,date:daysAgo(8),cat:'mobilitaet'},
+      {id:uid(),title:'BANKOMAT 1220 WIEN',purpose:'Behebung',amount:-150.00,date:daysAgo(9),cat:'bargeld'},
+      {id:uid(),title:'Hausverwaltung Sedlak',purpose:'Miete Juli',amount:-780.00,date:daysAgo(12),cat:'wohnen'}
+     ]}
+  ],
+  secondary:[
+    {id:uid(),type:'Bausparen',name:'Raiffeisen Bausparen',value:8420.00},
+    {id:uid(),type:'Versicherung',name:'UNIQA Haushalt & Eigenheim',value:1240.00}
+  ],
+  standing:[],
+  cards:[{id:uid(),kind:'Debitkarte',brand:'Debit Mastercard',num:'5432',holder:'TOBIAS NESVADBA',exp:'09/29',
+          dayLimit:400,monthLimit:2000,blocked:false,contactless:true,online:true,abroad:false}],
+  alerts:{incoming:true,outgoing:false,low:true,lowLimit:100},
+  messages:[{id:uid(),from:'Raiffeisen',subject:'Neue Konditionen ab 01.08.',date:daysAgo(2),read:false,
+             body:'Sehr geehrte Kundin, sehr geehrter Kunde,\n\nwir informieren Sie über angepasste Konditionen Ihres Kontos ab 01.08.\n\nIhre Raiffeisenbank'}],
+  templates:[{id:uid(),name:'Miete Hausverwaltung',iban:'AT61 1904 3002 3457 3201',purpose:'Miete'}],
+  settings:{hideBalance:false,bioLogin:true}
 };
 
-function id(){ return Math.random().toString(36).slice(2,10); }
-function load(){
-  try{ const s = JSON.parse(localStorage.getItem(KEY)); if(s && s.accounts) return s; }catch(e){}
-  return structuredClone(DEFAULT_STATE);
-}
-function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
-let state = load();
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.accounts)return migrate(s);}catch(e){}
+  return structuredClone(DEFAULT_STATE);}
+function migrate(s){const d=DEFAULT_STATE;
+  s.profile=s.profile||{name:'Tobias Nesvadba',verfnr:d.profile.verfnr};
+  s.berater=s.berater||structuredClone(d.berater);
+  s.secondary=s.secondary||[];s.standing=s.standing||[];s.cards=s.cards||structuredClone(d.cards);
+  s.alerts=s.alerts||structuredClone(d.alerts);s.messages=s.messages||[];s.templates=s.templates||[];
+  s.settings=s.settings||structuredClone(d.settings);
+  return s;}
+function save(){localStorage.setItem(KEY,JSON.stringify(state));}
+let state=load();
 
-/* ---------- helpers ---------- */
-function fmt(n){ return new Intl.NumberFormat('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n); }
-function eur(n){ return fmt(n)+' EUR'; }
-function esc(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function dateLabel(d){
-  try{ return new Date(d+'T00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'}); }
-  catch(e){ return d; }
-}
-function todayISO(){ return new Date().toISOString().slice(0,10); }
-function toast(msg){
-  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
-  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2200);
-}
-const root = ()=>document.getElementById('root');
+/* helpers */
+const nf=new Intl.NumberFormat('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmt=n=>nf.format(n);
+const eur=n=>fmt(n)+' EUR';
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const root=()=>document.getElementById('root');
+const money=v=>{const n=parseFloat(String(v).trim().replace(/\./g,'').replace(',','.'));return isNaN(n)?0:n;};
+const ibanFmt=el=>el.addEventListener('input',()=>{const v=el.value.toUpperCase().replace(/[^A-Z0-9]/g,'');
+  el.value=v.replace(/(.{4})/g,'$1 ').trim();});
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2300);}
+function dLabel(d){const t=iso(new Date());const y=daysAgo(1);
+  if(d===t)return 'Heute';if(d===y)return 'Gestern';
+  try{return new Date(d+'T00:00').toLocaleDateString('de-AT',{weekday:'long',day:'2-digit',month:'long'});}catch(e){return d;}}
+function dShort(d){try{return new Date(d+'T00:00').toLocaleDateString('de-AT',{day:'2-digit',month:'2-digit',year:'numeric'});}catch(e){return d;}}
+const totalBalance=()=>state.accounts.reduce((s,a)=>s+a.balance,0);
+
+const CATS={
+  einkommen:{l:'Einkommen',c:'#34c759',e:'↑'},
+  lebensmittel:{l:'Lebensmittel',c:'#ff9500',e:'🛒'},
+  mobilitaet:{l:'Mobilität',c:'#0a84ff',e:'⛽'},
+  freizeit:{l:'Freizeit',c:'#bf5af2',e:'🎵'},
+  wohnen:{l:'Wohnen',c:'#ff375f',e:'🏠'},
+  shopping:{l:'Shopping',c:'#ff2d55',e:'🛍'},
+  ueberweisung:{l:'Überweisung',c:'#8e8e93',e:'⇄'},
+  bargeld:{l:'Bargeld',c:'#5e5ce6',e:'🏧'},
+  sonstiges:{l:'Sonstiges',c:'#636366',e:'€'}
+};
+const cat=t=>CATS[t&&t.cat]||CATS.sonstiges;
 
 /* icons */
-const IC = {
-  logout:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>',
-  back:'‹',
-  overview:(c)=>`<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>`,
-  gear:(c)=>`<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
-  compass:(c)=>`<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>`,
-  chat:(c)=>`<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
-  finance:(c)=>`<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>`,
-  phone:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c8c8cc" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.98.36 1.94.7 2.85a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.87.57 2.85.7A2 2 0 0 1 22 16.92z"/></svg>',
-  gift:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e9d5ef" stroke-width="1.8"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>',
-  user:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1c1c1e" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
-  phoneS:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c8c8cc" stroke-width="1.7"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg>',
-  lock:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c8c8cc" stroke-width="1.7"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
-  bell:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c8c8cc" stroke-width="1.7"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>',
-  gavel:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c8c8cc" stroke-width="1.7"><path d="m14 13-8.5 8.5a2.12 2.12 0 1 1-3-3L11 10"/><path d="m16 16 6-6"/><path d="m8 8 6-6"/><path d="m9 7 8 8"/><path d="m21 11-8-8"/></svg>',
-  card:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c8c8cc" stroke-width="1.7"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>',
-  headset:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c8c8cc" stroke-width="1.7"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>',
-  bank:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c8c8cc" stroke-width="1.7"><line x1="3" y1="21" x2="21" y2="21"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="5 10 5 21"/><polyline points="19 10 19 21"/><polyline points="9 10 9 21"/><polyline points="15 10 15 21"/><polygon points="12 2 20 7 4 7"/></svg>',
-  mail:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#c8c8cc" stroke-width="1.7"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
-  msg:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M4 4h16v12H5.17L4 17.17z"/><line x1="8" y1="9" x2="16" y2="9"/></svg>',
-  callf:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.98.36 1.94.7 2.85a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6"/><polyline points="15 8 20 8 20 3"/></svg>',
-  cal:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="10" y1="16" x2="14" y2="16"/></svg>',
+const CROSS=s=>`<svg width="${s}" height="${s}" viewBox="0 0 100 100"><g fill="#000" transform="translate(50,50)">
+<rect x="-12" y="-46" width="24" height="92" rx="12" transform="rotate(45)"/>
+<rect x="-12" y="-46" width="24" height="92" rx="12" transform="rotate(-45)"/></g></svg>`;
+const RLOGO=(s,r=3)=>`<span class="rlogo-sm" style="width:${s}px;height:${s}px;border-radius:${r}px">${CROSS(s*.72)}</span>`;
+const RLOGO_URI=encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='112' height='112'><rect width='112' height='112' rx='4' fill='#FFE500'/><g fill='#000' transform='translate(56,56)'><rect x='-14' y='-52' width='28' height='104' rx='14' transform='rotate(45)'/><rect x='-14' y='-52' width='28' height='104' rx='14' transform='rotate(-45)'/></g></svg>`);
+const sv=(p,c='#c8c8cc',w=1.8,s=24)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+const IC={
+  out:sv('<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>','#fff',2,22),
+  tOver:c=>sv('<rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>',c,2,23),
+  tGear:c=>sv('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',c,2,23),
+  tDisc:c=>sv('<circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>',c,2,23),
+  tChat:c=>sv('<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',c,2,23),
+  tFin:c=>sv('<path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/>',c,2,23),
+  phone:sv('<rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>'),
+  lock:sv('<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>'),
+  bell:sv('<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>'),
+  gavel:sv('<path d="m14 13-8.5 8.5a2.12 2.12 0 1 1-3-3L11 10"/><path d="m16 16 6-6"/><path d="m8 8 6-6"/><path d="m9 7 8 8"/><path d="m21 11-8-8"/>'),
+  card:sv('<rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>'),
+  user:sv('<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>','#1c1c1e',2,26),
+  userB:sv('<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'),
+  head:sv('<path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>'),
+  bank:sv('<line x1="3" y1="21" x2="21" y2="21"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="5 10 5 21"/><polyline points="19 10 19 21"/><polyline points="9 10 9 21"/><polyline points="15 10 15 21"/><polygon points="12 2 20 7 4 7"/>'),
+  mail:sv('<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>'),
+  gift:sv('<polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>','#eddcf2'),
+  repeat:sv('<polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>'),
+  srch:sv('<circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>','#8e8e93',2,19),
+  msgW:sv('<path d="M4 4h16v12H5.17L4 17.17z"/><line x1="8" y1="9" x2="16" y2="9"/>','#fff'),
+  callW:sv('<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.98.36 1.94.7 2.85a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6"/><polyline points="15 8 20 8 20 3"/>','#fff'),
+  calW:sv('<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="10" y1="16" x2="14" y2="16"/>','#fff'),
+  backW:sv('<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.98.36 1.94.7 2.85a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.87.57 2.85.7A2 2 0 0 1 22 16.92z"/>','#fff'),
+  send:sv('<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>','#FFE500',2,22),
+  qr:sv('<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="21" y2="21"/>','#FFE500',2,22),
+  tmpl:sv('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>','#FFE500',2,22),
+  eye:sv('<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>','#c8c8cc',1.9,22),
+  eyeOff:sv('<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>','#c8c8cc',1.9,22),
+  copy:sv('<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>','#FFE500',2,22),
+  share:sv('<path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>','#FFE500',2,22),
+  trash:sv('<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>','#ff453a',2,22),
+  edit:sv('<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/>','#FFE500',2,22),
+  wallet:sv('<path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/>'),
+  chart:sv('<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>'),
+  cardBadge:`<svg width="34" height="34" viewBox="0 0 40 40"><rect x="3" y="13" width="22" height="15" rx="2.5" fill="none" stroke="#c8c8cc" stroke-width="2.2" transform="rotate(-12 14 20)"/><circle cx="31" cy="10" r="8" fill="#ff3b30"/></svg>`
 };
 
-/* ============================================================
-   NAV
-   ============================================================ */
-let currentTab = 'overview';
+/* ==========================================================================
+   NAVIGATION
+   ========================================================================== */
+let tab='over';
+const show=(html,bind)=>{root().innerHTML=html;bind&&bind();window.scrollTo(0,0);};
 
-function showWelcome(){
-  root().innerHTML = viewWelcome();
-  bindWelcome();
-}
+function scrWelcome(){show(vWelcome(),()=>{
+  document.getElementById('bMain').onclick=()=>scrLogin();
+  document.getElementById('bOther').onclick=()=>scrLogin();
+});}
 
-function showPin(mode){
-  root().innerHTML = viewPin();
-  bindPin();
-}
+function scrLogin(){show(vLogin(),bindLogin);}
+function enterApp(){root().innerHTML='<div id="app" style="display:block"></div>';tab='over';paint();}
+function paint(){const a=document.getElementById('app');if(!a)return;
+  a.innerHTML=({over:tOver,manage:tManage,disc:tDisc,contact:tContact,fin:tFin})[tab]()+tabbar();
+  bindTabs();}
+function go(t){tab=t;paint();window.scrollTo(0,0);}
 
-function enterApp(){
-  root().innerHTML = '<div id="app" style="display:block"></div>';
-  currentTab='overview';
-  renderTab();
-}
-
-function renderTab(){
-  const app = document.getElementById('app');
-  if(!app) return;
-  let content='';
-  if(currentTab==='overview') content=tabOverview();
-  else if(currentTab==='manage') content=tabManage();
-  else if(currentTab==='discover') content=tabDiscover();
-  else if(currentTab==='contact') content=tabContact();
-  else if(currentTab==='finance') content=tabFinance();
-  app.innerHTML = content + tabBar();
-  bindTab();
-}
-
-function switchTab(t){ currentTab=t; renderTab(); window.scrollTo(0,0); }
-
-/* ============================================================
-   VIEWS
-   ============================================================ */
-function viewWelcome(){
-  return `
-  <div id="screen-welcome">
-    <div class="welcome-hero">
-      <div class="promo-bubble"><small>Bis zu</small><b>100 Ös</b><small>pro Monat<br>zusätzlich</small></div>
-      <img class="welcome-logo" src="data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='96' height='96'><rect width='96' height='96' rx='8' fill='#FFE500'/><g fill='#000' transform='translate(48,48)'><rect x='-13' y='-46' width='26' height='92' rx='13' transform='rotate(45)'/><rect x='-13' y='-46' width='26' height='92' rx='13' transform='rotate(-45)'/></g></svg>`)}" alt="">
+/* ---------- welcome ---------- */
+function vWelcome(){
+  const p=state.profile.name.split(' ');
+  const short=p[0]+' '+((p[1]||'')[0]||'')+'.';
+  return `<div id="welcome">
+    <div class="hero">
+      <div class="oes"><small>Bis zu</small><b>100 Ös</b><small>pro Monat<br>zusätzlich</small></div>
+      <div class="joe">jö</div>
+      <div class="info">i</div>
+      <img class="rlogo" src="data:image/svg+xml;utf8,${RLOGO_URI}" alt="Raiffeisen">
     </div>
-    <div class="welcome-body">
-      <div class="welcome-card">
+    <div class="wbody">
+      <div class="wcard">
         <h2>Herzlich willkommen</h2>
-        <button class="btn-yellow" id="loginMain">Als ${esc(state.profileName.split(' ')[0])} ${esc((state.profileName.split(' ')[1]||'')[0]||'')}. anmelden</button>
-        <button class="btn-ghost" id="loginOther">Anderen Benutzer anmelden</button>
+        <button class="btn-y" id="bMain">Als ${esc(short)} anmelden</button>
+        <button class="btn-ghost" id="bOther">Anderen Benutzer anmelden</button>
       </div>
-      <div class="welcome-pay">
-        <div class="pay-chip rai">✕ RaiPay</div>
-        <div class="pay-chip blue">▶ bluecode</div>
+      <div class="wpay">
+        <div class="paychip a">⊗ RaiPay</div>
+        <div class="paychip b">▶ bluecode</div>
       </div>
+      <div class="homebar"></div>
     </div>
   </div>`;
 }
 
-function viewPin(){
-  return `
-  <div id="screen-pin">
-    <div class="pin-top">
-      <button class="back" id="pinBack">${IC.back}</button>
-      <h1>Login</h1>
+/* ---------- login (Signaturcode, wie im Original: Textfeld + Anmelden) ---------- */
+function vLogin(){
+  const n=state.pin.length;
+  return `<div id="login">
+    <div class="navbar"><button class="circ l" id="lBack">${sv('<polyline points="15 18 9 12 15 6"/>','#fff',2.4,22)}</button><h1>Login</h1></div>
+    <div class="li-text">Bitte geben Sie Ihren ${n}-stelligen push-TAN Signaturcode der Verfügernummer <b>${esc(state.profile.verfnr)}</b> ein.</div>
+    <div class="codebox">
+      <div class="cbin"><label>Signaturcode</label>
+        <input id="liCode" type="password" inputmode="numeric" autocomplete="off" maxlength="${n}" placeholder=""></div>
+      <button class="eye" id="liEye">${IC.eye}</button>
     </div>
-    <div class="pin-instr">Bitte geben Sie Ihren ${state.pin.length}-stelligen push-TAN Signaturcode der Verfügernummer <b>${esc(state.verfnr)}</b> ein.</div>
-    <div class="pin-dots" id="pinDots"></div>
-    <div class="pin-error" id="pinErr"></div>
-    <div class="pin-forgot">Signaturcode vergessen</div>
-    <div class="keypad" id="keypad"></div>
+    <div class="li-err" id="liErr"></div>
+    <div class="li-forgot" id="liForgot">Signaturcode vergessen</div>
+    <div class="li-btn"><button class="btn-y" id="liGo" disabled>Anmelden</button></div>
+    ${state.settings.bioLogin?'<div class="bio">oder mit Face ID anmelden</div>':''}
   </div>`;
 }
-
-function tabBar(){
-  const t=(id,icon,label,badge='')=>`
-    <button class="tab ${currentTab===id?'active':''}" data-tab="${id}">
-      <span class="ti">${badge?`<span class="badge">${badge}</span>`:''}${currentTab===id?'<span class="pill"></span>':''}${icon(currentTab===id?'#fff':'#8e8e93')}</span>
-      <span>${label}</span>
-    </button>`;
-  return `<nav class="tabbar">
-    ${t('overview',IC.overview,'Übersicht','1')}
-    ${t('manage',IC.gear,'Verwalten')}
-    ${t('discover',IC.compass,'Entdecken')}
-    ${t('contact',IC.chat,'Kontakt')}
-    ${t('finance',IC.finance,'Finanzmanager')}
-  </nav>`;
+function bindLogin(){
+  const i=document.getElementById('liCode'),b=document.getElementById('liGo'),e=document.getElementById('liErr');
+  document.getElementById('lBack').onclick=scrWelcome;
+  document.getElementById('liForgot').onclick=()=>toast('Hinweis: Standard-Code ist 0000');
+  let vis=false;
+  document.getElementById('liEye').onclick=()=>{vis=!vis;i.type=vis?'text':'password';
+    document.getElementById('liEye').innerHTML=vis?IC.eyeOff:IC.eye;};
+  i.addEventListener('input',()=>{i.value=i.value.replace(/\D/g,'');b.disabled=i.value.length!==state.pin.length;e.textContent='';});
+  b.onclick=()=>{if(i.value===state.pin){enterApp();}
+    else{e.textContent='Der eingegebene Signaturcode ist nicht korrekt.';i.value='';b.disabled=true;
+      if(navigator.vibrate)navigator.vibrate(180);}};
+  setTimeout(()=>i.focus(),250);
 }
 
-function appbar(title){
-  return `<div class="appbar">
-    <div class="title">${LOGO_SVG(26,4)} ${esc(title)}</div>
-    <button class="logout" id="logoutBtn">${IC.logout}</button>
-  </div>`;
+/* ---------- shared chrome ---------- */
+function appbar(t){return `<div class="appbar"><div class="ttl">${RLOGO(26)} ${esc(t)}</div>
+  <button class="out" id="btnOut">${IC.out}</button></div>`;}
+function tabbar(){
+  const unread=state.messages.filter(m=>!m.read).length;
+  const t=(k,ic,l,b)=>`<button class="tab ${tab===k?'active':''}" data-go="${k}">
+    <span class="ti">${b?`<span class="bdg">${b}</span>`:''}${ic(tab===k?'#fff':'#8e8e93')}</span><span>${l}</span></button>`;
+  return `<nav class="tabbar">${t('over',IC.tOver,'Übersicht',state.accounts.length?1:0)}
+    ${t('manage',IC.tGear,'Verwalten')}${t('disc',IC.tDisc,'Entdecken')}
+    ${t('contact',IC.tChat,'Kontakt',unread||'')}${t('fin',IC.tFin,'Finanzmanager')}</nav>`;
 }
 
-/* ---- Overview ---- */
-function tabOverview(){
+/* ---------- ÜBERSICHT ---------- */
+let showSecondary=false;
+function tOver(){
   const promos=[
-    {t:'Für eine Zukunft, die wächst – und ein Konto, das mitgeht',s:'Investiere heute in die Welt von morgen.',c:'#264d33'},
-    {t:'Dein Bausparen mit Top-Zinsen',s:'Jetzt Prämie sichern.',c:'#3a3a5a'},
-    {t:'Kreditkarte kostenlos testen',s:'Weltweit bezahlen ohne Sorgen.',c:'#5a3a3a'},
+    {t:'Für eine Zukunft, die wächst – und ein Konto, das mitgeht',s:'Investiere heute in die Welt von morgen.',bg:'#1e4a2e',pic:'linear-gradient(150deg,#c9b98a,#7d8f5a)'},
+    {t:'Dein Bausparen mit Top-Zinsen',s:'Jetzt staatliche Prämie sichern.',bg:'#2c3a52',pic:'linear-gradient(150deg,#8fa8c4,#4a6285)'},
+    {t:'Kreditkarte 1 Jahr gratis',s:'Weltweit bezahlen ohne Sorgen.',bg:'#4a2c3a',pic:'linear-gradient(150deg,#c48fa8,#854a62)'},
+    {t:'Jö Bonus Club',s:'Sammle Ös bei jedem Einkauf.',bg:'#5a4a1e',pic:'linear-gradient(150deg,#e0c96a,#a8813c)'}
   ];
-  const slides=promos.map(p=>`
-    <div class="promo-slide">
-      <div class="pic" style="background:#33443a"></div>
-      <div class="txt" style="background:${p.c}"><b>${p.t}</b><span>${p.s}</span></div>
-    </div>`).join('');
-  const dots=promos.map((_,i)=>`<i class="${i===0?'on':''}"></i>`).join('');
+  const slides=promos.map(p=>`<div class="pslide"><div class="pic" style="background:${p.pic}"></div>
+    <div class="txt" style="background:${p.bg}"><b>${p.t}</b><span>${p.s}</span></div></div>`).join('');
+  const dots=promos.map((_,i)=>`<i class="${i?'':'on'}"></i>`).join('');
 
-  const cards = state.accounts.map((a,i)=>`
-    <div class="acct ${i===0?'hl':''}">
-      <div class="acct-main">
-        <div class="acct-type">${esc(a.type)}</div>
-        <div class="acct-holder">${esc(a.holder)}</div>
-        <div class="acct-iban">${esc(a.iban)}</div>
-        <svg class="acct-badge" viewBox="0 0 40 40"><circle cx="30" cy="10" r="9" fill="#ff3b30"/><text x="30" y="14" font-size="10" fill="#fff" text-anchor="middle" font-weight="700">${(a.tx||[]).length}</text><rect x="4" y="14" width="20" height="13" rx="2" fill="none" stroke="#c8c8cc" stroke-width="2"/></svg>
-        <div class="acct-bal-row">
-          <div class="acct-bal">${eur(a.balance)}</div>
-          <div class="acct-avail">verfügbar<b>${eur(a.available ?? a.balance)}</b></div>
-        </div>
-      </div>
-      <div class="acct-foot">
-        <button class="transfer" data-transfer="${a.id}">Neue Überweisung</button>
-        <button class="dots" data-detail="${a.id}">⋮</button>
-      </div>
-    </div>`).join('');
-
-  return appbar('Übersicht') + `
-    <div class="promo">
-      <div class="promo-track" id="promoTrack">${slides}</div>
-      <div class="promo-dots" id="promoDots">${dots}</div>
-    </div>
-    <div class="section-h row">Meine Produkte <span class="link" data-tab="manage">Anpassen ›</span></div>
-    ${cards}
-    <div class="more-hint">Mehr anzeigen<br>(z.B.: Versicherung, Bausparen, etc.)<div class="chev">⌄</div></div>
-  `;
-}
-
-/* ---- Manage ---- */
-function tabManage(){
-  const rows = state.accounts.map(a=>`
-    <div class="row" data-editacct="${a.id}">
-      <span class="ico">${IC.card}</span>
-      <span class="lbl">${esc(a.type)} · ${esc(a.iban.slice(-9))}</span>
-      <span class="val">${eur(a.balance)}</span>
-      <span class="chev">›</span>
-    </div>`).join('');
-
-  return appbar('Verwalten') + `
-    <div class="section-h">Profil</div>
-    <div class="profile-row" data-editprofile>
-      <span class="avatar">${IC.user}</span>
-      <span class="nm">${esc(state.profileName)}</span>
-      <span class="chev" style="color:var(--muted)">›</span>
-    </div>
-    <div class="promo-invite">
-      <span>${IC.gift}</span>
-      <span class="t">Jetzt Freunde einladen und gemeinsam verdienen!</span>
-      <span>⤴</span>
-    </div>
-
-    <div class="section-h">Meine Konten</div>
-    <div class="list">${rows||''}</div>
-    <button class="add-btn" data-addacct>＋ Neues Konto hinzufügen</button>
-
-    <div class="section-h">Allgemein</div>
-    <div class="list">
-      <div class="row"><span class="ico">${IC.phoneS}</span><span class="lbl">App-Einstellungen verwalten</span><span class="chev">›</span></div>
-      <div class="row" data-changepin><span class="ico">${IC.lock}</span><span class="lbl">Login und Sicherheit verwalten</span><span class="chev">›</span></div>
-      <div class="row"><span class="ico">${IC.bell}</span><span class="lbl">Mitteilungen verwalten</span><span class="chev">›</span></div>
-      <div class="row"><span class="ico">${IC.gavel}</span><span class="lbl">Rechtliches anzeigen</span><span class="chev">›</span></div>
-    </div>
-
-    <div class="section-h">Karten</div>
-    <div class="list">
-      <div class="row"><span class="ico">${IC.card}</span><span class="lbl">Karten verwalten</span><span class="chev">›</span></div>
-    </div>
-
-    <div class="reset-wrap">
-      <button class="danger" data-reset>Prank zurücksetzen</button>
-    </div>
-  `;
-}
-
-/* ---- Discover ---- */
-function tabDiscover(){
-  return appbar('Entdecken') + `
-    <div class="section-h">Entdecken</div>
-    <div class="card-note" style="margin:0 14px 18px">Angebote &amp; Produkte – in dieser Prank-App nur Deko. 😉</div>
-    <div class="list">
-      <div class="row"><span class="ico">💳</span><span class="lbl">Kreditkarte beantragen</span><span class="chev">›</span></div>
-      <div class="row"><span class="ico">🏠</span><span class="lbl">Wohnkredit-Rechner</span><span class="chev">›</span></div>
-      <div class="row"><span class="ico">📈</span><span class="lbl">Wertpapiere &amp; Fonds</span><span class="chev">›</span></div>
-      <div class="row"><span class="ico">🛡️</span><span class="lbl">Versicherungen</span><span class="chev">›</span></div>
-    </div>`;
-}
-
-/* ---- Contact ---- */
-function tabContact(){
-  const qa=(icon,label)=>`<div class="qa"><span class="circle">${icon}</span><span>${label}</span></div>`;
-  return appbar('Kontakt') + `
-    <div class="section-h">Berater</div>
-    <div class="profile-row"><span class="avatar">${IC.user}</span><span class="nm">Service KAGRAN</span><span class="chev" style="color:var(--muted)">⌄</span></div>
-    <div class="qa-row">
-      ${qa(IC.msg,'Nachricht')}
-      ${qa(IC.callf,'Anrufen')}
-      ${qa(IC.cal,'Termin')}
-      ${qa(IC.callf,'Rückruf')}
-    </div>
-    <div class="section-h">Allgemeiner Kontakt</div>
-    <div class="list">
-      <div class="row"><span class="ico">${IC.headset}</span><span class="lbl">Hotlines</span><span class="chev">›</span></div>
-      <div class="row"><span class="ico">${IC.bank}</span><span class="lbl">Bankstelle</span><span class="chev">›</span></div>
-    </div>
-    <div class="section-h">Mailbox</div>
-    <div class="list">
-      <div class="row"><span class="ico">${IC.mail}</span><span class="lbl">Persönliche Nachrichten</span><span class="chev">›</span></div>
-    </div>`;
-}
-
-/* ---- Finance ---- */
-function tabFinance(){
-  const total = state.accounts.reduce((s,a)=>s+a.balance,0);
-  const income = state.accounts.flatMap(a=>a.tx||[]).filter(t=>t.amount>0).reduce((s,t)=>s+t.amount,0);
-  const spend = state.accounts.flatMap(a=>a.tx||[]).filter(t=>t.amount<0).reduce((s,t)=>s+t.amount,0);
-  return appbar('Finanzmanager') + `
-    <div class="section-h">Finanzmanager</div>
-    <div class="acct" style="border:none">
-      <div class="acct-main">
-        <div class="acct-type">Vermögen gesamt</div>
-        <div class="acct-bal" style="font-size:32px;margin-top:6px">${eur(total)}</div>
-      </div>
-    </div>
-    <div class="list">
-      <div class="row"><span class="ico">⬆️</span><span class="lbl">Einnahmen</span><span class="val" style="color:var(--green)">${eur(income)}</span></div>
-      <div class="row"><span class="ico">⬇️</span><span class="lbl">Ausgaben</span><span class="val" style="color:var(--red)">${eur(spend)}</span></div>
-    </div>`;
-}
-
-/* ============================================================
-   PUSHED PAGES
-   ============================================================ */
-function openPage(html){
-  const p=document.createElement('div');
-  p.className='page';
-  p.innerHTML=html;
-  document.body.appendChild(p);
-  requestAnimationFrame(()=>p.classList.add('open'));
-  p.querySelector('[data-close]')?.addEventListener('click',()=>closePage(p));
-  return p;
-}
-function closePage(p){
-  p.classList.remove('open');
-  setTimeout(()=>p.remove(),280);
-  renderTab();
-}
-function pageBar(title){
-  return `<div class="page-bar"><button class="back" data-close>${IC.back}</button><h1>${esc(title)}</h1></div>`;
-}
-
-/* ---- Account detail / transactions ---- */
-function openDetail(acctId){
-  const a = state.accounts.find(x=>x.id===acctId); if(!a) return;
-  const txs=(a.tx||[]).slice().sort((x,y)=>y.date.localeCompare(x.date));
-  const list = txs.length? txs.map(t=>`
-    <div class="tx">
-      <div class="ti">${t.amount>0?'+':'−'}</div>
-      <div class="m"><b>${esc(t.title)}</b><span>${esc(t.purpose||'')} · ${dateLabel(t.date)}</span></div>
-      <div class="a ${t.amount>0?'pos':''}">${t.amount>0?'+':''}${fmt(t.amount)}</div>
-    </div>`).join('') : '<div class="empty">Noch keine Umsätze.</div>';
-
-  const p=openPage(pageBar(a.type)+`
-    <div class="detail-head">
-      <div class="t">${esc(a.holder)}</div>
-      <div class="b">${eur(a.balance)}</div>
+  const hb=state.settings.hideBalance;
+  const cards=state.accounts.map((a,i)=>`<div class="acct ${i===0?'hl':''}">
+    <div class="main">
+      <div class="ty">${esc(a.type)}</div>
+      <div class="ho">${esc(a.holder)}</div>
       <div class="ib">${esc(a.iban)}</div>
+      <div class="cbadge">${IC.cardBadge}</div>
+      <div class="brow">
+        <div class="bal ${a.balance<0?'neg':''}">${hb?'••••• EUR':eur(a.balance)}</div>
+        <div class="av">verfügbar<b>${hb?'•••••':eur(a.available??a.balance)}</b></div>
+      </div>
     </div>
-    <div class="page-body">
-      <button class="btn-yellow" data-newtransfer="${a.id}" style="margin-bottom:18px">Neue Überweisung</button>
-      <div class="section-h" style="padding:8px 0 6px;font-size:20px">Umsätze</div>
-      ${list}
-    </div>`);
-  p.querySelector('[data-newtransfer]')?.addEventListener('click',()=>{ closePage(p); openTransfer(a.id); });
+    <div class="foot"><button class="tf" data-tr="${a.id}">Neue Überweisung</button>
+      <button class="dots" data-sheet="${a.id}">⋮</button></div>
+  </div>`).join('');
+
+  const sec=state.secondary.map(s=>`<div class="acct"><div class="main">
+      <div class="ty">${esc(s.type)}</div><div class="ho">${esc(s.name)}</div>
+      <div class="brow"><div class="bal">${hb?'••••• EUR':eur(s.value)}</div></div>
+    </div></div>`).join('');
+
+  return appbar('Übersicht')+`
+    <div class="promo"><span class="parr l">‹</span><span class="parr r">›</span>
+      <div class="ptrack" id="ptrack">${slides}</div><div class="pdots" id="pdots">${dots}</div></div>
+    <div class="h1big row">Meine Produkte <button class="lnk" data-go="manage">Anpassen ›</button></div>
+    ${cards}
+    ${showSecondary?sec:''}
+    <button class="morebtn" id="moreBtn">${showSecondary?'Weniger anzeigen':'Mehr anzeigen<br>(z.B.: Versicherung, Bausparen, etc.)'}
+      <span class="cv">${showSecondary?'⌃':'⌄'}</span></button>`;
 }
 
-/* ---- Transfer ---- */
-function openTransfer(acctId){
-  const a = state.accounts.find(x=>x.id===acctId) || state.accounts[0];
-  if(!a){ toast('Kein Konto vorhanden'); return; }
-  const opts = state.accounts.map(x=>`<option value="${x.id}" ${x.id===a.id?'selected':''}>${esc(x.type)} · ${esc(x.iban.slice(-9))} (${eur(x.balance)})</option>`).join('');
-  const p=openPage(pageBar('Neue Überweisung')+`
-    <div class="page-body">
-      <div class="field">
-        <label>Von Konto</label>
-        <select id="tFrom">${opts}</select>
-      </div>
-      <div class="field">
-        <label>Empfänger</label>
-        <input id="tName" placeholder="Name des Empfängers" autocomplete="off">
-      </div>
-      <div class="field">
-        <label>IBAN</label>
-        <input id="tIban" placeholder="AT.. .... .... .... ...." autocomplete="off" inputmode="text">
-      </div>
-      <div class="field">
-        <label>Betrag (EUR)</label>
-        <input id="tAmount" placeholder="0,00" inputmode="decimal">
-      </div>
-      <div class="field">
-        <label>Verwendungszweck</label>
-        <input id="tPurpose" placeholder="z.B. Miete Juli" autocomplete="off">
-      </div>
-      <div class="form-actions">
-        <button class="btn-yellow" id="tNext">Weiter</button>
-      </div>
-    </div>`);
+/* ---------- VERWALTEN ---------- */
+function tManage(){
+  const accRows=state.accounts.map(a=>`<button class="row" data-editacct="${a.id}"><span class="ico">${IC.card}</span>
+    <span class="lbl">${esc(a.type)}<small>${esc(a.iban)}</small></span><span class="val">${eur(a.balance)}</span>
+    <span class="chev">›</span></button>`).join('');
+  return appbar('Verwalten')+`
+    <div class="h1big">Profil</div>
+    <button class="prow" data-profile><span class="av-c">${IC.user}</span>
+      <span class="nm">${esc(state.profile.name)}</span><span class="chev" style="color:var(--muted)">›</span></button>
+    <div class="invite"><span>${IC.gift}</span><span class="t">Jetzt Freunde einladen und gemeinsam verdienen!</span>
+      <span>${sv('<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>','#eddcf2',1.8,20)}</span></div>
 
-  const ibanEl=p.querySelector('#tIban');
-  ibanEl.addEventListener('input',()=>{
-    let v=ibanEl.value.toUpperCase().replace(/[^A-Z0-9]/g,'');
-    ibanEl.value=v.replace(/(.{4})/g,'$1 ').trim();
-  });
+    <div class="h1big">Meine Konten</div>
+    <div class="list">${accRows}</div>
+    <button class="addbtn" data-addacct>＋ Neues Konto hinzufügen</button>
 
-  p.querySelector('#tNext').addEventListener('click',()=>{
-    const fromId=p.querySelector('#tFrom').value;
-    const from=state.accounts.find(x=>x.id===fromId);
-    const name=p.querySelector('#tName').value.trim();
-    const iban=p.querySelector('#tIban').value.trim();
-    const amtRaw=p.querySelector('#tAmount').value.trim().replace(/\./g,'').replace(',','.');
-    const amount=parseFloat(amtRaw);
-    const purpose=p.querySelector('#tPurpose').value.trim();
-    if(!name){ toast('Bitte Empfänger eingeben'); return; }
-    if(iban.replace(/\s/g,'').length<8){ toast('Bitte gültige IBAN eingeben'); return; }
-    if(!(amount>0)){ toast('Bitte gültigen Betrag eingeben'); return; }
-    if(amount>from.balance){ toast('Nicht genügend Deckung'); return; }
-    closePage(p);
-    openReview(from.id,{name,iban,amount,purpose});
-  });
+    <div class="h1big">Allgemein</div>
+    <div class="list">
+      <button class="row" data-appset><span class="ico">${IC.phone}</span><span class="lbl">App-Einstellungen verwalten</span><span class="chev">›</span></button>
+      <button class="row" data-sec><span class="ico">${IC.lock}</span><span class="lbl">Login und Sicherheit verwalten</span><span class="chev">›</span></button>
+      <button class="row" data-alerts><span class="ico">${IC.bell}</span><span class="lbl">Mitteilungen verwalten</span><span class="chev">›</span></button>
+      <button class="row" data-legal><span class="ico">${IC.gavel}</span><span class="lbl">Rechtliches anzeigen</span><span class="chev">›</span></button>
+    </div>
+
+    <div class="h1big">Karten</div>
+    <div class="list">
+      <button class="row" data-cards><span class="ico">${IC.card}</span><span class="lbl">Karten verwalten</span><span class="chev">›</span></button>
+      <button class="row" data-raipay><span class="ico">${IC.wallet}</span><span class="lbl">RaiPay &amp; Wallet</span><span class="chev">›</span></button>
+    </div>
+
+    <div class="h1big">Aufträge</div>
+    <div class="list">
+      <button class="row" data-standing><span class="ico">${IC.repeat}</span>
+        <span class="lbl">Daueraufträge<small>${state.standing.length} aktiv</small></span><span class="chev">›</span></button>
+      <button class="row" data-templates><span class="ico">${IC.tmpl}</span>
+        <span class="lbl">Vorlagen<small>${state.templates.length} gespeichert</small></span><span class="chev">›</span></button>
+    </div>
+
+    <div class="resetw"><button class="danger" data-reset>Prank zurücksetzen</button></div>
+    <div class="legal">Prank-App ohne Bankfunktion. Keine echten Daten, keine Verbindung zu Raiffeisen.</div>`;
 }
 
-function openReview(fromId,data){
-  const from=state.accounts.find(x=>x.id===fromId);
-  const p=openPage(pageBar('Überweisung prüfen')+`
-    <div class="page-body">
-      <div class="review">
-        <div class="r"><span class="k">Von</span><span class="v">${esc(from.type)}<br><small style="color:var(--muted);font-weight:400">${esc(from.iban)}</small></span></div>
-        <div class="r"><span class="k">Empfänger</span><span class="v">${esc(data.name)}</span></div>
-        <div class="r"><span class="k">IBAN</span><span class="v">${esc(data.iban)}</span></div>
-        <div class="r"><span class="k">Verwendungszweck</span><span class="v">${esc(data.purpose||'—')}</span></div>
-        <div class="r"><span class="k">Betrag</span><span class="v amt">${eur(data.amount)}</span></div>
+/* ---------- ENTDECKEN ---------- */
+function tDisc(){
+  const item=(e,t,d)=>`<button class="row"><span class="ico">${e}</span><span class="lbl">${t}<small>${d}</small></span><span class="chev">›</span></button>`;
+  return appbar('Entdecken')+`
+    <div class="h1big">Für dich</div>
+    <div class="list">
+      ${item('💳','Kreditkarte beantragen','1 Jahr ohne Jahresentgelt')}
+      ${item('🏠','Wohnkredit-Rechner','Rate in 2 Minuten berechnen')}
+      ${item('📈','Wertpapiere &amp; Fonds','Ab 50 EUR monatlich anlegen')}
+      ${item('🛡️','Versicherungen','Haushalt, KFZ, Leben')}
+      ${item('🏦','Bausparen','Mit staatlicher Prämie')}
+      ${item('🎁','jö Bonus Club','Ös sammeln und einlösen')}
+    </div>
+    <div class="h1big">Rechner</div>
+    <div class="list">
+      ${item('🧮','Sparrechner','Zinsen &amp; Laufzeit berechnen')}
+      ${item('💶','Kreditrechner','Monatliche Rate ermitteln')}
+    </div>`;
+}
+
+/* ---------- KONTAKT ---------- */
+function tContact(){
+  const unread=state.messages.filter(m=>!m.read).length;
+  const qa=(i,l,a)=>`<button class="qa" data-qa="${a}"><span class="c">${i}</span><span>${l}</span></button>`;
+  return appbar('Kontakt')+`
+    <div class="h1big">Berater</div>
+    <div class="prow"><span class="av-c">${IC.user}</span><span class="nm">${esc(state.berater.name)}</span><span class="chev" style="color:var(--muted)">⌄</span></div>
+    <div class="qarow">${qa(IC.msgW,'Nachricht','msg')}${qa(IC.callW,'Anrufen','call')}${qa(IC.calW,'Termin','apt')}${qa(IC.backW,'Rückruf','back')}</div>
+    <div class="h1big">Allgemeiner Kontakt</div>
+    <div class="list">
+      <button class="row" data-hotline><span class="ico">${IC.head}</span><span class="lbl">Hotlines</span><span class="chev">›</span></button>
+      <button class="row" data-branch><span class="ico">${IC.bank}</span><span class="lbl">Bankstelle</span><span class="chev">›</span></button>
+    </div>
+    <div class="h1big">Mailbox</div>
+    <div class="list">
+      <button class="row" data-msgs><span class="ico">${IC.mail}</span>
+        <span class="lbl">Persönliche Nachrichten${unread?`<small>${unread} ungelesen</small>`:''}</span><span class="chev">›</span></button>
+      <button class="row" data-msgs><span class="ico">${IC.mail}</span><span class="lbl">Banknachrichten</span><span class="chev">›</span></button>
+    </div>`;
+}
+
+/* ---------- FINANZMANAGER ---------- */
+function tFin(){
+  const all=state.accounts.flatMap(a=>a.tx||[]);
+  const inc=all.filter(t=>t.amount>0).reduce((s,t)=>s+t.amount,0);
+  const exp=all.filter(t=>t.amount<0).reduce((s,t)=>s+Math.abs(t.amount),0);
+  const wealth=totalBalance()+state.secondary.reduce((s,x)=>s+x.value,0);
+  const by={};all.filter(t=>t.amount<0).forEach(t=>{const k=t.cat||'sonstiges';by[k]=(by[k]||0)+Math.abs(t.amount);});
+  const max=Math.max(1,...Object.values(by));
+  const rows=Object.entries(by).sort((a,b)=>b[1]-a[1]).map(([k,v])=>{const c=CATS[k]||CATS.sonstiges;
+    return `<div class="catrow"><div class="top"><span class="dot" style="background:${c.c}22;color:${c.c}">${c.e}</span>
+      <span class="nm">${c.l}</span><span class="vl">${fmt(v)}</span></div>
+      <div class="bar"><i style="width:${Math.round(v/max*100)}%;background:${c.c}"></i></div></div>`;}).join('');
+  return appbar('Finanzmanager')+`
+    <div class="h1big">Vermögen</div>
+    <div class="list" style="padding:16px 16px 18px">
+      <div style="color:var(--muted);font-size:14px">Gesamtvermögen</div>
+      <div style="font-size:33px;font-weight:800;margin-top:4px;color:var(--green)">${eur(wealth)}</div>
+    </div>
+    <div class="pbody" style="padding-top:0">
+      <div class="statgrid">
+        <div class="stat"><div class="l">Einnahmen</div><div class="v" style="color:var(--green)">+${fmt(inc)}</div></div>
+        <div class="stat"><div class="l">Ausgaben</div><div class="v" style="color:var(--red)">−${fmt(exp)}</div></div>
       </div>
-      <div class="card-note">Mit dem Unterschreiben bestätigen Sie die Überweisung mit Ihrem push-TAN Signaturcode.</div>
-      <button class="btn-yellow" id="tSign">Jetzt unterschreiben</button>
-    </div>`);
-  p.querySelector('#tSign').addEventListener('click',()=>{
-    openTanPad(()=>{
-      // execute transfer
-      from.balance = Math.round((from.balance-data.amount)*100)/100;
-      from.available = Math.round(((from.available ?? from.balance)-data.amount)*100)/100;
-      from.tx = from.tx||[];
-      from.tx.unshift({id:id(),title:data.name,purpose:data.purpose||'Überweisung',amount:-data.amount,date:todayISO()});
-      // if IBAN matches one of own accounts -> credit it
-      const target=state.accounts.find(x=>x.iban.replace(/\s/g,'')===data.iban.replace(/\s/g,'') && x.id!==from.id);
-      if(target){
-        target.balance=Math.round((target.balance+data.amount)*100)/100;
-        target.available=Math.round(((target.available ?? target.balance)+data.amount)*100)/100;
-        target.tx=target.tx||[];
-        target.tx.unshift({id:id(),title:from.holder,purpose:data.purpose||'Überweisung',amount:data.amount,date:todayISO()});
-      }
-      save();
-      closePage(p);
-      openSuccess(data);
+    </div>
+    <div class="h1big" style="font-size:22px">Ausgaben nach Kategorie</div>
+    <div class="list" style="padding:2px 16px">${rows||'<div class="empty">Noch keine Ausgaben.</div>'}</div>`;
+}
+
+/* ==========================================================================
+   PAGES & SHEETS
+   ========================================================================== */
+function openPage(html,after){
+  const p=document.createElement('div');p.className='page';p.innerHTML=html;
+  document.body.appendChild(p);requestAnimationFrame(()=>p.classList.add('open'));
+  p.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>closePage(p));
+  after&&after(p);return p;
+}
+function closePage(p){p.classList.remove('open');setTimeout(()=>p.remove(),300);paint();}
+const pbar=(t,act='')=>`<div class="pbar"><button class="bk" data-close>‹</button><h1>${esc(t)}</h1>${act}</div>`;
+
+let sheetEl=null;
+function openSheet(title,items){
+  closeSheet();
+  const bd=document.getElementById('bd');
+  const s=document.createElement('div');s.className='sheet';
+  s.innerHTML=`<div class="grab"></div>${title?`<h3>${esc(title)}</h3>`:''}`+
+    items.map((it,i)=>`<button class="si" data-i="${i}"><span class="ico">${it.ic||''}</span><span>${esc(it.l)}</span></button>`).join('');
+  document.body.appendChild(s);sheetEl=s;
+  requestAnimationFrame(()=>{s.classList.add('open');bd.classList.add('open');});
+  bd.onclick=closeSheet;
+  s.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{const it=items[+b.dataset.i];closeSheet();it.fn&&it.fn();});
+}
+function closeSheet(){const bd=document.getElementById('bd');bd.classList.remove('open');
+  if(sheetEl){const s=sheetEl;s.classList.remove('open');setTimeout(()=>s.remove(),320);sheetEl=null;}}
+
+/* ---------- Umsätze / Kontodetail ---------- */
+function pgAccount(aid){
+  const a=state.accounts.find(x=>x.id===aid);if(!a)return;
+  let q='',fc='alle';
+  const p=openPage(pbar(a.type)+`
+    <div class="dhead">
+      <div class="t">${esc(a.holder)}</div>
+      <div class="b ${a.balance<0?'neg':''}">${eur(a.balance)}</div>
+      <div class="i">${esc(a.iban)} · verfügbar ${eur(a.available??a.balance)}</div>
+      <div class="dactions">
+        <button data-act="tr">${IC.send}<span>Überweisen</span></button>
+        <button data-act="cp">${IC.copy}<span>IBAN</span></button>
+        <button data-act="sh">${IC.share}<span>Teilen</span></button>
+        <button data-act="ed">${IC.edit}<span>Bearbeiten</span></button>
+      </div>
+    </div>
+    <div class="pbody" style="padding-top:0">
+      <div class="srch">${IC.srch}<input id="txq" placeholder="Umsätze durchsuchen"></div>
+      <div class="filters" id="txf">
+        <button class="chip on" data-f="alle">Alle</button>
+        <button class="chip" data-f="in">Eingänge</button>
+        <button class="chip" data-f="out">Ausgänge</button>
+        ${Object.entries(CATS).filter(([k])=>k!=='sonstiges').map(([k,c])=>`<button class="chip" data-f="c:${k}">${c.l}</button>`).join('')}
+      </div>
+      <div id="txlist"></div>
+    </div>`,p=>{
+      const draw=()=>{
+        let list=(a.tx||[]).slice().sort((x,y)=>y.date.localeCompare(x.date));
+        if(q)list=list.filter(t=>(t.title+' '+(t.purpose||'')).toLowerCase().includes(q));
+        if(fc==='in')list=list.filter(t=>t.amount>0);
+        else if(fc==='out')list=list.filter(t=>t.amount<0);
+        else if(fc.startsWith('c:'))list=list.filter(t=>(t.cat||'sonstiges')===fc.slice(2));
+        let h='',last='';
+        list.forEach(t=>{if(t.date!==last){h+=`<div class="daylbl">${dLabel(t.date)}</div>`;last=t.date;}
+          const c=cat(t);
+          h+=`<button class="tx" data-tx="${t.id}"><span class="ci" style="background:${c.c}22;color:${c.c}">${c.e}</span>
+            <span class="m"><b>${esc(t.title)}</b><span>${esc(t.purpose||c.l)}</span></span>
+            <span class="a ${t.amount>0?'pos':''}">${t.amount>0?'+':''}${fmt(t.amount)}</span></button><div class="txsep"></div>`;});
+        p.querySelector('#txlist').innerHTML=h||'<div class="empty">Keine Umsätze gefunden.</div>';
+        p.querySelectorAll('[data-tx]').forEach(b=>b.onclick=()=>pgTxDetail(a,b.dataset.tx));
+      };
+      p.querySelector('#txq').addEventListener('input',e=>{q=e.target.value.toLowerCase().trim();draw();});
+      p.querySelectorAll('#txf .chip').forEach(b=>b.onclick=()=>{fc=b.dataset.f;
+        p.querySelectorAll('#txf .chip').forEach(x=>x.classList.toggle('on',x===b));draw();});
+      p.querySelectorAll('[data-act]').forEach(b=>b.onclick=()=>{
+        const k=b.dataset.act;
+        if(k==='tr'){closePage(p);pgTransfer(a.id);}
+        else if(k==='cp'){navigator.clipboard?.writeText(a.iban);toast('IBAN kopiert');}
+        else if(k==='sh'){toast('Kontodaten geteilt');}
+        else if(k==='ed'){closePage(p);pgEditAccount(a.id);}
+      });
+      draw();
     });
-  });
 }
 
-function openSuccess(data){
-  const p=openPage(`
-    <div class="page-bar"></div>
-    <div class="success">
-      <div class="check"><svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg></div>
-      <h2>Überweisung erfolgreich</h2>
-      <p><b style="color:#fff">${eur(data.amount)}</b> an ${esc(data.name)}</p>
-      <p>wurden erfolgreich beauftragt.</p>
-      <button class="btn-yellow" id="sDone" style="margin-top:34px;max-width:300px">Fertig</button>
-    </div>`);
-  p.querySelector('#sDone').addEventListener('click',()=>closePage(p));
-}
-
-/* TAN pad = same keypad, verifies pin */
-function openTanPad(onOk){
-  const p=openPage(`
-    <div id="screen-pin" style="padding-top:0">
-      <div class="pin-top"><button class="back" data-close>${IC.back}</button><h1>Signatur</h1></div>
-      <div class="pin-instr">Bitte geben Sie Ihren ${state.pin.length}-stelligen push-TAN Signaturcode ein, um die Überweisung zu unterschreiben.</div>
-      <div class="pin-dots" id="tanDots"></div>
-      <div class="pin-error" id="tanErr"></div>
-      <div class="keypad" id="tanPad"></div>
-    </div>`);
-  runKeypad(p.querySelector('#tanPad'),p.querySelector('#tanDots'),p.querySelector('#tanErr'),()=>{ closePage(p); onOk(); });
-}
-
-/* ---- Edit profile ---- */
-function openEditProfile(){
-  const p=openPage(pageBar('Profil')+`
-    <div class="page-body">
-      <div class="field"><label>Name (Profil)</label><input id="pName" value="${esc(state.profileName)}"></div>
-      <div class="field"><label>Verfügernummer</label><input id="pVerf" value="${esc(state.verfnr)}"></div>
-      <div class="form-actions"><button class="btn-yellow" id="pSave">Speichern</button></div>
-    </div>`);
-  p.querySelector('#pSave').addEventListener('click',()=>{
-    state.profileName=p.querySelector('#pName').value.trim()||state.profileName;
-    state.verfnr=p.querySelector('#pVerf').value.trim()||state.verfnr;
-    save(); toast('Gespeichert'); closePage(p);
-  });
-}
-
-/* ---- Edit / add account ---- */
-function openEditAccount(acctId){
-  const a = acctId ? state.accounts.find(x=>x.id===acctId) : null;
-  const isNew=!a;
-  const cur=a||{type:'Giro',holder:state.profileName.split(' ').reverse().join(' '),iban:'AT00 0000 0000 0000 0000',balance:0,available:0};
-  const types=['Giro','Sparbuch','Kreditkarte','Bausparen','Wertpapierdepot','Verrechnungskonto','Jugendkonto'];
-  const opts=types.map(t=>`<option ${t===cur.type?'selected':''}>${t}</option>`).join('');
-  const p=openPage(pageBar(isNew?'Neues Konto':'Konto bearbeiten')+`
-    <div class="page-body">
-      <div class="field"><label>Konto-Art</label><select id="aType">${opts}</select></div>
-      <div class="field"><label>Kontoinhaber (Name)</label><input id="aHolder" value="${esc(cur.holder)}"></div>
-      <div class="field"><label>IBAN</label><input id="aIban" value="${esc(cur.iban)}"></div>
-      <div class="field"><label>Saldo (EUR)</label><input id="aBal" inputmode="decimal" value="${fmt(cur.balance)}"></div>
-      <div class="field"><label>Verfügbar (EUR)</label><input id="aAvail" inputmode="decimal" value="${fmt(cur.available ?? cur.balance)}"><div class="hint">Leer lassen = gleich wie Saldo</div></div>
-      <div class="form-actions">
-        <button class="btn-yellow" id="aSave">Speichern</button>
-        ${!isNew?'<button class="danger" id="aDel">Konto löschen</button>':''}
+function pgTxDetail(a,txid){
+  const t=(a.tx||[]).find(x=>x.id===txid);if(!t)return;const c=cat(t);
+  openPage(pbar('Umsatzdetails')+`
+    <div class="pbody">
+      <div style="text-align:center;padding:16px 0 22px">
+        <div style="width:66px;height:66px;border-radius:50%;background:${c.c}22;color:${c.c};display:flex;
+          align-items:center;justify-content:center;font-size:27px;margin:0 auto 14px">${c.e}</div>
+        <div style="font-size:31px;font-weight:800;color:${t.amount>0?'var(--green)':'#fff'}">${t.amount>0?'+':''}${eur(t.amount)}</div>
+        <div style="color:var(--muted);margin-top:6px">${esc(t.title)}</div>
       </div>
+      <div class="rev">
+        <div class="r"><span class="k">Buchungstag</span><span class="v">${dShort(t.date)}</span></div>
+        <div class="r"><span class="k">Verwendungszweck</span><span class="v">${esc(t.purpose||'—')}</span></div>
+        <div class="r"><span class="k">Kategorie</span><span class="v">${c.l}</span></div>
+        <div class="r"><span class="k">Konto</span><span class="v">${esc(a.type)}<br><small style="color:var(--muted);font-weight:400">${esc(a.iban)}</small></span></div>
+        ${t.iban?`<div class="r"><span class="k">Empfänger-IBAN</span><span class="v">${esc(t.iban)}</span></div>`:''}
+      </div>
+      <button class="btn-d" data-close>Schließen</button>
     </div>`);
-  const ibanEl=p.querySelector('#aIban');
-  ibanEl.addEventListener('input',()=>{
-    let v=ibanEl.value.toUpperCase().replace(/[^A-Z0-9]/g,'');
-    ibanEl.value=v.replace(/(.{4})/g,'$1 ').trim();
-  });
-  const parseNum=(v)=>{ const n=parseFloat(String(v).trim().replace(/\./g,'').replace(',','.')); return isNaN(n)?0:n; };
-  p.querySelector('#aSave').addEventListener('click',()=>{
-    const bal=parseNum(p.querySelector('#aBal').value);
-    const availRaw=p.querySelector('#aAvail').value.trim();
-    const avail=availRaw===''?bal:parseNum(availRaw);
-    const obj={
-      type:p.querySelector('#aType').value,
-      holder:p.querySelector('#aHolder').value.trim()||'Konto',
-      iban:p.querySelector('#aIban').value.trim()||'AT00',
-      balance:bal, available:avail
+}
+
+/* ---------- Überweisung ---------- */
+function pgTransfer(aid,pre){
+  const a=state.accounts.find(x=>x.id===aid)||state.accounts[0];
+  if(!a){toast('Kein Konto vorhanden');return;}
+  const opts=state.accounts.map(x=>`<option value="${x.id}" ${x.id===a.id?'selected':''}>${esc(x.type)} · ${esc(x.iban.slice(-9))} (${eur(x.balance)})</option>`).join('');
+  const p=openPage(pbar('Neue Überweisung')+`
+    <div class="pbody">
+      <div class="dactions" style="margin:2px 0 20px">
+        <button data-scan="qr">${IC.qr}<span>QR scannen</span></button>
+        <button data-scan="iban">${IC.tmpl}<span>Zahlschein</span></button>
+        <button data-scan="tpl">${IC.copy}<span>Vorlage</span></button>
+      </div>
+      <div class="fld"><label>Von Konto</label><select id="tFrom">${opts}</select></div>
+      <div class="fld"><label>Empfänger</label><input id="tName" placeholder="Name des Empfängers" autocomplete="off" value="${esc(pre?.name||'')}"></div>
+      <div class="fld"><label>IBAN</label><input id="tIban" placeholder="AT.. .... .... .... ...." autocomplete="off" value="${esc(pre?.iban||'')}"></div>
+      <div class="fld"><label>Betrag (EUR)</label><input id="tAmt" placeholder="0,00" inputmode="decimal"></div>
+      <div class="fld"><label>Verwendungszweck</label><input id="tPur" placeholder="z.B. Miete Juli" autocomplete="off" value="${esc(pre?.purpose||'')}"></div>
+      <div class="fld"><label>Ausführung</label><select id="tWhen"><option value="now">Sofort</option><option value="date">Zu einem Datum</option></select></div>
+      <div class="fld hide" id="tDateW"><label>Ausführungsdatum</label><input id="tDate" type="date" value="${iso(new Date())}"></div>
+      <div class="facts"><button class="btn-y" id="tNext">Weiter</button></div>
+    </div>`,p=>{
+      ibanFmt(p.querySelector('#tIban'));
+      p.querySelector('#tWhen').onchange=e=>p.querySelector('#tDateW').classList.toggle('hide',e.target.value!=='date');
+      p.querySelectorAll('[data-scan]').forEach(b=>b.onclick=()=>{
+        const k=b.dataset.scan;
+        if(k==='tpl'){
+          if(!state.templates.length){toast('Keine Vorlagen gespeichert');return;}
+          openSheet('Vorlage wählen',state.templates.map(t=>({l:t.name,ic:IC.tmpl,fn:()=>{
+            p.querySelector('#tName').value=t.name;p.querySelector('#tIban').value=t.iban;
+            p.querySelector('#tPur').value=t.purpose||'';toast('Vorlage übernommen');}})));
+        }else{
+          toast('Scan simuliert – Daten übernommen');
+          p.querySelector('#tName').value='Musterfirma GmbH';
+          p.querySelector('#tIban').value='AT61 1904 3002 3457 3201';
+          p.querySelector('#tPur').value='Rechnung 2026-0815';
+          p.querySelector('#tAmt').value='49,90';
+        }
+      });
+      p.querySelector('#tNext').onclick=()=>{
+        const from=state.accounts.find(x=>x.id===p.querySelector('#tFrom').value);
+        const d={name:p.querySelector('#tName').value.trim(),iban:p.querySelector('#tIban').value.trim(),
+          amount:money(p.querySelector('#tAmt').value),purpose:p.querySelector('#tPur').value.trim(),
+          date:p.querySelector('#tWhen').value==='date'?p.querySelector('#tDate').value:iso(new Date())};
+        if(!d.name){toast('Bitte Empfänger eingeben');return;}
+        if(d.iban.replace(/\s/g,'').length<8){toast('Bitte gültige IBAN eingeben');return;}
+        if(!(d.amount>0)){toast('Bitte gültigen Betrag eingeben');return;}
+        if(d.amount>(from.available??from.balance)){toast('Nicht genügend Deckung');return;}
+        closePage(p);pgReview(from.id,d);
+      };
+    });
+}
+
+function pgReview(fid,d){
+  const f=state.accounts.find(x=>x.id===fid);
+  const p=openPage(pbar('Überweisung prüfen')+`
+    <div class="pbody">
+      <div class="rev">
+        <div class="r"><span class="k">Von</span><span class="v">${esc(f.type)}<br><small style="color:var(--muted);font-weight:400">${esc(f.iban)}</small></span></div>
+        <div class="r"><span class="k">Empfänger</span><span class="v">${esc(d.name)}</span></div>
+        <div class="r"><span class="k">IBAN</span><span class="v">${esc(d.iban)}</span></div>
+        <div class="r"><span class="k">Verwendungszweck</span><span class="v">${esc(d.purpose||'—')}</span></div>
+        <div class="r"><span class="k">Ausführung</span><span class="v">${dShort(d.date)}</span></div>
+        <div class="r"><span class="k">Betrag</span><span class="v amt">${eur(d.amount)}</span></div>
+      </div>
+      <label style="display:flex;gap:12px;align-items:center;margin-bottom:18px;color:var(--muted);font-size:15px">
+        <input type="checkbox" id="tSaveTpl" style="width:20px;height:20px;accent-color:#FFE500"> Als Vorlage speichern</label>
+      <div class="note">Mit dem Unterschreiben bestätigen Sie die Überweisung mit Ihrem push-TAN Signaturcode.</div>
+      <button class="btn-y" id="tSign">Jetzt unterschreiben</button>
+    </div>`,p=>{
+      p.querySelector('#tSign').onclick=()=>signCode('Überweisung unterschreiben',()=>{
+        if(p.querySelector('#tSaveTpl').checked)
+          state.templates.push({id:uid(),name:d.name,iban:d.iban,purpose:d.purpose});
+        f.balance=Math.round((f.balance-d.amount)*100)/100;
+        f.available=Math.round(((f.available??f.balance)-d.amount)*100)/100;
+        f.tx=f.tx||[];f.tx.unshift({id:uid(),title:d.name,purpose:d.purpose||'Überweisung',amount:-d.amount,
+          date:d.date,cat:'ueberweisung',iban:d.iban});
+        const tg=state.accounts.find(x=>x.iban.replace(/\s/g,'')===d.iban.replace(/\s/g,'')&&x.id!==f.id);
+        if(tg){tg.balance=Math.round((tg.balance+d.amount)*100)/100;
+          tg.available=Math.round(((tg.available??tg.balance)+d.amount)*100)/100;tg.tx=tg.tx||[];
+          tg.tx.unshift({id:uid(),title:f.holder,purpose:d.purpose||'Überweisung',amount:d.amount,date:d.date,cat:'einkommen'});}
+        save();closePage(p);pgSuccess('Überweisung erfolgreich',`${eur(d.amount)} an ${d.name}`,'wurde erfolgreich beauftragt.');
+      });
+    });
+}
+
+function pgSuccess(title,l1,l2){
+  openPage(`<div class="pbar"></div><div class="succ">
+    <div class="chk">${sv('<path d="M4 12l5 5L20 6"/>','#fff',3,46)}</div>
+    <h2>${esc(title)}</h2><p><b style="color:#fff">${esc(l1)}</b></p><p>${esc(l2)}</p>
+    <button class="btn-y" data-close style="margin-top:32px;max-width:300px">Fertig</button></div>`);
+}
+
+/* Signaturcode-Eingabe (gleiches Muster wie Login) */
+function signCode(title,ok){
+  const n=state.pin.length;
+  const p=openPage(pbar(title)+`
+    <div class="pbody">
+      <div class="li-text" style="margin:14px 0 0;font-size:20px">Bitte geben Sie Ihren ${n}-stelligen push-TAN Signaturcode der Verfügernummer <b>${esc(state.profile.verfnr)}</b> ein.</div>
+      <div class="codebox"><div class="cbin"><label>Signaturcode</label>
+        <input id="sgC" type="password" inputmode="numeric" maxlength="${n}" autocomplete="off"></div>
+        <button class="eye" id="sgE">${IC.eye}</button></div>
+      <div class="li-err" id="sgErr"></div>
+      <div class="facts"><button class="btn-y" id="sgGo" disabled>Unterschreiben</button></div>
+    </div>`,p=>{
+      const i=p.querySelector('#sgC'),b=p.querySelector('#sgGo'),e=p.querySelector('#sgErr');
+      let vis=false;
+      p.querySelector('#sgE').onclick=()=>{vis=!vis;i.type=vis?'text':'password';p.querySelector('#sgE').innerHTML=vis?IC.eyeOff:IC.eye;};
+      i.addEventListener('input',()=>{i.value=i.value.replace(/\D/g,'');b.disabled=i.value.length!==n;e.textContent='';});
+      b.onclick=()=>{if(i.value===state.pin){p.remove();ok();}
+        else{e.textContent='Der eingegebene Signaturcode ist nicht korrekt.';i.value='';b.disabled=true;
+          if(navigator.vibrate)navigator.vibrate(180);}};
+      setTimeout(()=>i.focus(),250);
+    });
+}
+
+/* ---------- Daueraufträge ---------- */
+function pgStanding(){
+  const p=openPage(pbar('Daueraufträge')+`<div class="pbody"><div id="soList"></div>
+    <button class="btn-y" id="soAdd" style="margin-top:8px">＋ Neuer Dauerauftrag</button></div>`,p=>{
+      const draw=()=>{
+        p.querySelector('#soList').innerHTML=state.standing.length?
+          `<div class="list" style="margin:0 0 18px">`+state.standing.map(s=>`
+            <button class="row" data-so="${s.id}"><span class="ico">${IC.repeat}</span>
+              <span class="lbl">${esc(s.name)}<small>${esc(s.iban)} · ${s.interval}</small></span>
+              <span class="val">${fmt(s.amount)}</span><span class="chev">›</span></button>`).join('')+`</div>`
+          :'<div class="empty">Keine Daueraufträge angelegt.</div>';
+        p.querySelectorAll('[data-so]').forEach(b=>b.onclick=()=>{
+          const s=state.standing.find(x=>x.id===b.dataset.so);
+          openSheet(s.name,[
+            {l:'Jetzt einmalig ausführen',ic:IC.send,fn:()=>{
+              const a=state.accounts[0];if(!a)return;
+              a.balance=Math.round((a.balance-s.amount)*100)/100;a.available=a.balance;
+              a.tx.unshift({id:uid(),title:s.name,purpose:s.purpose||'Dauerauftrag',amount:-s.amount,date:iso(new Date()),cat:'ueberweisung'});
+              save();toast('Ausgeführt');draw();}},
+            {l:'Löschen',ic:IC.trash,fn:()=>{state.standing=state.standing.filter(x=>x.id!==s.id);save();toast('Gelöscht');draw();}}
+          ]);
+        });
+      };
+      p.querySelector('#soAdd').onclick=()=>pgStandingNew(draw);
+      draw();
+    });
+}
+function pgStandingNew(after){
+  const p=openPage(pbar('Neuer Dauerauftrag')+`
+    <div class="pbody">
+      <div class="fld"><label>Empfänger</label><input id="sN" placeholder="Name"></div>
+      <div class="fld"><label>IBAN</label><input id="sI" placeholder="AT.."></div>
+      <div class="fld"><label>Betrag (EUR)</label><input id="sA" inputmode="decimal" placeholder="0,00"></div>
+      <div class="fld"><label>Verwendungszweck</label><input id="sP" placeholder="z.B. Miete"></div>
+      <div class="fld"><label>Intervall</label><select id="sV"><option>monatlich</option><option>vierteljährlich</option><option>halbjährlich</option><option>jährlich</option></select></div>
+      <div class="facts"><button class="btn-y" id="sS">Dauerauftrag anlegen</button></div>
+    </div>`,p=>{
+      ibanFmt(p.querySelector('#sI'));
+      p.querySelector('#sS').onclick=()=>{
+        const n=p.querySelector('#sN').value.trim(),i=p.querySelector('#sI').value.trim(),a=money(p.querySelector('#sA').value);
+        if(!n||!a){toast('Bitte Empfänger und Betrag angeben');return;}
+        signCode('Dauerauftrag unterschreiben',()=>{
+          state.standing.push({id:uid(),name:n,iban:i,amount:a,purpose:p.querySelector('#sP').value.trim(),interval:p.querySelector('#sV').value});
+          save();closePage(p);after&&after();toast('Dauerauftrag angelegt');});
+      };
+    });
+}
+
+/* ---------- Vorlagen ---------- */
+function pgTemplates(){
+  const p=openPage(pbar('Vorlagen')+`<div class="pbody"><div id="tpl"></div></div>`,p=>{
+    const draw=()=>{
+      p.querySelector('#tpl').innerHTML=state.templates.length?
+        `<div class="list" style="margin:0">`+state.templates.map(t=>`<button class="row" data-t="${t.id}">
+          <span class="ico">${IC.tmpl}</span><span class="lbl">${esc(t.name)}<small>${esc(t.iban)}</small></span>
+          <span class="chev">›</span></button>`).join('')+`</div>`
+        :'<div class="empty">Keine Vorlagen gespeichert.</div>';
+      p.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{
+        const t=state.templates.find(x=>x.id===b.dataset.t);
+        openSheet(t.name,[
+          {l:'Überweisung starten',ic:IC.send,fn:()=>{closePage(p);pgTransfer(state.accounts[0]?.id,t);}},
+          {l:'Löschen',ic:IC.trash,fn:()=>{state.templates=state.templates.filter(x=>x.id!==t.id);save();draw();toast('Gelöscht');}}
+        ]);});
+    };draw();});
+}
+
+/* ---------- Karten ---------- */
+function pgCards(){
+  const p=openPage(pbar('Karten verwalten')+`<div class="pbody"><div id="cl"></div>
+    <button class="btn-d" id="cAdd">＋ Karte hinzufügen</button></div>`,p=>{
+    const draw=()=>{
+      p.querySelector('#cl').innerHTML=state.cards.map(c=>`
+        <div class="bank-card ${c.blocked?'blocked':''}">
+          <div class="yl">${CROSS(28)}</div>
+          <div class="chip"></div>
+          <div class="num">•••• •••• •••• ${esc(c.num)}</div>
+          <div class="bot"><span>${esc(c.holder)}</span><span>${esc(c.exp)}</span></div>
+          ${c.blocked?'<div class="blocked-tag">GESPERRT</div>':''}
+        </div>
+        <div class="list" style="margin:0 0 22px">
+          <div class="row"><span class="ico">${IC.card}</span><span class="lbl">${esc(c.brand)}<small>${esc(c.kind)}</small></span></div>
+          <button class="row" data-lim="${c.id}"><span class="ico">${IC.chart}</span>
+            <span class="lbl">Limits<small>Tag ${fmt(c.dayLimit)} · Monat ${fmt(c.monthLimit)}</small></span><span class="chev">›</span></button>
+          <div class="row"><span class="ico">${IC.wallet}</span><span class="lbl">Kontaktlos bezahlen</span>
+            <span class="sw ${c.contactless?'on':''}" data-tg="${c.id}:contactless"></span></div>
+          <div class="row"><span class="ico">${IC.qr}</span><span class="lbl">Online-Zahlungen</span>
+            <span class="sw ${c.online?'on':''}" data-tg="${c.id}:online"></span></div>
+          <div class="row"><span class="ico">${IC.tDisc('#c8c8cc')}</span><span class="lbl">Zahlungen im Ausland</span>
+            <span class="sw ${c.abroad?'on':''}" data-tg="${c.id}:abroad"></span></div>
+          <button class="row" data-blk="${c.id}"><span class="ico">${IC.lock}</span>
+            <span class="lbl" style="color:${c.blocked?'#34c759':'var(--red)'}">${c.blocked?'Karte entsperren':'Karte sperren'}</span></button>
+        </div>`).join('')||'<div class="empty">Keine Karten.</div>';
+      p.querySelectorAll('[data-tg]').forEach(s=>s.onclick=()=>{
+        const [id,k]=s.dataset.tg.split(':');const c=state.cards.find(x=>x.id===id);
+        c[k]=!c[k];save();draw();toast(c[k]?'Aktiviert':'Deaktiviert');});
+      p.querySelectorAll('[data-blk]').forEach(b=>b.onclick=()=>{
+        const c=state.cards.find(x=>x.id===b.dataset.blk);
+        signCode(c.blocked?'Entsperren':'Karte sperren',()=>{c.blocked=!c.blocked;save();draw();
+          toast(c.blocked?'Karte gesperrt':'Karte entsperrt');});});
+      p.querySelectorAll('[data-lim]').forEach(b=>b.onclick=()=>pgLimits(b.dataset.lim,draw));
     };
-    if(isNew){ state.accounts.push({id:id(),tx:[],...obj}); }
-    else{ Object.assign(a,obj); }
-    save(); toast('Gespeichert'); closePage(p);
+    p.querySelector('#cAdd').onclick=()=>{state.cards.push({id:uid(),kind:'Debitkarte',brand:'Debit Mastercard',
+      num:String(1000+Math.floor(Math.random()*8999)),holder:state.profile.name.toUpperCase(),exp:'12/30',
+      dayLimit:400,monthLimit:2000,blocked:false,contactless:true,online:true,abroad:false});save();draw();toast('Karte hinzugefügt');};
+    draw();
   });
-  if(!isNew){
-    p.querySelector('#aDel').addEventListener('click',()=>{
-      if(state.accounts.length<=1){ toast('Mindestens ein Konto nötig'); return; }
-      if(confirm('Dieses Konto wirklich löschen?')){
-        state.accounts=state.accounts.filter(x=>x.id!==a.id);
-        save(); toast('Konto gelöscht'); closePage(p);
-      }
+}
+function pgLimits(cid,after){
+  const c=state.cards.find(x=>x.id===cid);
+  const p=openPage(pbar('Limits')+`
+    <div class="pbody">
+      <div class="fld"><label>Tageslimit (EUR)</label><input id="lD" inputmode="decimal" value="${fmt(c.dayLimit)}"></div>
+      <div class="fld"><label>Monatslimit (EUR)</label><input id="lM" inputmode="decimal" value="${fmt(c.monthLimit)}"></div>
+      <div class="facts"><button class="btn-y" id="lS">Limits speichern</button></div>
+    </div>`,p=>{
+      p.querySelector('#lS').onclick=()=>signCode('Limits ändern',()=>{
+        c.dayLimit=money(p.querySelector('#lD').value);c.monthLimit=money(p.querySelector('#lM').value);
+        save();closePage(p);after&&after();toast('Limits gespeichert');});
     });
-  }
 }
 
-/* ---- Change PIN ---- */
-function openChangePin(){
-  const p=openPage(pageBar('Login und Sicherheit')+`
-    <div class="page-body">
-      <div class="section-h" style="padding:8px 0 8px;font-size:20px">Signaturcode / PIN</div>
-      <div class="card-note">Aktueller Code: <b style="color:#fff">${esc(state.pin)}</b> · Standard ist 0000.</div>
-      <div class="field"><label>Neuer Code (Ziffern)</label><input id="npin" inputmode="numeric" pattern="[0-9]*" value="${esc(state.pin)}" maxlength="8"></div>
-      <div class="form-actions"><button class="btn-yellow" id="pinSave">Code speichern</button></div>
-    </div>`);
-  p.querySelector('#pinSave').addEventListener('click',()=>{
-    const v=p.querySelector('#npin').value.replace(/\D/g,'');
-    if(v.length<4||v.length>8){ toast('4 bis 8 Ziffern'); return; }
-    state.pin=v; save(); toast('Code geändert'); closePage(p);
-  });
+/* ---------- Mitteilungen / Kontowecker ---------- */
+function pgAlerts(){
+  const p=openPage(pbar('Mitteilungen verwalten')+`<div class="pbody"><div id="al"></div></div>`,p=>{
+    const draw=()=>{
+      const a=state.alerts;
+      p.querySelector('#al').innerHTML=`
+        <div class="note">Kontowecker: Sie erhalten Push-Nachrichten, wenn sich auf Ihrem Konto etwas tut.</div>
+        <div class="list" style="margin:0 0 18px">
+          <div class="row"><span class="ico">${IC.bell}</span><span class="lbl">Zahlungseingänge</span><span class="sw ${a.incoming?'on':''}" data-a="incoming"></span></div>
+          <div class="row"><span class="ico">${IC.send}</span><span class="lbl">Zahlungsausgänge</span><span class="sw ${a.outgoing?'on':''}" data-a="outgoing"></span></div>
+          <div class="row"><span class="ico">${IC.chart}</span><span class="lbl">Niedriger Kontostand</span><span class="sw ${a.low?'on':''}" data-a="low"></span></div>
+        </div>
+        <div class="fld"><label>Schwelle für niedrigen Kontostand (EUR)</label><input id="alL" inputmode="decimal" value="${fmt(a.lowLimit)}"></div>
+        <button class="btn-y" id="alS">Speichern</button>`;
+      p.querySelectorAll('[data-a]').forEach(s=>s.onclick=()=>{state.alerts[s.dataset.a]=!state.alerts[s.dataset.a];save();draw();});
+      p.querySelector('#alS').onclick=()=>{state.alerts.lowLimit=money(p.querySelector('#alL').value);save();toast('Gespeichert');};
+    };draw();});
 }
 
-/* ============================================================
-   KEYPAD ENGINE
-   ============================================================ */
-function renderDots(container,count,total){
-  container.innerHTML = Array.from({length:total},(_,i)=>`<span class="pin-dot ${i<count?'filled':''}"></span>`).join('');
+/* ---------- App-Einstellungen ---------- */
+function pgAppSettings(){
+  const p=openPage(pbar('App-Einstellungen')+`<div class="pbody"><div id="as"></div></div>`,p=>{
+    const draw=()=>{
+      p.querySelector('#as').innerHTML=`
+        <div class="list" style="margin:0 0 18px">
+          <div class="row"><span class="ico">${IC.eye}</span><span class="lbl">Beträge verbergen<small>Salden als ••••• anzeigen</small></span>
+            <span class="sw ${state.settings.hideBalance?'on':''}" data-s="hideBalance"></span></div>
+          <div class="row"><span class="ico">${IC.lock}</span><span class="lbl">Face ID / Fingerprint<small>Beim Login anbieten</small></span>
+            <span class="sw ${state.settings.bioLogin?'on':''}" data-s="bioLogin"></span></div>
+        </div>
+        <div class="fld"><label>Berater / Bankstelle</label><input id="asB" value="${esc(state.berater.name)}"></div>
+        <div class="fld"><label>Bankstelle (Adresse/Name)</label><input id="asS" value="${esc(state.berater.bankstelle)}"></div>
+        <button class="btn-y" id="asSave">Speichern</button>`;
+      p.querySelectorAll('[data-s]').forEach(s=>s.onclick=()=>{state.settings[s.dataset.s]=!state.settings[s.dataset.s];save();draw();});
+      p.querySelector('#asSave').onclick=()=>{state.berater.name=p.querySelector('#asB').value.trim()||state.berater.name;
+        state.berater.bankstelle=p.querySelector('#asS').value.trim()||state.berater.bankstelle;save();toast('Gespeichert');};
+    };draw();});
 }
-function buildKeypad(container){
-  const keys=['1','2','3','4','5','6','7','8','9','','0','⌫'];
-  container.innerHTML=keys.map(k=>{
-    if(k==='') return `<div class="key blank"></div>`;
-    if(k==='⌫') return `<button class="key" data-k="del">⌫</button>`;
-    return `<button class="key" data-k="${k}">${k}</button>`;
-  }).join('');
-}
-function runKeypad(padEl,dotsEl,errEl,onSuccess){
-  let entered='';
-  const total=state.pin.length;
-  buildKeypad(padEl);
-  renderDots(dotsEl,0,total);
-  padEl.querySelectorAll('[data-k]').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      const k=btn.dataset.k;
-      if(k==='del'){ entered=entered.slice(0,-1); }
-      else if(entered.length<total){ entered+=k; }
-      renderDots(dotsEl,entered.length,total);
-      if(errEl) errEl.textContent='';
-      if(entered.length===total){
-        setTimeout(()=>{
-          if(entered===state.pin){ onSuccess(); }
-          else{
-            if(errEl) errEl.textContent='Falscher Signaturcode. Bitte erneut versuchen.';
-            entered='';
-            renderDots(dotsEl,0,total);
-            if(navigator.vibrate) navigator.vibrate(200);
-          }
-        },140);
-      }
+
+/* ---------- Login & Sicherheit ---------- */
+function pgSecurity(){
+  const p=openPage(pbar('Login und Sicherheit')+`
+    <div class="pbody">
+      <div class="note">Aktueller Signaturcode: <b style="color:#fff">${esc(state.pin)}</b> · Standard ist 0000.</div>
+      <div class="fld"><label>Neuer Signaturcode (4–8 Ziffern)</label><input id="npin" inputmode="numeric" maxlength="8" value="${esc(state.pin)}"></div>
+      <div class="fld"><label>Verfügernummer</label><input id="nvf" value="${esc(state.profile.verfnr)}"></div>
+      <div class="facts"><button class="btn-y" id="pinS">Speichern</button></div>
+    </div>`,p=>{
+      p.querySelector('#pinS').onclick=()=>{
+        const v=p.querySelector('#npin').value.replace(/\D/g,'');
+        if(v.length<4||v.length>8){toast('4 bis 8 Ziffern');return;}
+        state.pin=v;state.profile.verfnr=p.querySelector('#nvf').value.trim()||state.profile.verfnr;
+        save();toast('Gespeichert');closePage(p);};
     });
-  });
 }
 
-/* ============================================================
+/* ---------- Profil ---------- */
+function pgProfile(){
+  const p=openPage(pbar('Profil')+`
+    <div class="pbody">
+      <div class="fld"><label>Name</label><input id="pN" value="${esc(state.profile.name)}"></div>
+      <div class="fld"><label>Verfügernummer</label><input id="pV" value="${esc(state.profile.verfnr)}"></div>
+      <div class="fld"><label>E-Mail</label><input id="pE" value="${esc(state.profile.email||'')}"></div>
+      <div class="fld"><label>Telefon</label><input id="pT" value="${esc(state.profile.phone||'')}"></div>
+      <div class="facts"><button class="btn-y" id="pS">Speichern</button></div>
+    </div>`,p=>{
+      p.querySelector('#pS').onclick=()=>{
+        state.profile.name=p.querySelector('#pN').value.trim()||state.profile.name;
+        state.profile.verfnr=p.querySelector('#pV').value.trim()||state.profile.verfnr;
+        state.profile.email=p.querySelector('#pE').value.trim();state.profile.phone=p.querySelector('#pT').value.trim();
+        save();toast('Gespeichert');closePage(p);};
+    });
+}
+
+/* ---------- Konto anlegen / bearbeiten ---------- */
+function pgEditAccount(aid){
+  const a=aid?state.accounts.find(x=>x.id===aid):null;const isNew=!a;
+  const cur=a||{type:'Giro',holder:state.profile.name.split(' ').reverse().join(' '),iban:'AT00 0000 0000 0000 0000',balance:0,available:0};
+  const types=['Giro','Sparbuch','Kreditkarte','Bausparen','Wertpapierdepot','Verrechnungskonto','Jugendkonto','Fremdwährungskonto'];
+  const p=openPage(pbar(isNew?'Neues Konto':'Konto bearbeiten')+`
+    <div class="pbody">
+      <div class="fld"><label>Konto-Art</label><select id="aT">${types.map(t=>`<option ${t===cur.type?'selected':''}>${t}</option>`).join('')}</select></div>
+      <div class="fld"><label>Kontoinhaber</label><input id="aH" value="${esc(cur.holder)}"></div>
+      <div class="fld"><label>IBAN</label><input id="aI" value="${esc(cur.iban)}"></div>
+      <div class="frow">
+        <div class="fld"><label>Saldo (EUR)</label><input id="aB" inputmode="decimal" value="${fmt(cur.balance)}"></div>
+        <div class="fld"><label>Verfügbar</label><input id="aV" inputmode="decimal" value="${fmt(cur.available??cur.balance)}"></div>
+      </div>
+      <div class="facts"><button class="btn-y" id="aS">Speichern</button>
+        ${!isNew?'<button class="danger" id="aD">Konto löschen</button>':''}</div>
+    </div>`,p=>{
+      ibanFmt(p.querySelector('#aI'));
+      p.querySelector('#aS').onclick=()=>{
+        const bal=money(p.querySelector('#aB').value);const av=p.querySelector('#aV').value.trim();
+        const o={type:p.querySelector('#aT').value,holder:p.querySelector('#aH').value.trim()||'Konto',
+          iban:p.querySelector('#aI').value.trim()||'AT00',balance:bal,available:av===''?bal:money(av)};
+        if(isNew)state.accounts.push({id:uid(),tx:[],...o});else Object.assign(a,o);
+        save();toast('Gespeichert');closePage(p);};
+      if(!isNew)p.querySelector('#aD').onclick=()=>{
+        if(state.accounts.length<=1){toast('Mindestens ein Konto nötig');return;}
+        if(confirm('Dieses Konto wirklich löschen?')){state.accounts=state.accounts.filter(x=>x.id!==a.id);
+          save();toast('Konto gelöscht');closePage(p);}};
+    });
+}
+
+/* ---------- Nachrichten ---------- */
+function pgMessages(){
+  const p=openPage(pbar('Nachrichten')+`<div class="pbody"><div id="ml"></div></div>`,p=>{
+    const draw=()=>{
+      p.querySelector('#ml').innerHTML=state.messages.length?
+        `<div class="list" style="margin:0">`+state.messages.map(m=>`<button class="row" data-m="${m.id}">
+          <span class="ico">${IC.mail}</span><span class="lbl" style="font-weight:${m.read?'400':'700'}">${esc(m.subject)}
+          <small>${esc(m.from)} · ${dShort(m.date)}</small></span>
+          ${m.read?'':'<span style="width:9px;height:9px;border-radius:50%;background:#ff3b30"></span>'}
+          <span class="chev">›</span></button>`).join('')+`</div>`
+        :'<div class="empty">Keine Nachrichten.</div>';
+      p.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{
+        const m=state.messages.find(x=>x.id===b.dataset.m);m.read=true;save();
+        openPage(pbar('Nachricht')+`<div class="pbody">
+          <div style="font-size:21px;font-weight:700;margin:10px 0 4px">${esc(m.subject)}</div>
+          <div style="color:var(--muted);font-size:14px;margin-bottom:18px">${esc(m.from)} · ${dShort(m.date)}</div>
+          <div style="line-height:1.6;white-space:pre-wrap">${esc(m.body)}</div></div>`);
+        draw();});
+    };draw();});
+}
+
+/* ---------- Hotlines / Bankstelle / Termin ---------- */
+function pgHotlines(){
+  openPage(pbar('Hotlines')+`<div class="pbody"><div class="list" style="margin:0">
+    <div class="row"><span class="ico">${IC.head}</span><span class="lbl">Kundenservice<small>Mo–Fr 8:00–18:00</small></span><span class="val">+43 1 21136-0</span></div>
+    <div class="row"><span class="ico">${IC.lock}</span><span class="lbl">Kartensperre (24h)<small>Weltweit erreichbar</small></span><span class="val">+43 1 204 8800</span></div>
+    <div class="row"><span class="ico">${IC.phone}</span><span class="lbl">Technischer Support<small>Mo–Fr 8:00–20:00</small></span><span class="val">+43 1 21136-6000</span></div>
+  </div></div>`);
+}
+function pgBranch(){
+  openPage(pbar('Bankstelle')+`<div class="pbody">
+    <div class="list" style="margin:0 0 18px">
+      <div class="row"><span class="ico">${IC.bank}</span><span class="lbl">${esc(state.berater.bankstelle)}<small>Ihre Bankstelle</small></span></div>
+      <div class="row"><span class="ico">${IC.phone}</span><span class="lbl">Telefon</span><span class="val">${esc(state.berater.tel)}</span></div>
+      <div class="row"><span class="ico">${IC.calW.replace(/#fff/g,'#c8c8cc')}</span><span class="lbl">Öffnungszeiten<small>Mo–Do 8:30–15:30 · Fr 8:30–13:00</small></span></div>
+    </div>
+    <button class="btn-y" data-close>Schließen</button></div>`);
+}
+function pgAppointment(){
+  const p=openPage(pbar('Termin vereinbaren')+`
+    <div class="pbody">
+      <div class="fld"><label>Anliegen</label><select id="apT"><option>Allgemeine Beratung</option><option>Konto &amp; Karten</option><option>Kredit &amp; Finanzierung</option><option>Veranlagung</option><option>Versicherung</option></select></div>
+      <div class="fld"><label>Wunschdatum</label><input id="apD" type="date" value="${iso(new Date(Date.now()+3*864e5))}"></div>
+      <div class="fld"><label>Uhrzeit</label><select id="apU"><option>09:00</option><option>10:30</option><option>13:00</option><option>15:00</option><option>16:30</option></select></div>
+      <div class="fld"><label>Anmerkung</label><textarea id="apN" rows="3" placeholder="Optional"></textarea></div>
+      <div class="facts"><button class="btn-y" id="apS">Termin anfragen</button></div>
+    </div>`,p=>{
+      p.querySelector('#apS').onclick=()=>{closePage(p);
+        pgSuccess('Termin angefragt',`${p.querySelector('#apT')?.value||''}`,'Ihr Berater meldet sich zur Bestätigung.');};
+    });
+}
+function pgNewMessage(){
+  const p=openPage(pbar('Nachricht an Berater')+`
+    <div class="pbody">
+      <div class="fld"><label>Betreff</label><input id="nmS" placeholder="Betreff"></div>
+      <div class="fld"><label>Nachricht</label><textarea id="nmB" rows="6" placeholder="Ihre Nachricht"></textarea></div>
+      <div class="facts"><button class="btn-y" id="nmG">Senden</button></div>
+    </div>`,p=>{
+      p.querySelector('#nmG').onclick=()=>{
+        const s=p.querySelector('#nmS').value.trim();if(!s){toast('Bitte Betreff eingeben');return;}
+        state.messages.unshift({id:uid(),from:'Ich → '+state.berater.name,subject:s,date:iso(new Date()),read:true,
+          body:p.querySelector('#nmB').value});save();closePage(p);
+        pgSuccess('Nachricht gesendet',s,'Ihr Berater antwortet in der Regel innerhalb von 24 Stunden.');};
+    });
+}
+function pgRaiPay(){
+  openPage(pbar('RaiPay & Wallet')+`<div class="pbody">
+    <div class="note">Mit RaiPay bezahlen Sie kontaktlos mit dem Smartphone.</div>
+    <div class="list" style="margin:0 0 18px">
+      <div class="row"><span class="ico">${IC.wallet}</span><span class="lbl">RaiPay<small>Aktiviert</small></span><span class="sw on"></span></div>
+      <div class="row"><span class="ico">${IC.card}</span><span class="lbl">Apple Pay / Wallet<small>Karte hinzufügen</small></span><span class="chev">›</span></div>
+      <div class="row"><span class="ico">${IC.qr}</span><span class="lbl">bluecode<small>QR-Zahlung im Handel</small></span><span class="chev">›</span></div>
+    </div>
+    <button class="btn-y" data-close>Schließen</button></div>`);
+}
+function pgLegal(){
+  openPage(pbar('Rechtliches')+`<div class="pbody">
+    <div class="note"><b style="color:#fff">Hinweis:</b> Diese Anwendung ist ein Scherz-Nachbau („Prank"). Sie hat keinerlei
+    Verbindung zu Raiffeisen, führt keine echten Bankgeschäfte aus und überträgt keine Daten. Alle Beträge sind frei erfunden
+    und werden nur lokal im Browser gespeichert.</div>
+    <div class="list" style="margin:0 0 18px">
+      <div class="row"><span class="lbl">Version</span><span class="val">Prank 2.0</span></div>
+      <div class="row"><span class="lbl">Datenspeicherung</span><span class="val">nur lokal</span></div>
+    </div>
+    <button class="btn-y" data-close>Schließen</button></div>`);
+}
+
+/* ==========================================================================
    BINDINGS
-   ============================================================ */
-function bindWelcome(){
-  document.getElementById('loginMain').addEventListener('click',()=>showPin());
-  document.getElementById('loginOther').addEventListener('click',()=>showPin());
-}
-function bindPin(){
-  document.getElementById('pinBack').addEventListener('click',()=>showWelcome());
-  runKeypad(document.getElementById('keypad'),document.getElementById('pinDots'),document.getElementById('pinErr'),()=>enterApp());
-}
-function bindTab(){
-  document.getElementById('logoutBtn')?.addEventListener('click',()=>{ showWelcome(); });
-  document.querySelectorAll('.tab[data-tab]').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
-  document.querySelectorAll('[data-tab]:not(.tab)').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
-  // overview
-  document.querySelectorAll('[data-transfer]').forEach(b=>b.addEventListener('click',()=>openTransfer(b.dataset.transfer)));
-  document.querySelectorAll('[data-detail]').forEach(b=>b.addEventListener('click',()=>openDetail(b.dataset.detail)));
-  // manage
-  document.querySelector('[data-editprofile]')?.addEventListener('click',openEditProfile);
-  document.querySelectorAll('[data-editacct]').forEach(b=>b.addEventListener('click',()=>openEditAccount(b.dataset.editacct)));
-  document.querySelector('[data-addacct]')?.addEventListener('click',()=>openEditAccount(null));
-  document.querySelector('[data-changepin]')?.addEventListener('click',openChangePin);
+   ========================================================================== */
+function bindTabs(){
+  document.getElementById('btnOut')?.addEventListener('click',()=>scrWelcome());
+  document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
+  document.querySelectorAll('[data-tr]').forEach(b=>b.onclick=()=>pgTransfer(b.dataset.tr));
+  document.querySelectorAll('[data-sheet]').forEach(b=>b.onclick=()=>{
+    const a=state.accounts.find(x=>x.id===b.dataset.sheet);
+    openSheet(a.type+' · '+a.iban.slice(-9),[
+      {l:'Umsätze anzeigen',ic:IC.chart,fn:()=>pgAccount(a.id)},
+      {l:'Neue Überweisung',ic:IC.send,fn:()=>pgTransfer(a.id)},
+      {l:'Dauerauftrag anlegen',ic:IC.repeat,fn:()=>pgStandingNew()},
+      {l:'IBAN kopieren',ic:IC.copy,fn:()=>{navigator.clipboard?.writeText(a.iban);toast('IBAN kopiert');}},
+      {l:'Konto bearbeiten',ic:IC.edit,fn:()=>pgEditAccount(a.id)}
+    ]);});
+  document.querySelectorAll('.acct .main').forEach((m,i)=>{
+    const a=state.accounts[i];if(a)m.onclick=()=>pgAccount(a.id);});
+  document.getElementById('moreBtn')?.addEventListener('click',()=>{showSecondary=!showSecondary;paint();});
+  const tr=document.getElementById('ptrack');
+  if(tr)tr.addEventListener('scroll',()=>{const i=Math.round(tr.scrollLeft/tr.clientWidth);
+    document.querySelectorAll('#pdots i').forEach((d,x)=>d.classList.toggle('on',x===i));});
+
+  document.querySelector('[data-profile]')?.addEventListener('click',pgProfile);
+  document.querySelectorAll('[data-editacct]').forEach(b=>b.onclick=()=>pgEditAccount(b.dataset.editacct));
+  document.querySelector('[data-addacct]')?.addEventListener('click',()=>pgEditAccount(null));
+  document.querySelector('[data-appset]')?.addEventListener('click',pgAppSettings);
+  document.querySelector('[data-sec]')?.addEventListener('click',pgSecurity);
+  document.querySelector('[data-alerts]')?.addEventListener('click',pgAlerts);
+  document.querySelector('[data-legal]')?.addEventListener('click',pgLegal);
+  document.querySelector('[data-cards]')?.addEventListener('click',pgCards);
+  document.querySelector('[data-raipay]')?.addEventListener('click',pgRaiPay);
+  document.querySelector('[data-standing]')?.addEventListener('click',pgStanding);
+  document.querySelector('[data-templates]')?.addEventListener('click',pgTemplates);
+  document.querySelector('[data-hotline]')?.addEventListener('click',pgHotlines);
+  document.querySelector('[data-branch]')?.addEventListener('click',pgBranch);
+  document.querySelectorAll('[data-msgs]').forEach(b=>b.onclick=pgMessages);
+  document.querySelectorAll('[data-qa]').forEach(b=>b.onclick=()=>{
+    const k=b.dataset.qa;
+    if(k==='msg')pgNewMessage();else if(k==='apt')pgAppointment();
+    else if(k==='call')toast('Anruf an '+state.berater.tel);else toast('Rückruf angefordert');});
   document.querySelector('[data-reset]')?.addEventListener('click',()=>{
-    if(confirm('Prank komplett zurücksetzen? Alle eingegebenen Daten gehen verloren.')){
-      state=structuredClone(DEFAULT_STATE); save(); toast('Zurückgesetzt'); showWelcome();
-    }
-  });
-  // promo carousel dots
-  const track=document.getElementById('promoTrack');
-  if(track){
-    track.addEventListener('scroll',()=>{
-      const i=Math.round(track.scrollLeft/track.clientWidth);
-      document.querySelectorAll('#promoDots i').forEach((d,idx)=>d.classList.toggle('on',idx===i));
-    });
-  }
+    if(confirm('Prank komplett zurücksetzen? Alle Einstellungen gehen verloren.')){
+      state=structuredClone(DEFAULT_STATE);save();toast('Zurückgesetzt');scrWelcome();}});
 }
 
-/* ---------- boot ---------- */
-showWelcome();
+/* boot */
+scrWelcome();
 </script>
 </body>
 </html>
