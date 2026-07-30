@@ -162,6 +162,7 @@
       font-weight:700; font-size:0.68em; letter-spacing:0.04em; text-transform:uppercase; padding:4px 10px; border-radius:999px;
     }
     .match-date{ font-size:0.78em; color:var(--muted); text-align:right; }
+    .match-meta{ display:flex; flex-direction:column; align-items:flex-end; gap:5px; flex:none; }
 
     .teams{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin:6px 0 12px; }
     .team{ flex:1; text-align:center; min-width:0; }
@@ -212,29 +213,77 @@
     .lb-pts .lb-sub{ color:var(--muted); }
     .lb-row.top1 .lb-pts{ color:var(--gold); }
 
-    /* Teams / Tabellen */
-    .teams-intro{ color:var(--muted); font-size:0.88em; margin:2px 4px 14px; }
-    .grp-card{ background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:6px 14px 10px; margin-bottom:14px; backdrop-filter:blur(6px); }
-    .grp-head{ display:flex; justify-content:space-between; align-items:baseline; padding:12px 4px 6px; border-bottom:1px solid var(--border); margin-bottom:2px; }
-    .grp-title{ font-weight:800; font-size:1.05em; letter-spacing:-0.01em; }
-    .grp-legend{ font-size:0.68em; color:var(--muted); font-weight:700; letter-spacing:0.04em; text-transform:uppercase; }
-    .team-row{ display:flex; align-items:center; gap:11px; padding:11px 4px; border-bottom:1px solid var(--border); }
-    .team-row:last-child{ border-bottom:none; }
-    .tr-rank{ width:22px; text-align:center; font-weight:800; font-size:0.95em; color:var(--muted); flex:none; position:relative; }
-    .team-row.qual .tr-rank{ color:var(--accent); }
-    .team-row.qual .tr-rank::before{ content:""; position:absolute; left:-6px; top:50%; transform:translateY(-50%); width:3px; height:20px; border-radius:2px; background:linear-gradient(var(--accent),var(--accent2)); }
-    .tr-flag{ flex:none; width:30px; text-align:center; font-size:1.3em; line-height:1; }
-    .tr-flag img{ width:28px; height:20px; object-fit:contain; border-radius:3px; filter:drop-shadow(0 2px 5px rgba(0,0,0,.5)); }
-    .tr-main{ flex:1; min-width:0; }
-    .tr-name{ font-weight:700; font-size:0.95em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .tr-sub{ font-size:0.74em; color:var(--muted); margin-top:1px; }
-    .tr-form{ display:flex; gap:3px; margin-top:5px; }
-    .fdot{ width:15px; height:15px; border-radius:5px; font-size:0.6em; font-weight:800; display:flex; align-items:center; justify-content:center; color:#04160d; }
+    /* Teams / Statistik */
+    .teams-intro{ color:var(--muted); font-size:0.9em; margin:2px 4px 12px; line-height:1.5; }
+    .teams-legend{ background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:14px 16px; margin-bottom:18px; font-size:0.86em; backdrop-filter:blur(6px); }
+    .teams-legend strong{ display:block; margin-bottom:9px; font-size:1.02em; }
+    .teams-legend ul{ margin:0; padding-left:18px; color:var(--muted); line-height:1.55; }
+    .teams-legend li{ margin:5px 0; }
+    .teams-legend b{ color:var(--text); }
+    .lg-dot{ display:inline-flex; width:18px; height:18px; border-radius:6px; align-items:center; justify-content:center; font-size:0.66em; font-weight:800; color:#04160d; vertical-align:middle; margin:0 1px; }
+    .lg-dot.w{ background:var(--accent); }
+    .lg-dot.d{ background:var(--gold); }
+    .lg-dot.l{ background:var(--danger); color:#fff; }
+
+    .grp-block{ margin-bottom:24px; }
+    .grp-head{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; padding:0 2px 10px; }
+    .grp-title{ font-weight:800; font-size:1.18em; letter-spacing:-0.01em; }
+    .grp-note{ font-size:0.72em; color:var(--accent); font-weight:700; }
+
+    .tteam{ background:var(--surface); border:1px solid var(--border); border-left:3px solid rgba(255,255,255,0.12); border-radius:16px; padding:14px; margin-bottom:10px; backdrop-filter:blur(6px); }
+    .tteam.qual{ border-left-color:var(--accent); }
+    .tteam-top{ display:flex; align-items:center; gap:11px; }
+    .tpos{ flex:none; width:22px; text-align:center; font-weight:800; font-size:1.05em; color:var(--muted); }
+    .tteam.qual .tpos{ color:var(--accent); }
+    .tflag{ flex:none; font-size:1.5em; line-height:1; }
+    .tflag img{ width:36px; height:25px; object-fit:contain; border-radius:4px; filter:drop-shadow(0 2px 6px rgba(0,0,0,.5)); }
+    .tident{ flex:1; min-width:0; }
+    .tname{ font-weight:800; font-size:1.04em; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .qbadge{ font-size:0.58em; font-weight:800; text-transform:uppercase; letter-spacing:0.04em; color:var(--accent); background:rgba(39,224,138,0.12); border:1px solid rgba(39,224,138,0.28); border-radius:999px; padding:2px 8px; }
+    .tmeta{ font-size:0.76em; color:var(--muted); margin-top:2px; }
+    .tbig{ flex:none; text-align:center; min-width:50px; }
+    .tbig .n{ display:block; font-weight:800; font-size:1.6em; color:var(--accent); line-height:1; }
+    .tbig .l{ display:block; font-size:0.6em; color:var(--muted); font-weight:700; text-transform:uppercase; letter-spacing:0.04em; margin-top:2px; }
+
+    .tsummary{ font-size:0.88em; color:var(--text); line-height:1.55; margin:12px 0 0; }
+    .tsummary .vd{ font-weight:700; }
+
+    .tbar{ margin-top:11px; }
+    .tbar-label{ display:flex; justify-content:space-between; font-size:0.7em; color:var(--muted); font-weight:700; margin-bottom:4px; }
+    .tbar-track{ height:8px; border-radius:999px; background:rgba(255,255,255,0.07); overflow:hidden; }
+    .tbar-fill{ height:100%; border-radius:999px; background:linear-gradient(90deg,var(--accent),var(--accent2)); }
+
+    .tstats{ display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin-top:12px; }
+    .tstat{ background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:11px; padding:9px 5px; text-align:center; }
+    .tstat .n{ font-weight:800; font-size:1.1em; }
+    .tstat .l{ font-size:0.66em; color:var(--muted); font-weight:700; margin-top:2px; line-height:1.2; }
+
+    .tform-row{ display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-top:12px; font-size:0.74em; color:var(--muted); font-weight:700; }
+    .tform{ display:flex; gap:3px; }
+    .fdot{ width:17px; height:17px; border-radius:5px; font-size:0.62em; font-weight:800; display:flex; align-items:center; justify-content:center; color:#04160d; }
     .fdot.w{ background:var(--accent); }
     .fdot.d{ background:var(--gold); }
     .fdot.l{ background:var(--danger); color:#fff; }
-    .tr-pts{ flex:none; font-weight:800; font-size:1.25em; color:var(--accent); text-align:right; min-width:46px; }
-    .tr-pts span{ display:block; font-size:0.42em; color:var(--muted); font-weight:700; letter-spacing:0.04em; text-transform:uppercase; margin-top:-1px; }
+
+    /* Kasse (Geld pro falschem Tipp) */
+    .pot{
+      background:linear-gradient(135deg,rgba(255,210,77,0.12),rgba(255,100,112,0.10));
+      border:1px solid rgba(255,210,77,0.28); border-radius:20px; padding:18px; margin-bottom:14px; text-align:center;
+    }
+    .pot .pot-l{ font-size:0.72em; color:var(--muted); font-weight:700; text-transform:uppercase; letter-spacing:0.05em; }
+    .pot .pot-n{ font-size:2.1em; font-weight:800; color:var(--gold); line-height:1.15; }
+    .pot .pot-s{ font-size:0.82em; color:var(--muted); margin-top:2px; }
+    .lb-money{ flex:none; text-align:right; min-width:64px; font-weight:800; font-size:1.05em; color:var(--gold); }
+    .lb-money.zero{ color:var(--accent); }
+    .lb-money .lb-sub{ display:block; color:var(--muted); }
+    .fees{ background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:14px 16px; margin-top:14px; font-size:0.86em; backdrop-filter:blur(6px); }
+    .fees strong{ display:block; margin-bottom:9px; font-size:1.02em; }
+    .fees ul{ margin:0; padding-left:18px; color:var(--muted); line-height:1.55; }
+    .fees li{ margin:4px 0; }
+    .fees b{ color:var(--text); }
+    .fees .hint{ margin:10px 0 0; color:var(--muted); line-height:1.5; }
+    .stake{ font-size:0.7em; font-weight:700; color:var(--gold); background:rgba(255,210,77,0.10); border:1px solid rgba(255,210,77,0.22); border-radius:999px; padding:3px 9px; }
+    .pickline .pv .cost{ color:var(--danger); font-weight:800; }
 
     /* Footer */
     footer{ text-align:center; margin-top:30px; color:var(--muted); font-size:0.8em; }
@@ -311,13 +360,33 @@
 
       <!-- Teams -->
       <div id="teamsView" class="hidden">
-        <p class="teams-intro">Aktuelle Daten &amp; Leistung jedes Teams – damit du besser einschätzen kannst, auf wen du tippst.</p>
+        <p class="teams-intro">Hier siehst du in einfachen Worten, wie jedes Team bisher gespielt hat – damit du besser einschätzen kannst, auf wen du tippst.</p>
+        <div class="teams-legend">
+          <strong>📖 Kurz erklärt</strong>
+          <ul>
+            <li><b>Punkte:</b> Für einen <b>Sieg</b> gibt es 3 Punkte, für ein <b>Unentschieden</b> 1, für eine <b>Niederlage</b> 0. Wer mehr Punkte hat, steht oben.</li>
+            <li>Die <b>besten 2 Teams</b> jeder Gruppe kommen eine Runde weiter (grün markiert, „Weiter").</li>
+            <li><b>Tordifferenz</b> = geschossene Tore minus kassierte Tore.</li>
+            <li><b>Form</b> = die letzten Spiele: <span class="lg-dot w">S</span> Sieg, <span class="lg-dot d">U</span> Unentschieden, <span class="lg-dot l">N</span> Niederlage.</li>
+          </ul>
+        </div>
         <div id="teamsList"></div>
       </div>
 
       <!-- Rangliste -->
       <div id="boardView" class="hidden">
+        <div id="potBox"></div>
         <div class="lb-card" id="leaderboard"></div>
+        <div class="fees">
+          <strong>💰 Wie viel muss man zahlen?</strong>
+          <ul>
+            <li>Bezahlt wird <b>pro falschem Tipp</b> – je später die Runde, desto teurer:</li>
+            <li><b>Gruppenphase:</b> 0,50 € · <b>Sechzehntelfinale:</b> 1 € · <b>Achtelfinale:</b> 2 €</li>
+            <li><b>Viertelfinale:</b> 3 € · <b>Halbfinale:</b> 4 € · <b>Spiel um Platz 3:</b> 4 € · <b>Finale:</b> 5 €</li>
+            <li>Endet ein Spiel <b>unentschieden</b>, zählt es für niemanden – dann zahlt keiner etwas.</li>
+          </ul>
+          <p class="hint">Gezählt werden nur Spiele, die schon fertig sind. Richtige Tipps kosten nichts.</p>
+        </div>
       </div>
     </section>
 
@@ -433,6 +502,17 @@
   };
   const STAGE_ORDER = ["GROUP_STAGE","LAST_32","LAST_16","QUARTER_FINALS","SEMI_FINALS","THIRD_PLACE","FINAL"];
 
+  /* KASSE: Einsatz je falschem Tipp – pro Turnierphase (in Euro).
+     Endet ein Spiel unentschieden, zählt es für niemanden (keine Zahlung). */
+  const STAGE_FEE = {
+    GROUP_STAGE: 0.5, LAST_32: 1, LAST_16: 2, QUARTER_FINALS: 3,
+    SEMI_FINALS: 4, THIRD_PLACE: 4, FINAL: 5
+  };
+  function feeOf(stage) { return STAGE_FEE[stage] || 0; }
+  function fmtMoney(v) {
+    return v.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
+  }
+
   function mapWinner(w) {
     if (w === "HOME_TEAM") return "HOME";
     if (w === "AWAY_TEAM") return "AWAY";
@@ -545,16 +625,68 @@
     }
   }
 
+  // =====================================================================
+  // ROBUSTHEIT: Einmal bekannte Paarungen (z. B. Sechzehntelfinale) dauerhaft
+  // merken, damit sie nicht wieder auf "Noch offen" zurückspringen, wenn der
+  // Worker mal nicht erreichbar ist. Gespeichert wird pro Spiel-ID – die ID
+  // bleibt gleich, deshalb bleiben bereits abgegebene Tipps gültig.
+  // =====================================================================
+  const KNOWN_TEAMS_KEY = "wm2026_known_teams";
+  const SCHEDULE_CACHE_KEY = "wm2026_schedule_cache";
+
+  function teamOpen(team) { return !team || !team.name || team.name === "Noch offen"; }
+  function loadKnownTeams() {
+    try { return JSON.parse(localStorage.getItem(KNOWN_TEAMS_KEY)) || {}; } catch (e) { return {}; }
+  }
+
+  function reconcileTeams(matches) {
+    const known = loadKnownTeams();
+    let changed = false;
+    matches.forEach((m) => {
+      // Bekannte Teams aus dem Gedächtnis einsetzen, falls aktuell "Noch offen"
+      if (known[m.id]) {
+        if (teamOpen(m.home) && known[m.id].home) m.home = Object.assign({}, known[m.id].home);
+        if (teamOpen(m.away) && known[m.id].away) m.away = Object.assign({}, known[m.id].away);
+      }
+      // Sobald echte Teams bekannt sind, dauerhaft merken
+      if (!teamOpen(m.home) || !teamOpen(m.away)) {
+        const entry = known[m.id] || {};
+        if (!teamOpen(m.home)) entry.home = { name: m.home.name, crest: m.home.crest || "" };
+        if (!teamOpen(m.away)) entry.away = { name: m.away.name, crest: m.away.crest || "" };
+        known[m.id] = entry; changed = true;
+      }
+    });
+    if (changed) { try { localStorage.setItem(KNOWN_TEAMS_KEY, JSON.stringify(known)); } catch (e) {} }
+    return matches;
+  }
+
   async function loadSchedule() {
-    let matches;
+    let matches = null, live = false;
     try {
       matches = await fetchLiveSchedule();
+      live = !!(matches && matches.length);
+    } catch (e) { live = false; }
+
+    if (live) {
       usingFallback = false;
       clearNotice();
-    } catch (e) {
-      matches = fallbackSchedule();
-      usingFallback = true;
-      showNotice("ℹ️ Echter WM-Spielplan ist geladen – Tippen funktioniert vollständig. Live-Ergebnisse werden automatisch ergänzt, sobald dein Worker erreichbar ist (zurzeit nicht).");
+      reconcileTeams(matches);
+      // Letzten erfolgreichen Live-Plan sichern (echte Teams & Stände)
+      try { localStorage.setItem(SCHEDULE_CACHE_KEY, JSON.stringify(matches)); } catch (e) {}
+    } else {
+      // Bei Ausfall zuerst den zuletzt geladenen Live-Plan nehmen, sonst Rückfall
+      let cached = null;
+      try { cached = JSON.parse(localStorage.getItem(SCHEDULE_CACHE_KEY)); } catch (e) {}
+      if (cached && cached.length) {
+        matches = cached;
+        usingFallback = false;
+        clearNotice();
+      } else {
+        matches = fallbackSchedule();
+        usingFallback = true;
+        showNotice("ℹ️ Echter WM-Spielplan ist geladen – Tippen funktioniert vollständig. Live-Ergebnisse werden automatisch ergänzt, sobald dein Worker erreichbar ist (zurzeit nicht).");
+      }
+      reconcileTeams(matches);
     }
 
     allMatches = matches;
@@ -740,15 +872,20 @@
           let cls = "";
           if (finished) cls = b.pick === m.outcome ? " correct" : " incorrect";
           const mark = finished ? (b.pick === m.outcome ? " ✓" : " ✗") : "";
+          // Kosten nur bei falschem Tipp – Unentschieden zählt für niemanden
+          const cost = (finished && b.pick !== m.outcome && m.outcome !== "DRAW")
+            ? ' <span class="cost">' + fmtMoney(feeOf(m.stage)) + "</span>" : "";
           return '<div class="pickline' + cls + '"><span class="pn">' + escapeHtml(b.user) +
-                 '</span><span class="pv">' + escapeHtml(pickLabel(m, b.pick)) + mark + "</span></div>";
+                 '</span><span class="pv">' + escapeHtml(pickLabel(m, b.pick)) + mark + cost + "</span></div>";
         }).join("");
         others = '<div class="others"><h4>Tipps der Familie (' + bets.length + ")</h4>" + lines + "</div>";
       }
 
       return '<div class="match' + (iWon ? ' win-card' : '') + '" data-match-id="' + m.id + '" style="--i:' + (idx++) + '">' +
         '<div class="match-top"><span class="chip">' + escapeHtml(chip) + "</span>" +
-        '<span class="match-date">' + fmtDate(m.utcDate) + "</span></div>" +
+        '<span class="match-meta"><span class="match-date">' + fmtDate(m.utcDate) + "</span>" +
+        '<span class="stake" title="Kosten pro falschem Tipp">' + fmtMoney(feeOf(m.stage)) +
+        " pro Fehltipp</span></span></div>" +
         '<div class="teams">' +
           '<div class="team">' + crestHtml(m.home) + '<div class="tname">' + escapeHtml(m.home.name) + "</div></div>" +
           middle +
@@ -842,7 +979,10 @@
 
   function renderLeaderboard() {
     const stats = {};
-    const ensure = (name) => { if (!stats[name]) stats[name] = { name: name, points: 0, decided: 0, total: 0 }; return stats[name]; };
+    const ensure = (name) => {
+      if (!stats[name]) stats[name] = { name: name, points: 0, decided: 0, total: 0, wrong: 0, money: 0 };
+      return stats[name];
+    };
 
     allBets.forEach((b) => {
       const s = ensure(b.user); s.total++;
@@ -850,8 +990,13 @@
       if (m && m.status === "FINISHED" && m.outcome) {
         s.decided++;
         if (b.pick === m.outcome) s.points++;
+        // Kasse: nur falsche Tipps kosten Geld. Unentschieden-Spiele
+        // zählen für niemanden.
+        else if (m.outcome !== "DRAW") { s.wrong++; s.money += feeOf(m.stage); }
       }
     });
+
+    renderPot(Object.values(stats));
 
     const rows = Object.values(stats).sort((a, b) =>
       b.points - a.points || (b.decided ? b.points / b.decided : 0) - (a.decided ? a.points / a.decided : 0) || a.name.localeCompare(b.name)
@@ -871,10 +1016,31 @@
         '<div class="lb-rank">' + rank + "</div>" +
         '<div class="lb-name' + meClass + '">' + escapeHtml(r.name) +
           '<div class="lb-sub">' + r.total + " Tipp" + (r.total === 1 ? "" : "s") +
-          (r.decided ? " · " + r.decided + " gewertet" : "") + "</div></div>" +
+          (r.decided ? " · " + r.decided + " gewertet" : "") +
+          (r.wrong ? " · " + r.wrong + " falsch" : "") + "</div></div>" +
         '<div class="lb-pts">' + r.points + '<span class="lb-sub"> Pkt.</span></div>' +
+        '<div class="lb-money' + (r.money > 0 ? "" : " zero") + '">' + fmtMoney(r.money) +
+          '<span class="lb-sub">zu zahlen</span></div>' +
       "</div>";
     }).join("");
+  }
+
+  // Kasse-Übersicht über der Rangliste
+  function renderPot(list) {
+    const box = el("potBox");
+    if (!box) return;
+    const total = list.reduce((sum, r) => sum + r.money, 0);
+    const payers = list.filter((r) => r.money > 0).length;
+    if (!list.length) { box.innerHTML = ""; return; }
+    let sub;
+    if (total === 0) sub = "Noch hat niemand etwas zu zahlen – alle Tipps sitzen! 🎉";
+    else if (payers === 1) sub = "1 Person muss zahlen";
+    else sub = payers + " Personen müssen zahlen";
+    box.innerHTML = '<div class="pot">' +
+      '<div class="pot-l">Kasse gesamt</div>' +
+      '<div class="pot-n">' + fmtMoney(total) + "</div>" +
+      '<div class="pot-s">' + escapeHtml(sub) + "</div>" +
+    "</div>";
   }
 
   // =====================================================================
@@ -931,7 +1097,32 @@
       const x = map[r] || ["d", "?"];
       return '<span class="fdot ' + x[0] + '">' + x[1] + "</span>";
     }).join("");
-    return '<div class="tr-form">' + dots + "</div>";
+    return '<span class="tform">' + dots + "</span>";
+  }
+
+  // Klartext-Einschätzung pro Team – verständlich auch ohne Punkte-Wissen
+  function teamVerdict(t) {
+    if (!t.played) return { text: "Hat noch nicht gespielt.", strength: null };
+    const ppg = t.points / t.played;
+    let text;
+    if (t.loss === 0 && t.win >= 1) text = "Bisher ungeschlagen – starke Form! 🔥";
+    else if (ppg >= 2) text = "Sehr starke Leistung – ein heißer Tipp. 💪";
+    else if (ppg >= 1.5) text = "Gute Leistung bisher. 👍";
+    else if (ppg >= 1) text = "Durchwachsen – mal so, mal so.";
+    else if (t.points === 0) text = "Schwacher Start – bisher ohne Punkte. ⚠️";
+    else text = "Bisher eher schwach.";
+    return { text: text, strength: Math.round((ppg / 3) * 100) };
+  }
+
+  function teamSummary(t) {
+    const sg = t.win + (t.win === 1 ? " Sieg" : " Siege");
+    const ug = t.draw + " Unentschieden";
+    const ng = t.loss + (t.loss === 1 ? " Niederlage" : " Niederlagen");
+    const diff = t.gf - t.ga;
+    const diffStr = (diff > 0 ? "+" : "") + diff;
+    return "In " + t.played + (t.played === 1 ? " Spiel" : " Spielen") + ": " +
+      sg + ", " + ug + ", " + ng + ". " +
+      t.gf + " Tore geschossen, " + t.ga + " kassiert (Tordifferenz " + diffStr + ").";
   }
 
   function renderTeams() {
@@ -946,9 +1137,13 @@
     const groupKeys = Object.keys(groups).sort();
 
     if (!groupKeys.length) {
-      container.innerHTML = '<div class="empty-hint">Noch keine Team-Daten – sobald die Gruppen feststehen, siehst du hier Tabellen und Leistung. ⚽</div>';
+      container.innerHTML = '<div class="empty-hint">Noch keine Team-Daten – sobald die Gruppen feststehen, siehst du hier alle Infos und die Leistung jedes Teams. ⚽</div>';
       return;
     }
+
+    const crestHtmlOf = (t) => (t.crest && t.crest.indexOf("http") === 0)
+      ? '<img src="' + t.crest + '" alt="">' : (t.crest || "⚽");
+    const tile = (n, l) => '<div class="tstat"><div class="n">' + n + '</div><div class="l">' + l + "</div></div>";
 
     container.innerHTML = groupKeys.map((gk) => {
       const list = groups[gk].sort((a, b) =>
@@ -959,30 +1154,56 @@
       );
       const title = gk.replace("GROUP_", "Gruppe ");
 
-      const rows = list.map((t, i) => {
-        const diff = t.gf - t.ga;
-        const diffStr = (diff > 0 ? "+" : "") + diff;
-        const qual = i < 2 ? " qual" : "";
-        const sub = t.played
-          ? t.played + " Sp · " + t.win + "S " + t.draw + "U " + t.loss + "N · " + t.gf + ":" + t.ga + " (" + diffStr + ")"
-          : "Noch kein Spiel";
-        return '<div class="team-row' + qual + '">' +
-            '<div class="tr-rank">' + (i + 1) + "</div>" +
-            '<div class="tr-flag">' + (t.crest && t.crest.indexOf("http") === 0
-              ? '<img src="' + t.crest + '" alt="">' : (t.crest || "⚽")) + "</div>" +
-            '<div class="tr-main">' +
-              '<div class="tr-name">' + escapeHtml(t.name) + "</div>" +
-              '<div class="tr-sub">' + escapeHtml(sub) + "</div>" +
-              formHtml(t.form) +
+      const cards = list.map((t, i) => {
+        const qual = i < 2;
+        const v = teamVerdict(t);
+        const posLine = "Platz " + (i + 1) + " von " + list.length + " · " + title +
+          (qual ? " · kommt aktuell weiter" : "");
+
+        let body;
+        if (t.played) {
+          const stats =
+            '<div class="tstats">' +
+              tile(t.played, "Spiele") +
+              tile(t.win, "Siege") +
+              tile(t.draw, "Unent­schieden") +
+              tile(t.loss, "Nieder­lagen") +
+              tile(t.gf, "Tore") +
+              tile(t.ga, "Gegentore") +
+            "</div>";
+          const bar = v.strength == null ? "" :
+            '<div class="tbar"><div class="tbar-label"><span>Bisherige Stärke</span><span>' + v.strength + '%</span></div>' +
+            '<div class="tbar-track"><div class="tbar-fill" style="width:' + v.strength + '%"></div></div></div>';
+          body =
+            '<p class="tsummary">' + escapeHtml(teamSummary(t)) +
+              ' <span class="vd">' + escapeHtml(v.text) + "</span></p>" +
+            bar + stats +
+            '<div class="tform-row"><span>Letzte Spiele:</span>' + formHtml(t.form) +
+              "<span>(neueste rechts)</span></div>";
+        } else {
+          body = '<p class="tsummary">' + escapeHtml(v.text) +
+            " Sobald gespielt wurde, erscheinen hier alle Werte.</p>";
+        }
+
+        return '<div class="tteam' + (qual ? " qual" : "") + '">' +
+            '<div class="tteam-top">' +
+              '<span class="tpos">' + (i + 1) + "</span>" +
+              '<span class="tflag">' + crestHtmlOf(t) + "</span>" +
+              '<span class="tident">' +
+                '<span class="tname">' + escapeHtml(t.name) +
+                  (qual ? '<span class="qbadge">Weiter</span>' : "") + "</span>" +
+                '<span class="tmeta">' + escapeHtml(posLine) + "</span>" +
+              "</span>" +
+              '<span class="tbig"><span class="n">' + t.points + '</span><span class="l">Punkte</span></span>' +
             "</div>" +
-            '<div class="tr-pts">' + t.points + "<span>Pkt</span></div>" +
+            body +
           "</div>";
       }).join("");
 
-      return '<div class="grp-card">' +
+      return '<div class="grp-block">' +
           '<div class="grp-head"><span class="grp-title">' + escapeHtml(title) + "</span>" +
-          '<span class="grp-legend">Form · neueste rechts</span></div>' +
-          rows +
+          '<span class="grp-note">Beste 2 kommen weiter ➜</span></div>' +
+          cards +
         "</div>";
     }).join("");
   }
