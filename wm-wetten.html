@@ -162,6 +162,7 @@
       font-weight:700; font-size:0.68em; letter-spacing:0.04em; text-transform:uppercase; padding:4px 10px; border-radius:999px;
     }
     .match-date{ font-size:0.78em; color:var(--muted); text-align:right; }
+    .match-meta{ display:flex; flex-direction:column; align-items:flex-end; gap:5px; flex:none; }
 
     .teams{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin:6px 0 12px; }
     .team{ flex:1; text-align:center; min-width:0; }
@@ -264,6 +265,26 @@
     .fdot.d{ background:var(--gold); }
     .fdot.l{ background:var(--danger); color:#fff; }
 
+    /* Kasse (Geld pro falschem Tipp) */
+    .pot{
+      background:linear-gradient(135deg,rgba(255,210,77,0.12),rgba(255,100,112,0.10));
+      border:1px solid rgba(255,210,77,0.28); border-radius:20px; padding:18px; margin-bottom:14px; text-align:center;
+    }
+    .pot .pot-l{ font-size:0.72em; color:var(--muted); font-weight:700; text-transform:uppercase; letter-spacing:0.05em; }
+    .pot .pot-n{ font-size:2.1em; font-weight:800; color:var(--gold); line-height:1.15; }
+    .pot .pot-s{ font-size:0.82em; color:var(--muted); margin-top:2px; }
+    .lb-money{ flex:none; text-align:right; min-width:64px; font-weight:800; font-size:1.05em; color:var(--gold); }
+    .lb-money.zero{ color:var(--accent); }
+    .lb-money .lb-sub{ display:block; color:var(--muted); }
+    .fees{ background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:14px 16px; margin-top:14px; font-size:0.86em; backdrop-filter:blur(6px); }
+    .fees strong{ display:block; margin-bottom:9px; font-size:1.02em; }
+    .fees ul{ margin:0; padding-left:18px; color:var(--muted); line-height:1.55; }
+    .fees li{ margin:4px 0; }
+    .fees b{ color:var(--text); }
+    .fees .hint{ margin:10px 0 0; color:var(--muted); line-height:1.5; }
+    .stake{ font-size:0.7em; font-weight:700; color:var(--gold); background:rgba(255,210,77,0.10); border:1px solid rgba(255,210,77,0.22); border-radius:999px; padding:3px 9px; }
+    .pickline .pv .cost{ color:var(--danger); font-weight:800; }
+
     /* Footer */
     footer{ text-align:center; margin-top:30px; color:var(--muted); font-size:0.8em; }
     footer a{ color:var(--accent); text-decoration:none; }
@@ -354,7 +375,18 @@
 
       <!-- Rangliste -->
       <div id="boardView" class="hidden">
+        <div id="potBox"></div>
         <div class="lb-card" id="leaderboard"></div>
+        <div class="fees">
+          <strong>💰 Wie viel muss man zahlen?</strong>
+          <ul>
+            <li>Bezahlt wird <b>pro falschem Tipp</b> – je später die Runde, desto teurer:</li>
+            <li><b>Gruppenphase:</b> 0,50 € · <b>Sechzehntelfinale:</b> 1 € · <b>Achtelfinale:</b> 2 €</li>
+            <li><b>Viertelfinale:</b> 3 € · <b>Halbfinale:</b> 4 € · <b>Spiel um Platz 3:</b> 4 € · <b>Finale:</b> 5 €</li>
+            <li>Endet ein Spiel <b>unentschieden</b>, zählt es für niemanden – dann zahlt keiner etwas.</li>
+          </ul>
+          <p class="hint">Gezählt werden nur Spiele, die schon fertig sind. Richtige Tipps kosten nichts.</p>
+        </div>
       </div>
     </section>
 
@@ -469,6 +501,17 @@
     THIRD_PLACE: "Spiel um Platz 3", FINAL: "Finale"
   };
   const STAGE_ORDER = ["GROUP_STAGE","LAST_32","LAST_16","QUARTER_FINALS","SEMI_FINALS","THIRD_PLACE","FINAL"];
+
+  /* KASSE: Einsatz je falschem Tipp – pro Turnierphase (in Euro).
+     Endet ein Spiel unentschieden, zählt es für niemanden (keine Zahlung). */
+  const STAGE_FEE = {
+    GROUP_STAGE: 0.5, LAST_32: 1, LAST_16: 2, QUARTER_FINALS: 3,
+    SEMI_FINALS: 4, THIRD_PLACE: 4, FINAL: 5
+  };
+  function feeOf(stage) { return STAGE_FEE[stage] || 0; }
+  function fmtMoney(v) {
+    return v.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
+  }
 
   function mapWinner(w) {
     if (w === "HOME_TEAM") return "HOME";
@@ -829,15 +872,20 @@
           let cls = "";
           if (finished) cls = b.pick === m.outcome ? " correct" : " incorrect";
           const mark = finished ? (b.pick === m.outcome ? " ✓" : " ✗") : "";
+          // Kosten nur bei falschem Tipp – Unentschieden zählt für niemanden
+          const cost = (finished && b.pick !== m.outcome && m.outcome !== "DRAW")
+            ? ' <span class="cost">' + fmtMoney(feeOf(m.stage)) + "</span>" : "";
           return '<div class="pickline' + cls + '"><span class="pn">' + escapeHtml(b.user) +
-                 '</span><span class="pv">' + escapeHtml(pickLabel(m, b.pick)) + mark + "</span></div>";
+                 '</span><span class="pv">' + escapeHtml(pickLabel(m, b.pick)) + mark + cost + "</span></div>";
         }).join("");
         others = '<div class="others"><h4>Tipps der Familie (' + bets.length + ")</h4>" + lines + "</div>";
       }
 
       return '<div class="match' + (iWon ? ' win-card' : '') + '" data-match-id="' + m.id + '" style="--i:' + (idx++) + '">' +
         '<div class="match-top"><span class="chip">' + escapeHtml(chip) + "</span>" +
-        '<span class="match-date">' + fmtDate(m.utcDate) + "</span></div>" +
+        '<span class="match-meta"><span class="match-date">' + fmtDate(m.utcDate) + "</span>" +
+        '<span class="stake" title="Kosten pro falschem Tipp">' + fmtMoney(feeOf(m.stage)) +
+        " pro Fehltipp</span></span></div>" +
         '<div class="teams">' +
           '<div class="team">' + crestHtml(m.home) + '<div class="tname">' + escapeHtml(m.home.name) + "</div></div>" +
           middle +
@@ -931,7 +979,10 @@
 
   function renderLeaderboard() {
     const stats = {};
-    const ensure = (name) => { if (!stats[name]) stats[name] = { name: name, points: 0, decided: 0, total: 0 }; return stats[name]; };
+    const ensure = (name) => {
+      if (!stats[name]) stats[name] = { name: name, points: 0, decided: 0, total: 0, wrong: 0, money: 0 };
+      return stats[name];
+    };
 
     allBets.forEach((b) => {
       const s = ensure(b.user); s.total++;
@@ -939,8 +990,13 @@
       if (m && m.status === "FINISHED" && m.outcome) {
         s.decided++;
         if (b.pick === m.outcome) s.points++;
+        // Kasse: nur falsche Tipps kosten Geld. Unentschieden-Spiele
+        // zählen für niemanden.
+        else if (m.outcome !== "DRAW") { s.wrong++; s.money += feeOf(m.stage); }
       }
     });
+
+    renderPot(Object.values(stats));
 
     const rows = Object.values(stats).sort((a, b) =>
       b.points - a.points || (b.decided ? b.points / b.decided : 0) - (a.decided ? a.points / a.decided : 0) || a.name.localeCompare(b.name)
@@ -960,10 +1016,31 @@
         '<div class="lb-rank">' + rank + "</div>" +
         '<div class="lb-name' + meClass + '">' + escapeHtml(r.name) +
           '<div class="lb-sub">' + r.total + " Tipp" + (r.total === 1 ? "" : "s") +
-          (r.decided ? " · " + r.decided + " gewertet" : "") + "</div></div>" +
+          (r.decided ? " · " + r.decided + " gewertet" : "") +
+          (r.wrong ? " · " + r.wrong + " falsch" : "") + "</div></div>" +
         '<div class="lb-pts">' + r.points + '<span class="lb-sub"> Pkt.</span></div>' +
+        '<div class="lb-money' + (r.money > 0 ? "" : " zero") + '">' + fmtMoney(r.money) +
+          '<span class="lb-sub">zu zahlen</span></div>' +
       "</div>";
     }).join("");
+  }
+
+  // Kasse-Übersicht über der Rangliste
+  function renderPot(list) {
+    const box = el("potBox");
+    if (!box) return;
+    const total = list.reduce((sum, r) => sum + r.money, 0);
+    const payers = list.filter((r) => r.money > 0).length;
+    if (!list.length) { box.innerHTML = ""; return; }
+    let sub;
+    if (total === 0) sub = "Noch hat niemand etwas zu zahlen – alle Tipps sitzen! 🎉";
+    else if (payers === 1) sub = "1 Person muss zahlen";
+    else sub = payers + " Personen müssen zahlen";
+    box.innerHTML = '<div class="pot">' +
+      '<div class="pot-l">Kasse gesamt</div>' +
+      '<div class="pot-n">' + fmtMoney(total) + "</div>" +
+      '<div class="pot-s">' + escapeHtml(sub) + "</div>" +
+    "</div>";
   }
 
   // =====================================================================
