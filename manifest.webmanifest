@@ -1,7 +1,7 @@
 {
   "name": "Nessie-Hub",
   "short_name": "Nessie",
-  "description": "Das zentrale Portal für alle Anwendungen: Pflanzen Erkenner, WM Wetten, und Wohnungsplaner.",
+  "description": "Das zentrale Portal für alle Anwendungen: Arbeitszeiten, Pflanzen Erkenner, WM Wetten, und Wohnungsplaner.",
   "lang": "de",
   "dir": "ltr",
   "start_url": "./index.html",
