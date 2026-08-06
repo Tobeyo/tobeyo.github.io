@@ -106,6 +106,59 @@
 
     .container { max-width: 1000px; margin: 0 auto; padding: 24px 16px 0; }
 
+    /* ---------- Sync-Leiste ---------- */
+    .sync-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      font-size: 0.82rem;
+    }
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--text-muted);
+      font-weight: 600;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 6px 13px;
+      border-radius: 20px;
+    }
+    .status i { width: 8px; height: 8px; border-radius: 50%; background: var(--free); flex-shrink: 0; }
+    .status.live i { background: #3ddc97; box-shadow: 0 0 8px #3ddc97; }
+    .status.live { color: #3ddc97; }
+    .status.err i { background: var(--danger); }
+    .status.err { color: var(--danger); }
+
+    .name-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 6px 13px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .name-btn:hover { background: rgba(255,255,255,0.08); color: var(--text-main); }
+
+    .notice {
+      background: rgba(255, 84, 112, 0.12);
+      border: 1px solid rgba(255, 84, 112, 0.3);
+      color: #ff9db0;
+      border-radius: 14px;
+      padding: 11px 14px;
+      margin-bottom: 16px;
+      font-size: 0.88rem;
+      font-weight: 300;
+      line-height: 1.5;
+    }
+
     /* ---------- Monatskopf ---------- */
     .month-bar {
       display: flex;
@@ -402,6 +455,26 @@
     .btn.ghost { background: rgba(255,255,255,0.06); color: var(--text-main); border: 1px solid var(--card-border); }
     .btn.danger { background: rgba(255,84,112,0.15); color: var(--danger); border: 1px solid rgba(255,84,112,0.35); flex: 0 0 auto; padding: 12px 16px; }
 
+    .modal-meta {
+      margin-top: 14px;
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-weight: 300;
+    }
+    .modal-meta:empty { margin-top: 0; }
+    .modal-meta button {
+      background: none;
+      border: none;
+      color: var(--accent-2);
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0;
+      text-decoration: underline;
+    }
+
     footer { text-align: center; color: var(--text-muted); font-size: 0.85rem; opacity: 0.7; padding: 30px 20px 10px; }
 
     @media (max-width: 700px) {
@@ -426,7 +499,18 @@
     <button class="icon-btn" id="todayBtn" title="Zum heutigen Monat">Heute</button>
   </div>
 
+  <!-- Firebase (Realtime Database, wie bei WM Wetten) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
   <div class="container">
+
+    <div class="sync-bar">
+      <div class="status" id="statusPill"><i></i><span id="statusText">Verbinde …</span></div>
+      <button class="name-btn" id="nameBtn">👤 Name festlegen</button>
+    </div>
+
+    <div id="noticeArea"></div>
 
     <div class="month-bar">
       <button class="icon-btn" id="prevBtn" aria-label="Vorheriger Monat">‹</button>
@@ -458,12 +542,12 @@
     <div class="legend">
       <span><i class="dot klub" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--klub)"></i> Klub</span>
       <span><i class="dot seminar" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--seminar)"></i> Seminar</span>
-      <span><i class="dot custom" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#c792ea"></i> selbst eingetragen</span>
+      <span><i class="dot custom" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#c792ea"></i> von Hand geändert</span>
     </div>
 
     <div class="actions">
       <button id="icsBtn">📅 Monat exportieren (.ics)</button>
-      <button id="resetBtn">↩️ Eigene Änderungen zurücksetzen</button>
+      <button id="resetBtn">↩️ Alle Änderungen zurücksetzen</button>
     </div>
 
     <footer>Dienstplan Tobias Nesvadba · Pers. Nr. 2137 · 37,00 Std. NAZ</footer>
@@ -515,6 +599,8 @@
         <button class="btn danger" id="mDelete" title="Tag als frei markieren">Frei</button>
         <button class="btn primary" id="mSave">Speichern</button>
       </div>
+
+      <div class="modal-meta" id="mMeta"></div>
     </div>
   </div>
 
@@ -586,34 +672,207 @@
   // Monats-Soll aus dem Dienstplan ("fiktiv 5-Tage-Woche")
   var SOLL = { '2026-08': 155.5, '2026-09': 163 };
 
-  var STORAGE_KEY = 'nessie_arbeitszeiten_v1';
-  var MONTH_NAMES = ['Jänner','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  /* =========================================================
+     FIREBASE – dieselbe Verbindung wie bei "WM Wetten",
+     aber ein komplett eigener Datenbereich: die Tipps liegen
+     unter "bets/", dieser Kalender unter "arbeitszeiten/".
+     Die beiden Apps kommen sich also nicht in die Quere.
+
+     Wenn du später eine echte eigene Datenbank willst:
+     in der Firebase-Konsole eine zweite Realtime-Database-
+     Instanz anlegen und hier nur die databaseURL austauschen.
+     ========================================================= */
+  var FIREBASE_CONFIG = {
+    databaseURL: 'https://wm-tippspiel-d4f4f-default-rtdb.europe-west1.firebasedatabase.app',
+    projectId: 'wm-tippspiel-d4f4f'
+  };
+  var DB_ROOT = 'arbeitszeiten';
+
+  var STORAGE_KEY  = 'nessie_arbeitszeiten_v2';    // lokaler Spiegel / Offline-Cache
+  var NAME_KEY     = 'nessie_arbeitszeiten_name';
+  var SYNCED_KEY   = 'nessie_arbeitszeiten_synced';
+  var MONTH_NAMES =['Jänner','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
   var DAY_NAMES = ['So','Mo','Di','Mi','Do','Fr','Sa'];
   var DAY_LONG = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
 
-  /* ---------- Datenzugriff ---------- */
+  /* ---------- Kleine Helfer ---------- */
 
-  function loadOverrides() {
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function showNotice(msg) {
+    document.getElementById('noticeArea').innerHTML = '<div class="notice">' + escapeHtml(msg) + '</div>';
+  }
+
+  function setStatus(state, text) {
+    document.getElementById('statusPill').className = 'status' + (state ? ' ' + state : '');
+    document.getElementById('statusText').textContent = text;
+  }
+
+  /* ---------- Firebase starten ---------- */
+
+  var db = null, firebaseReady = false;
+  try {
+    if (typeof firebase !== 'undefined' && FIREBASE_CONFIG.databaseURL) {
+      firebase.initializeApp(FIREBASE_CONFIG);
+      db = firebase.database();
+      firebaseReady = true;
+    }
+  } catch (e) {
+    console.warn('Firebase konnte nicht gestartet werden:', e);
+  }
+
+  /* ---------- Datenzugriff ----------
+     overrides = alle Abweichungen vom gedruckten Dienstplan.
+     Sie liegen in Firebase (geteilt mit der Familie) und zusätzlich
+     als Offline-Kopie im Browser.
+       { von, bis, pause, tags, by, ts }   = geänderter/neuer Dienst
+       { frei: true, by, ts }              = Tag ist dienstfrei          */
+
+  function loadLocal() {
     try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
     catch (e) { return {}; }
   }
-  var overrides = loadOverrides();
-
-  function saveOverrides() {
+  function saveLocal() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(overrides)); } catch (e) {}
   }
 
+  // Einträge aus der ersten App-Version übernehmen (dort hieß "frei" noch null)
+  function migrateV1(cur) {
+    try {
+      var old = localStorage.getItem('nessie_arbeitszeiten_v1');
+      if (!old) return cur;
+      var o = JSON.parse(old) || {};
+      Object.keys(o).forEach(function (k) {
+        if (cur[k] === undefined) cur[k] = o[k] ? o[k] : { frei: true };
+      });
+      localStorage.removeItem('nessie_arbeitszeiten_v1');
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(cur));
+    } catch (e) {}
+    return cur;
+  }
+
+  var overrides = migrateV1(loadLocal());
+
+  // Was vor der ersten Verbindung nur lokal existierte, wird einmalig hochgeladen
+  var pendingLocal = null;
+  try {
+    if (firebaseReady && !localStorage.getItem(SYNCED_KEY) && Object.keys(overrides).length) {
+      pendingLocal = overrides;
+    }
+  } catch (e) {}
+
   // Liefert den Eintrag eines Tages oder null (= frei)
   function getEntry(key) {
-    if (Object.prototype.hasOwnProperty.call(overrides, key)) {
-      var o = overrides[key];
-      if (!o) return null;                       // bewusst auf "frei" gesetzt
-      return { von: o.von, bis: o.bis, pause: o.pause, tags: o.tags || [], custom: true };
+    var o = overrides[key];
+    if (o) {
+      if (o.frei) return null;
+      return {
+        von: o.von, bis: o.bis, pause: o.pause || 0, tags: o.tags || [],
+        custom: true, by: o.by || '', ts: o.ts || 0
+      };
     }
+    if (o === null) return null;      // Altbestand aus v1
     var p = PLAN[key];
     if (!p) return null;
     return { von: p.von, bis: p.bis, pause: p.pause, tags: p.tags, custom: false };
   }
+
+  /* ---------- Speicher-Schicht: Firebase, sonst nur lokal ---------- */
+
+  var Store = {
+    subscribe: function (cb) {
+      if (!firebaseReady) {
+        setStatus('', 'Nur auf diesem Gerät');
+        cb();
+        return;
+      }
+      setStatus('', 'Verbinde …');
+
+      db.ref('.info/connected').on('value', function (snap) {
+        if (snap.val() === true) setStatus('live', 'Live – für die Familie sichtbar');
+        else setStatus('', 'Offline – wird später abgeglichen');
+      });
+
+      db.ref(DB_ROOT + '/entries').on('value',
+        function (snap) {
+          overrides = snap.val() || {};
+          uploadPendingOnce();
+          saveLocal();
+          cb();
+        },
+        function (err) {
+          firebaseReady = false;
+          setStatus('err', 'Verbindung gestört');
+          showNotice('Die geteilte Datenbank ist gerade nicht erreichbar (' + err.message +
+                     '). Der Plan wird angezeigt, Änderungen bleiben vorerst auf diesem Gerät.');
+          overrides = loadLocal();
+          cb();
+        }
+      );
+    },
+
+    set: function (key, val) {
+      overrides[key] = val;
+      saveLocal();
+      if (!firebaseReady) return Promise.resolve();
+      return db.ref(DB_ROOT + '/entries/' + key).set(val)
+        .catch(function (err) { showNotice('Speichern fehlgeschlagen: ' + err.message); });
+    },
+
+    remove: function (key) {
+      delete overrides[key];
+      saveLocal();
+      if (!firebaseReady) return Promise.resolve();
+      return db.ref(DB_ROOT + '/entries/' + key).remove()
+        .catch(function (err) { showNotice('Zurücksetzen fehlgeschlagen: ' + err.message); });
+    },
+
+    clear: function () {
+      overrides = {};
+      saveLocal();
+      if (!firebaseReady) return Promise.resolve();
+      return db.ref(DB_ROOT + '/entries').remove()
+        .catch(function (err) { showNotice('Zurücksetzen fehlgeschlagen: ' + err.message); });
+    }
+  };
+
+  // Lokale Einträge, die es online noch nicht gibt, einmalig hochladen
+  function uploadPendingOnce() {
+    if (!pendingLocal) return;
+    var todo = pendingLocal;
+    pendingLocal = null;
+    Object.keys(todo).forEach(function (k) {
+      if (overrides[k] !== undefined) return;
+      var v = todo[k] ? todo[k] : { frei: true };
+      overrides[k] = v;
+      db.ref(DB_ROOT + '/entries/' + k).set(v);
+    });
+    try { localStorage.setItem(SYNCED_KEY, '1'); } catch (e) {}
+  }
+
+  /* ---------- Name (steht bei den eigenen Änderungen) ---------- */
+
+  var userName = '';
+  try { userName = localStorage.getItem(NAME_KEY) || ''; } catch (e) {}
+
+  function updateNameBtn() {
+    document.getElementById('nameBtn').textContent = userName ? '👤 ' + userName : '👤 Name festlegen';
+  }
+
+  function askName() {
+    var n = window.prompt('Wie heißt du? Der Name steht dann bei deinen Änderungen.', userName || '');
+    if (n === null) return;
+    userName = n.trim().slice(0, 24);
+    try { localStorage.setItem(NAME_KEY, userName); } catch (e) {}
+    updateNameBtn();
+  }
+
+  updateNameBtn();
+  document.getElementById('nameBtn').addEventListener('click', askName);
 
   function toMinutes(t) {
     var p = t.split(':');
@@ -820,7 +1079,7 @@
 
     document.getElementById('mTitle').textContent = DAY_LONG[date.getDay()] + ', ' + (+parts[2]) + '. ' + MONTH_NAMES[date.getMonth()];
     document.getElementById('mSub').textContent = e
-      ? (e.custom ? 'Selbst eingetragen' : 'Laut Dienstplan')
+      ? (e.custom ? 'Von Hand eingetragen' : 'Laut Dienstplan')
       : 'Dienstfrei – trage hier einen Dienst ein';
 
     fVon.value = e ? e.von : '07:30';
@@ -832,8 +1091,25 @@
       b.classList.toggle('on', editTags.indexOf(b.getAttribute('data-tag')) > -1);
     });
 
+    renderMeta(key, e);
     updatePreview();
     overlay.classList.add('open');
+  }
+
+  // Zeigt, wer den Tag zuletzt geändert hat – plus Knopf zum Zurücksetzen
+  function renderMeta(key, e) {
+    var box = document.getElementById('mMeta');
+    if (!e || !e.custom) { box.innerHTML = ''; return; }
+
+    var txt = 'Geändert';
+    if (e.by) txt += ' von ' + e.by;
+    if (e.ts) {
+      txt += ' am ' + new Date(e.ts).toLocaleString('de-AT', {
+        day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
+      });
+    }
+    box.innerHTML = escapeHtml(txt) + '<br><button type="button" id="mRevert">Änderung zurücknehmen</button>';
+    document.getElementById('mRevert').addEventListener('click', function () { revertDay(key); });
   }
 
   function closeModal() {
@@ -862,24 +1138,35 @@
   document.getElementById('mSave').addEventListener('click', function () {
     if (!editKey) return;
     if (!fVon.value || !fBis.value) { alert('Bitte Von- und Bis-Zeit angeben.'); return; }
-    overrides[editKey] = {
+    if (!userName && firebaseReady) askName();   // einmalig, damit die Familie sieht wer geändert hat
+    var key = editKey;
+    closeModal();
+    Store.set(key, {
       von: fVon.value,
       bis: fBis.value,
       pause: parseFloat(fPause.value) || 0,
-      tags: editTags.slice()
-    };
-    saveOverrides();
-    closeModal();
+      tags: editTags.slice(),
+      by: userName || 'unbekannt',
+      ts: Date.now()
+    }).then(render);
     render();
   });
 
   document.getElementById('mDelete').addEventListener('click', function () {
     if (!editKey) return;
-    overrides[editKey] = null;   // explizit dienstfrei
-    saveOverrides();
+    if (!userName && firebaseReady) askName();
+    var key = editKey;
     closeModal();
+    Store.set(key, { frei: true, by: userName || 'unbekannt', ts: Date.now() }).then(render);
     render();
   });
+
+  // Einzelnen Tag auf den gedruckten Dienstplan zurücksetzen
+  function revertDay(key) {
+    closeModal();
+    Store.remove(key).then(render);
+    render();
+  }
 
   document.getElementById('mCancel').addEventListener('click', closeModal);
   overlay.addEventListener('click', function (ev) { if (ev.target === overlay) closeModal(); });
@@ -915,9 +1202,11 @@
   });
 
   document.getElementById('resetBtn').addEventListener('click', function () {
-    if (!confirm('Alle eigenen Änderungen verwerfen und den Original-Dienstplan wiederherstellen?')) return;
-    overrides = {};
-    saveOverrides();
+    var warn = firebaseReady
+      ? 'Alle Änderungen verwerfen und den Original-Dienstplan wiederherstellen?\n\nAchtung: Das gilt für alle in der Familie, nicht nur für dieses Gerät.'
+      : 'Alle Änderungen verwerfen und den Original-Dienstplan wiederherstellen?';
+    if (!confirm(warn)) return;
+    Store.clear().then(render);
     render();
   });
 
@@ -958,7 +1247,8 @@
     URL.revokeObjectURL(url);
   });
 
-  render();
+  render();              // sofort mit lokalem Stand anzeigen
+  Store.subscribe(render); // danach live auf die geteilten Daten hören
 })();
 </script>
 </body>
