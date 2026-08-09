@@ -4,10 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Arbeitszeiten</title>
-  <meta name="description" content="Dienstplan-Kalender mit allen Arbeitszeiten.">
+  <meta name="description" content="Dienstplan-Kalender mit allen Arbeitszeiten von Tobias und Daniel.">
 
-  <meta name="theme-color" content="#1a1b26">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#0f1015">
   <link rel="icon" type="image/png" href="logo.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -23,12 +25,29 @@
       --card-border: rgba(255, 255, 255, 0.09);
       --accent-1: #6c8cff;
       --accent-2: #00d2ff;
-      --klub: #00d2ff;
-      --seminar: #ffb454;
       --free: #6a6f85;
       --danger: #ff5470;
+      --ok: #3ddc97;
       --text-main: #ffffff;
       --text-muted: #a0a4b8;
+
+      /* Vermerke / Bereiche aus dem Personaleinsatzplan */
+      --t-klub: #00d2ff;
+      --t-seminar: #ffb454;
+      --t-hw: #3ddc97;
+      --t-n1: #6c8cff;
+      --t-n2: #c792ea;
+      --t-tx: #ff9f6e;
+      --t-custom: #ff79c6;
+      --t-other: #a0a4b8;
+
+      /* Abwesenheits-Arten */
+      --a-feiertag: #ffd166;
+      --a-urlaub: #4ecdc4;
+      --a-zeitausgleich: #9aa0b5;
+      --a-fortbildung: #ffb454;
+      --a-krank: #ff5470;
+      --a-sonderurlaub: #7fd1ff;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -87,6 +106,7 @@
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
+      white-space: nowrap;
     }
 
     .icon-btn {
@@ -103,8 +123,44 @@
     }
     .icon-btn:hover { background: rgba(255,255,255,0.1); }
     .icon-btn:active { transform: scale(0.94); }
+    :focus-visible { outline: 2px solid var(--accent-2); outline-offset: 2px; }
 
     .container { max-width: 1000px; margin: 0 auto; padding: 24px 16px 0; }
+
+    /* ---------- Personen-Tabs ---------- */
+    .person-tabs {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 6px;
+      margin-bottom: 16px;
+    }
+    .person-tab {
+      background: transparent;
+      border: none;
+      border-radius: 15px;
+      padding: 10px 12px;
+      font-family: inherit;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+      line-height: 1.2;
+    }
+    .person-tab .pt-name { font-size: 1rem; font-weight: 700; }
+    .person-tab .pt-sub { font-size: 0.72rem; font-weight: 300; opacity: 0.85; }
+    .person-tab:hover { background: rgba(255,255,255,0.06); color: var(--text-main); }
+    .person-tab.active {
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      color: #0f1015;
+    }
+    .person-tab.active .pt-sub { opacity: 0.75; }
 
     /* ---------- Sync-Leiste ---------- */
     .sync-bar {
@@ -128,8 +184,8 @@
       border-radius: 20px;
     }
     .status i { width: 8px; height: 8px; border-radius: 50%; background: var(--free); flex-shrink: 0; }
-    .status.live i { background: #3ddc97; box-shadow: 0 0 8px #3ddc97; }
-    .status.live { color: #3ddc97; }
+    .status.live i { background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+    .status.live { color: var(--ok); }
     .status.err i { background: var(--danger); }
     .status.err { color: var(--danger); }
 
@@ -186,12 +242,20 @@
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
     }
-    .stat .val { font-size: 1.5rem; font-weight: 800; line-height: 1.1; }
+    .stat .val { font-size: 1.5rem; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
     .stat .lbl { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; font-weight: 300; }
-    .stat .val.pos { color: #3ddc97; }
+    .stat .val.pos { color: var(--ok); }
     .stat .val.neg { color: var(--danger); }
 
-    /* ---------- Ansicht-Umschalter ---------- */
+    /* ---------- Umschalter ---------- */
+    .switch-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
     .view-switch {
       display: flex;
       gap: 6px;
@@ -199,7 +263,6 @@
       border: 1px solid var(--card-border);
       border-radius: 16px;
       padding: 5px;
-      margin-bottom: 18px;
       width: fit-content;
     }
     .view-switch button {
@@ -218,6 +281,7 @@
       background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
       color: #0f1015;
     }
+    .view-switch.small button { font-size: 0.82rem; padding: 7px 13px; }
 
     /* ---------- Kalender ---------- */
     .weekdays {
@@ -242,7 +306,7 @@
 
     .day {
       position: relative;
-      min-height: 88px;
+      min-height: 92px;
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 16px;
@@ -254,20 +318,26 @@
       cursor: pointer;
       transition: transform 0.15s, border-color 0.2s, background 0.2s;
       overflow: hidden;
+      font: inherit;
+      color: inherit;
+      text-align: center;
+      width: 100%;
     }
     .day:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.25); }
-    .day.empty { background: transparent; border-color: transparent; cursor: default; }
-    .day.empty:hover { transform: none; }
+    .day.empty { background: transparent; border-color: transparent; cursor: default; pointer-events: none; }
     .day.weekend { background: rgba(255,255,255,0.015); }
     .day.today { border-color: var(--accent-2); box-shadow: 0 0 0 1px var(--accent-2), 0 0 18px rgba(0,210,255,0.2); }
     .day.work { background: linear-gradient(160deg, rgba(108,140,255,0.16), rgba(0,210,255,0.05)); }
+    .day.special { background: linear-gradient(160deg, rgba(255,255,255,0.11), rgba(255,255,255,0.03)); }
 
     .day .dnum { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
-    .day.work .dnum { color: var(--text-main); }
-    .day .time { font-size: 0.72rem; font-weight: 600; line-height: 1.25; text-align: center; }
+    .day.work .dnum, .day.special .dnum { color: var(--text-main); }
+    .day .time { font-size: 0.72rem; font-weight: 600; line-height: 1.25; }
+    .day .art { font-size: 0.68rem; font-weight: 600; line-height: 1.2; margin-top: 2px; }
     .day .hrs {
       font-size: 0.95rem;
       font-weight: 800;
+      font-variant-numeric: tabular-nums;
       background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
       -webkit-background-clip: text;
       background-clip: text;
@@ -276,10 +346,14 @@
     .day .free-lbl { font-size: 0.7rem; color: var(--free); font-weight: 300; margin-top: auto; margin-bottom: 6px; }
 
     .dots { display: flex; gap: 4px; margin-top: 3px; }
-    .dot { width: 6px; height: 6px; border-radius: 50%; }
-    .dot.klub { background: var(--klub); }
-    .dot.seminar { background: var(--seminar); }
-    .dot.custom { background: #c792ea; }
+    .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; background: var(--t-other); }
+    .dot.klub { background: var(--t-klub); }
+    .dot.seminar { background: var(--t-seminar); }
+    .dot.hw { background: var(--t-hw); }
+    .dot.n1 { background: var(--t-n1); }
+    .dot.n2 { background: var(--t-n2); }
+    .dot.tx { background: var(--t-tx); }
+    .dot.custom { background: var(--t-custom); }
 
     /* ---------- Listenansicht ---------- */
     .week-block {
@@ -293,13 +367,14 @@
       display: flex;
       justify-content: space-between;
       align-items: baseline;
+      gap: 10px;
       padding: 10px 0 8px;
       border-bottom: 1px solid var(--card-border);
       margin-bottom: 4px;
     }
     .week-head .wk { font-weight: 600; font-size: 0.95rem; }
     .week-head .wk small { color: var(--text-muted); font-weight: 300; margin-left: 6px; }
-    .week-head .sum { font-weight: 800; color: var(--accent-2); font-variant-numeric: tabular-nums; }
+    .week-head .sum { font-weight: 800; color: var(--accent-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
 
     .row {
       display: flex;
@@ -308,6 +383,14 @@
       padding: 10px 0;
       border-bottom: 1px solid rgba(255,255,255,0.05);
       cursor: pointer;
+      width: 100%;
+      background: none;
+      border-left: none;
+      border-right: none;
+      border-top: none;
+      font: inherit;
+      color: inherit;
+      text-align: left;
     }
     .row:last-child { border-bottom: none; }
     .row:hover { background: rgba(255,255,255,0.03); }
@@ -315,7 +398,7 @@
     .row .rdate small { display: block; color: var(--text-muted); font-weight: 300; font-size: 0.75rem; }
     .row .rtime { flex-grow: 1; font-size: 0.95rem; font-variant-numeric: tabular-nums; }
     .row .rtime .muted { color: var(--free); font-weight: 300; }
-    .row .rhrs { font-weight: 800; font-variant-numeric: tabular-nums; }
+    .row .rhrs { font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
 
     .chip {
       display: inline-block;
@@ -325,10 +408,17 @@
       border-radius: 8px;
       margin-left: 6px;
       vertical-align: middle;
+      color: var(--t-other);
+      border: 1px solid currentColor;
+      background: rgba(255,255,255,0.05);
     }
-    .chip.klub { background: rgba(0,210,255,0.15); color: var(--klub); border: 1px solid rgba(0,210,255,0.3); }
-    .chip.seminar { background: rgba(255,180,84,0.15); color: var(--seminar); border: 1px solid rgba(255,180,84,0.3); }
-    .chip.custom { background: rgba(199,146,234,0.15); color: #c792ea; border: 1px solid rgba(199,146,234,0.3); }
+    .chip.klub { color: var(--t-klub); }
+    .chip.seminar { color: var(--t-seminar); }
+    .chip.hw { color: var(--t-hw); }
+    .chip.n1 { color: var(--t-n1); }
+    .chip.n2 { color: var(--t-n2); }
+    .chip.tx { color: var(--t-tx); }
+    .chip.custom { color: var(--t-custom); }
 
     .empty-hint {
       text-align: center;
@@ -350,6 +440,7 @@
       font-weight: 300;
     }
     .legend span { display: flex; align-items: center; gap: 6px; }
+    .legend .dot { width: 9px; height: 9px; }
 
     .actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 14px; }
     .actions button {
@@ -393,6 +484,10 @@
       animation: pop 0.25s ease-out;
     }
     @keyframes pop { from { opacity: 0; transform: translateY(18px) scale(0.97); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) {
+      * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+      .day:hover { transform: none; }
+    }
 
     .modal h3 { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.4px; }
     .modal .sub { color: var(--text-muted); font-weight: 300; margin-bottom: 18px; font-size: 0.92rem; }
@@ -435,7 +530,7 @@
       text-align: center;
       margin-bottom: 16px;
     }
-    .calc-preview .big { font-size: 1.6rem; font-weight: 800; }
+    .calc-preview .big { font-size: 1.6rem; font-weight: 800; font-variant-numeric: tabular-nums; }
     .calc-preview .small { font-size: 0.78rem; color: var(--text-muted); font-weight: 300; }
 
     .modal-actions { display: flex; gap: 10px; margin-top: 6px; }
@@ -475,19 +570,21 @@
       text-decoration: underline;
     }
 
-    footer { text-align: center; color: var(--text-muted); font-size: 0.85rem; opacity: 0.7; padding: 30px 20px 10px; }
+    footer { text-align: center; color: var(--text-muted); font-size: 0.85rem; opacity: 0.75; padding: 30px 20px 10px; line-height: 1.5; }
 
     @media (max-width: 700px) {
       .container { padding: 18px 12px 0; }
       .month-name { font-size: 1.45rem; }
       .stats { grid-template-columns: repeat(2, 1fr); }
       .grid, .weekdays { gap: 5px; }
-      .day { min-height: 70px; padding: 6px 2px 4px; border-radius: 12px; }
+      .day { min-height: 74px; padding: 6px 2px 4px; border-radius: 12px; }
       .day .time { font-size: 0.6rem; }
+      .day .art { font-size: 0.58rem; }
       .day .hrs { font-size: 0.85rem; }
       .day .dnum { font-size: 0.78rem; }
       .row .rdate { width: 62px; font-size: 0.85rem; }
       .row .rtime { font-size: 0.88rem; }
+      .switch-row { gap: 8px; }
     }
   </style>
 </head>
@@ -499,11 +596,13 @@
     <button class="icon-btn" id="todayBtn" title="Zum heutigen Monat">Heute</button>
   </div>
 
-  <!-- Firebase (Realtime Database, wie bei WM Wetten) -->
+  <!-- Firebase (Realtime Database, dieselbe Datenbank wie bei WM Wetten) -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
   <div class="container">
+
+    <div class="person-tabs" id="personTabs" role="tablist" aria-label="Person auswählen"></div>
 
     <div class="sync-bar">
       <div class="status" id="statusPill"><i></i><span id="statusText">Verbinde …</span></div>
@@ -521,13 +620,19 @@
     <div class="stats">
       <div class="stat"><div class="val" id="stHours">0</div><div class="lbl">Stunden gesamt</div></div>
       <div class="stat"><div class="val" id="stDays">0</div><div class="lbl">Arbeitstage</div></div>
-      <div class="stat"><div class="val" id="stAvg">0</div><div class="lbl">Ø pro Tag</div></div>
+      <div class="stat"><div class="val" id="stAvg">0</div><div class="lbl">Ø pro Dienst</div></div>
       <div class="stat"><div class="val" id="stDiff">–</div><div class="lbl" id="stDiffLbl">Diff. zum Soll</div></div>
     </div>
 
-    <div class="view-switch">
-      <button id="viewCal" class="active">Kalender</button>
-      <button id="viewList">Liste</button>
+    <div class="switch-row">
+      <div class="view-switch">
+        <button id="viewCal" class="active" type="button">Kalender</button>
+        <button id="viewList" type="button">Liste</button>
+      </div>
+      <div class="view-switch small" title="Anzeige der Stunden">
+        <button id="fmtDec" class="active" type="button">7,5 h</button>
+        <button id="fmtHm" type="button">7:30</button>
+      </div>
     </div>
 
     <div id="calendarView">
@@ -539,65 +644,81 @@
 
     <div id="listView" style="display:none"></div>
 
-    <div class="legend">
-      <span><i class="dot klub" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--klub)"></i> Klub</span>
-      <span><i class="dot seminar" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--seminar)"></i> Seminar</span>
-      <span><i class="dot custom" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#c792ea"></i> von Hand geändert</span>
-    </div>
+    <div class="legend" id="legend"></div>
 
     <div class="actions">
-      <button id="icsBtn">📅 Monat exportieren (.ics)</button>
-      <button id="resetBtn">↩️ Alle Änderungen zurücksetzen</button>
+      <button id="icsBtn" type="button">📅 Monat exportieren (.ics)</button>
+      <button id="resetBtn" type="button">↩️ Alle Änderungen zurücksetzen</button>
     </div>
 
-    <footer>Dienstplan Tobias Nesvadba · Pers. Nr. 2137 · 37,00 Std. NAZ</footer>
+    <footer id="footerInfo"></footer>
   </div>
 
   <!-- Detail / Bearbeiten -->
   <div class="overlay" id="overlay">
-    <div class="modal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
       <h3 id="mTitle">Tag</h3>
       <div class="sub" id="mSub"></div>
 
       <div class="calc-preview">
-        <div class="big" id="mCalc">0,00 h</div>
+        <div class="big" id="mCalc">0 h</div>
         <div class="small" id="mCalcSub">Arbeitszeit abzüglich Pause</div>
       </div>
 
-      <div class="field-row">
-        <div class="field">
-          <label for="fVon">Von</label>
-          <input type="time" id="fVon" step="300">
-        </div>
-        <div class="field">
-          <label for="fBis">Bis</label>
-          <input type="time" id="fBis" step="300">
-        </div>
-      </div>
-
       <div class="field">
-        <label for="fPause">Unbezahlte Pause</label>
-        <select id="fPause">
-          <option value="0">keine Pause</option>
-          <option value="0.25">15 Minuten</option>
-          <option value="0.5">30 Minuten</option>
-          <option value="0.75">45 Minuten</option>
-          <option value="1">1 Stunde</option>
+        <label for="fArt">Art des Tages</label>
+        <select id="fArt">
+          <option value="dienst">Dienst</option>
+          <option value="feiertag">Feiertag</option>
+          <option value="urlaub">Urlaub</option>
+          <option value="zeitausgleich">Zeitausgleich</option>
+          <option value="fortbildung">Fortbildung</option>
+          <option value="sonderurlaub">Sonderurlaub</option>
+          <option value="krank">Krank</option>
         </select>
       </div>
 
-      <div class="field">
-        <label>Vermerk</label>
-        <div class="tag-picker">
-          <button data-tag="Klub">Klub</button>
-          <button data-tag="Seminar">Seminar</button>
+      <div id="dienstFields">
+        <div class="field-row">
+          <div class="field">
+            <label for="fVon">Von</label>
+            <input type="time" id="fVon" step="300">
+          </div>
+          <div class="field">
+            <label for="fBis">Bis</label>
+            <input type="time" id="fBis" step="300">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="fPause">Unbezahlte Pause</label>
+          <select id="fPause">
+            <option value="0">keine Pause</option>
+            <option value="0.25">15 Minuten</option>
+            <option value="0.5">30 Minuten</option>
+            <option value="0.75">45 Minuten</option>
+            <option value="1">1 Stunde</option>
+            <option value="1.5">1,5 Stunden</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Vermerk / Bereich</label>
+          <div class="tag-picker" id="tagPicker"></div>
+        </div>
+      </div>
+
+      <div id="artFields" style="display:none">
+        <div class="field">
+          <label for="fStd">Angerechnete Stunden</label>
+          <input type="number" id="fStd" min="0" max="24" step="0.05" value="0">
         </div>
       </div>
 
       <div class="modal-actions">
-        <button class="btn ghost" id="mCancel">Schließen</button>
-        <button class="btn danger" id="mDelete" title="Tag als frei markieren">Frei</button>
-        <button class="btn primary" id="mSave">Speichern</button>
+        <button class="btn ghost" id="mCancel" type="button">Schließen</button>
+        <button class="btn danger" id="mDelete" type="button" title="Tag als frei markieren">Frei</button>
+        <button class="btn primary" id="mSave" type="button">Speichern</button>
       </div>
 
       <div class="modal-meta" id="mMeta"></div>
@@ -609,91 +730,171 @@
   'use strict';
 
   /* =========================================================
-     Dienstplan Tobias Nesvadba (aus PZL_PLANUNG_ZDL 2026)
-     Zeiten laut "Plan-Zeit von bis" + "unbezahlte Pause".
-     Wochensummen geprüft: August 148,00 h / September 163,00 h
+     DIENSTPLÄNE
+     ---------------------------------------------------------
+     Ein Eintrag ist entweder ein Dienst …
+        { von:'07:00', bis:'15:00', pause:1, tags:['HW'] }
+     … oder ein angerechneter Tag ohne Dienstzeit:
+        { art:'feiertag', h:4.7833 }
+     Fehlt ein Tag ganz, ist er dienstfrei.
+
+     "pause" = unbezahlte Pause in Stunden. Bei geteilten Diensten
+     (z. B. HW 07:00-12:00 / Pause / HW 13:00-15:00) wird die erste
+     Zeit als "von", die letzte als "bis" und die Lücke als Pause
+     eingetragen – das ergibt exakt die Tagesstunden des Aushangs.
      ========================================================= */
-  var PLAN = {
-    // ---- August 2026 (Soll fiktiv 155,5 h) ----
-    '2026-08-03': { von: '08:30', bis: '16:30', pause: 0.5, tags: ['Seminar'] },
-    '2026-08-04': { von: '07:30', bis: '13:00', pause: 0,   tags: [] },
-    '2026-08-05': { von: '07:30', bis: '16:00', pause: 0.5, tags: [] },
-    '2026-08-06': { von: '08:00', bis: '16:30', pause: 0.5, tags: ['Seminar'] },
-    '2026-08-07': { von: '08:00', bis: '16:30', pause: 0.5, tags: ['Seminar'] },
 
-    '2026-08-10': { von: '07:30', bis: '13:00', pause: 0,   tags: [] },
-    '2026-08-11': { von: '08:30', bis: '17:00', pause: 0.5, tags: ['Klub'] },
-    '2026-08-12': { von: '07:30', bis: '18:00', pause: 0.5, tags: ['Klub'] },
-    '2026-08-13': { von: '07:30', bis: '13:00', pause: 0,   tags: [] },
-    '2026-08-14': { von: '09:00', bis: '17:00', pause: 0,   tags: ['Klub'] },
+  var PEOPLE = [
+    {
+      id: 'tobias',
+      label: 'Tobias',
+      lastName: 'Nesvadba',
+      fullName: 'Tobias Nesvadba',
+      meta: 'Pers.-Nr. 2137 · 37,00 Std. NAZ',
+      tags: ['Klub', 'Seminar'],
+      defaults: { von: '07:30', bis: '16:00', pause: 0.5 },
+      // Monats-Soll aus dem Dienstplan ("fiktiv 5-Tage-Woche")
+      soll: { '2026-08': 155.5, '2026-09': 163 },
+      plan: {
+        // ---- August 2026 ----
+        '2026-08-03': { von: '08:30', bis: '16:30', pause: 0.5, tags: ['Seminar'] },
+        '2026-08-04': { von: '07:30', bis: '13:00', pause: 0,   tags: [] },
+        '2026-08-05': { von: '07:30', bis: '16:00', pause: 0.5, tags: [] },
+        '2026-08-06': { von: '08:00', bis: '16:30', pause: 0.5, tags: ['Seminar'] },
+        '2026-08-07': { von: '08:00', bis: '16:30', pause: 0.5, tags: ['Seminar'] },
 
-    '2026-08-17': { von: '07:30', bis: '15:00', pause: 0.5, tags: [] },
-    '2026-08-18': { von: '07:30', bis: '15:00', pause: 0.5, tags: [] },
-    '2026-08-19': { von: '07:30', bis: '18:00', pause: 0.5, tags: ['Klub'] },
-    '2026-08-20': { von: '07:30', bis: '14:30', pause: 0.5, tags: [] },
-    '2026-08-21': { von: '07:30', bis: '14:00', pause: 0,   tags: [] },
+        '2026-08-10': { von: '07:30', bis: '13:00', pause: 0,   tags: [] },
+        '2026-08-11': { von: '08:30', bis: '17:00', pause: 0.5, tags: ['Klub'] },
+        '2026-08-12': { von: '07:30', bis: '18:00', pause: 0.5, tags: ['Klub'] },
+        '2026-08-13': { von: '07:30', bis: '13:00', pause: 0,   tags: [] },
+        '2026-08-14': { von: '09:00', bis: '17:00', pause: 0,   tags: ['Klub'] },
 
-    '2026-08-24': { von: '07:30', bis: '13:00', pause: 0,   tags: [] },
-    '2026-08-25': { von: '08:30', bis: '17:00', pause: 0.5, tags: ['Klub'] },
-    '2026-08-26': { von: '07:30', bis: '18:00', pause: 0.5, tags: ['Klub'] },
-    '2026-08-27': { von: '07:30', bis: '13:00', pause: 0,   tags: [] },
-    '2026-08-28': { von: '09:00', bis: '17:00', pause: 0,   tags: ['Klub'] },
-    // 31.08. laut Plan dienstfrei
+        '2026-08-17': { von: '07:30', bis: '15:00', pause: 0.5, tags: [] },
+        '2026-08-18': { von: '07:30', bis: '15:00', pause: 0.5, tags: [] },
+        '2026-08-19': { von: '07:30', bis: '18:00', pause: 0.5, tags: ['Klub'] },
+        '2026-08-20': { von: '07:30', bis: '14:30', pause: 0.5, tags: [] },
+        '2026-08-21': { von: '07:30', bis: '14:00', pause: 0,   tags: [] },
 
-    // ---- September 2026 (Soll fiktiv 163 h) ----
-    '2026-09-01': { von: '07:30', bis: '16:00', pause: 0.5, tags: [] },
-    '2026-09-02': { von: '07:30', bis: '16:00', pause: 0.5, tags: [] },
-    '2026-09-03': { von: '07:30', bis: '14:00', pause: 0.5, tags: [] },
-    '2026-09-04': { von: '07:30', bis: '14:30', pause: 0,   tags: [] },
+        '2026-08-24': { von: '07:30', bis: '13:00', pause: 0,   tags: [] },
+        '2026-08-25': { von: '08:30', bis: '17:00', pause: 0.5, tags: ['Klub'] },
+        '2026-08-26': { von: '07:30', bis: '18:00', pause: 0.5, tags: ['Klub'] },
+        '2026-08-27': { von: '07:30', bis: '13:00', pause: 0,   tags: [] },
+        '2026-08-28': { von: '09:00', bis: '17:00', pause: 0,   tags: ['Klub'] },
+        // 31.08. laut Plan dienstfrei
 
-    '2026-09-07': { von: '07:30', bis: '13:00', pause: 0,   tags: [] },
-    '2026-09-08': { von: '08:30', bis: '17:00', pause: 0.5, tags: [] },
-    '2026-09-09': { von: '07:30', bis: '18:00', pause: 0.5, tags: ['Klub'] },
-    '2026-09-10': { von: '07:30', bis: '13:00', pause: 0,   tags: [] },
-    '2026-09-11': { von: '09:00', bis: '17:00', pause: 0,   tags: [] },
+        // ---- September 2026 ----
+        '2026-09-01': { von: '07:30', bis: '16:00', pause: 0.5, tags: [] },
+        '2026-09-02': { von: '07:30', bis: '16:00', pause: 0.5, tags: [] },
+        '2026-09-03': { von: '07:30', bis: '14:00', pause: 0.5, tags: [] },
+        '2026-09-04': { von: '07:30', bis: '14:30', pause: 0,   tags: [] },
 
-    '2026-09-14': { von: '07:30', bis: '15:00', pause: 0.5, tags: [] },
-    '2026-09-15': { von: '07:30', bis: '15:00', pause: 0.5, tags: [] },
-    '2026-09-16': { von: '07:30', bis: '16:00', pause: 0.5, tags: [] },
-    '2026-09-17': { von: '07:30', bis: '16:00', pause: 0.5, tags: [] },
-    '2026-09-18': { von: '07:30', bis: '14:30', pause: 0,   tags: [] },
+        '2026-09-07': { von: '07:30', bis: '13:00', pause: 0,   tags: [] },
+        '2026-09-08': { von: '08:30', bis: '17:00', pause: 0.5, tags: [] },
+        '2026-09-09': { von: '07:30', bis: '18:00', pause: 0.5, tags: ['Klub'] },
+        '2026-09-10': { von: '07:30', bis: '13:00', pause: 0,   tags: [] },
+        '2026-09-11': { von: '09:00', bis: '17:00', pause: 0,   tags: [] },
 
-    '2026-09-21': { von: '07:30', bis: '15:00', pause: 0.5, tags: [] },
-    '2026-09-22': { von: '07:30', bis: '14:00', pause: 0.5, tags: [] },
-    '2026-09-23': { von: '07:30', bis: '15:00', pause: 0.5, tags: [] },
-    '2026-09-24': { von: '08:30', bis: '18:00', pause: 0.5, tags: ['Klub'] },
-    '2026-09-25': { von: '09:00', bis: '17:00', pause: 0,   tags: ['Klub'] },
+        '2026-09-14': { von: '07:30', bis: '15:00', pause: 0.5, tags: [] },
+        '2026-09-15': { von: '07:30', bis: '15:00', pause: 0.5, tags: [] },
+        '2026-09-16': { von: '07:30', bis: '16:00', pause: 0.5, tags: [] },
+        '2026-09-17': { von: '07:30', bis: '16:00', pause: 0.5, tags: [] },
+        '2026-09-18': { von: '07:30', bis: '14:30', pause: 0,   tags: [] },
 
-    '2026-09-28': { von: '07:30', bis: '13:00', pause: 0,   tags: [] },
-    '2026-09-29': { von: '07:30', bis: '17:00', pause: 0.5, tags: [] },
-    '2026-09-30': { von: '09:00', bis: '18:00', pause: 0.5, tags: ['Klub'] }
-  };
+        '2026-09-21': { von: '07:30', bis: '15:00', pause: 0.5, tags: [] },
+        '2026-09-22': { von: '07:30', bis: '14:00', pause: 0.5, tags: [] },
+        '2026-09-23': { von: '07:30', bis: '15:00', pause: 0.5, tags: [] },
+        '2026-09-24': { von: '08:30', bis: '18:00', pause: 0.5, tags: ['Klub'] },
+        '2026-09-25': { von: '09:00', bis: '17:00', pause: 0,   tags: ['Klub'] },
 
-  // Monats-Soll aus dem Dienstplan ("fiktiv 5-Tage-Woche")
-  var SOLL = { '2026-08': 155.5, '2026-09': 163 };
+        '2026-09-28': { von: '07:30', bis: '13:00', pause: 0,   tags: [] },
+        '2026-09-29': { von: '07:30', bis: '17:00', pause: 0.5, tags: [] },
+        '2026-09-30': { von: '09:00', bis: '18:00', pause: 0.5, tags: ['Klub'] }
+      }
+    },
+
+    {
+      id: 'daniel',
+      label: 'Daniel',
+      lastName: 'Nesvadba',
+      fullName: 'Daniel Nesvadba',
+      meta: 'Pers.-Nr. 00295460 · Abteilung Spielware · IM75 Non Food',
+      tags: ['HW', 'N1', 'N2', 'TX'],
+      defaults: { von: '08:30', bis: '15:00', pause: 0.5 },
+      // Der Aushang weist für Daniel nur die Planzeit je Woche aus,
+      // kein Monats-Soll – deshalb bleibt "soll" leer und die vierte
+      // Kachel zeigt stattdessen den Schnitt voller Wochen.
+      soll: {},
+      plan: {
+        /* ---- KW 33 · 10.08. – 16.08.2026 (Planzeit 35:47) ---- */
+        // Mo 10.08. frei
+        '2026-08-11': { von: '07:00', bis: '15:00', pause: 1,   tags: ['HW'] },   // 7:00
+        '2026-08-12': { von: '07:00', bis: '15:00', pause: 1,   tags: ['HW'] },   // 7:00
+        '2026-08-13': { von: '11:00', bis: '20:00', pause: 1,   tags: ['HW'] },   // 8:00
+        '2026-08-14': { von: '08:30', bis: '18:30', pause: 1,   tags: ['HW'] },   // 9:00
+        '2026-08-15': { art: 'feiertag', h: 4 + 47 / 60 },                        // 4:47
+        // So 16.08. frei
+
+        /* ---- KW 34 · 17.08. – 23.08.2026 (Planzeit 36:00) ---- */
+        '2026-08-17': { von: '08:30', bis: '15:00', pause: 0.5, tags: ['N1'] },   // 6:00
+        '2026-08-18': { von: '08:30', bis: '15:00', pause: 0.5, tags: ['N1'] },   // 6:00
+        '2026-08-19': { von: '08:30', bis: '15:00', pause: 0.5, tags: ['N1'] },   // 6:00
+        '2026-08-20': { von: '10:00', bis: '20:00', pause: 1,   tags: ['HW'] },   // 9:00
+        '2026-08-21': { von: '08:30', bis: '18:30', pause: 1,   tags: ['HW'] },   // 9:00
+        // Sa 22.08. + So 23.08. frei
+
+        /* ---- KW 35 · 24.08. – 30.08.2026 (Planzeit 35:00) ---- */
+        '2026-08-24': { von: '07:00', bis: '14:00', pause: 0.5, tags: ['HW'] },   // 6:30
+        '2026-08-25': { von: '07:00', bis: '15:00', pause: 0.5, tags: ['HW'] },   // 7:30
+        // Mi 26.08. frei
+        '2026-08-27': { von: '11:00', bis: '20:00', pause: 1,   tags: ['HW'] },   // 8:00
+        '2026-08-28': { von: '08:30', bis: '15:00', pause: 0.5, tags: ['HW'] },   // 6:00
+        '2026-08-29': { von: '09:00', bis: '17:00', pause: 1,   tags: ['HW'] },   // 7:00
+        // So 30.08. frei
+
+        /* ---- KW 36 · 31.08. – 06.09.2026 (Planzeit 35:00) ---- */
+        '2026-08-31': { von: '07:00', bis: '15:00', pause: 1,   tags: ['HW'] },   // 7:00
+        '2026-09-01': { von: '07:00', bis: '15:00', pause: 1,   tags: ['HW'] },   // 7:00
+        '2026-09-02': { von: '08:30', bis: '18:30', pause: 1,   tags: ['HW'] },   // 9:00
+        '2026-09-03': { von: '08:30', bis: '15:00', pause: 0.5, tags: ['N1'] },   // 6:00
+        '2026-09-04': { von: '08:30', bis: '15:00', pause: 0.5, tags: ['N1'] }    // 6:00
+        // Sa 05.09. + So 06.09. frei
+      }
+    }
+  ];
 
   /* =========================================================
-     FIREBASE – dieselbe Verbindung wie bei "WM Wetten",
-     aber ein komplett eigener Datenbereich: die Tipps liegen
-     unter "bets/", dieser Kalender unter "arbeitszeiten/".
+     FIREBASE – dieselbe Realtime Database wie "WM Wetten",
+     aber komplett eigene Tabellen: die Tipps liegen unter
+     "bets/", dieser Dienstplan unter "dienstplan/<person>/".
      Die beiden Apps kommen sich also nicht in die Quere.
-
-     Wenn du später eine echte eigene Datenbank willst:
-     in der Firebase-Konsole eine zweite Realtime-Database-
-     Instanz anlegen und hier nur die databaseURL austauschen.
      ========================================================= */
   var FIREBASE_CONFIG = {
     databaseURL: 'https://wm-tippspiel-d4f4f-default-rtdb.europe-west1.firebasedatabase.app',
     projectId: 'wm-tippspiel-d4f4f'
   };
-  var DB_ROOT = 'arbeitszeiten';
+  var DB_ROOT   = 'dienstplan';          // neue Tabelle, getrennt von "bets"
+  var DB_LEGACY = 'arbeitszeiten';       // Vorgänger-Tabelle (nur Tobias)
 
-  var STORAGE_KEY  = 'nessie_arbeitszeiten_v2';    // lokaler Spiegel / Offline-Cache
-  var NAME_KEY     = 'nessie_arbeitszeiten_name';
-  var SYNCED_KEY   = 'nessie_arbeitszeiten_synced';
-  var MONTH_NAMES =['Jänner','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  var NAME_KEY   = 'nessie_dienstplan_name';
+  var PERSON_KEY = 'nessie_dienstplan_person';
+  var FMT_KEY    = 'nessie_dienstplan_format';
+  var MIGR_KEY   = 'nessie_dienstplan_migrated';
+  function localKey(pid) { return 'nessie_dienstplan_' + pid; }
+
+  var MONTH_NAMES = ['Jänner','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
   var DAY_NAMES = ['So','Mo','Di','Mi','Do','Fr','Sa'];
   var DAY_LONG = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+
+  var ART_LABELS = {
+    feiertag: 'Feiertag',
+    urlaub: 'Urlaub',
+    zeitausgleich: 'Zeitausgleich',
+    fortbildung: 'Fortbildung',
+    krank: 'Krank',
+    sonderurlaub: 'Sonderurlaub'
+  };
+  // Nur diese Kürzel bekommen eine eigene Farbe – alles andere wird grau
+  var KNOWN_TAGS = ['klub','seminar','hw','n1','n2','tx','custom'];
 
   /* ---------- Kleine Helfer ---------- */
 
@@ -703,13 +904,62 @@
     });
   }
 
-  function showNotice(msg) {
-    document.getElementById('noticeArea').innerHTML = '<div class="notice">' + escapeHtml(msg) + '</div>';
+  // Aus einem beliebigen (auch fremden) Vermerk eine sichere CSS-Klasse machen
+  function tagClass(t) {
+    var slug = String(t).toLowerCase().replace(/[^a-z0-9]/g, '');
+    return KNOWN_TAGS.indexOf(slug) > -1 ? slug : 'other';
   }
+
+  function showNotice(msg) {
+    document.getElementById('noticeArea').innerHTML =
+      '<div class="notice">' + escapeHtml(msg) + '</div>';
+  }
+  function clearNotice() { document.getElementById('noticeArea').innerHTML = ''; }
 
   function setStatus(state, text) {
     document.getElementById('statusPill').className = 'status' + (state ? ' ' + state : '');
     document.getElementById('statusText').textContent = text;
+  }
+
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function keyOf(y, m, d) { return y + '-' + pad(m + 1) + '-' + pad(d); }
+  function monthKeyOf(y, m) { return y + '-' + pad(m + 1); }
+
+  function toMinutes(t) {
+    var p = String(t).split(':');
+    return parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
+  }
+
+  // Netto-Stunden eines Eintrags (Dienst über Mitternacht wird mitgerechnet)
+  function hoursOf(e) {
+    if (!e) return 0;
+    if (e.art) return Math.max(0, parseFloat(e.h) || 0);
+    if (!e.von || !e.bis) return 0;
+    var diff = toMinutes(e.bis) - toMinutes(e.von);
+    if (diff < 0) diff += 24 * 60;
+    return Math.max(0, diff / 60 - (parseFloat(e.pause) || 0));
+  }
+
+  /* ---------- Stundenformat: 7,5 h  oder  7:30 ---------- */
+
+  var fmtMode = 'dec';
+  try { fmtMode = localStorage.getItem(FMT_KEY) === 'hm' ? 'hm' : 'dec'; } catch (e) {}
+
+  function fmtDec(n) {
+    var s = (Math.round(n * 100) / 100).toFixed(2).replace('.', ',');
+    return s.replace(/,00$/, '').replace(/(,\d)0$/, '$1');
+  }
+  function fmtHm(n) {
+    var sign = n < 0 ? '−' : '';
+    var mins = Math.round(Math.abs(n) * 60);
+    return sign + Math.floor(mins / 60) + ':' + pad(mins % 60);
+  }
+  // Stundenwert in der gewählten Anzeige – "h" nur im Dezimalmodus,
+  // damit aus "7:30 h" kein Zeitpunkt gelesen wird.
+  function fmtH(n) { return fmtMode === 'hm' ? fmtHm(n) : fmtDec(n) + ' h'; }
+  function fmtSigned(n) {
+    var pre = n > 0.001 ? '+' : n < -0.001 ? '−' : '±';
+    return fmtMode === 'hm' ? pre + fmtHm(Math.abs(n)) : pre + fmtDec(Math.abs(n));
   }
 
   /* ---------- Firebase starten ---------- */
@@ -725,133 +975,190 @@
     console.warn('Firebase konnte nicht gestartet werden:', e);
   }
 
-  /* ---------- Datenzugriff ----------
-     overrides = alle Abweichungen vom gedruckten Dienstplan.
-     Sie liegen in Firebase (geteilt mit der Familie) und zusätzlich
-     als Offline-Kopie im Browser.
-       { von, bis, pause, tags, by, ts }   = geänderter/neuer Dienst
-       { frei: true, by, ts }              = Tag ist dienstfrei          */
+  /* ---------- Zustand ---------- */
 
-  function loadLocal() {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
-    catch (e) { return {}; }
-  }
-  function saveLocal() {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(overrides)); } catch (e) {}
-  }
+  var today = new Date();
+  var todayKey = keyOf(today.getFullYear(), today.getMonth(), today.getDate());
 
-  // Einträge aus der ersten App-Version übernehmen (dort hieß "frei" noch null)
-  function migrateV1(cur) {
-    try {
-      var old = localStorage.getItem('nessie_arbeitszeiten_v1');
-      if (!old) return cur;
-      var o = JSON.parse(old) || {};
-      Object.keys(o).forEach(function (k) {
-        if (cur[k] === undefined) cur[k] = o[k] ? o[k] : { frei: true };
-      });
-      localStorage.removeItem('nessie_arbeitszeiten_v1');
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(cur));
-    } catch (e) {}
-    return cur;
-  }
-
-  var overrides = migrateV1(loadLocal());
-
-  // Was vor der ersten Verbindung nur lokal existierte, wird einmalig hochgeladen
-  var pendingLocal = null;
+  var personId = PEOPLE[0].id;
   try {
-    if (firebaseReady && !localStorage.getItem(SYNCED_KEY) && Object.keys(overrides).length) {
-      pendingLocal = overrides;
-    }
+    var savedPid = localStorage.getItem(PERSON_KEY);
+    if (savedPid && PEOPLE.some(function (p) { return p.id === savedPid; })) personId = savedPid;
   } catch (e) {}
 
-  // Liefert den Eintrag eines Tages oder null (= frei)
+  function person() {
+    for (var i = 0; i < PEOPLE.length; i++) if (PEOPLE[i].id === personId) return PEOPLE[i];
+    return PEOPLE[0];
+  }
+
+  // Abweichungen vom gedruckten Plan – je Person ein eigener Topf
+  var overridesByPerson = {};
+  PEOPLE.forEach(function (p) { overridesByPerson[p.id] = loadLocal(p.id); });
+  function overrides() { return overridesByPerson[personId]; }
+
+  function loadLocal(pid) {
+    try { return JSON.parse(localStorage.getItem(localKey(pid))) || {}; }
+    catch (e) { return {}; }
+  }
+  function saveLocal(pid) {
+    try { localStorage.setItem(localKey(pid), JSON.stringify(overridesByPerson[pid])); } catch (e) {}
+  }
+
+  // Einträge der Vorgänger-Versionen (nur Tobias, ohne Personen-Trennung) übernehmen
+  (function migrateLocal() {
+    try {
+      var t = PEOPLE[0].id;
+      if (localStorage.getItem(localKey(t))) return;
+      var old = localStorage.getItem('nessie_arbeitszeiten_v2') || localStorage.getItem('nessie_arbeitszeiten_v1');
+      if (!old) return;
+      var o = JSON.parse(old) || {};
+      Object.keys(o).forEach(function (k) {
+        overridesByPerson[t][k] = o[k] ? o[k] : { frei: true };   // in v1 hieß "frei" noch null
+      });
+      saveLocal(t);
+    } catch (e) {}
+  })();
+
+  var curY, curM;
+  setStartMonth();
+  function setStartMonth() {
+    // Aktueller Monat, wenn es dafür Daten gibt – sonst der erste Monat des Plans
+    var p = person();
+    var mk = monthKeyOf(today.getFullYear(), today.getMonth());
+    var hasCurrent = Object.keys(p.plan).some(function (k) { return k.indexOf(mk) === 0; });
+    if (hasCurrent) { curY = today.getFullYear(); curM = today.getMonth(); return; }
+    var keys = Object.keys(p.plan).sort();
+    if (keys.length) {
+      curY = +keys[0].slice(0, 4);
+      curM = +keys[0].slice(5, 7) - 1;
+    } else {
+      curY = today.getFullYear(); curM = today.getMonth();
+    }
+  }
+
+  var mode = 'cal';
+  var editKey = null;
+  var editTags = [];
+
+  // Liefert den Eintrag eines Tages oder null (= dienstfrei)
   function getEntry(key) {
-    var o = overrides[key];
+    var o = overrides()[key];
     if (o) {
       if (o.frei) return null;
+      if (o.art) {
+        return { art: o.art, h: parseFloat(o.h) || 0, tags: [], custom: true, by: o.by || '', ts: o.ts || 0 };
+      }
       return {
-        von: o.von, bis: o.bis, pause: o.pause || 0, tags: o.tags || [],
+        von: o.von, bis: o.bis, pause: parseFloat(o.pause) || 0,
+        tags: Array.isArray(o.tags) ? o.tags.slice() : [],
         custom: true, by: o.by || '', ts: o.ts || 0
       };
     }
-    if (o === null) return null;      // Altbestand aus v1
-    var p = PLAN[key];
+    if (o === null) return null;                 // Altbestand: null bedeutete "frei"
+    var p = person().plan[key];
     if (!p) return null;
-    return { von: p.von, bis: p.bis, pause: p.pause, tags: p.tags, custom: false };
+    if (p.art) return { art: p.art, h: p.h, tags: [], custom: false };
+    return { von: p.von, bis: p.bis, pause: p.pause, tags: (p.tags || []).slice(), custom: false };
   }
 
   /* ---------- Speicher-Schicht: Firebase, sonst nur lokal ---------- */
 
-  var Store = {
-    subscribe: function (cb) {
-      if (!firebaseReady) {
-        setStatus('', 'Nur auf diesem Gerät');
-        cb();
-        return;
-      }
-      setStatus('', 'Verbinde …');
+  var entriesRef = null;
+  var readFailed = false;
+  var onChange = function () {};
 
+  var Store = {
+    // Verbindungsanzeige – wird nur einmal aufgesetzt
+    initStatus: function () {
+      if (!firebaseReady) { setStatus('', 'Nur auf diesem Gerät'); return; }
+      setStatus('', 'Verbinde …');
       db.ref('.info/connected').on('value', function (snap) {
+        if (readFailed) return;          // Lesefehler nicht mit "Live" überschreiben
         if (snap.val() === true) setStatus('live', 'Live – für die Familie sichtbar');
         else setStatus('', 'Offline – wird später abgeglichen');
       });
+    },
 
-      db.ref(DB_ROOT + '/entries').on('value',
+    // Auf die Einträge der aktuell gewählten Person hören
+    watch: function (pid) {
+      if (!firebaseReady) { onChange(); return; }
+      if (entriesRef) { entriesRef.off(); entriesRef = null; }
+
+      var ref = db.ref(DB_ROOT + '/' + pid + '/entries');
+      entriesRef = ref;
+      ref.on('value',
         function (snap) {
-          overrides = snap.val() || {};
-          uploadPendingOnce();
-          saveLocal();
-          cb();
+          if (entriesRef !== ref) return;          // zwischenzeitlich umgeschaltet
+          overridesByPerson[pid] = snap.val() || {};
+          saveLocal(pid);
+          migrateLegacyOnce(pid);
+          clearNotice();
+          onChange();
         },
         function (err) {
+          if (entriesRef !== ref) return;
           firebaseReady = false;
+          readFailed = true;
+          entriesRef = null;
           setStatus('err', 'Verbindung gestört');
           showNotice('Die geteilte Datenbank ist gerade nicht erreichbar (' + err.message +
                      '). Der Plan wird angezeigt, Änderungen bleiben vorerst auf diesem Gerät.');
-          overrides = loadLocal();
-          cb();
+          overridesByPerson[pid] = loadLocal(pid);
+          onChange();
         }
       );
     },
 
     set: function (key, val) {
-      overrides[key] = val;
-      saveLocal();
+      var pid = personId;
+      overridesByPerson[pid][key] = val;
+      saveLocal(pid);
       if (!firebaseReady) return Promise.resolve();
-      return db.ref(DB_ROOT + '/entries/' + key).set(val)
+      return db.ref(DB_ROOT + '/' + pid + '/entries/' + key).set(val)
         .catch(function (err) { showNotice('Speichern fehlgeschlagen: ' + err.message); });
     },
 
     remove: function (key) {
-      delete overrides[key];
-      saveLocal();
+      var pid = personId;
+      delete overridesByPerson[pid][key];
+      saveLocal(pid);
       if (!firebaseReady) return Promise.resolve();
-      return db.ref(DB_ROOT + '/entries/' + key).remove()
+      return db.ref(DB_ROOT + '/' + pid + '/entries/' + key).remove()
         .catch(function (err) { showNotice('Zurücksetzen fehlgeschlagen: ' + err.message); });
     },
 
     clear: function () {
-      overrides = {};
-      saveLocal();
+      var pid = personId;
+      overridesByPerson[pid] = {};
+      saveLocal(pid);
       if (!firebaseReady) return Promise.resolve();
-      return db.ref(DB_ROOT + '/entries').remove()
+      return db.ref(DB_ROOT + '/' + pid + '/entries').remove()
         .catch(function (err) { showNotice('Zurücksetzen fehlgeschlagen: ' + err.message); });
     }
   };
 
-  // Lokale Einträge, die es online noch nicht gibt, einmalig hochladen
-  function uploadPendingOnce() {
-    if (!pendingLocal) return;
-    var todo = pendingLocal;
-    pendingLocal = null;
-    Object.keys(todo).forEach(function (k) {
-      if (overrides[k] !== undefined) return;
-      var v = todo[k] ? todo[k] : { frei: true };
-      overrides[k] = v;
-      db.ref(DB_ROOT + '/entries/' + k).set(v);
-    });
-    try { localStorage.setItem(SYNCED_KEY, '1'); } catch (e) {}
+  /* Einmalige Übernahme aus der alten Tabelle "arbeitszeiten/entries".
+     Die gab es nur für Tobias und ohne Personen-Trennung.            */
+  var migrationRunning = false;
+  function migrateLegacyOnce(pid) {
+    if (pid !== PEOPLE[0].id || !firebaseReady || migrationRunning) return;
+    try { if (localStorage.getItem(MIGR_KEY)) return; } catch (e) { return; }
+    migrationRunning = true;
+
+    db.ref(DB_LEGACY + '/entries').once('value').then(function (snap) {
+      var old = snap.val() || {};
+      var target = overridesByPerson[pid];
+      Object.keys(old).forEach(function (k) {
+        if (target[k] !== undefined) return;        // neuer Stand gewinnt
+        var v = old[k] ? old[k] : { frei: true };
+        target[k] = v;
+        db.ref(DB_ROOT + '/' + pid + '/entries/' + k).set(v);
+      });
+      try { localStorage.setItem(MIGR_KEY, '1'); } catch (e) {}
+      saveLocal(pid);
+      onChange();
+    }).catch(function () { /* alte Tabelle nicht lesbar – dann eben nicht */ })
+      .then(function () { migrationRunning = false; });
   }
 
   /* ---------- Name (steht bei den eigenen Änderungen) ---------- */
@@ -874,39 +1181,39 @@
   updateNameBtn();
   document.getElementById('nameBtn').addEventListener('click', askName);
 
-  function toMinutes(t) {
-    var p = t.split(':');
-    return parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
+  /* ---------- Personen-Tabs ---------- */
+
+  var personTabs = document.getElementById('personTabs');
+  PEOPLE.forEach(function (p) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'person-tab';
+    b.setAttribute('role', 'tab');
+    b.setAttribute('data-person', p.id);
+    b.innerHTML = '<span class="pt-name">' + escapeHtml(p.label) + '</span>' +
+                  '<span class="pt-sub">' + escapeHtml(p.lastName) + '</span>';
+    b.addEventListener('click', function () { selectPerson(p.id); });
+    personTabs.appendChild(b);
+  });
+
+  function paintTabs() {
+    personTabs.querySelectorAll('.person-tab').forEach(function (b) {
+      var on = b.getAttribute('data-person') === personId;
+      b.classList.toggle('active', on);
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
   }
 
-  // Netto-Stunden eines Eintrags (über Mitternacht wird mitgerechnet)
-  function hoursOf(e) {
-    if (!e || !e.von || !e.bis) return 0;
-    var diff = toMinutes(e.bis) - toMinutes(e.von);
-    if (diff < 0) diff += 24 * 60;
-    return Math.max(0, diff / 60 - (parseFloat(e.pause) || 0));
+  function selectPerson(pid) {
+    if (pid === personId) return;
+    personId = pid;
+    try { localStorage.setItem(PERSON_KEY, pid); } catch (e) {}
+    paintTabs();
+    buildTagPicker();
+    setStartMonth();
+    render();
+    Store.watch(pid);
   }
-
-  function fmtNum(n) {
-    var s = (Math.round(n * 100) / 100).toFixed(2).replace('.', ',');
-    return s.replace(/,00$/, '').replace(/(,\d)0$/, '$1');
-  }
-
-  function pad(n) { return n < 10 ? '0' + n : '' + n; }
-  function keyOf(y, m, d) { return y + '-' + pad(m + 1) + '-' + pad(d); }
-
-  /* ---------- Zustand ---------- */
-
-  var today = new Date();
-  var todayKey = keyOf(today.getFullYear(), today.getMonth(), today.getDate());
-  // Startmonat: aktueller Monat, wenn dafür Daten existieren – sonst der erste Planmonat
-  var start = SOLL[today.getFullYear() + '-' + pad(today.getMonth() + 1)]
-    ? { y: today.getFullYear(), m: today.getMonth() }
-    : { y: 2026, m: 7 };
-  var curY = start.y, curM = start.m;
-  var mode = 'cal';
-  var editKey = null;
-  var editTags = [];
 
   /* ---------- Monatsdaten sammeln ---------- */
 
@@ -926,6 +1233,14 @@
     return days;
   }
 
+  // ISO-Kalenderwoche
+  function isoWeek(date) {
+    var d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+    var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+  }
+
   /* ---------- Rendering ---------- */
 
   var grid = document.getElementById('grid');
@@ -936,35 +1251,90 @@
 
     document.getElementById('monthName').innerHTML =
       MONTH_NAMES[curM] + ' <span>' + curY + '</span>';
+    document.getElementById('footerInfo').innerHTML =
+      'Dienstplan ' + escapeHtml(person().fullName) + '<br>' + escapeHtml(person().meta);
 
+    renderLegend();
     renderStats(days);
     if (mode === 'cal') renderCalendar(days); else renderList(days);
   }
 
+  function renderLegend() {
+    var html = person().tags.map(function (t) {
+      return '<span><i class="dot ' + tagClass(t) + '"></i> ' + escapeHtml(t) + '</span>';
+    }).join('');
+    html += '<span><i class="dot custom"></i> von Hand geändert</span>';
+    document.getElementById('legend').innerHTML = html;
+  }
+
   function renderStats(days) {
-    var total = 0, workDays = 0;
+    var total = 0, workHours = 0, workDays = 0;
     days.forEach(function (x) {
-      if (x.entry) { total += x.hours; workDays++; }
+      if (!x.entry) return;
+      total += x.hours;
+      if (!x.entry.art) { workHours += x.hours; workDays++; }
     });
 
-    document.getElementById('stHours').textContent = fmtNum(total);
+    document.getElementById('stHours').textContent = fmtH(total);
     document.getElementById('stDays').textContent = workDays;
-    document.getElementById('stAvg').textContent = workDays ? fmtNum(total / workDays) : '0';
+    document.getElementById('stAvg').textContent = workDays ? fmtH(workHours / workDays) : '–';
 
-    var soll = SOLL[curY + '-' + pad(curM + 1)];
     var diffEl = document.getElementById('stDiff');
     var lblEl = document.getElementById('stDiffLbl');
-    if (soll == null) {
+    var soll = person().soll[monthKeyOf(curY, curM)];
+
+    if (soll != null) {
+      var diff = total - soll;
+      diffEl.textContent = fmtSigned(diff);
+      diffEl.className = 'val' + (diff > 0.001 ? ' pos' : diff < -0.001 ? ' neg' : '');
+      lblEl.textContent = 'Diff. zu ' + fmtH(soll) + ' Soll';
+      return;
+    }
+
+    // Ohne Monats-Soll: Schnitt der Wochen, die komplett in diesem Monat liegen
+    var avg = fullWeekAverage(days);
+    if (avg == null) {
       diffEl.textContent = '–';
       diffEl.className = 'val';
       lblEl.textContent = 'kein Soll hinterlegt';
     } else {
-      var diff = total - soll;
-      diffEl.textContent = (diff > 0 ? '+' : diff < 0 ? '−' : '±') + fmtNum(Math.abs(diff));
-      diffEl.className = 'val' + (diff > 0.001 ? ' pos' : diff < -0.001 ? ' neg' : '');
-      lblEl.textContent = 'Diff. zu ' + fmtNum(soll) + ' h Soll';
+      diffEl.textContent = fmtH(avg);
+      diffEl.className = 'val';
+      lblEl.textContent = 'Ø pro volle Woche';
     }
   }
+
+  // Nur Wochen zählen, deren Montag bis Sonntag komplett im Monat liegen –
+  // sonst würde eine angeschnittene Woche den Schnitt verfälschen.
+  function fullWeekAverage(days) {
+    var byNum = {};
+    days.forEach(function (x) { byNum[x.d] = x; });
+    var last = days.length, sums = [];
+
+    for (var d = 1; d <= last; d++) {
+      if (byNum[d].dow !== 1) continue;            // Wochenstart = Montag
+      if (d + 6 > last) break;                     // Woche ragt in den Folgemonat
+      var sum = 0, any = false;
+      for (var i = 0; i < 7; i++) {
+        sum += byNum[d + i].hours;
+        if (byNum[d + i].entry) any = true;
+      }
+      if (any) sums.push(sum);
+    }
+    if (!sums.length) return null;
+    return sums.reduce(function (a, b) { return a + b; }, 0) / sums.length;
+  }
+
+  function dotsFor(entry) {
+    var dots = entry.tags.map(function (t) {
+      return '<span class="dot ' + tagClass(t) + '" title="' + escapeHtml(t) + '"></span>';
+    }).join('');
+    if (entry.custom) dots += '<span class="dot custom" title="von Hand geändert"></span>';
+    return dots ? '<div class="dots">' + dots + '</div>' : '';
+  }
+
+  function artLabel(art) { return ART_LABELS[art] || art; }
+  function artColor(art) { return ART_LABELS[art] ? 'var(--a-' + art + ')' : 'var(--text-muted)'; }
 
   function renderCalendar(days) {
     grid.innerHTML = '';
@@ -973,79 +1343,95 @@
     var firstDow = new Date(curY, curM, 1).getDay();
     var lead = (firstDow + 6) % 7;
     for (var i = 0; i < lead; i++) {
-      var pad_ = document.createElement('div');
-      pad_.className = 'day empty';
-      grid.appendChild(pad_);
+      var blank = document.createElement('div');
+      blank.className = 'day empty';
+      grid.appendChild(blank);
     }
 
+    var frag = document.createDocumentFragment();
     days.forEach(function (x) {
-      var cell = document.createElement('div');
+      var cell = document.createElement('button');
+      cell.type = 'button';
       var cls = 'day';
       if (x.dow === 0 || x.dow === 6) cls += ' weekend';
-      if (x.entry) cls += ' work';
+      if (x.entry) cls += x.entry.art ? ' special' : ' work';
       if (x.key === todayKey) cls += ' today';
       cell.className = cls;
 
       var html = '<div class="dnum">' + x.d + '</div>';
-      if (x.entry) {
-        html += '<div class="time">' + x.entry.von + '<br>' + x.entry.bis + '</div>';
-        html += '<div class="hrs">' + fmtNum(x.hours) + ' h</div>';
-        var dots = '';
-        if (x.entry.tags.indexOf('Klub') > -1) dots += '<span class="dot klub"></span>';
-        if (x.entry.tags.indexOf('Seminar') > -1) dots += '<span class="dot seminar"></span>';
-        if (x.entry.custom) dots += '<span class="dot custom"></span>';
-        if (dots) html += '<div class="dots">' + dots + '</div>';
+      if (x.entry && x.entry.art) {
+        html += '<div class="art" style="color:' + artColor(x.entry.art) + '">' +
+                escapeHtml(artLabel(x.entry.art)) + '</div>';
+        html += '<div class="hrs">' + fmtH(x.hours) + '</div>';
+        html += dotsFor(x.entry);
+      } else if (x.entry) {
+        html += '<div class="time">' + escapeHtml(x.entry.von) + '<br>' + escapeHtml(x.entry.bis) + '</div>';
+        html += '<div class="hrs">' + fmtH(x.hours) + '</div>';
+        html += dotsFor(x.entry);
       } else {
         html += '<div class="free-lbl">frei</div>';
       }
       cell.innerHTML = html;
+      cell.setAttribute('aria-label',
+        x.d + '. ' + MONTH_NAMES[curM] + ' – ' +
+        (x.entry ? (x.entry.art ? artLabel(x.entry.art) : x.entry.von + ' bis ' + x.entry.bis) : 'frei'));
       cell.addEventListener('click', function () { openModal(x.key); });
-      grid.appendChild(cell);
+      frag.appendChild(cell);
     });
+    grid.appendChild(frag);
   }
 
   function renderList(days) {
     listView.innerHTML = '';
-    var withWork = days.some(function (x) { return !!x.entry; });
-    if (!withWork) {
-      listView.innerHTML = '<div class="empty-hint">Für diesen Monat sind keine Arbeitszeiten hinterlegt.<br>Tippe im Kalender auf einen Tag, um einen Dienst einzutragen.</div>';
+    if (!days.some(function (x) { return !!x.entry; })) {
+      listView.innerHTML = '<div class="empty-hint">Für diesen Monat sind keine Arbeitszeiten hinterlegt.<br>' +
+        'Tippe im Kalender auf einen Tag, um einen Dienst einzutragen.</div>';
       return;
     }
 
-    // Nach Kalenderwoche gruppieren
+    // Nach Kalenderwoche gruppieren (neue Gruppe an jedem Montag)
     var weeks = [], cur = null;
     days.forEach(function (x) {
-      if (!cur || x.dow === 1) {
-        cur = { days: [], sum: 0 };
-        weeks.push(cur);
-      }
+      if (!cur || x.dow === 1) { cur = { days: [], sum: 0 }; weeks.push(cur); }
       cur.days.push(x);
       cur.sum += x.hours;
     });
 
     weeks.forEach(function (w) {
-      var work = w.days.filter(function (x) { return !!x.entry; });
-      if (!work.length) return;
+      var used = w.days.filter(function (x) { return !!x.entry; });
+      if (!used.length) return;
 
       var block = document.createElement('div');
       block.className = 'week-block';
 
       var first = w.days[0], last = w.days[w.days.length - 1];
+      var range = (first.d === last.d ? first.d + '.' : first.d + '.–' + last.d + '.') + ' ' + MONTH_NAMES[curM];
+      // Am Monatsanfang/-ende ist die Woche angeschnitten – dann ist auch die Summe nur ein Teil
+      if (w.days.length < 7) range += ' · Teilwoche';
       var head = '<div class="week-head"><div class="wk">KW ' + isoWeek(new Date(curY, curM, first.d)) +
-        '<small>' + first.d + '.–' + last.d + '. ' + MONTH_NAMES[curM] + '</small></div>' +
-        '<div class="sum">' + fmtNum(w.sum) + ' h</div></div>';
+        '<small>' + range + '</small></div>' +
+        '<div class="sum">' + fmtH(w.sum) + '</div></div>';
 
-      var rows = work.map(function (x) {
+      var rows = used.map(function (x) {
         var chips = x.entry.tags.map(function (t) {
-          return '<span class="chip ' + t.toLowerCase() + '">' + t + '</span>';
+          return '<span class="chip ' + tagClass(t) + '">' + escapeHtml(t) + '</span>';
         }).join('');
         if (x.entry.custom) chips += '<span class="chip custom">geändert</span>';
-        var pauseTxt = x.entry.pause > 0 ? ' <span class="muted">(' + fmtNum(x.entry.pause) + ' h Pause)</span>' : '';
-        return '<div class="row" data-key="' + x.key + '">' +
-          '<div class="rdate">' + x.d + '.' + pad(curM + 1) + '.<small>' + DAY_NAMES[x.dow] + '</small></div>' +
-          '<div class="rtime">' + x.entry.von + ' – ' + x.entry.bis + pauseTxt + chips + '</div>' +
-          '<div class="rhrs">' + fmtNum(x.hours) + ' h</div>' +
-          '</div>';
+
+        var middle;
+        if (x.entry.art) {
+          middle = '<span style="color:' + artColor(x.entry.art) + ';font-weight:600">' +
+                   escapeHtml(artLabel(x.entry.art)) + '</span>';
+        } else {
+          middle = escapeHtml(x.entry.von) + ' – ' + escapeHtml(x.entry.bis) +
+            (x.entry.pause > 0 ? ' <span class="muted">(' + fmtH(x.entry.pause) + ' Pause)</span>' : '');
+        }
+
+        return '<button type="button" class="row" data-key="' + x.key + '">' +
+          '<span class="rdate">' + x.d + '.' + pad(curM + 1) + '.<small>' + DAY_NAMES[x.dow] + '</small></span>' +
+          '<span class="rtime">' + middle + chips + '</span>' +
+          '<span class="rhrs">' + fmtH(x.hours) + '</span>' +
+          '</button>';
       }).join('');
 
       block.innerHTML = head + rows;
@@ -1056,44 +1442,87 @@
     });
   }
 
-  // ISO-Kalenderwoche
-  function isoWeek(date) {
-    var d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
-    var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-    return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-  }
-
   /* ---------- Modal ---------- */
 
   var overlay = document.getElementById('overlay');
   var fVon = document.getElementById('fVon');
   var fBis = document.getElementById('fBis');
   var fPause = document.getElementById('fPause');
+  var fArt = document.getElementById('fArt');
+  var fStd = document.getElementById('fStd');
+  var tagPicker = document.getElementById('tagPicker');
+  var lastFocus = null;
+
+  function buildTagPicker() {
+    tagPicker.innerHTML = '';
+    person().tags.forEach(function (t) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.setAttribute('data-tag', t);
+      b.textContent = t;
+      b.addEventListener('click', function () {
+        var i = editTags.indexOf(t);
+        if (i > -1) editTags.splice(i, 1); else editTags.push(t);
+        b.classList.toggle('on', i === -1);
+      });
+      tagPicker.appendChild(b);
+    });
+  }
+  buildTagPicker();
+
+  // Pausenwerte, die nicht in der Liste stehen, trotzdem anbieten
+  function setPause(v) {
+    var val = String(v);
+    if (!Array.prototype.some.call(fPause.options, function (o) { return o.value === val; })) {
+      var opt = document.createElement('option');
+      opt.value = val;
+      opt.textContent = fmtHm(parseFloat(val) || 0) + ' Std.';
+      fPause.appendChild(opt);
+    }
+    fPause.value = val;
+  }
+
+  function syncArtFields() {
+    var isDienst = fArt.value === 'dienst';
+    document.getElementById('dienstFields').style.display = isDienst ? '' : 'none';
+    document.getElementById('artFields').style.display = isDienst ? 'none' : '';
+    document.getElementById('mCalcSub').textContent = isDienst
+      ? 'Arbeitszeit abzüglich Pause'
+      : 'angerechnete Stunden';
+    updatePreview();
+  }
 
   function openModal(key) {
     editKey = key;
+    lastFocus = document.activeElement;
     var parts = key.split('-');
     var date = new Date(+parts[0], +parts[1] - 1, +parts[2]);
     var e = getEntry(key);
+    var def = person().defaults;
 
-    document.getElementById('mTitle').textContent = DAY_LONG[date.getDay()] + ', ' + (+parts[2]) + '. ' + MONTH_NAMES[date.getMonth()];
+    document.getElementById('mTitle').textContent =
+      DAY_LONG[date.getDay()] + ', ' + (+parts[2]) + '. ' + MONTH_NAMES[date.getMonth()] + ' ' + parts[0];
     document.getElementById('mSub').textContent = e
       ? (e.custom ? 'Von Hand eingetragen' : 'Laut Dienstplan')
       : 'Dienstfrei – trage hier einen Dienst ein';
 
-    fVon.value = e ? e.von : '07:30';
-    fBis.value = e ? e.bis : '16:00';
-    fPause.value = e ? e.pause : 0.5;
-    editTags = e ? e.tags.slice() : [];
+    fArt.value = e && e.art ? e.art : 'dienst';
+    if (fArt.value !== 'dienst' && !ART_LABELS[fArt.value]) fArt.value = 'dienst';
 
-    document.querySelectorAll('.tag-picker button').forEach(function (b) {
+    fVon.value = e && !e.art ? e.von : def.von;
+    fBis.value = e && !e.art ? e.bis : def.bis;
+    setPause(e && !e.art ? e.pause : def.pause);
+    fStd.value = e && e.art ? (Math.round(e.h * 100) / 100) : 0;
+
+    editTags = e && !e.art ? e.tags.slice() : [];
+    tagPicker.querySelectorAll('button').forEach(function (b) {
       b.classList.toggle('on', editTags.indexOf(b.getAttribute('data-tag')) > -1);
     });
 
     renderMeta(key, e);
-    updatePreview();
+    syncArtFields();
     overlay.classList.add('open');
+    document.getElementById('mSave').focus();
   }
 
   // Zeigt, wer den Tag zuletzt geändert hat – plus Knopf zum Zurücksetzen
@@ -1113,42 +1542,55 @@
   }
 
   function closeModal() {
+    if (!overlay.classList.contains('open')) return;
     overlay.classList.remove('open');
     editKey = null;
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+    lastFocus = null;
   }
 
   function updatePreview() {
-    var h = hoursOf({ von: fVon.value, bis: fBis.value, pause: parseFloat(fPause.value) || 0 });
-    document.getElementById('mCalc').textContent = fmtNum(h) + ' h';
+    var h = fArt.value === 'dienst'
+      ? hoursOf({ von: fVon.value, bis: fBis.value, pause: parseFloat(fPause.value) || 0 })
+      : Math.max(0, parseFloat(fStd.value) || 0);
+    document.getElementById('mCalc').textContent =
+      fmtMode === 'hm' ? fmtHm(h) + ' Std.' : fmtDec(h) + ' h';
   }
 
-  [fVon, fBis, fPause].forEach(function (el) {
+  [fVon, fBis, fPause, fStd].forEach(function (el) {
     el.addEventListener('input', updatePreview);
+    el.addEventListener('change', updatePreview);
   });
-
-  document.querySelectorAll('.tag-picker button').forEach(function (b) {
-    b.addEventListener('click', function () {
-      var t = b.getAttribute('data-tag');
-      var i = editTags.indexOf(t);
-      if (i > -1) editTags.splice(i, 1); else editTags.push(t);
-      b.classList.toggle('on', i === -1);
-    });
-  });
+  fArt.addEventListener('change', syncArtFields);
 
   document.getElementById('mSave').addEventListener('click', function () {
     if (!editKey) return;
-    if (!fVon.value || !fBis.value) { alert('Bitte Von- und Bis-Zeit angeben.'); return; }
-    if (!userName && firebaseReady) askName();   // einmalig, damit die Familie sieht wer geändert hat
+    var val;
+
+    if (fArt.value === 'dienst') {
+      if (!fVon.value || !fBis.value) { alert('Bitte Von- und Bis-Zeit angeben.'); return; }
+      val = {
+        von: fVon.value,
+        bis: fBis.value,
+        pause: parseFloat(fPause.value) || 0,
+        tags: editTags.slice()
+      };
+      if (hoursOf(val) <= 0) {
+        if (!confirm('Damit ergibt der Tag 0 Stunden. Trotzdem speichern?')) return;
+      }
+    } else {
+      var h = parseFloat(fStd.value);
+      if (!isFinite(h) || h < 0 || h > 24) { alert('Bitte gültige Stunden zwischen 0 und 24 angeben.'); return; }
+      val = { art: fArt.value, h: Math.round(h * 100) / 100 };
+    }
+
+    if (!userName && firebaseReady) askName();   // damit die Familie sieht, wer geändert hat
+    val.by = userName || 'unbekannt';
+    val.ts = Date.now();
+
     var key = editKey;
     closeModal();
-    Store.set(key, {
-      von: fVon.value,
-      bis: fBis.value,
-      pause: parseFloat(fPause.value) || 0,
-      tags: editTags.slice(),
-      by: userName || 'unbekannt',
-      ts: Date.now()
-    }).then(render);
+    Store.set(key, val);
     render();
   });
 
@@ -1157,14 +1599,14 @@
     if (!userName && firebaseReady) askName();
     var key = editKey;
     closeModal();
-    Store.set(key, { frei: true, by: userName || 'unbekannt', ts: Date.now() }).then(render);
+    Store.set(key, { frei: true, by: userName || 'unbekannt', ts: Date.now() });
     render();
   });
 
   // Einzelnen Tag auf den gedruckten Dienstplan zurücksetzen
   function revertDay(key) {
     closeModal();
-    Store.remove(key).then(render);
+    Store.remove(key);
     render();
   }
 
@@ -1201,54 +1643,95 @@
     render();
   });
 
+  var btnDec = document.getElementById('fmtDec');
+  var btnHm = document.getElementById('fmtHm');
+  function setFmt(m) {
+    fmtMode = m;
+    try { localStorage.setItem(FMT_KEY, m); } catch (e) {}
+    btnDec.classList.toggle('active', m === 'dec');
+    btnHm.classList.toggle('active', m === 'hm');
+    render();
+    if (overlay.classList.contains('open')) updatePreview();
+  }
+  btnDec.addEventListener('click', function () { setFmt('dec'); });
+  btnHm.addEventListener('click', function () { setFmt('hm'); });
+
   document.getElementById('resetBtn').addEventListener('click', function () {
-    var warn = firebaseReady
-      ? 'Alle Änderungen verwerfen und den Original-Dienstplan wiederherstellen?\n\nAchtung: Das gilt für alle in der Familie, nicht nur für dieses Gerät.'
-      : 'Alle Änderungen verwerfen und den Original-Dienstplan wiederherstellen?';
+    var who = person().fullName;
+    var warn = 'Alle Änderungen bei ' + who + ' verwerfen und den Original-Dienstplan wiederherstellen?';
+    if (firebaseReady) warn += '\n\nAchtung: Das gilt für alle in der Familie, nicht nur für dieses Gerät.';
     if (!confirm(warn)) return;
-    Store.clear().then(render);
+    Store.clear();
     render();
   });
 
   /* ---------- ICS-Export ---------- */
 
+  function icsEscape(s) {
+    return String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
+  }
+  function icsStamp(d) {
+    return d.getUTCFullYear() + pad(d.getUTCMonth() + 1) + pad(d.getUTCDate()) + 'T' +
+           pad(d.getUTCHours()) + pad(d.getUTCMinutes()) + pad(d.getUTCSeconds()) + 'Z';
+  }
+
   document.getElementById('icsBtn').addEventListener('click', function () {
     var days = monthDays(curY, curM).filter(function (x) { return !!x.entry; });
     if (!days.length) { alert('In diesem Monat gibt es keine Dienste zum Exportieren.'); return; }
 
-    var lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Nessie-Hub//Arbeitszeiten//DE', 'CALSCALE:GREGORIAN'];
+    var p = person();
+    var stamp = icsStamp(new Date());
+    var lines = [
+      'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Nessie-Hub//Dienstplan//DE', 'CALSCALE:GREGORIAN',
+      'X-WR-CALNAME:' + icsEscape('Dienstplan ' + p.fullName)
+    ];
+
     days.forEach(function (x) {
       var dt = x.key.replace(/-/g, '');
-      var von = x.entry.von.replace(':', '') + '00';
-      var bis = x.entry.bis.replace(':', '') + '00';
-      var title = 'Dienst' + (x.entry.tags.length ? ' (' + x.entry.tags.join(', ') + ')' : '');
-      var desc = fmtNum(x.hours) + ' h' + (x.entry.pause > 0 ? ', ' + fmtNum(x.entry.pause) + ' h unbezahlte Pause' : '');
-      lines.push(
-        'BEGIN:VEVENT',
-        'UID:' + x.key + '-arbeitszeit@nessie-hub',
-        'DTSTAMP:' + dt + 'T000000Z',
-        'DTSTART:' + dt + 'T' + von,
-        'DTEND:' + dt + 'T' + bis,
-        'SUMMARY:' + title,
-        'DESCRIPTION:' + desc,
-        'END:VEVENT'
-      );
+      lines.push('BEGIN:VEVENT',
+        'UID:' + dt + '-' + p.id + '@nessie-hub',
+        'DTSTAMP:' + stamp);
+
+      if (x.entry.art) {
+        // Ganztägig: DTEND ist im ICS-Format exklusiv, also der Folgetag
+        var next = new Date(curY, curM, x.d + 1);
+        lines.push(
+          'DTSTART;VALUE=DATE:' + dt,
+          'DTEND;VALUE=DATE:' + keyOf(next.getFullYear(), next.getMonth(), next.getDate()).replace(/-/g, ''),
+          'SUMMARY:' + icsEscape(artLabel(x.entry.art) + ' – ' + p.label),
+          'DESCRIPTION:' + icsEscape(fmtDec(x.hours) + ' h angerechnet')
+        );
+      } else {
+        lines.push(
+          'DTSTART:' + dt + 'T' + x.entry.von.replace(':', '') + '00',
+          'DTEND:' + dt + 'T' + x.entry.bis.replace(':', '') + '00',
+          'SUMMARY:' + icsEscape('Dienst ' + p.label + (x.entry.tags.length ? ' (' + x.entry.tags.join(', ') + ')' : '')),
+          'DESCRIPTION:' + icsEscape(fmtDec(x.hours) + ' h' +
+            (x.entry.pause > 0 ? ', ' + fmtDec(x.entry.pause) + ' h unbezahlte Pause' : ''))
+        );
+      }
+      lines.push('END:VEVENT');
     });
     lines.push('END:VCALENDAR');
 
-    var blob = new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
+    var blob = new Blob([lines.join('\r\n') + '\r\n'], { type: 'text/calendar;charset=utf-8' });
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
     a.href = url;
-    a.download = 'arbeitszeiten-' + curY + '-' + pad(curM + 1) + '.ics';
+    a.download = 'dienstplan-' + p.id + '-' + curY + '-' + pad(curM + 1) + '.ics';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   });
 
-  render();              // sofort mit lokalem Stand anzeigen
-  Store.subscribe(render); // danach live auf die geteilten Daten hören
+  /* ---------- Start ---------- */
+
+  onChange = render;
+  paintTabs();
+  setFmt(fmtMode);          // rendert bereits mit dem lokalen Stand
+  Store.initStatus();
+  Store.watch(personId);    // danach live auf die geteilten Daten hören
 })();
 </script>
 </body>
