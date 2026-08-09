@@ -916,6 +916,14 @@
   }
   function clearNotice() { document.getElementById('noticeArea').innerHTML = ''; }
 
+  // Firebase meldet fehlende Rechte je nach Version über code oder message
+  function isPermissionError(err) {
+    if (!err) return false;
+    var code = String(err.code || '').toUpperCase();
+    if (code.indexOf('PERMISSION_DENIED') > -1) return true;
+    return String(err.message || '').toLowerCase().indexOf('permission_denied') > -1;
+  }
+
   function setStatus(state, text) {
     document.getElementById('statusPill').className = 'status' + (state ? ' ' + state : '');
     document.getElementById('statusText').textContent = text;
@@ -1100,9 +1108,20 @@
           firebaseReady = false;
           readFailed = true;
           entriesRef = null;
-          setStatus('err', 'Verbindung gestört');
-          showNotice('Die geteilte Datenbank ist gerade nicht erreichbar (' + err.message +
-                     '). Der Plan wird angezeigt, Änderungen bleiben vorerst auf diesem Gerät.');
+
+          // Fehlende Datenbank-Regeln sind kein Netzproblem – das braucht
+          // einen anderen Hinweis, sonst sucht man an der falschen Stelle.
+          if (isPermissionError(err)) {
+            setStatus('err', 'Kein Zugriff');
+            showNotice('Die Datenbank-Regeln erlauben keinen Zugriff auf "' + DB_ROOT + '". ' +
+                       'In der Firebase-Konsole unter Realtime Database → Regeln freigeben ' +
+                       '(die Regeln liegen als database.rules.json im Projekt), danach Seite neu laden. ' +
+                       'Bis dahin wird der Plan angezeigt, Änderungen bleiben auf diesem Gerät.');
+          } else {
+            setStatus('err', 'Verbindung gestört');
+            showNotice('Die geteilte Datenbank ist gerade nicht erreichbar (' + err.message +
+                       '). Der Plan wird angezeigt, Änderungen bleiben vorerst auf diesem Gerät.');
+          }
           overridesByPerson[pid] = loadLocal(pid);
           onChange();
         }
@@ -1115,7 +1134,7 @@
       saveLocal(pid);
       if (!firebaseReady) return Promise.resolve();
       return db.ref(DB_ROOT + '/' + pid + '/entries/' + key).set(val)
-        .catch(function (err) { showNotice('Speichern fehlgeschlagen: ' + err.message); });
+        .catch(writeFailed('Speichern'));
     },
 
     remove: function (key) {
@@ -1124,7 +1143,7 @@
       saveLocal(pid);
       if (!firebaseReady) return Promise.resolve();
       return db.ref(DB_ROOT + '/' + pid + '/entries/' + key).remove()
-        .catch(function (err) { showNotice('Zurücksetzen fehlgeschlagen: ' + err.message); });
+        .catch(writeFailed('Zurücksetzen'));
     },
 
     clear: function () {
@@ -1133,9 +1152,23 @@
       saveLocal(pid);
       if (!firebaseReady) return Promise.resolve();
       return db.ref(DB_ROOT + '/' + pid + '/entries').remove()
-        .catch(function (err) { showNotice('Zurücksetzen fehlgeschlagen: ' + err.message); });
+        .catch(writeFailed('Zurücksetzen'));
     }
   };
+
+  // Der Eintrag liegt lokal bereits richtig – hier geht es nur um den Hinweis
+  function writeFailed(what) {
+    return function (err) {
+      if (isPermissionError(err)) {
+        setStatus('err', 'Kein Zugriff');
+        showNotice('Die Datenbank-Regeln erlauben kein Schreiben in "' + DB_ROOT + '". ' +
+                   'Die Änderung ist auf diesem Gerät gespeichert, aber für die anderen nicht sichtbar.');
+      } else {
+        showNotice(what + ' in der geteilten Datenbank fehlgeschlagen: ' + err.message +
+                   '. Die Änderung ist auf diesem Gerät gespeichert.');
+      }
+    };
+  }
 
   /* Einmalige Übernahme aus der alten Tabelle "arbeitszeiten/entries".
      Die gab es nur für Tobias und ohne Personen-Trennung.            */
