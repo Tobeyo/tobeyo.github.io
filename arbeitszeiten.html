@@ -609,7 +609,7 @@
     <div class="person-tabs" id="personTabs" role="tablist" aria-label="Person auswählen"></div>
 
     <div class="sync-bar">
-      <div class="status" id="statusPill"><i></i><span id="statusText">Verbinde …</span></div>
+      <div class="status" id="statusPill"><i></i><span id="statusText">Nur auf diesem Gerät</span></div>
       <button class="name-btn" id="nameBtn">👤 Name festlegen</button>
     </div>
 
@@ -752,17 +752,35 @@
   }
 
   /* =========================================================
-     FIREBASE – dieselbe Realtime Database wie "WM Wetten",
-     aber komplett eigene Tabellen: die Tipps liegen unter
-     "bets/", dieser Dienstplan unter "dienstplan/<person>/".
-     Die beiden Apps kommen sich also nicht in die Quere.
+     FIREBASE – dieselbe Realtime Database wie "WM Wetten".
+     Der Dienstplan gehört unter "dienstplan/<person>/". Lassen die
+     Firebase-Regeln dort keinen Zugriff zu (sie sind derzeit nur für
+     die Wetten-Tabelle geöffnet), weicht er still auf den Platz
+     "bets/dienstplan/<person>/" innerhalb der offenen Tabelle aus.
+     Ist auch das gesperrt, zeigt die Seite einfach den fest
+     hinterlegten Plan und merkt sich Änderungen auf diesem Gerät –
+     ohne Fehlerbalken.
      ========================================================= */
   var FIREBASE_CONFIG = {
     databaseURL: 'https://wm-tippspiel-d4f4f-default-rtdb.europe-west1.firebasedatabase.app',
     projectId: 'wm-tippspiel-d4f4f'
   };
-  var DB_ROOT   = 'dienstplan';          // neue Tabelle, getrennt von "bets"
+  // Ablageorte in der Reihenfolge, in der sie probiert werden
+  var DB_ROOTS  = ['dienstplan', 'bets/dienstplan'];
   var DB_LEGACY = 'arbeitszeiten';       // Vorgänger-Tabelle (nur Tobias)
+  var ROOT_KEY  = 'nessie_dienstplan_root';
+
+  // Der zuletzt erlaubte Ablageort wird gemerkt, damit die Seite beim
+  // nächsten Start nicht wieder gegen eine gesperrte Stelle läuft.
+  var rootIdx = 0;
+  try {
+    var savedRoot = DB_ROOTS.indexOf(localStorage.getItem(ROOT_KEY));
+    if (savedRoot > -1) rootIdx = savedRoot;
+  } catch (e) {}
+  function rememberRoot() {
+    try { localStorage.setItem(ROOT_KEY, DB_ROOTS[rootIdx]); } catch (e) {}
+  }
+  function dbBase(pid) { return DB_ROOTS[rootIdx] + '/' + pid; }
 
   var NAME_KEY   = 'nessie_dienstplan_name';
   var PERSON_KEY = 'nessie_dienstplan_person';
@@ -799,10 +817,6 @@
     return KNOWN_TAGS.indexOf(slug) > -1 ? slug : 'other';
   }
 
-  function showNotice(msg) {
-    document.getElementById('noticeArea').innerHTML =
-      '<div class="notice">' + escapeHtml(msg) + '</div>';
-  }
   function clearNotice() { document.getElementById('noticeArea').innerHTML = ''; }
 
   function setStatus(state, text) {
@@ -950,52 +964,120 @@
     return { von: p.von, bis: p.bis, pause: p.pause, tags: (p.tags || []).slice(), custom: false };
   }
 
-  /* ---------- Speicher-Schicht: Firebase, sonst nur lokal ---------- */
+  /* ---------- Speicher-Schicht ----------
+     Grundlage ist immer der gedruckte Plan aus "dienstplan-daten.js"
+     plus die Änderungen, die auf diesem Gerät gespeichert sind. Die
+     geteilte Datenbank kommt nur dazu, wenn sie den Zugriff auch
+     wirklich erlaubt – sonst wird still auf den Geräte-Modus
+     umgeschaltet, statt eine Fehlermeldung anzuzeigen.               */
 
-  var entriesRef = null;
-  var readFailed = false;
+  var entriesRef = null;      // aktuell abgehörte Stelle in der Datenbank
+  var connRef = null;         // Verbindungsanzeige von Firebase
+  var online = false;         // Verbindung zur Datenbank steht
+  var syncOk = false;         // … und sie hat auch schon Daten geliefert
+  var probeTimer = null;
   var onChange = function () {};
+
+  var LOCAL_TEXT = 'Nur auf diesem Gerät';
+
+  function paintStatus() {
+    var pill = document.getElementById('statusPill');
+    if (!firebaseReady || !syncOk) {
+      setStatus('', LOCAL_TEXT);
+      pill.title = 'Die geteilte Datenbank erlaubt gerade keinen Zugriff. ' +
+                   'Der Dienstplan wird trotzdem angezeigt, Änderungen bleiben auf diesem Gerät.';
+      return;
+    }
+    if (online) setStatus('live', 'Live – für die Familie sichtbar');
+    else setStatus('', 'Offline – wird später abgeglichen');
+    pill.title = 'Änderungen werden mit der Familie geteilt.';
+  }
+
+  function clearProbe() {
+    if (probeTimer) { clearTimeout(probeTimer); probeTimer = null; }
+  }
+
+  /* Ab hier ohne geteilte Datenbank weiterarbeiten. Das ist kein Fehler,
+     den die Familie sehen muss – der Plan steht ja fest, und Änderungen
+     liegen im Speicher des Geräts. Deshalb nur ein Hinweis in der
+     Statusanzeige und eine Notiz in der Entwicklerkonsole.            */
+  function goLocal(err, pid) {
+    if (err) console.warn('Dienstplan läuft ohne geteilte Datenbank weiter:', err.message || err);
+    firebaseReady = false;
+    syncOk = false;
+    online = false;
+    clearProbe();
+    if (entriesRef) { try { entriesRef.off(); } catch (e) {} entriesRef = null; }
+    if (connRef) { try { connRef.off(); } catch (e) {} connRef = null; }
+    if (pid) overridesByPerson[pid] = loadLocal(pid);
+    clearNotice();
+    paintStatus();
+  }
+
+  /* Auf die Einträge einer Person hören. Verweigert die Datenbank den
+     Zugriff, wird der nächste Ablageort probiert; ist keiner erlaubt,
+     bleibt es beim Geräte-Modus.                                      */
+  function attach(pid, idx) {
+    var ref = db.ref(DB_ROOTS[idx] + '/' + pid + '/entries');
+    entriesRef = ref;
+    ref.on('value',
+      function (snap) {
+        if (entriesRef !== ref) return;          // zwischenzeitlich umgeschaltet
+        rootIdx = idx;
+        rememberRoot();
+        syncOk = true;
+        clearProbe();
+        overridesByPerson[pid] = snap.val() || {};
+        saveLocal(pid);
+        migrateLegacyOnce(pid);
+        clearNotice();
+        paintStatus();
+        onChange();
+      },
+      function (err) {
+        if (entriesRef !== ref) return;
+        try { ref.off(); } catch (e) {}
+        entriesRef = null;
+        if (idx + 1 < DB_ROOTS.length) { attach(pid, idx + 1); return; }
+        goLocal(err, pid);
+        onChange();
+      }
+    );
+  }
 
   var Store = {
     // Verbindungsanzeige – wird nur einmal aufgesetzt
     initStatus: function () {
-      if (!firebaseReady) { setStatus('', 'Nur auf diesem Gerät'); return; }
-      setStatus('', 'Verbinde …');
-      db.ref('.info/connected').on('value', function (snap) {
-        if (readFailed) return;          // Lesefehler nicht mit "Live" überschreiben
-        if (snap.val() === true) setStatus('live', 'Live – für die Familie sichtbar');
-        else setStatus('', 'Offline – wird später abgeglichen');
+      paintStatus();
+      if (!firebaseReady) return;
+      connRef = db.ref('.info/connected');
+      connRef.on('value', function (snap) {
+        if (!firebaseReady) return;
+        online = snap.val() === true;
+        paintStatus();
+        // Antwortet die Datenbank trotz Verbindung nicht, wird lokal weitergemacht
+        if (online && !syncOk && !probeTimer) {
+          probeTimer = setTimeout(function () {
+            probeTimer = null;
+            if (syncOk || !firebaseReady) return;
+            goLocal(new Error('Zeitüberschreitung beim Lesen'), personId);
+            onChange();
+          }, 8000);
+        }
       });
     },
 
     // Auf die Einträge der aktuell gewählten Person hören
     watch: function (pid) {
-      if (!firebaseReady) { onChange(); return; }
-      if (entriesRef) { entriesRef.off(); entriesRef = null; }
-
-      var ref = db.ref(DB_ROOT + '/' + pid + '/entries');
-      entriesRef = ref;
-      ref.on('value',
-        function (snap) {
-          if (entriesRef !== ref) return;          // zwischenzeitlich umgeschaltet
-          overridesByPerson[pid] = snap.val() || {};
-          saveLocal(pid);
-          migrateLegacyOnce(pid);
-          clearNotice();
-          onChange();
-        },
-        function (err) {
-          if (entriesRef !== ref) return;
-          firebaseReady = false;
-          readFailed = true;
-          entriesRef = null;
-          setStatus('err', 'Verbindung gestört');
-          showNotice('Die geteilte Datenbank ist gerade nicht erreichbar (' + err.message +
-                     '). Der Plan wird angezeigt, Änderungen bleiben vorerst auf diesem Gerät.');
-          overridesByPerson[pid] = loadLocal(pid);
-          onChange();
-        }
-      );
+      if (entriesRef) { try { entriesRef.off(); } catch (e) {} entriesRef = null; }
+      syncOk = false;
+      if (!firebaseReady) {
+        overridesByPerson[pid] = loadLocal(pid);
+        paintStatus();
+        onChange();
+        return;
+      }
+      attach(pid, rootIdx);
     },
 
     set: function (key, val) {
@@ -1003,8 +1085,8 @@
       overridesByPerson[pid][key] = val;
       saveLocal(pid);
       if (!firebaseReady) return Promise.resolve();
-      return db.ref(DB_ROOT + '/' + pid + '/entries/' + key).set(val)
-        .catch(function (err) { showNotice('Speichern fehlgeschlagen: ' + err.message); });
+      return db.ref(dbBase(pid) + '/entries/' + key).set(val)
+        .catch(function (err) { goLocal(err, null); });
     },
 
     remove: function (key) {
@@ -1012,8 +1094,8 @@
       delete overridesByPerson[pid][key];
       saveLocal(pid);
       if (!firebaseReady) return Promise.resolve();
-      return db.ref(DB_ROOT + '/' + pid + '/entries/' + key).remove()
-        .catch(function (err) { showNotice('Zurücksetzen fehlgeschlagen: ' + err.message); });
+      return db.ref(dbBase(pid) + '/entries/' + key).remove()
+        .catch(function (err) { goLocal(err, null); });
     },
 
     clear: function () {
@@ -1021,8 +1103,8 @@
       overridesByPerson[pid] = {};
       saveLocal(pid);
       if (!firebaseReady) return Promise.resolve();
-      return db.ref(DB_ROOT + '/' + pid + '/entries').remove()
-        .catch(function (err) { showNotice('Zurücksetzen fehlgeschlagen: ' + err.message); });
+      return db.ref(dbBase(pid) + '/entries').remove()
+        .catch(function (err) { goLocal(err, null); });
     }
   };
 
@@ -1030,7 +1112,7 @@
      Die gab es nur für Tobias und ohne Personen-Trennung.            */
   var migrationRunning = false;
   function migrateLegacyOnce(pid) {
-    if (pid !== PEOPLE[0].id || !firebaseReady || migrationRunning) return;
+    if (pid !== PEOPLE[0].id || !firebaseReady || !syncOk || migrationRunning) return;
     try { if (localStorage.getItem(MIGR_KEY)) return; } catch (e) { return; }
     migrationRunning = true;
 
@@ -1041,7 +1123,7 @@
         if (target[k] !== undefined) return;        // neuer Stand gewinnt
         var v = old[k] ? old[k] : { frei: true };
         target[k] = v;
-        db.ref(DB_ROOT + '/' + pid + '/entries/' + k).set(v);
+        db.ref(dbBase(pid) + '/entries/' + k).set(v);
       });
       try { localStorage.setItem(MIGR_KEY, '1'); } catch (e) {}
       saveLocal(pid);

@@ -460,11 +460,20 @@
   // (damit die App auch ohne Firebase sofort testbar ist)
   // =====================================================================
   const LOCAL_BETS_KEY = "wm2026_bets";
+
+  /* Unter "bets/" kann auch etwas anderes liegen als Tipps – der Dienstplan
+     weicht z. B. dorthin aus, wenn die Firebase-Regeln nur diese Tabelle
+     freigeben. Solche Einträge dürfen hier nicht als Tipp mitgezählt werden,
+     sonst taucht in der Kasse ein Geisterspieler auf.                      */
+  function isBet(b) {
+    return !!b && typeof b === "object" && b.matchId != null && !!b.userKey && !!b.pick;
+  }
+
   const Store = {
     onBets(cb) {
       if (firebaseReady) {
         db.ref("bets").on("value",
-          (snap) => { const val = snap.val() || {}; cb(Object.keys(val).map((k) => val[k])); },
+          (snap) => { const val = snap.val() || {}; cb(Object.keys(val).map((k) => val[k]).filter(isBet)); },
           (err) => { console.warn("Realtime-DB-Fehler:", err); showNotice("Verbindung zu Firebase gestört: " + err.message, true); }
         );
       } else {
@@ -489,7 +498,7 @@
     }
   };
   function loadLocalBets() {
-    try { return JSON.parse(localStorage.getItem(LOCAL_BETS_KEY)) || []; } catch (e) { return []; }
+    try { return (JSON.parse(localStorage.getItem(LOCAL_BETS_KEY)) || []).filter(isBet); } catch (e) { return []; }
   }
 
   // =====================================================================

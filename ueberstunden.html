@@ -542,7 +542,7 @@
   <div class="container">
 
     <div class="sync-bar">
-      <div class="status" id="statusPill"><i></i><span id="statusText">Verbinde …</span></div>
+      <div class="status" id="statusPill"><i></i><span id="statusText">Nur auf diesem Gerät</span></div>
       <div class="who" id="whoInfo"></div>
     </div>
 
@@ -678,7 +678,9 @@
      Die Dienstzeiten kommen aus "dienstplan-daten.js" und – wenn
      im Kalender etwas geändert wurde – live aus derselben
      Firebase-Tabelle wie bei "Arbeitszeiten". Diese Seite liest
-     die Zeiten nur, geändert wird im Kalender.
+     die Zeiten nur, geändert wird im Kalender. Lässt Firebase den
+     Zugriff nicht zu, rechnet die Seite still mit dem Stand auf
+     diesem Gerät weiter – ohne Fehlerbalken.
      ========================================================= */
 
   var PERSON_ID = 'tobias';
@@ -698,7 +700,16 @@
     databaseURL: 'https://wm-tippspiel-d4f4f-default-rtdb.europe-west1.firebasedatabase.app',
     projectId: 'wm-tippspiel-d4f4f'
   };
-  var DB_ROOT = 'dienstplan';
+  // Ablageorte in der Reihenfolge, in der sie probiert werden – genau wie
+  // im Kalender, damit beide Seiten dieselben Daten sehen.
+  var DB_ROOTS = ['dienstplan', 'bets/dienstplan'];
+  var ROOT_KEY = 'nessie_dienstplan_root';
+  var rootIdx = 0;
+  try {
+    var savedRoot = DB_ROOTS.indexOf(localStorage.getItem(ROOT_KEY));
+    if (savedRoot > -1) rootIdx = savedRoot;
+  } catch (e) {}
+  function dbBase() { return DB_ROOTS[rootIdx] + '/' + PERSON_ID; }
 
   var FMT_KEY   = 'nessie_dienstplan_format';                 // dieselbe Einstellung wie im Kalender
   var NAME_KEY  = 'nessie_dienstplan_name';
@@ -1472,35 +1483,107 @@
     console.warn('Firebase konnte nicht gestartet werden:', e);
   }
 
+  var online = false;      // Verbindung zur Datenbank steht
+  var syncOk = false;      // … und sie liefert auch Daten
+  var probeTimer = null;
+  var refs = [];           // alles, was gerade abgehört wird
+
+  function paintStatus() {
+    var pill = document.getElementById('statusPill');
+    if (!firebaseReady || !syncOk) {
+      setStatus('', 'Nur auf diesem Gerät');
+      pill.title = 'Die geteilte Datenbank erlaubt gerade keinen Zugriff. ' +
+                   'Gerechnet wird mit dem Dienstplan und dem Stand auf diesem Gerät.';
+      return;
+    }
+    if (online) setStatus('live', 'Live – für die Familie sichtbar');
+    else setStatus('', 'Offline – wird später abgeglichen');
+    pill.title = 'Konto und Zeiten werden mit der Familie geteilt.';
+  }
+
+  /* Ohne geteilte Datenbank weiterrechnen. Kein Fehlerbalken: die Zeiten
+     stehen im Dienstplan, die Konto-Werte liegen auf dem Gerät.        */
+  function goLocal(err) {
+    if (err) console.warn('Überstunden laufen ohne geteilte Datenbank weiter:', err.message || err);
+    firebaseReady = false;
+    syncOk = false;
+    online = false;
+    if (probeTimer) { clearTimeout(probeTimer); probeTimer = null; }
+    refs.forEach(function (r) { try { r.off(); } catch (e) {} });
+    refs = [];
+    clearNotice();
+    paintStatus();
+    render();
+  }
+
   var Store = {
-    kontoRef: function () { return db.ref(DB_ROOT + '/' + PERSON_ID + '/ueberstunden'); },
+    kontoRef: function () { return db.ref(dbBase() + '/ueberstunden'); },
 
     start: function () {
-      if (!firebaseReady) { setStatus('', 'Nur auf diesem Gerät'); return; }
-      setStatus('', 'Verbinde …');
+      paintStatus();
+      if (!firebaseReady) return;
+      this.listen(rootIdx);
+    },
 
-      db.ref('.info/connected').on('value', function (snap) {
+    /* Auf beide Zweige einer Ablage hören. Ist sie gesperrt, wird der
+       nächste Platz probiert – und sonst eben lokal gerechnet.        */
+    listen: function (idx) {
+      var self = this;
+      var switched = false;      // pro Ablage nur einmal weiterschalten
+      rootIdx = idx;
+
+      var conn = db.ref('.info/connected');
+      conn.on('value', function (snap) {
         if (!firebaseReady) return;
-        if (snap.val() === true) setStatus('live', 'Live – für die Familie sichtbar');
-        else setStatus('', 'Offline – wird später abgeglichen');
+        online = snap.val() === true;
+        paintStatus();
+        if (online && !syncOk && !probeTimer) {
+          probeTimer = setTimeout(function () {
+            probeTimer = null;
+            if (!syncOk && firebaseReady) goLocal(new Error('Zeitüberschreitung beim Lesen'));
+          }, 8000);
+        }
       });
+      refs.push(conn);
+
+      function fail(err) {
+        if (switched) return;
+        switched = true;
+        refs.forEach(function (r) { try { r.off(); } catch (e) {} });
+        refs = [];
+        if (idx + 1 < DB_ROOTS.length) { self.listen(idx + 1); return; }
+        goLocal(err);
+      }
+
+      function ok() {
+        syncOk = true;
+        if (probeTimer) { clearTimeout(probeTimer); probeTimer = null; }
+        try { localStorage.setItem(ROOT_KEY, DB_ROOTS[rootIdx]); } catch (e) {}
+        clearNotice();
+        paintStatus();
+      }
 
       // Dienstzeiten (werden im Kalender gepflegt) nur mitlesen
-      db.ref(DB_ROOT + '/' + PERSON_ID + '/entries').on('value', function (snap) {
+      var eRef = db.ref(DB_ROOTS[idx] + '/' + PERSON_ID + '/entries');
+      eRef.on('value', function (snap) {
+        ok();
         entries = snap.val() || {};
         try { localStorage.setItem(ENTRY_KEY, JSON.stringify(entries)); } catch (e) {}
-        clearNotice();
         render();
         fillSettings();
-      }, onErr);
+      }, fail);
+      refs.push(eRef);
 
       // Konto-Einstellungen und Korrekturen
-      this.kontoRef().on('value', function (snap) {
+      var kRef = db.ref(DB_ROOTS[idx] + '/' + PERSON_ID + '/ueberstunden');
+      kRef.on('value', function (snap) {
+        ok();
         applyKonto(snap.val() || {});
         saveKontoLocal();
         render();
         fillSettings();
-      }, onErr);
+      }, fail);
+      refs.push(kRef);
     },
 
     setSettings: function () {
@@ -1512,29 +1595,19 @@
         zaAbzug: settings.zaAbzug,
         by: userName || '',
         ts: Date.now()
-      }).catch(function (err) { showNotice('Speichern fehlgeschlagen: ' + err.message); });
+      }).catch(goLocal);
     },
 
     setKorr: function (id, rec) {
       if (!firebaseReady) return;
-      this.kontoRef().child('korrekturen/' + id).set(rec)
-        .catch(function (err) { showNotice('Speichern fehlgeschlagen: ' + err.message); });
+      this.kontoRef().child('korrekturen/' + id).set(rec).catch(goLocal);
     },
 
     delKorr: function (id) {
       if (!firebaseReady) return;
-      this.kontoRef().child('korrekturen/' + id).remove()
-        .catch(function (err) { showNotice('Löschen fehlgeschlagen: ' + err.message); });
+      this.kontoRef().child('korrekturen/' + id).remove().catch(goLocal);
     }
   };
-
-  function onErr(err) {
-    firebaseReady = false;
-    setStatus('err', 'Verbindung gestört');
-    showNotice('Die geteilte Datenbank ist gerade nicht erreichbar (' + err.message +
-               '). Gerechnet wird mit dem Stand auf diesem Gerät.');
-    render();
-  }
 
   /* ---------- Start ---------- */
 
