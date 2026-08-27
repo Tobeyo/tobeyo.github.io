@@ -33,6 +33,8 @@ window.NESSIE_DIENSTPLAN = {
       defaults: { von: '07:30', bis: '16:00', pause: 0.5 },
       // Normalarbeitszeit laut Dienstvertrag – Basis für die Überstunden
       wochenSoll: 37,
+      // Eigene Auswertung – der Kalender verlinkt sein Konto-Feld dorthin
+      kontoSeite: 'ueberstunden.html',
       // Monats-Soll aus dem Dienstplan ("fiktiv 5-Tage-Woche")
       soll: { '2026-08': 155.5, '2026-09': 163 },
       plan: {
