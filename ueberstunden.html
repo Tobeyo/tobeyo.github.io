@@ -539,6 +539,9 @@
   <!-- Die Dienstpläne selbst -->
   <script src="dienstplan-daten.js"></script>
 
+  <!-- Rechenkern – dieselbe Datei nutzt das Konto-Feld im Dienstplan -->
+  <script src="ueberstunden-rechner.js"></script>
+
   <div class="container">
 
     <div class="sync-bar">
@@ -681,6 +684,15 @@
      die Zeiten nur, geändert wird im Kalender.
      ========================================================= */
 
+  var RECH = window.NESSIE_UESTD;
+
+  if (!RECH) {
+    document.getElementById('noticeArea').innerHTML =
+      '<div class="notice">Der Rechenkern konnte nicht geladen werden ' +
+      '(ueberstunden-rechner.js fehlt oder wurde blockiert). Bitte die Seite neu laden.</div>';
+    return;
+  }
+
   var PERSON_ID = 'tobias';
 
   var ALL = (window.NESSIE_DIENSTPLAN && window.NESSIE_DIENSTPLAN.people) || [];
@@ -733,21 +745,6 @@
   function shortDate(d) { return pad(d.getDate()) + '.' + pad(d.getMonth() + 1) + '.'; }
   function longDate(d) { return DAY_NAMES[d.getDay()] + ', ' + pad(d.getDate()) + '.' + pad(d.getMonth() + 1) + '.' + d.getFullYear(); }
 
-  function toMinutes(t) {
-    var p = String(t).split(':');
-    return parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
-  }
-
-  // Netto-Stunden eines Eintrags (Dienst über Mitternacht wird mitgerechnet)
-  function hoursOf(e) {
-    if (!e) return 0;
-    if (e.art) return Math.max(0, parseFloat(e.h) || 0);
-    if (!e.von || !e.bis) return 0;
-    var diff = toMinutes(e.bis) - toMinutes(e.von);
-    if (diff < 0) diff += 24 * 60;
-    return Math.max(0, diff / 60 - (parseFloat(e.pause) || 0));
-  }
-
   function showNotice(msg) {
     document.getElementById('noticeArea').innerHTML = '<div class="notice">' + escapeHtml(msg) + '</div>';
   }
@@ -777,46 +774,9 @@
   }
   function signClass(n) { return n > 0.001 ? 'pos' : n < -0.001 ? 'neg' : 'zero'; }
 
-  /* ---------- Feiertage (Österreich) ---------- */
+  /* ---------- Feiertage (Österreich) – siehe ueberstunden-rechner.js ---------- */
 
-  // Ostersonntag nach der Gaußschen Osterformel
-  function easter(y) {
-    var a = y % 19, b = Math.floor(y / 100), c = y % 100;
-    var d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25);
-    var g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30;
-    var j = Math.floor(c / 4), k = c % 4;
-    var l = (32 + 2 * e + 2 * j - h - k) % 7;
-    var m = Math.floor((a + 11 * h + 22 * l) / 451);
-    var month = Math.floor((h + l - 7 * m + 114) / 31);
-    var day = ((h + l - 7 * m + 114) % 31) + 1;
-    return new Date(y, month - 1, day);
-  }
-
-  var holidayCache = {};
-  function holidaysOf(y) {
-    if (holidayCache[y]) return holidayCache[y];
-    var o = {};
-    function put(d, name) { o[keyOfDate(d)] = name; }
-    put(new Date(y, 0, 1), 'Neujahr');
-    put(new Date(y, 0, 6), 'Heilige Drei Könige');
-    var os = easter(y);
-    put(addDays(os, 1), 'Ostermontag');
-    put(addDays(os, 39), 'Christi Himmelfahrt');
-    put(addDays(os, 50), 'Pfingstmontag');
-    put(addDays(os, 60), 'Fronleichnam');
-    put(new Date(y, 4, 1), 'Staatsfeiertag');
-    put(new Date(y, 7, 15), 'Mariä Himmelfahrt');
-    put(new Date(y, 9, 26), 'Nationalfeiertag');
-    put(new Date(y, 10, 1), 'Allerheiligen');
-    put(new Date(y, 11, 8), 'Mariä Empfängnis');
-    put(new Date(y, 11, 25), 'Christtag');
-    put(new Date(y, 11, 26), 'Stefanitag');
-    holidayCache[y] = o;
-    return o;
-  }
-  function holidayName(key) {
-    return holidaysOf(+key.slice(0, 4))[key] || null;
-  }
+  function holidayName(key) { return RECH.holidayName(key); }
 
   /* ---------- Zustand ---------- */
 
@@ -847,12 +807,11 @@
   function applyKonto(raw) {
     var s = raw && raw.settings;
     if (s) {
-      settings.wochenSoll = s.wochenSoll != null ? parseFloat(s.wochenSoll) : DEFAULTS.wochenSoll;
-      settings.startSaldo = s.startSaldo != null ? parseFloat(s.startSaldo) : 0;
-      settings.startDatum = s.startDatum || '';
-      settings.zaAbzug = s.zaAbzug !== false;
-      if (!(settings.wochenSoll > 0)) settings.wochenSoll = DEFAULTS.wochenSoll;
-      if (isNaN(settings.startSaldo)) settings.startSaldo = 0;
+      var n = RECH.normSettings(s, DEFAULTS);
+      settings.wochenSoll = n.wochenSoll;
+      settings.startSaldo = n.startSaldo;
+      settings.startDatum = n.startDatum;
+      settings.zaAbzug = n.zaAbzug;
     }
     korrekturen = (raw && raw.korrekturen) || {};
   }
@@ -866,7 +825,7 @@
   var userName = '';
   try { userName = localStorage.getItem(NAME_KEY) || ''; } catch (e) {}
 
-  function tagesSoll() { return settings.wochenSoll / 5; }
+  function tagesSoll() { return RECH.tagesSoll(settings); }
 
   // Eintrag eines Tages: Kalender-Änderung schlägt den gedruckten Plan
   function getEntry(key) {
@@ -883,97 +842,28 @@
     return { von: p.von, bis: p.bis, pause: p.pause, tags: p.tags || [], custom: false };
   }
 
-  /* ---------- Der eigentliche Rechenkern ---------- */
+  /* ---------- Rechenkern ----------
+     Die Regeln (Tages-Soll, Urlaub, Zeitausgleich, Konto) stehen in
+     "ueberstunden-rechner.js", damit der Dienstplan mit demselben
+     Kern rechnet. Hier hängen sie nur am Zustand dieser Seite.      */
 
-  /*
-     Soll eines Tages:  Mo–Fr = Wochen-Soll ÷ 5, Sa/So und Feiertage = 0
-     Ist eines Tages:   Dienst      → Netto-Arbeitszeit
-                        Feiertag    → 0 (Soll ist ja auch 0)
-                        Urlaub etc. → angerechnete Stunden, mindestens das Tages-Soll
-                        Zeitausgleich → Soll minus genommene Stunden (Konto sinkt)
-  */
-  function dayInfo(date) {
-    var key = keyOfDate(date);
-    var dow = date.getDay();
-    var entry = getEntry(key);
-    var art = entry && entry.art ? entry.art : null;
-    var feiertag = holidayName(key) || (art === 'feiertag' ? 'Feiertag' : null);
-
-    var soll = (dow === 0 || dow === 6 || feiertag) ? 0 : tagesSoll();
-    var ist = 0, za = 0;
-
-    if (entry) {
-      if (!art) {
-        ist = hoursOf(entry);
-      } else if (art === 'feiertag') {
-        ist = 0;
-      } else if (art === 'zeitausgleich') {
-        za = Math.min(hoursOf(entry) > 0 ? hoursOf(entry) : soll, soll);
-        ist = settings.zaAbzug ? soll - za : soll;
-        if (!settings.zaAbzug) za = 0;
-      } else {
-        ist = hoursOf(entry) > 0 ? hoursOf(entry) : soll;
-      }
-    }
-
+  function ctx() {
     return {
-      key: key, date: date, dow: dow, entry: entry, art: art,
-      feiertag: feiertag, soll: soll, ist: ist, za: za, diff: ist - soll
+      plan: PERSON.plan,
+      entries: entries,
+      settings: settings,
+      korrekturen: korrekturen,
+      getEntry: getEntry
     };
   }
 
-  // Zeitraum, für den überhaupt Daten vorliegen
-  function dataRange() {
-    var keys = Object.keys(PERSON.plan);
-    Object.keys(entries).forEach(function (k) {
-      if (/^\d{4}-\d{2}-\d{2}$/.test(k) && entries[k] && !entries[k].frei) keys.push(k);
-    });
-    if (!keys.length) return null;
-    keys.sort();
-    var von = keys[0], bis = keys[keys.length - 1];
-    if (settings.startDatum && settings.startDatum > von) von = settings.startDatum;
-    if (von > bis) return null;
-    return { von: von, bis: bis };
-  }
-
-  function allDays() {
-    var r = dataRange();
-    if (!r) return [];
-    var out = [], d = dateOfKey(r.von), end = dateOfKey(r.bis);
-    while (d <= end) {
-      out.push(dayInfo(d));
-      d = addDays(d, 1);
-    }
-    return out;
-  }
-
-  function korrList() {
-    return Object.keys(korrekturen).map(function (id) {
-      var k = korrekturen[id];
-      return {
-        id: id,
-        datum: k.datum || '',
-        text: k.text || 'Korrektur',
-        h: parseFloat(k.h) || 0,
-        by: k.by || '',
-        ts: k.ts || 0
-      };
-    }).sort(function (a, b) { return a.datum < b.datum ? -1 : a.datum > b.datum ? 1 : 0; });
-  }
+  function dataRange() { return RECH.dataRange(ctx()); }
+  function allDays() { return RECH.allDays(ctx()); }
+  function korrList() { return RECH.korrList(korrekturen); }
 
   // Konto-Stand bis einschließlich Datum "bisKey"
   function saldoUntil(days, bisKey) {
-    var plan = 0, za = 0, ist = 0, soll = 0;
-    days.forEach(function (x) {
-      if (x.key > bisKey) return;
-      plan += x.diff; za += x.za; ist += x.ist; soll += x.soll;
-    });
-    var korr = 0;
-    korrList().forEach(function (k) { if (!k.datum || k.datum <= bisKey) korr += k.h; });
-    return {
-      plan: plan, korr: korr, za: za, ist: ist, soll: soll,
-      saldo: settings.startSaldo + plan + korr
-    };
+    return RECH.saldoUntil(days, korrList(), settings, bisKey);
   }
 
   /* ---------- Wochen & Monate ---------- */

@@ -203,6 +203,32 @@
     }
     .name-btn:hover { background: rgba(255,255,255,0.08); color: var(--text-main); }
 
+    /* Überstunden-Konto: Stand heute, gilt für den ganzen Plan und
+       nicht nur für den gerade angezeigten Monat.                  */
+    .konto-pill {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 6px 13px;
+      border-radius: 20px;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .konto-pill.on { display: inline-flex; }
+    .konto-pill b {
+      font-size: 0.95rem;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-main);
+    }
+    .konto-pill b.pos { color: var(--ok); }
+    .konto-pill b.neg { color: var(--danger); }
+    a.konto-pill:hover { background: rgba(255,255,255,0.08); color: var(--text-main); }
+
     .notice {
       background: rgba(255, 84, 112, 0.12);
       border: 1px solid rgba(255, 84, 112, 0.3);
@@ -604,12 +630,17 @@
   <!-- Die Dienstpläne selbst – dieselbe Datei nutzt der Überstunden-Rechner -->
   <script src="dienstplan-daten.js"></script>
 
+  <!-- Rechenkern für das Überstunden-Feld oben – teilt sich die Regeln
+       mit "ueberstunden.html", damit beide dieselbe Zahl zeigen -->
+  <script src="ueberstunden-rechner.js"></script>
+
   <div class="container">
 
     <div class="person-tabs" id="personTabs" role="tablist" aria-label="Person auswählen"></div>
 
     <div class="sync-bar">
       <div class="status" id="statusPill"><i></i><span id="statusText">Verbinde …</span></div>
+      <a class="konto-pill" id="kontoPill"><span>Überstunden</span><b id="kontoVal">±0</b></a>
       <button class="name-btn" id="nameBtn">👤 Name festlegen</button>
     </div>
 
@@ -814,17 +845,17 @@
   function keyOf(y, m, d) { return y + '-' + pad(m + 1) + '-' + pad(d); }
   function monthKeyOf(y, m) { return y + '-' + pad(m + 1); }
 
-  function toMinutes(t) {
-    var p = String(t).split(':');
-    return parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
-  }
-
-  // Netto-Stunden eines Eintrags (Dienst über Mitternacht wird mitgerechnet)
+  // Netto-Stunden eines Eintrags (Dienst über Mitternacht wird mitgerechnet).
+  // Steckt im gemeinsamen Rechenkern, damit das Konto unten dieselbe
+  // Arbeitszeit zählt wie der Kalender hier.
+  var RECH = window.NESSIE_UESTD || null;
   function hoursOf(e) {
+    if (RECH) return RECH.hoursOf(e);
     if (!e) return 0;
     if (e.art) return Math.max(0, parseFloat(e.h) || 0);
     if (!e.von || !e.bis) return 0;
-    var diff = toMinutes(e.bis) - toMinutes(e.von);
+    var p = String(e.von).split(':'), q = String(e.bis).split(':');
+    var diff = (q[0] * 60 + +q[1]) - (p[0] * 60 + +p[1]);
     if (diff < 0) diff += 24 * 60;
     return Math.max(0, diff / 60 - (parseFloat(e.pause) || 0));
   }
@@ -883,6 +914,21 @@
   // Abweichungen vom gedruckten Plan – je Person ein eigener Topf
   var overridesByPerson = {};
   PEOPLE.forEach(function (p) { overridesByPerson[p.id] = loadLocal(p.id); });
+
+  /* Überstunden-Konto: Einstellungen und Korrekturen liegen unter
+     "dienstplan/<person>/ueberstunden" – gepflegt wird das drüben im
+     Überstunden-Rechner, hier wird nur mitgelesen.                  */
+  function kontoKey(pid) { return 'nessie_ueberstunden_' + pid; }
+
+  var kontoByPerson = {};
+  PEOPLE.forEach(function (p) { kontoByPerson[p.id] = loadKonto(p.id); });
+
+  function loadKonto(pid) {
+    try { return JSON.parse(localStorage.getItem(kontoKey(pid))) || {}; } catch (e) { return {}; }
+  }
+  function saveKonto(pid) {
+    try { localStorage.setItem(kontoKey(pid), JSON.stringify(kontoByPerson[pid])); } catch (e) {}
+  }
   function overrides() { return overridesByPerson[personId]; }
 
   function loadLocal(pid) {
@@ -953,6 +999,7 @@
   /* ---------- Speicher-Schicht: Firebase, sonst nur lokal ---------- */
 
   var entriesRef = null;
+  var kontoRef = null;
   var readFailed = false;
   var onChange = function () {};
 
@@ -993,6 +1040,27 @@
           showNotice('Die geteilte Datenbank ist gerade nicht erreichbar (' + err.message +
                      '). Der Plan wird angezeigt, Änderungen bleiben vorerst auf diesem Gerät.');
           overridesByPerson[pid] = loadLocal(pid);
+          onChange();
+        }
+      );
+
+      // Überstunden-Konto derselben Person mitlesen. Gepflegt wird es im
+      // Überstunden-Rechner; klappt das Lesen nicht, bleibt es beim Stand
+      // auf diesem Gerät – der Kalender läuft davon unabhängig weiter.
+      if (kontoRef) { kontoRef.off(); kontoRef = null; }
+      var kref = db.ref(DB_ROOT + '/' + pid + '/ueberstunden');
+      kontoRef = kref;
+      kref.on('value',
+        function (snap) {
+          if (kontoRef !== kref) return;
+          kontoByPerson[pid] = snap.val() || {};
+          saveKonto(pid);
+          onChange();
+        },
+        function () {
+          if (kontoRef !== kref) return;
+          kontoRef = null;
+          kontoByPerson[pid] = loadKonto(pid);
           onChange();
         }
       );
@@ -1145,7 +1213,55 @@
 
     renderLegend();
     renderStats(days);
+    renderKonto();
     if (mode === 'cal') renderCalendar(days); else renderList(days);
+  }
+
+  /* ---------- Überstunden-Konto ----------
+     Zeigt denselben Stand wie der Überstunden-Rechner: Übertrag plus
+     alle Tagesdifferenzen bis heute plus Korrekturen. Der Wert hängt
+     nicht am angezeigten Monat.                                      */
+
+  var kontoPill = document.getElementById('kontoPill');
+  var kontoVal = document.getElementById('kontoVal');
+
+  function kontoStand() {
+    if (!RECH) return null;
+    var p = person();
+    var k = kontoByPerson[personId] || {};
+    return RECH.stand({
+      plan: p.plan,
+      entries: overrides(),
+      settings: RECH.normSettings(k.settings, { wochenSoll: p.wochenSoll }),
+      korrekturen: k.korrekturen,
+      getEntry: getEntry
+    }, todayKey);
+  }
+
+  function renderKonto() {
+    var st = kontoStand();
+
+    // Ohne hinterlegtes Wochen-Soll gibt es kein Konto – dann bleibt das
+    // Feld weg, statt eine erfundene Zahl zu zeigen.
+    if (!st) {
+      kontoPill.className = 'konto-pill';
+      kontoPill.removeAttribute('href');
+      return;
+    }
+
+    kontoVal.textContent = fmtSigned(st.saldo);
+    kontoVal.className = st.saldo > 0.001 ? 'pos' : st.saldo < -0.001 ? 'neg' : '';
+    kontoPill.className = 'konto-pill on';
+
+    var d = new Date(+st.nowKey.slice(0, 4), +st.nowKey.slice(5, 7) - 1, +st.nowKey.slice(8, 10));
+    var stand = 'Stand ' + d.getDate() + '. ' + MONTH_NAMES[d.getMonth()] + ' ' + d.getFullYear() +
+                (st.nowKey < todayKey ? ' (letzter Plantag)' : '');
+    var seite = person().kontoSeite;
+
+    kontoPill.title = 'Überstunden-Konto · ' + stand +
+      (seite ? ' · antippen für die ganze Auswertung' : '');
+    if (seite) kontoPill.setAttribute('href', seite);
+    else kontoPill.removeAttribute('href');
   }
 
   function renderLegend() {
