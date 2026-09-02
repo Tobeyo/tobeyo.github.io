@@ -36,7 +36,7 @@ window.NESSIE_DIENSTPLAN = {
       // Eigene Auswertung – der Kalender verlinkt sein Konto-Feld dorthin
       kontoSeite: 'ueberstunden.html',
       // Monats-Soll aus dem Dienstplan ("fiktiv 5-Tage-Woche")
-      soll: { '2026-08': 155.5, '2026-09': 163 },
+      soll: { '2026-08': 155.5, '2026-09': 163, '2026-10': 162.5 },
       plan: {
         // ---- August 2026 ----
         '2026-08-03': { von: '08:30', bis: '16:30', pause: 0.5, tags: ['Seminar'] },
@@ -90,7 +90,37 @@ window.NESSIE_DIENSTPLAN = {
 
         '2026-09-28': { von: '07:30', bis: '13:00', pause: 0,   tags: [] },
         '2026-09-29': { von: '07:30', bis: '17:00', pause: 0.5, tags: [] },
-        '2026-09-30': { von: '09:00', bis: '18:00', pause: 0.5, tags: ['Klub'] }
+        '2026-09-30': { von: '09:00', bis: '18:00', pause: 0.5, tags: ['Klub'] },
+
+        // ---- Oktober 2026 (Monats-Soll 162,50) ----
+        '2026-10-01': { von: '07:30', bis: '17:00', pause: 0.5, tags: ['Klub'] },  // 9,0
+        '2026-10-02': { von: '07:30', bis: '14:00', pause: 0.5, tags: [] },        // 6,0
+
+        '2026-10-05': { von: '07:30', bis: '16:00', pause: 0.5, tags: [] },        // 8,0
+        '2026-10-06': { von: '07:30', bis: '15:00', pause: 0.5, tags: [] },        // 7,0
+        '2026-10-07': { von: '07:30', bis: '16:00', pause: 0.5, tags: [] },        // 8,0
+        '2026-10-08': { von: '07:30', bis: '16:00', pause: 0.5, tags: [] },        // 8,0
+        '2026-10-09': { von: '07:30', bis: '14:00', pause: 0.5, tags: [] },        // 6,0
+
+        '2026-10-12': { von: '07:30', bis: '15:00', pause: 0.5, tags: [] },        // 7,0
+        '2026-10-13': { von: '07:30', bis: '15:00', pause: 0.5, tags: [] },        // 7,0
+        '2026-10-14': { von: '07:30', bis: '15:00', pause: 0.5, tags: [] },        // 7,0
+        '2026-10-15': { von: '07:30', bis: '15:00', pause: 0.5, tags: [] },        // 7,0
+        '2026-10-16': { von: '09:00', bis: '17:00', pause: 0.5, tags: ['Klub'] },  // 7,5
+
+        '2026-10-19': { von: '07:30', bis: '15:30', pause: 0.5, tags: [] },        // 7,5
+        '2026-10-20': { von: '07:30', bis: '15:00', pause: 0.5, tags: [] },        // 7,0
+        '2026-10-21': { von: '08:30', bis: '18:00', pause: 0.5, tags: ['Klub'] },  // 9,0
+        '2026-10-22': { von: '07:30', bis: '15:00', pause: 0.5, tags: [] },        // 7,0
+        '2026-10-23': { von: '07:30', bis: '14:00', pause: 0.5, tags: ['Klub'] },  // 6,0
+
+        // Mo 26.10. Nationalfeiertag, im Plan mit 7,5 angerechnet
+        '2026-10-26': { art: 'feiertag', h: 7.5 },
+        '2026-10-27': { von: '07:30', bis: '16:00', pause: 0.5, tags: [] },        // 8,0
+        '2026-10-28': { von: '08:30', bis: '18:00', pause: 0.5, tags: [] },        // 9,0
+        '2026-10-29': { von: '07:30', bis: '16:00', pause: 0.5, tags: [] },        // 8,0
+        '2026-10-30': { von: '07:30', bis: '14:00', pause: 0.5, tags: [] }         // 6,0
+        // Sa 31.10. laut Plan dienstfrei
       }
     },
 
@@ -154,7 +184,7 @@ window.NESSIE_DIENSTPLAN = {
         '2026-09-14': { von: '08:30', bis: '15:00', pause: 0.5, tags: ['TX'] },   // 6:00
         '2026-09-15': { von: '08:30', bis: '18:30', pause: 1,   tags: ['HW'] },   // 9:00
         '2026-09-16': { von: '06:00', bis: '15:00', pause: 1,   tags: ['HW'] },   // 8:00
-        '2026-09-17': { von: '08:30', bis: '15:00', pause: 0.5, tags: ['HW'] },   // 6:00
+        '2026-09-17': { von: '12:00', bis: '18:30', pause: 0.5, tags: ['HW'] },   // 6:00 (Änderung)
         '2026-09-18': { von: '08:30', bis: '15:00', pause: 0.5, tags: ['HW'] },   // 6:00
         // Sa 19.09. + So 20.09. frei
 
@@ -175,11 +205,14 @@ window.NESSIE_DIENSTPLAN = {
         '2026-10-02': { von: '08:00', bis: '17:00', pause: 1,   tags: ['HW'] },   // 8:00
         // Sa 03.10. + So 04.10. frei
 
-        /* ---- KW 41 · 05.10. – 11.10.2026 ----
-           ACHTUNG: Dieser Aushang liegt noch nicht vor. Solange die Woche
-           fehlt, wertet der Überstunden-Rechner Mo 05.10. bis Fr 09.10. als
-           dienstfrei und zieht dafür je ein Tages-Soll ab. Sobald der Plan
-           hängt, hier nachtragen.                                          */
+        /* ---- KW 41 · 05.10. – 11.10.2026 (Planzeit 34:50) ---- */
+        // Mo 05.10. frei
+        '2026-10-06': { art: 'zeitausgleich', h: 5 + 50 / 60 },                   // 5:50
+        '2026-10-07': { von: '12:00', bis: '20:00', pause: 1,   tags: ['HW'] },   // 7:00
+        '2026-10-08': { von: '08:30', bis: '17:00', pause: 1,   tags: ['HW'] },   // 7:30
+        '2026-10-09': { von: '08:30', bis: '17:00', pause: 1,   tags: ['HW'] },   // 7:30
+        '2026-10-10': { von: '10:00', bis: '18:00', pause: 1,   tags: ['HW'] },   // 7:00
+        // So 11.10. frei
 
         /* ---- KW 42 · 12.10. – 18.10.2026 (Planzeit 35:00) ---- */
         // Mo 12.10. – Sa 17.10. Urlaub, je 5:50 angerechnet
