@@ -1,0 +1,46 @@
+{
+  "id": "./ueberstunden",
+  "name": "Überstunden",
+  "short_name": "Überstunden",
+  "description": "Das Überstunden-Konto von Tobias: gearbeitete Stunden gegen 37 Stunden Wochen-Soll.",
+  "lang": "de",
+  "dir": "ltr",
+  "start_url": "./ueberstunden.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f1015",
+  "theme_color": "#0f1015",
+  "icons": [
+    {
+      "src": "icons/ueberstunden-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/ueberstunden-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/ueberstunden-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/ueberstunden-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/ueberstunden.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

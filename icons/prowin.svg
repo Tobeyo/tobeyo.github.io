@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="g_prowin" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0" stop-color="#ff8a7a"/>
+      <stop offset="1" stop-color="#b3123c"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#g_prowin)"/>
+    <path d="M150 132h212v302l-30-24-29 24-29-24-29 24-29-24-30 24z" fill="#ffffff"/>
+    <g stroke="#b3123c" stroke-width="20" stroke-linecap="round">
+      <path d="M192 196h128"/>
+      <path d="M192 250h128"/>
+      <path d="M192 304h74"/>
+    </g></svg>

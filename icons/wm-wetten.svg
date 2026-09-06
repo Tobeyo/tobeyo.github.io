@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="g_wm_wetten" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0" stop-color="#1b4ea0"/>
+      <stop offset="1" stop-color="#0a1c38"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#g_wm_wetten)"/>
+    <defs><clipPath id="ballclip"><circle cx="256" cy="256" r="126"/></clipPath></defs>
+    <circle cx="256" cy="256" r="126" fill="#ffffff"/>
+    <g clip-path="url(#ballclip)">
+      <path d="M256.0 194.0L315.0 236.8L292.4 306.2L219.6 306.2L197.0 236.8Z" fill="#0a1c38"/>
+      <path d="M299.5 28.1L326.4 110.9L256.0 162.0L185.6 110.9L212.5 28.1Z" fill="#0a1c38"/>
+      <path d="M486.2 227.0L415.8 278.1L345.4 227.0L372.3 144.2L459.3 144.2Z" fill="#0a1c38"/>
+      <path d="M354.7 465.9L284.4 414.8L311.3 332.0L398.2 332.0L425.1 414.8Z" fill="#0a1c38"/>
+      <path d="M86.9 414.8L113.8 332.0L200.7 332.0L227.6 414.8L157.3 465.9Z" fill="#0a1c38"/>
+      <path d="M52.7 144.2L139.7 144.2L166.6 227.0L96.2 278.1L25.8 227.0Z" fill="#0a1c38"/>
+    </g>
+    <g stroke="#0a1c38" stroke-width="16" stroke-linecap="round">
+      <path d="M256.0 194.0L256.0 148.0"/>
+      <path d="M315.0 236.8L358.7 222.6"/>
+      <path d="M292.4 306.2L319.5 343.4"/>
+      <path d="M219.6 306.2L192.5 343.4"/>
+      <path d="M197.0 236.8L153.3 222.6"/>
+    </g></svg>

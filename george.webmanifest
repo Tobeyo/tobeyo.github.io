@@ -1,0 +1,46 @@
+{
+  "id": "./george",
+  "name": "George",
+  "short_name": "George",
+  "description": "Banking-Klon zum Spaßhaben: Sparziele, Karten und alles frei einstellbar.",
+  "lang": "de",
+  "dir": "ltr",
+  "start_url": "./george.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f0f2f5",
+  "theme_color": "#0069b4",
+  "icons": [
+    {
+      "src": "icons/george-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/george-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/george-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/george-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/george.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

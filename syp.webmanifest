@@ -1,0 +1,46 @@
+{
+  "id": "./syp",
+  "name": "SYP Lernen",
+  "short_name": "SYP",
+  "description": "Matura-Stoff für Systemplanung und Projektentwicklung.",
+  "lang": "de",
+  "dir": "ltr",
+  "start_url": "./SYP_visuell.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f7f6fb",
+  "theme_color": "#7c3aed",
+  "icons": [
+    {
+      "src": "icons/syp-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/syp-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/syp-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/syp-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/syp.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

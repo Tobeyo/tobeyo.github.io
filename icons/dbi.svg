@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="g_dbi" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0" stop-color="#3ad4ea"/>
+      <stop offset="1" stop-color="#0b6c85"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#g_dbi)"/>
+    <g fill="#ffffff">
+      <ellipse cx="256" cy="164" rx="112" ry="42"/>
+      <path d="M144 164v76c0 23 50 42 112 42s112-19 112-42v-76z" opacity="0.95"/>
+      <path d="M144 258v76c0 23 50 42 112 42s112-19 112-42v-76z" opacity="0.8"/>
+    </g>
+    <g fill="none" stroke="#0b6c85" stroke-width="14" stroke-linecap="round" opacity="0.5">
+      <path d="M144 240c0 23 50 42 112 42s112-19 112-42"/>
+      <path d="M144 334c0 23 50 42 112 42s112-19 112-42" opacity="0"/>
+    </g></svg>

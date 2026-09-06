@@ -1,0 +1,46 @@
+{
+  "id": "./wm-wetten",
+  "name": "WM Wetten",
+  "short_name": "WM Wetten",
+  "description": "Die Tipprunde für die Weltmeisterschaft in der Familie.",
+  "lang": "de",
+  "dir": "ltr",
+  "start_url": "./wm-wetten.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#080b11",
+  "theme_color": "#080b11",
+  "icons": [
+    {
+      "src": "icons/wm-wetten-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/wm-wetten-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/wm-wetten-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/wm-wetten-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/wm-wetten.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
