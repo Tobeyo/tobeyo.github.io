@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="g_arbeitszeiten" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0" stop-color="#7aa2ff"/>
+      <stop offset="1" stop-color="#3b4fd8"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#g_arbeitszeiten)"/>
+    <rect x="130" y="132" width="252" height="248" rx="34" fill="#ffffff"/>
+    <path d="M130 168a38 38 0 0 1 38-36h176a38 38 0 0 1 38 36v34H130z" fill="#3b4fd8"/>
+    <g fill="#ffffff">
+      <rect x="184" y="108" width="20" height="56" rx="10"/>
+      <rect x="308" y="108" width="20" height="56" rx="10"/>
+    </g>
+    <g fill="#3b4fd8">
+      <rect x="166" y="236" width="46" height="40" rx="11"/>
+      <rect x="233" y="236" width="46" height="40" rx="11"/>
+      <rect x="300" y="236" width="46" height="40" rx="11"/>
+      <rect x="166" y="296" width="46" height="40" rx="11" opacity="0.4"/>
+      <rect x="233" y="296" width="46" height="40" rx="11" opacity="0.4"/>
+      <rect x="300" y="296" width="46" height="40" rx="11" opacity="0.4"/>
+    </g></svg>

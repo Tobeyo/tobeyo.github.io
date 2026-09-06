@@ -1,0 +1,46 @@
+{
+  "id": "./arbeitszeiten",
+  "name": "Arbeitszeiten",
+  "short_name": "Dienstplan",
+  "description": "Die Dienstpläne von Tobias und Daniel als Kalender – mit Stunden und Wochensummen.",
+  "lang": "de",
+  "dir": "ltr",
+  "start_url": "./arbeitszeiten.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f1015",
+  "theme_color": "#0f1015",
+  "icons": [
+    {
+      "src": "icons/arbeitszeiten-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/arbeitszeiten-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/arbeitszeiten-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/arbeitszeiten-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/arbeitszeiten.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
