@@ -7,8 +7,10 @@
    garantiert dasselbe Ergebnis – die Logik steht nur hier.
 
    Die Regeln in Kurzform:
-     Soll eines Tages:  Mo–Fr = Wochen-Soll ÷ 5, Sa/So und
-                        Feiertage = 0
+     Soll eines Tages:  normaler Werktag → das, was der Aushang für
+                        GENAU DIESEN Tag vorsieht (nicht der Wochen-
+                        durchschnitt!). Sa/So und Feiertage = 0.
+                        Zeitausgleich = Wochen-Soll ÷ 5 (siehe unten).
      Ist eines Tages:   Dienst        → Netto-Arbeitszeit
                         Feiertag      → 0 (Soll ist ja auch 0)
                         Urlaub etc.   → angerechnete Stunden,
@@ -16,6 +18,14 @@
                         Zeitausgleich → Soll minus genommene
                                         Stunden (Konto sinkt)
      Konto = Übertrag + Summe der Tagesdifferenzen + Korrekturen
+
+     Wichtig: Weil Soll und Ist an normalen Werktagen beide aus
+     demselben Aushang stammen, heben sie sich gegenseitig auf,
+     solange im Kalender nichts geändert wurde – ein neuer (kürzerer
+     oder längerer) Plantag lässt das Konto also NICHT von selbst
+     schwanken. Es bewegt sich nur, wenn die tatsächliche Zeit im
+     Kalender von der gedruckten abweicht (oder an Sa/So/Feiertagen
+     gearbeitet bzw. Zeitausgleich genommen wird).
 
    Ein "ctx" ist dabei immer ein Objekt mit:
      plan        die gedruckten Dienste der Person
@@ -135,6 +145,29 @@
 
   function tagesSoll(settings) { return settings.wochenSoll / 5; }
 
+  // Wie viele Stunden ein Eintrag zählt (Dienst, Urlaub, Feiertag,
+  // Zeitausgleich) – dieselbe Regel für den gedruckten Plan-Eintrag wie
+  // für den tatsächlichen, damit man beide direkt vergleichen kann.
+  function tagesWert(entry, flatSoll, zaAbzug) {
+    if (!entry) return { ist: 0, za: 0 };
+    var art = entry.art || null;
+    if (!art) return { ist: hoursOf(entry), za: 0 };
+    if (art === 'feiertag') return { ist: 0, za: 0 };
+    if (art === 'zeitausgleich') {
+      var za = Math.min(hoursOf(entry) > 0 ? hoursOf(entry) : flatSoll, flatSoll);
+      var ist = zaAbzug ? flatSoll - za : flatSoll;
+      return { ist: ist, za: zaAbzug ? za : 0 };
+    }
+    return { ist: hoursOf(entry) > 0 ? hoursOf(entry) : flatSoll, za: 0 };
+  }
+
+  function planEntryOf(ctx, key) {
+    var p = ctx.plan && ctx.plan[key];
+    if (!p) return null;
+    if (p.art) return { art: p.art, h: p.h };
+    return { von: p.von, bis: p.bis, pause: p.pause };
+  }
+
   function dayInfo(date, ctx) {
     var settings = ctx.settings;
     var key = keyOfDate(date);
@@ -142,23 +175,22 @@
     var entry = ctx.getEntry(key);
     var art = entry && entry.art ? entry.art : null;
     var feiertag = holidayName(key) || (art === 'feiertag' ? 'Feiertag' : null);
+    var frei = dow === 0 || dow === 6 || !!feiertag;
 
-    var soll = (dow === 0 || dow === 6 || feiertag) ? 0 : tagesSoll(settings);
-    var ist = 0, za = 0;
+    var flatSoll = frei ? 0 : tagesSoll(settings);
+    var actual = tagesWert(entry, flatSoll, settings.zaAbzug);
+    var ist = actual.ist, za = actual.za;
 
-    if (entry) {
-      if (!art) {
-        ist = hoursOf(entry);
-      } else if (art === 'feiertag') {
-        ist = 0;
-      } else if (art === 'zeitausgleich') {
-        za = Math.min(hoursOf(entry) > 0 ? hoursOf(entry) : soll, soll);
-        ist = settings.zaAbzug ? soll - za : soll;
-        if (!settings.zaAbzug) za = 0;
-      } else {
-        ist = hoursOf(entry) > 0 ? hoursOf(entry) : soll;
-      }
-    }
+    // Sa/So, Feiertage und Zeitausgleich rechnen unabhängig vom gedruckten
+    // Plan (Wochenend-/Feiertagsarbeit ist grundsätzlich "extra", ein
+    // ZA-Tag baut bewusst Stunden ab). An normalen Werktagen ist das Soll
+    // dagegen das, was der Aushang für GENAU DIESEN Tag vorsieht – nicht
+    // der Wochendurchschnitt. So bewegt sich das Konto nur dann, wenn im
+    // Kalender wirklich etwas anderes steht als im Aushang – nicht schon
+    // dadurch, dass ein neuer (kürzerer oder längerer) Plantag "heute" wird.
+    var soll = (frei || art === 'zeitausgleich')
+      ? flatSoll
+      : tagesWert(planEntryOf(ctx, key), flatSoll, settings.zaAbzug).ist;
 
     return {
       key: key, date: date, dow: dow, entry: entry, art: art,
