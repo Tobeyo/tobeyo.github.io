@@ -62,7 +62,7 @@ window.NESSIE_DIENSTPLAN = {
         '2026-08-26': { von: '07:30', bis: '18:00', pause: 0.5, tags: ['Klub'] },
         '2026-08-27': { von: '07:30', bis: '13:00', pause: 0,   tags: [] },
         '2026-08-28': { von: '09:00', bis: '17:00', pause: 0,   tags: ['Klub'] },
-        // 31.08. laut Plan dienstfrei
+        '2026-08-31': { von: '07:30', bis: '16:00', pause: 0.5, tags: [] },
 
         // ---- September 2026 ----
         '2026-09-01': { von: '07:30', bis: '16:00', pause: 0.5, tags: [] },
