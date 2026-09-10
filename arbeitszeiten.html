@@ -448,6 +448,7 @@
     .chip.n2 { color: var(--t-n2); }
     .chip.tx { color: var(--t-tx); }
     .chip.custom { color: var(--t-custom); }
+    .chip.neutral { color: var(--free); }
 
     .empty-hint {
       text-align: center;
@@ -579,6 +580,33 @@
     .btn.primary { background: linear-gradient(135deg, var(--accent-1), var(--accent-2)); color: #0f1015; }
     .btn.ghost { background: rgba(255,255,255,0.06); color: var(--text-main); border: 1px solid var(--card-border); }
     .btn.danger { background: rgba(255,84,112,0.15); color: var(--danger); border: 1px solid rgba(255,84,112,0.35); flex: 0 0 auto; padding: 12px 16px; }
+
+    /* Schalter "zählt nicht aufs Konto" */
+    .check {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin: 4px 0 16px;
+      font-size: 0.82rem;
+      font-weight: 300;
+      color: var(--text-muted);
+      line-height: 1.45;
+      cursor: pointer;
+    }
+    .check input { width: 18px; height: 18px; margin-top: 1px; accent-color: var(--accent-2); flex-shrink: 0; }
+    .check b { font-weight: 600; color: var(--text-main); }
+
+    /* Eckmarke im Kalender: dieser Tag bewegt das Konto nicht */
+    .day .nomark {
+      position: absolute;
+      top: 4px;
+      right: 6px;
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: var(--free);
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
 
     .modal-meta {
       margin-top: 14px;
@@ -753,6 +781,13 @@
           <input type="number" id="fStd" min="0" max="24" step="0.05" value="0">
         </div>
       </div>
+
+      <label class="check">
+        <input type="checkbox" id="fNeutral">
+        <span><b>Zählt nicht aufs Überstunden-Konto.</b>
+          Der Tag darf dann vom Aushang abweichen, ohne dass daraus ein
+          Plus oder ein Minus wird – gilt auch für „Frei“.</span>
+      </label>
 
       <div class="modal-actions">
         <button class="btn ghost" id="mCancel" type="button">Schließen</button>
@@ -978,18 +1013,31 @@
   var editKey = null;
   var editTags = [];
 
+  // Der rohe Eintrag aus der Datenbank – der weiß auch bei einem
+  // freigestellten Tag noch, ob er aufs Überstunden-Konto zählt.
+  function rawEntry(key) { return overrides()[key] || null; }
+
+  // Ist der Tag als "zählt nicht aufs Überstunden-Konto" markiert?
+  function isNeutral(key) {
+    var o = rawEntry(key);
+    return !!(o && o.neutral);
+  }
+
   // Liefert den Eintrag eines Tages oder null (= dienstfrei)
   function getEntry(key) {
     var o = overrides()[key];
     if (o) {
       if (o.frei) return null;
       if (o.art) {
-        return { art: o.art, h: parseFloat(o.h) || 0, tags: [], custom: true, by: o.by || '', ts: o.ts || 0 };
+        return {
+          art: o.art, h: parseFloat(o.h) || 0, tags: [], custom: true,
+          neutral: !!o.neutral, by: o.by || '', ts: o.ts || 0
+        };
       }
       return {
         von: o.von, bis: o.bis, pause: parseFloat(o.pause) || 0,
         tags: Array.isArray(o.tags) ? o.tags.slice() : [],
-        custom: true, by: o.by || '', ts: o.ts || 0
+        custom: true, neutral: !!o.neutral, by: o.by || '', ts: o.ts || 0
       };
     }
     if (o === null) return null;                 // Altbestand: null bedeutete "frei"
@@ -1237,6 +1285,7 @@
       entries: overrides(),
       settings: RECH.normSettings(k.settings, { wochenSoll: p.wochenSoll }),
       korrekturen: k.korrekturen,
+      anpassungen: k.anpassungen,
       getEntry: getEntry
     }, todayKey);
   }
@@ -1367,6 +1416,9 @@
       cell.className = cls;
 
       var html = '<div class="dnum">' + x.d + '</div>';
+      if (isNeutral(x.key)) {
+        html += '<div class="nomark" title="Zählt nicht aufs Überstunden-Konto">±0</div>';
+      }
       if (x.entry && x.entry.art) {
         html += '<div class="art" style="color:' + artColor(x.entry.art) + '">' +
                 escapeHtml(artLabel(x.entry.art)) + '</div>';
@@ -1382,7 +1434,8 @@
       cell.innerHTML = html;
       cell.setAttribute('aria-label',
         x.d + '. ' + MONTH_NAMES[curM] + ' – ' +
-        (x.entry ? (x.entry.art ? artLabel(x.entry.art) : x.entry.von + ' bis ' + x.entry.bis) : 'frei'));
+        (x.entry ? (x.entry.art ? artLabel(x.entry.art) : x.entry.von + ' bis ' + x.entry.bis) : 'frei') +
+        (isNeutral(x.key) ? ' – zählt nicht aufs Überstunden-Konto' : ''));
       cell.addEventListener('click', function () { openModal(x.key); });
       frag.appendChild(cell);
     });
@@ -1425,6 +1478,7 @@
           return '<span class="chip ' + tagClass(t) + '">' + escapeHtml(t) + '</span>';
         }).join('');
         if (x.entry.custom) chips += '<span class="chip custom">geändert</span>';
+        if (isNeutral(x.key)) chips += '<span class="chip neutral">ohne Überstunden</span>';
 
         var middle;
         if (x.entry.art) {
@@ -1458,6 +1512,7 @@
   var fPause = document.getElementById('fPause');
   var fArt = document.getElementById('fArt');
   var fStd = document.getElementById('fStd');
+  var fNeutral = document.getElementById('fNeutral');
   var tagPicker = document.getElementById('tagPicker');
   var lastFocus = null;
 
@@ -1510,9 +1565,12 @@
 
     document.getElementById('mTitle').textContent =
       DAY_LONG[date.getDay()] + ', ' + (+parts[2]) + '. ' + MONTH_NAMES[date.getMonth()] + ' ' + parts[0];
-    document.getElementById('mSub').textContent = e
+    var raw = rawEntry(key);
+    var sub = e
       ? (e.custom ? 'Von Hand eingetragen' : 'Laut Dienstplan')
-      : 'Dienstfrei – trage hier einen Dienst ein';
+      : (raw && raw.frei ? 'Von Hand freigestellt' : 'Dienstfrei – trage hier einen Dienst ein');
+    if (raw && raw.neutral) sub += ' · zählt nicht aufs Konto';
+    document.getElementById('mSub').textContent = sub;
 
     fArt.value = e && e.art ? e.art : 'dienst';
     if (fArt.value !== 'dienst' && !ART_LABELS[fArt.value]) fArt.value = 'dienst';
@@ -1522,26 +1580,30 @@
     setPause(e && !e.art ? e.pause : def.pause);
     fStd.value = e && e.art ? (Math.round(e.h * 100) / 100) : 0;
 
+    fNeutral.checked = !!(raw && raw.neutral);
+
     editTags = e && !e.art ? e.tags.slice() : [];
     tagPicker.querySelectorAll('button').forEach(function (b) {
       b.classList.toggle('on', editTags.indexOf(b.getAttribute('data-tag')) > -1);
     });
 
-    renderMeta(key, e);
+    renderMeta(key);
     syncArtFields();
     overlay.classList.add('open');
     document.getElementById('mSave').focus();
   }
 
-  // Zeigt, wer den Tag zuletzt geändert hat – plus Knopf zum Zurücksetzen
-  function renderMeta(key, e) {
+  // Zeigt, wer den Tag zuletzt geändert hat – plus Knopf zum Zurücksetzen.
+  // Gilt auch für freigestellte Tage, die ja ebenfalls eine Änderung sind.
+  function renderMeta(key) {
     var box = document.getElementById('mMeta');
-    if (!e || !e.custom) { box.innerHTML = ''; return; }
+    var raw = rawEntry(key);
+    if (!raw) { box.innerHTML = ''; return; }
 
-    var txt = 'Geändert';
-    if (e.by) txt += ' von ' + e.by;
-    if (e.ts) {
-      txt += ' am ' + new Date(e.ts).toLocaleString('de-AT', {
+    var txt = raw.frei ? 'Freigestellt' : 'Geändert';
+    if (raw.by) txt += ' von ' + raw.by;
+    if (raw.ts) {
+      txt += ' am ' + new Date(raw.ts).toLocaleString('de-AT', {
         day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
       });
     }
@@ -1592,6 +1654,10 @@
       val = { art: fArt.value, h: Math.round(h * 100) / 100 };
     }
 
+    // Ausdrücklich als "zählt nicht" markierte Tage bewegen das
+    // Überstunden-Konto nicht – der Rechenkern setzt ihr Soll aufs Ist.
+    if (fNeutral.checked) val.neutral = true;
+
     if (!userName && firebaseReady) askName();   // damit die Familie sieht, wer geändert hat
     val.by = userName || 'unbekannt';
     val.ts = Date.now();
@@ -1606,8 +1672,12 @@
     if (!editKey) return;
     if (!userName && firebaseReady) askName();
     var key = editKey;
+    var val = { frei: true, by: userName || 'unbekannt', ts: Date.now() };
+    // Auch ein freigestellter Tag kann "zählt nicht" sein – sonst würde
+    // ein gestrichener Dienst als Minusstunden im Konto landen.
+    if (fNeutral.checked) val.neutral = true;
     closeModal();
-    Store.set(key, { frei: true, by: userName || 'unbekannt', ts: Date.now() });
+    Store.set(key, val);
     render();
   });
 

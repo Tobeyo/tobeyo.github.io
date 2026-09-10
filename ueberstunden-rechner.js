@@ -27,11 +27,20 @@
      Kalender von der gedruckten abweicht (oder an Sa/So/Feiertagen
      gearbeitet bzw. Zeitausgleich genommen wird).
 
+   Von Hand übersteuern lässt sich das an zwei Stellen:
+     1. Ein einzelner Tag kann im Kalender als "zählt nicht aufs Konto"
+        markiert werden (Feld "neutral"). Dann ist sein Soll gleich
+        seinem Ist – der Tag darf also beliebig vom Aushang abweichen,
+        ohne dass daraus Plus- oder Minusstunden werden.
+     2. Über "anpassungen" wird das Ergebnis pro Monat und fürs
+        Gesamtkonto von Hand gesetzt (siehe weiter unten).
+
    Ein "ctx" ist dabei immer ein Objekt mit:
      plan        die gedruckten Dienste der Person
      entries     die Änderungen aus dem Kalender
      settings    { wochenSoll, startSaldo, startDatum, zaAbzug }
      korrekturen die von Hand erfassten Korrekturen
+     anpassungen die Anpassungen pro Monat / fürs Gesamtkonto
      getEntry    Funktion(key) → Eintrag des Tages oder null
    ========================================================= */
 
@@ -141,6 +150,53 @@
     }).sort(function (a, b) { return a.datum < b.datum ? -1 : a.datum > b.datum ? 1 : 0; });
   }
 
+  /* ---------- Anpassungen von Hand ----------
+     "anpassungen" sieht so aus:
+
+       {
+         monate: { '2026-09': { modus: 'delta'|'fix', h: 3.5 } },
+         gesamt: { aktiv: true, modus: 'delta'|'fix', h: 12 }
+       }
+
+     modus 'delta' = die Stunden kommen zum Ergebnis dazu (mit Minus
+                     gehen sie ab).
+     modus 'fix'   = das Ergebnis IST genau diese Zahl; gerechnet wird
+                     die Differenz zum Wert, der sich aus dem Plan ergibt.
+
+     Bei den Monaten meint "das Ergebnis" die Überstunden dieses Monats,
+     beim Gesamtkonto der Kontostand am Stichtag (normalerweise heute).
+     Die Funktion darf gefahrlos auf schon geprüfte Daten angewendet
+     werden – sie liefert dann dasselbe zurück.                       */
+
+  function normAnpassungen(raw) {
+    var a = raw || {};
+    var srcM = a.monate || {};
+    var monate = {};
+
+    Object.keys(srcM).forEach(function (mk) {
+      if (!/^\d{4}-\d{2}$/.test(mk)) return;
+      var x = srcM[mk] || {};
+      var h = parseFloat(x.h);
+      if (isNaN(h)) return;
+      var modus = x.modus === 'fix' ? 'fix' : 'delta';
+      if (modus === 'delta' && Math.abs(h) < 0.005) return;   // "+0 dazu" ist nichts
+      monate[mk] = { modus: modus, h: h, by: x.by || '', ts: x.ts || 0 };
+    });
+
+    var g = a.gesamt || {};
+    var gh = parseFloat(g.h);
+    var gesamt = null;
+    if (g.aktiv && !isNaN(gh)) {
+      gesamt = {
+        aktiv: true,
+        modus: g.modus === 'delta' ? 'delta' : 'fix',
+        h: gh, by: g.by || '', ts: g.ts || 0
+      };
+    }
+
+    return { monate: monate, gesamt: gesamt };
+  }
+
   /* ---------- Der eigentliche Rechenkern ---------- */
 
   function tagesSoll(settings) { return settings.wochenSoll / 5; }
@@ -168,6 +224,15 @@
     return { von: p.von, bis: p.bis, pause: p.pause };
   }
 
+  // Ist ein Tag als "zählt nicht aufs Konto" markiert? Die Markierung
+  // steht am Kalender-Eintrag – auch an einem, der den Tag freistellt
+  // (der kommt als "kein Eintrag" an, deshalb der Blick in die Rohdaten).
+  function neutralOf(ctx, key, entry) {
+    if (entry && entry.neutral) return true;
+    var raw = ctx.entries && ctx.entries[key];
+    return !!(raw && raw.neutral);
+  }
+
   function dayInfo(date, ctx) {
     var settings = ctx.settings;
     var key = keyOfDate(date);
@@ -176,9 +241,12 @@
     var art = entry && entry.art ? entry.art : null;
     var feiertag = holidayName(key) || (art === 'feiertag' ? 'Feiertag' : null);
     var frei = dow === 0 || dow === 6 || !!feiertag;
+    var neutral = neutralOf(ctx, key, entry);
 
     var flatSoll = frei ? 0 : tagesSoll(settings);
-    var actual = tagesWert(entry, flatSoll, settings.zaAbzug);
+    // An einem neutralen Tag wird auch der Zeitausgleich nicht abgezogen –
+    // der Tag soll das Konto ja in keine Richtung bewegen.
+    var actual = tagesWert(entry, flatSoll, neutral ? false : settings.zaAbzug);
     var ist = actual.ist, za = actual.za;
 
     // Sa/So, Feiertage und Zeitausgleich rechnen unabhängig vom gedruckten
@@ -188,13 +256,19 @@
     // der Wochendurchschnitt. So bewegt sich das Konto nur dann, wenn im
     // Kalender wirklich etwas anderes steht als im Aushang – nicht schon
     // dadurch, dass ein neuer (kürzerer oder längerer) Plantag "heute" wird.
-    var soll = (frei || art === 'zeitausgleich')
-      ? flatSoll
-      : tagesWert(planEntryOf(ctx, key), flatSoll, settings.zaAbzug).ist;
+    // Ein von Hand als "zählt nicht" markierter Tag bekommt genau das
+    // Soll, das er auch tatsächlich hat – seine Differenz ist also 0,
+    // egal wie stark er vom gedruckten Plan abweicht.
+    var soll = neutral
+      ? ist
+      : (frei || art === 'zeitausgleich')
+        ? flatSoll
+        : tagesWert(planEntryOf(ctx, key), flatSoll, settings.zaAbzug).ist;
 
     return {
       key: key, date: date, dow: dow, entry: entry, art: art,
-      feiertag: feiertag, soll: soll, ist: ist, za: za, diff: ist - soll
+      feiertag: feiertag, neutral: neutral,
+      soll: soll, ist: ist, za: za, diff: ist - soll
     };
   }
 
@@ -225,8 +299,80 @@
     return out;
   }
 
-  // Konto-Stand bis einschließlich Datum "bisKey"
-  function saldoUntil(days, korr, settings, bisKey) {
+  /* ---------- Monate ---------- */
+
+  // Alle Monate mit ihren Summen. Die Korrekturen werden dem Monat
+  // zugeschlagen, in den ihr Datum fällt – was davor bzw. danach liegt,
+  // landet im ersten bzw. letzten Monat, damit keine verloren geht.
+  // "roh" ist das, was der Monat ohne Anpassung von Hand ergibt.
+  function monatsBloecke(days, korr) {
+    var out = [], by = {};
+
+    (days || []).forEach(function (x) {
+      var mk = x.key.slice(0, 7);
+      if (!by[mk]) {
+        by[mk] = { key: mk, days: [], ist: 0, soll: 0, za: 0, diff: 0, korr: 0 };
+        out.push(by[mk]);
+      }
+      var m = by[mk];
+      m.days.push(x);
+      m.ist += x.ist; m.soll += x.soll; m.za += x.za; m.diff += x.diff;
+    });
+
+    if (out.length) {
+      (korr || []).forEach(function (k) {
+        var mk = k.datum ? k.datum.slice(0, 7) : '';
+        var ziel = by[mk] || ((!mk || mk < out[0].key) ? out[0] : out[out.length - 1]);
+        ziel.korr += k.h;
+      });
+    }
+
+    out.forEach(function (m) { m.roh = m.diff + m.korr; });
+    return out;
+  }
+
+  // Was die Monats-Anpassungen tatsächlich bewirken. Nur Monate, für die
+  // es auch Tage gibt, zählen mit – sonst hinge eine Anpassung in der Luft.
+  function monatsAnpassungen(days, korr, anpassungen) {
+    var a = normAnpassungen(anpassungen);
+    var out = [];
+    monatsBloecke(days, korr).forEach(function (m) {
+      var x = a.monate[m.key];
+      if (!x) return;
+      out.push({
+        key: m.key, modus: x.modus, h: x.h, roh: m.roh,
+        wirkung: x.modus === 'fix' ? x.h - m.roh : x.h
+      });
+    });
+    return out;
+  }
+
+  /* Alles Zusätzliche in einem Rutsch: die Monats-Anpassungen und der
+     Ausgleich fürs Gesamtkonto. Der Ausgleich ist die eine Buchung, die
+     das Konto am Stichtag ("refKey", normalerweise heute) auf den von
+     Hand gewünschten Stand hebt – davor bleibt alles, wie es war.     */
+  function extrasOf(days, korr, settings, anpassungen, refKey) {
+    var a = normAnpassungen(anpassungen);
+    var monate = monatsAnpassungen(days, korr, a);
+    var extra = { monate: monate, ausgleich: null };
+
+    if (a.gesamt && refKey) {
+      var ohne = saldoUntil(days, korr, settings, refKey, { monate: monate });
+      extra.ausgleich = {
+        key: refKey,
+        modus: a.gesamt.modus,
+        ziel: a.gesamt.h,
+        roh: ohne.saldo,
+        h: a.gesamt.modus === 'fix' ? a.gesamt.h - ohne.saldo : a.gesamt.h
+      };
+    }
+    return extra;
+  }
+
+  // Konto-Stand bis einschließlich Datum "bisKey".
+  // "extra" ist das Ergebnis von extrasOf() – fehlt es, wird schlicht
+  // ohne die Anpassungen von Hand gerechnet.
+  function saldoUntil(days, korr, settings, bisKey, extra) {
     var plan = 0, za = 0, ist = 0, soll = 0;
     days.forEach(function (x) {
       if (x.key > bisKey) return;
@@ -234,9 +380,19 @@
     });
     var k = 0;
     (korr || []).forEach(function (x) { if (!x.datum || x.datum <= bisKey) k += x.h; });
+
+    var e = extra || {};
+    var bisMonat = String(bisKey).slice(0, 7);
+    var mAnp = 0;
+    // Eine Monats-Anpassung zählt, sobald der Monat begonnen hat –
+    // sonst würde sich das Konto im laufenden Monat nicht rühren.
+    (e.monate || []).forEach(function (x) { if (x.key <= bisMonat) mAnp += x.wirkung; });
+    var aus = (e.ausgleich && bisKey >= e.ausgleich.key) ? e.ausgleich.h : 0;
+
     return {
       plan: plan, korr: k, za: za, ist: ist, soll: soll,
-      saldo: settings.startSaldo + plan + k
+      monatsAnp: mAnp, ausgleich: aus, anp: mAnp + aus,
+      saldo: settings.startSaldo + plan + k + mAnp + aus
     };
   }
 
@@ -250,9 +406,12 @@
     var days = allDays(ctx);
     if (!days.length) return null;
     var nowKey = todayKey > r.bis ? r.bis : todayKey;
-    var res = saldoUntil(days, korrList(ctx.korrekturen), ctx.settings, nowKey);
+    var korr = korrList(ctx.korrekturen);
+    var extra = extrasOf(days, korr, ctx.settings, ctx.anpassungen, nowKey);
+    var res = saldoUntil(days, korr, ctx.settings, nowKey, extra);
     res.nowKey = nowKey;
     res.range = r;
+    res.extra = extra;
     return res;
   }
 
@@ -264,10 +423,14 @@
     holidayName: holidayName,
     normSettings: normSettings,
     korrList: korrList,
+    normAnpassungen: normAnpassungen,
     tagesSoll: tagesSoll,
     dayInfo: dayInfo,
     dataRange: dataRange,
     allDays: allDays,
+    monatsBloecke: monatsBloecke,
+    monatsAnpassungen: monatsAnpassungen,
+    extrasOf: extrasOf,
     saldoUntil: saldoUntil,
     stand: stand
   };
