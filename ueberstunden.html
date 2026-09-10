@@ -371,6 +371,65 @@
     .dayline .dv.zero { color: var(--free); }
     .dayline.off { opacity: 0.6; }
 
+    /* ---------- Anpassungen von Hand ---------- */
+    .anp-group { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+    .anp-group.gesamt { margin-top: 18px; border-top: 1px solid var(--card-border); padding-top: 14px; }
+    .anp-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 8px 10px;
+      transition: border-color 0.2s, background 0.2s, opacity 0.2s;
+    }
+    .anp-row.set { border-color: rgba(0,210,255,0.45); background: rgba(0,210,255,0.07); }
+    .anp-row.off { opacity: 0.45; }
+    .anp-row .an { flex-grow: 1; min-width: 0; }
+    .anp-row .an-name { display: block; font-size: 0.9rem; font-weight: 600; }
+    .anp-row .an-sub {
+      display: block;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 300;
+      margin-top: 1px;
+      font-variant-numeric: tabular-nums;
+    }
+    .anp-mode { flex-shrink: 0; padding: 3px; border-radius: 12px; }
+    .anp-mode button { padding: 6px 11px; font-size: 0.95rem; border-radius: 9px; min-width: 36px; }
+    .anp-row input[type="number"] {
+      width: 88px;
+      flex-shrink: 0;
+      text-align: right;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 9px 10px;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-variant-numeric: tabular-nums;
+    }
+    .anp-row input[type="number"]:focus { outline: none; border-color: var(--accent-1); }
+    .anp-del {
+      background: none;
+      border: none;
+      color: var(--free);
+      font-size: 1rem;
+      cursor: pointer;
+      padding: 2px 4px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .anp-del:hover { color: var(--danger); }
+    .anp-del.hidden { visibility: hidden; }
+    .anp-info { font-size: 0.78rem; color: var(--text-muted); font-weight: 300; line-height: 1.5; margin-top: 10px; }
+    @media (max-width: 560px) {
+      .anp-row { flex-wrap: wrap; }
+      .anp-row .an { flex-basis: 100%; }
+    }
+
     /* ---------- Korrekturen ---------- */
     .korr-list { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
     .korr {
@@ -622,6 +681,36 @@
     <p class="empty-hint" id="tblHint" style="margin: -8px 0 18px; text-align: center;"></p>
 
     <div class="card">
+      <h2>🎚️ Überstunden von Hand setzen</h2>
+      <p class="hint">Wenn im Betrieb etwas anderes im Konto steht als hier gerechnet wird:
+        <b>±</b> rechnet Stunden dazu (Minus mit „−“ davor), <b>=</b> setzt das Ergebnis auf
+        genau diese Zahl. Der Dienstplan bleibt dabei, wie er ist. Leeres Feld = keine Anpassung.</p>
+
+      <div class="anp-group" id="anpMonate"></div>
+
+      <div class="anp-group gesamt">
+        <label class="check" style="margin-top:0">
+          <input type="checkbox" id="gOn">
+          <span><b>Das gesamte Konto von Hand setzen.</b> Damit steht die große Zahl ganz oben
+            auf genau diesem Wert – die Monate darunter bleiben, wie sie gerechnet sind.</span>
+        </label>
+        <div class="anp-row" id="gRow">
+          <div class="an">
+            <span class="an-name">Konto gesamt</span>
+            <span class="an-sub" id="gRoh">–</span>
+          </div>
+          <div class="view-switch small anp-mode" id="gModus">
+            <button type="button" data-m="fix" title="Konto steht auf genau diesem Wert">=</button>
+            <button type="button" data-m="delta" title="Stunden zum Konto dazurechnen">±</button>
+          </div>
+          <input type="number" id="gH" step="0.25" min="-9999" max="9999" inputmode="decimal"
+                 aria-label="Stunden fürs Gesamtkonto">
+        </div>
+        <p class="anp-info" id="gInfo"></p>
+      </div>
+    </div>
+
+    <div class="card">
       <h2>✏️ Korrekturen</h2>
       <p class="hint">Alles, was nicht im Dienstplan steht: ausbezahlte Überstunden, gutgeschriebene Zeit, ein Übertrag mitten im Jahr. Minus-Stunden mit einem Minus davor eintragen.</p>
       <div class="korr-list" id="korrList"></div>
@@ -798,6 +887,10 @@
   var settings = { wochenSoll: DEFAULTS.wochenSoll, startSaldo: 0, startDatum: '', zaAbzug: true };
   var korrekturen = {};
 
+  // Von Hand gesetzte Überstunden: je Monat und einmal fürs ganze Konto.
+  // modus 'delta' = dazurechnen, modus 'fix' = auf genau diesen Wert setzen.
+  var anpassungen = { monate: {}, gesamt: { aktiv: false, modus: 'fix', h: 0 } };
+
   (function loadKonto() {
     try {
       var raw = JSON.parse(localStorage.getItem(KONTO_KEY)) || {};
@@ -817,11 +910,30 @@
       settings.zaAbzug = n.zaAbzug;
     }
     korrekturen = (raw && raw.korrekturen) || {};
+    anpassungen = normAnp(raw && raw.anpassungen);
+  }
+
+  // Aus den Rohdaten immer dieselbe Form machen – die Eingabefelder
+  // wollen ein vollständiges Objekt vorfinden.
+  function normAnp(raw) {
+    var a = raw || {};
+    var g = a.gesamt || {};
+    var h = parseFloat(g.h);
+    return {
+      monate: a.monate || {},
+      gesamt: {
+        aktiv: !!g.aktiv,
+        modus: g.modus === 'delta' ? 'delta' : 'fix',
+        h: isNaN(h) ? 0 : h
+      }
+    };
   }
 
   function saveKontoLocal() {
     try {
-      localStorage.setItem(KONTO_KEY, JSON.stringify({ settings: settings, korrekturen: korrekturen }));
+      localStorage.setItem(KONTO_KEY, JSON.stringify({
+        settings: settings, korrekturen: korrekturen, anpassungen: anpassungen
+      }));
     } catch (e) {}
   }
 
@@ -856,6 +968,7 @@
       entries: entries,
       settings: settings,
       korrekturen: korrekturen,
+      anpassungen: anpassungen,
       getEntry: getEntry
     };
   }
@@ -864,9 +977,15 @@
   function allDays() { return RECH.allDays(ctx()); }
   function korrList() { return RECH.korrList(korrekturen); }
 
-  // Konto-Stand bis einschließlich Datum "bisKey"
-  function saldoUntil(days, bisKey) {
-    return RECH.saldoUntil(days, korrList(), settings, bisKey);
+  // Konto-Stand bis einschließlich Datum "bisKey".
+  // "extra" enthält die Anpassungen von Hand (siehe RECH.extrasOf).
+  function saldoUntil(days, bisKey, extra) {
+    return RECH.saldoUntil(days, korrList(), settings, bisKey, extra);
+  }
+
+  // Monatsname aus einem Schlüssel wie "2026-09"
+  function monatName(mk) {
+    return MONTH_NAMES[+mk.slice(5, 7) - 1] + ' ' + mk.slice(0, 4);
   }
 
   /* ---------- Wochen & Monate ---------- */
@@ -887,21 +1006,6 @@
       w.key = keyOfDate(w.start);
       w.kw = isoWeek(w.start);
       w.teil = w.days.length < 7;                  // am Rand der Plandaten angeschnitten
-    });
-    return out;
-  }
-
-  function monthsOf(days) {
-    var out = [], byMonth = {};
-    days.forEach(function (x) {
-      var mk = x.key.slice(0, 7);
-      if (!byMonth[mk]) {
-        byMonth[mk] = { key: mk, days: [], ist: 0, soll: 0, za: 0, diff: 0 };
-        out.push(byMonth[mk]);
-      }
-      var m = byMonth[mk];
-      m.days.push(x);
-      m.ist += x.ist; m.soll += x.soll; m.za += x.za; m.diff += x.diff;
     });
     return out;
   }
@@ -934,6 +1038,7 @@
         '<tr><td colspan="5"><p class="empty-hint">Für diesen Zeitraum sind keine Dienste hinterlegt. ' +
         'Sobald im Dienstplan Zeiten stehen, rechnet das Konto automatisch mit.</p></td></tr>';
       renderHero(null, null);
+      renderAnp([], [], null, null);
       renderKorr();
       renderRules();
       document.getElementById('footerInfo').textContent = 'Keine Plandaten vorhanden.';
@@ -941,17 +1046,22 @@
     }
 
     var nowKey = todayKey > r.bis ? r.bis : todayKey;
-    var jetzt = saldoUntil(days, nowKey);
-    var ende = saldoUntil(days, '9999-12-31');      // alles, auch spätere Korrekturen
+    var korr = korrList();
+    // Die Anpassungen von Hand hängen am Stichtag "heute" – deshalb erst
+    // hier, wo klar ist, bis wann überhaupt Daten vorliegen.
+    var extra = RECH.extrasOf(days, korr, settings, anpassungen, nowKey);
+    var jetzt = saldoUntil(days, nowKey, extra);
+    var ende = saldoUntil(days, '9999-12-31', extra);   // alles, auch Späteres
 
     renderHero(jetzt, { nowKey: nowKey, ende: ende, range: r });
-    if (mode === 'week') renderWeeks(days, nowKey); else renderMonths(days, nowKey);
+    if (mode === 'week') renderWeeks(days, nowKey, extra); else renderMonths(days, nowKey, extra);
 
     // Zeile antippen klappt die einzelnen Tage auf; oben zählt nur bis heute,
     // in der Tabelle steht dagegen die komplette Woche bzw. der ganze Monat.
     document.getElementById('tblHint').textContent =
       'Zeile antippen zeigt die einzelnen Tage. Die Zeilen rechnen den ganzen ' +
       (mode === 'week' ? 'Zeitraum' : 'Monat') + ', das Konto oben nur bis heute.';
+    renderAnp(days, korr, extra, jetzt);
     renderKorr();
     renderRules();
 
@@ -993,6 +1103,8 @@
     if (Math.abs(settings.startSaldo) > 0.001) parts.push(['Übertrag', settings.startSaldo]);
     parts.push(['aus dem Plan', jetzt.plan]);
     if (Math.abs(jetzt.korr) > 0.001) parts.push(['Korrekturen', jetzt.korr]);
+    if (Math.abs(jetzt.monatsAnp) > 0.001) parts.push(['Monate von Hand', jetzt.monatsAnp]);
+    if (Math.abs(jetzt.ausgleich) > 0.001) parts.push(['Konto von Hand', jetzt.ausgleich]);
     brk.innerHTML = parts.map(function (p) {
       return '<span>' + escapeHtml(p[0]) + ' <b>' + escapeHtml(fmtSigned(p[1])) + '</b></span>';
     }).join('');
@@ -1012,33 +1124,54 @@
     return '<td class="num ' + cls + ' ' + signClass(n) + '">' + escapeHtml(fmtSigned(n)) + '</td>';
   }
 
-  // Wochen samt Korrekturen und laufendem Konto – so rechnen Tabelle und CSV gleich.
-  // Korrekturen vor dem ersten bzw. nach dem letzten Plantag landen in der
-  // ersten bzw. letzten Woche, damit keine unter den Tisch fällt.
-  function weekRows(days) {
+  // Wochen samt Korrekturen, Anpassungen und laufendem Konto – so rechnen
+  // Tabelle und CSV gleich. Korrekturen vor dem ersten bzw. nach dem letzten
+  // Plantag landen in der ersten bzw. letzten Woche, damit keine unter den
+  // Tisch fällt. Eine Monats-Anpassung zählt ab dem Monatsersten, sie landet
+  // also in der ersten Woche, die in diesen Monat hineinreicht.
+  function weekRows(days, extra) {
     var weeks = weeksOf(days);
     var korr = korrList();
+    var e = extra || {};
     var run = settings.startSaldo;
+    var offen = (e.monate || []).slice();
+    var ausOffen = !!e.ausgleich;
 
     return weeks.map(function (w, idx) {
+      var letzte = idx === weeks.length - 1;
       var wEnde = keyOfDate(addDays(w.start, 6));
       var kSum = 0, kTexts = [];
+
       korr.forEach(function (k) {
         var vor = idx === 0 && (!k.datum || k.datum < w.key);
         var drin = k.datum >= w.key && k.datum <= wEnde;
-        var nach = idx === weeks.length - 1 && k.datum > wEnde;
+        var nach = letzte && k.datum > wEnde;
         if (vor || drin || nach) { kSum += k.h; kTexts.push(k.text + ' ' + fmtSigned(k.h)); }
       });
+
+      offen = offen.filter(function (a) {
+        if (!(a.key <= wEnde.slice(0, 7) || letzte)) return true;
+        kSum += a.wirkung;
+        kTexts.push(monatName(a.key) + ' von Hand ' + fmtSigned(a.wirkung));
+        return false;
+      });
+
+      if (ausOffen && (wEnde >= e.ausgleich.key || letzte)) {
+        ausOffen = false;
+        kSum += e.ausgleich.h;
+        kTexts.push('Konto von Hand ' + fmtSigned(e.ausgleich.h));
+      }
+
       run += w.diff + kSum;
       return { w: w, ende: wEnde, kSum: kSum, kTexts: kTexts, run: run };
     });
   }
 
-  function renderWeeks(days, nowKey) {
+  function renderWeeks(days, nowKey, extra) {
     document.getElementById('thPeriod').textContent = 'Woche';
     var html = '';
 
-    weekRows(days).forEach(function (row) {
+    weekRows(days, extra).forEach(function (row) {
       var w = row.w, kSum = row.kSum, kTexts = row.kTexts, run = row.run;
       var future = w.key > nowKey;
       var now = w.key <= nowKey && keyOfDate(addDays(w.start, 6)) >= nowKey;
@@ -1047,7 +1180,7 @@
       var flags = '';
       if (now) flags += '<span class="flag">läuft noch</span>';
       if (w.teil) flags += '<span class="flag">Teilwoche</span>';
-      if (kSum !== 0) flags += '<span class="flag" title="' + escapeHtml(kTexts.join(' · ')) + '">Korrektur</span>';
+      if (kSum !== 0) flags += '<span class="flag" title="' + escapeHtml(kTexts.join(' · ')) + '">von Hand</span>';
 
       html += '<tr class="' + cls + '" data-row="' + w.key + '" tabindex="0">' +
         '<td><span class="lbl-main">KW ' + w.kw + flags + '</span>' +
@@ -1064,21 +1197,35 @@
     document.getElementById('tblBody').innerHTML = html;
   }
 
-  function renderMonths(days, nowKey) {
+  function renderMonths(days, nowKey, extra) {
     document.getElementById('thPeriod').textContent = 'Monat';
-    var months = monthsOf(days);
+    var e = extra || {};
+    var months = RECH.monatsBloecke(days, korrList());
     var run = settings.startSaldo;
-    var korr = korrList();
+    var anpByMonat = {};
+    (e.monate || []).forEach(function (a) { anpByMonat[a.key] = a; });
+    var ausOffen = !!e.ausgleich;
     var html = '';
 
     months.forEach(function (m, idx) {
-      var kSum = 0;
-      korr.forEach(function (k) {
-        var vor = idx === 0 && (!k.datum || k.datum.slice(0, 7) < m.key);
-        var drin = k.datum.slice(0, 7) === m.key;
-        var nach = idx === months.length - 1 && k.datum.slice(0, 7) > m.key;
-        if (vor || drin || nach) kSum += k.h;
-      });
+      var letzter = idx === months.length - 1;
+      var kSum = m.korr;                       // Korrekturen dieses Monats
+      var anp = anpByMonat[m.key];
+      var flags = '';
+
+      if (anp) {
+        kSum += anp.wirkung;
+        flags += '<span class="flag" title="' + escapeHtml(
+          anp.modus === 'fix'
+            ? 'Von Hand auf ' + fmtSigned(anp.h) + ' gesetzt (gerechnet: ' + fmtSigned(anp.roh) + ')'
+            : 'Von Hand ' + fmtSigned(anp.h) + ' dazugerechnet') + '">von Hand</span>';
+      }
+      if (ausOffen && (m.key >= e.ausgleich.key.slice(0, 7) || letzter)) {
+        ausOffen = false;
+        kSum += e.ausgleich.h;
+        flags += '<span class="flag" title="Gesamtkonto von Hand ' +
+          escapeHtml(fmtSigned(e.ausgleich.h)) + '">Konto gesetzt</span>';
+      }
       run += m.diff + kSum;
 
       var future = m.days[0].key > nowKey;
@@ -1087,7 +1234,7 @@
 
       html += '<tr class="wk' + (future ? ' future' : '') + (now ? ' now' : '') +
         '" data-row="' + m.key + '" tabindex="0">' +
-        '<td><span class="lbl-main">' + MONTH_NAMES[+m.key.slice(5, 7) - 1] + ' ' + m.key.slice(0, 4) + '</span>' +
+        '<td><span class="lbl-main">' + escapeHtml(monatName(m.key)) + flags + '</span>' +
         '<span class="lbl-sub">' + (amtlich ? 'Aushang: ' + escapeHtml(fmtH(amtlich)) + ' Soll' : m.days.length + ' Tage') + '</span></td>' +
         '<td class="num">' + escapeHtml(fmtH(m.ist)) + '</td>' +
         '<td class="num">' + escapeHtml(fmtH(m.soll)) + '</td>' +
@@ -1120,6 +1267,7 @@
       }
       if (x.feiertag && x.entry) was += ' · ' + x.feiertag;
       if (x.entry && x.entry.custom) was += ' · von Hand geändert';
+      if (x.neutral) was += ' · zählt nicht aufs Konto';
 
       return '<div class="dayline' + (off ? ' off' : '') + '">' +
         '<span class="dd">' + DAY_NAMES[x.dow] + ' ' + shortDate(x.date) + '</span>' +
@@ -1149,6 +1297,196 @@
   document.getElementById('tblBody').addEventListener('keydown', function (ev) {
     if (ev.key !== 'Enter' && ev.key !== ' ') return;
     if (toggleRow(ev.target)) ev.preventDefault();
+  });
+
+  /* ---------- Anpassungen von Hand ----------
+     Pro Monat und einmal fürs ganze Konto lässt sich das Ergebnis
+     übersteuern: "±" rechnet Stunden dazu, "=" setzt den Wert fest.
+     Gerechnet wird das im Rechenkern (RECH.extrasOf) – hier stehen nur
+     die Eingabefelder und was daraus in der Datenbank landet.        */
+
+  var anpBox = document.getElementById('anpMonate');
+  var anpBuilt = null;                  // welche Monate gerade als Zeilen dastehen
+  var inGOn = document.getElementById('gOn');
+  var inGH = document.getElementById('gH');
+
+  function modusOf(rec) { return rec && rec.modus === 'fix' ? 'fix' : 'delta'; }
+
+  // Was eine Anpassung bewirkt – dieselbe Regel wie im Rechenkern
+  function wirkungOf(rec, roh) {
+    if (!rec) return 0;
+    var h = parseFloat(rec.h) || 0;
+    return modusOf(rec) === 'fix' ? h - roh : h;
+  }
+
+  function markMode(box, modus) {
+    box.querySelectorAll('button').forEach(function (b) {
+      b.classList.toggle('active', b.getAttribute('data-m') === modus);
+    });
+  }
+
+  function renderAnp(days, korr, extra, jetzt) {
+    var bloecke = days && days.length ? RECH.monatsBloecke(days, korr) : [];
+    var sig = bloecke.map(function (m) { return m.key; }).join(',');
+
+    // Die Zeilen nur neu bauen, wenn sich die Monate ändern – sonst würde
+    // beim Tippen das Feld unter den Fingern weggerissen.
+    if (sig !== anpBuilt) {
+      anpBuilt = sig;
+      anpBox.innerHTML = bloecke.length ? bloecke.map(function (m) {
+        var name = escapeHtml(monatName(m.key));
+        return '<div class="anp-row" data-mk="' + m.key + '" data-modus="delta">' +
+          '<div class="an"><span class="an-name">' + name + '</span>' +
+          '<span class="an-sub"></span></div>' +
+          '<div class="view-switch small anp-mode">' +
+            '<button type="button" data-m="delta" title="Stunden dazurechnen">±</button>' +
+            '<button type="button" data-m="fix" title="Monat auf genau diesen Wert setzen">=</button>' +
+          '</div>' +
+          '<input type="number" step="0.25" min="-999" max="999" inputmode="decimal" ' +
+            'placeholder="–" aria-label="Anpassung ' + name + '">' +
+          '<button type="button" class="anp-del" title="Anpassung löschen">✕</button>' +
+          '</div>';
+      }).join('') : '<p class="empty-hint">Sobald Dienste hinterlegt sind, steht hier jeder ' +
+        'Monat zum Anpassen bereit.</p>';
+    }
+
+    bloecke.forEach(function (m) {
+      var row = anpBox.querySelector('.anp-row[data-mk="' + m.key + '"]');
+      if (!row) return;
+      var rec = anpassungen.monate[m.key];
+      var modus = rec ? modusOf(rec) : (row.getAttribute('data-modus') || 'delta');
+      var inp = row.querySelector('input');
+
+      row.setAttribute('data-modus', modus);
+      row.className = 'anp-row' + (rec ? ' set' : '');
+      markMode(row.querySelector('.anp-mode'), rec ? modus : '');
+      row.querySelector('.anp-del').classList.toggle('hidden', !rec);
+
+      var sub = 'gerechnet ' + fmtSigned(m.roh);
+      if (rec) sub += ' → zählt als ' + fmtSigned(m.roh + wirkungOf(rec, m.roh));
+      row.querySelector('.an-sub').textContent = sub;
+
+      if (document.activeElement !== inp) inp.value = rec ? rec.h : '';
+    });
+
+    renderGesamt(extra, jetzt);
+  }
+
+  function renderGesamt(extra, jetzt) {
+    var g = anpassungen.gesamt;
+    var e = extra || {};
+    var row = document.getElementById('gRow');
+
+    inGOn.checked = !!g.aktiv;
+    row.className = 'anp-row' + (g.aktiv ? ' set' : ' off');
+    markMode(document.getElementById('gModus'), g.aktiv ? g.modus : '');
+    if (document.activeElement !== inGH) inGH.value = g.h;
+
+    // Der Stand, der sich ohne diese Anpassung ergäbe
+    var roh = e.ausgleich ? e.ausgleich.roh : (jetzt ? jetzt.saldo : null);
+    document.getElementById('gRoh').textContent =
+      roh === null ? 'noch keine Daten' : 'gerechnet ' + fmtSigned(roh);
+
+    var info = document.getElementById('gInfo');
+    if (!jetzt) {
+      info.textContent = 'Sobald Dienste hinterlegt sind, lässt sich das Konto hier setzen.';
+    } else if (!e.ausgleich) {
+      info.textContent = 'Ausgeschaltet – das Konto kommt gerade rein aus Dienstplan, ' +
+        'Korrekturen und den Monaten oben.';
+    } else {
+      var ab = longDate(dateOfKey(e.ausgleich.key));
+      info.textContent = e.ausgleich.modus === 'fix'
+        ? 'Das Konto steht damit am ' + ab + ' auf genau ' + fmtSigned(e.ausgleich.ziel) +
+          '. Gerechnet wären es ' + fmtSigned(e.ausgleich.roh) + ' – die Differenz von ' +
+          fmtSigned(e.ausgleich.h) + ' wird an diesem Tag dazugebucht.'
+        : fmtSigned(e.ausgleich.h) + ' werden ab ' + ab + ' zum Konto dazugezählt.';
+    }
+  }
+
+  // Einen Monat setzen (leeres Feld = Anpassung wieder weg)
+  function setMonatsAnp(mk, modus, rohWert) {
+    var txt = String(rohWert == null ? '' : rohWert).trim().replace(',', '.');
+    var h = parseFloat(txt);
+    if (txt === '' || isNaN(h)) delete anpassungen.monate[mk];
+    else {
+      anpassungen.monate[mk] = {
+        modus: modus === 'fix' ? 'fix' : 'delta',
+        h: Math.round(h * 100) / 100,
+        by: userName || '',
+        ts: Date.now()
+      };
+    }
+    saveKontoLocal();
+  }
+
+  anpBox.addEventListener('click', function (ev) {
+    var row = ev.target.closest ? ev.target.closest('.anp-row') : null;
+    if (!row) return;
+    var mk = row.getAttribute('data-mk');
+
+    if (ev.target.classList.contains('anp-del')) {
+      delete anpassungen.monate[mk];
+      saveKontoLocal();
+      Store.setAnp();
+      render();
+      return;
+    }
+
+    var m = ev.target.getAttribute && ev.target.getAttribute('data-m');
+    if (!m) return;
+    var inp = row.querySelector('input');
+    // Auf einer leeren Zeile heißt der Klick "hier will ich etwas eintragen" –
+    // die Anpassung startet dann bei 0 und das Feld liegt gleich zum Tippen da.
+    var wert = String(inp.value).trim() === '' ? 0 : inp.value;
+    row.setAttribute('data-modus', m);
+    setMonatsAnp(mk, m, wert);
+    Store.setAnp();
+    render();
+    inp.focus();
+    inp.select();
+  });
+
+  anpBox.addEventListener('input', function (ev) {
+    var row = ev.target.closest ? ev.target.closest('.anp-row') : null;
+    if (!row || ev.target.tagName !== 'INPUT') return;
+    setMonatsAnp(row.getAttribute('data-mk'), row.getAttribute('data-modus'), ev.target.value);
+    render();
+  });
+
+  anpBox.addEventListener('change', function (ev) {
+    if (ev.target.tagName !== 'INPUT') return;
+    Store.setAnp();
+  });
+
+  function readGesamt() {
+    var txt = String(inGH.value).trim().replace(',', '.');
+    var h = parseFloat(txt);
+    anpassungen.gesamt = {
+      aktiv: !!inGOn.checked,
+      modus: anpassungen.gesamt.modus,
+      h: isNaN(h) ? 0 : Math.round(h * 100) / 100,
+      by: userName || '',
+      ts: Date.now()
+    };
+    saveKontoLocal();
+  }
+
+  inGOn.addEventListener('change', function () { readGesamt(); Store.setAnp(); render(); });
+  inGH.addEventListener('input', function () {
+    // Eine Zahl einzutippen heißt: der Schalter soll an sein
+    if (!inGOn.checked && String(inGH.value).trim() !== '') inGOn.checked = true;
+    readGesamt();
+    render();
+  });
+  inGH.addEventListener('change', function () { readGesamt(); Store.setAnp(); render(); });
+  document.getElementById('gModus').addEventListener('click', function (ev) {
+    var m = ev.target.getAttribute && ev.target.getAttribute('data-m');
+    if (!m) return;
+    anpassungen.gesamt.modus = m;
+    if (!inGOn.checked) inGOn.checked = true;
+    readGesamt();
+    Store.setAnp();
+    render();
   });
 
   /* ---------- Korrekturen ---------- */
@@ -1247,7 +1585,9 @@
       ['🌴', '<b>Urlaub, Krankenstand und Sonderurlaub</b> sind angerechnet – das Konto bleibt gleich. Bei <b>Fortbildung</b> zählen die eingetragenen Stunden, ein langer Seminartag bringt also ein Plus.'],
       ['⏳', '<b>Zeitausgleich</b> ' + (settings.zaAbzug ? 'zieht die Stunden vom Konto ab' : 'wird wie ein normaler Arbeitstag gewertet (Abzug ist ausgeschaltet)') + '.'],
       ['⚠️', 'Ein <b>Werktag ohne Eintrag</b> zählt als Minus von ' + escapeHtml(ts) + '. Freie Tage also im Dienstplan als Urlaub oder Zeitausgleich eintragen, sonst rutscht das Konto zu Unrecht ins Minus.'],
-      ['🔄', 'Die Zeiten kommen <b>live aus dem Dienstplan</b>. Wird dort etwas geändert, ist es hier sofort mitgerechnet. Der heutige Tag zählt bereits voll mit.']
+      ['🔄', 'Die Zeiten kommen <b>live aus dem Dienstplan</b>. Wird dort etwas geändert, ist es hier sofort mitgerechnet. Der heutige Tag zählt bereits voll mit.'],
+      ['🙈', 'Ein Tag, der im Dienstplan als <b>„zählt nicht aufs Überstunden-Konto“</b> markiert ist, bewegt das Konto nicht – egal wie stark er vom Aushang abweicht. So lassen sich Dienste tauschen oder Zeiten richtigstellen, ohne dass daraus Plus- oder Minusstunden werden.'],
+      ['🎚️', 'Oben unter <b>„Überstunden von Hand setzen“</b> lässt sich jeder Monat und das Gesamtkonto übersteuern: <b>±</b> rechnet Stunden dazu, <b>=</b> setzt genau diesen Wert. Der Dienstplan bleibt dabei unverändert.']
     ];
     document.getElementById('rules').innerHTML = items.map(function (it) {
       return '<li><i>' + it[0] + '</i><span>' + it[1] + '</span></li>';
@@ -1327,8 +1667,11 @@
   document.getElementById('csvBtn').addEventListener('click', function () {
     var days = allDays();
     if (!days.length) { alert('Es gibt noch nichts zu exportieren.'); return; }
+    var r0 = dataRange();
+    var extra = RECH.extrasOf(days, korrList(), settings,
+      anpassungen, todayKey > r0.bis ? r0.bis : todayKey);
     var rows = [['KW', 'Von', 'Bis', 'Ist', 'Soll', 'Differenz', 'Korrektur', 'Konto']];
-    weekRows(days).forEach(function (r) {
+    weekRows(days, extra).forEach(function (r) {
       rows.push([
         'KW ' + r.w.kw,
         r.w.key,
@@ -1405,6 +1748,22 @@
         zaAbzug: settings.zaAbzug,
         by: userName || '',
         ts: Date.now()
+      }).catch(function (err) { showNotice('Speichern fehlgeschlagen: ' + err.message); });
+    },
+
+    // Die Anpassungen sind ein kleiner Block – der wird am Stück
+    // geschrieben, damit gelöschte Monate auch wirklich verschwinden.
+    setAnp: function () {
+      if (!firebaseReady) return;
+      this.kontoRef().child('anpassungen').set({
+        monate: anpassungen.monate,
+        gesamt: {
+          aktiv: !!anpassungen.gesamt.aktiv,
+          modus: anpassungen.gesamt.modus,
+          h: parseFloat(anpassungen.gesamt.h) || 0,
+          by: userName || '',
+          ts: Date.now()
+        }
       }).catch(function (err) { showNotice('Speichern fehlgeschlagen: ' + err.message); });
     },
 
