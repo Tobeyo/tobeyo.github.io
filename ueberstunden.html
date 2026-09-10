@@ -398,7 +398,7 @@
     }
     .anp-mode { flex-shrink: 0; padding: 3px; border-radius: 12px; }
     .anp-mode button { padding: 6px 11px; font-size: 0.95rem; border-radius: 9px; min-width: 36px; }
-    .anp-row input[type="number"] {
+    .anp-row input[type="text"] {
       width: 88px;
       flex-shrink: 0;
       text-align: right;
@@ -411,7 +411,7 @@
       font-size: 0.95rem;
       font-variant-numeric: tabular-nums;
     }
-    .anp-row input[type="number"]:focus { outline: none; border-color: var(--accent-1); }
+    .anp-row input[type="text"]:focus { outline: none; border-color: var(--accent-1); }
     .anp-del {
       background: none;
       border: none;
@@ -633,13 +633,13 @@
       <div class="set-grid">
         <div class="field">
           <label for="fWoche">Soll pro Woche</label>
-          <input type="number" id="fWoche" min="1" max="60" step="0.25" inputmode="decimal">
+          <input type="text" id="fWoche" inputmode="decimal" autocomplete="off">
           <span class="unit" id="uTag">–</span>
         </div>
         <div class="field">
           <label for="fStart">Übertrag / Startsaldo</label>
-          <input type="number" id="fStart" min="-999" max="999" step="0.25" inputmode="decimal">
-          <span class="unit">Stunden, die es vorher schon gab</span>
+          <input type="text" id="fStart" inputmode="decimal" autocomplete="off">
+          <span class="unit">Stunden, die es vorher schon gab – z. B. 12,5</span>
         </div>
         <div class="field">
           <label for="fAb">Konto zählt ab</label>
@@ -703,7 +703,7 @@
             <button type="button" data-m="fix" title="Konto steht auf genau diesem Wert">=</button>
             <button type="button" data-m="delta" title="Stunden zum Konto dazurechnen">±</button>
           </div>
-          <input type="number" id="gH" step="0.25" min="-9999" max="9999" inputmode="decimal"
+          <input type="text" id="gH" inputmode="decimal" autocomplete="off"
                  aria-label="Stunden fürs Gesamtkonto">
         </div>
         <p class="anp-info" id="gInfo"></p>
@@ -748,7 +748,7 @@
       </div>
       <div class="field">
         <label for="kH">Stunden (Minus mit −)</label>
-        <input type="number" id="kH" step="0.25" min="-999" max="999" inputmode="decimal" value="0">
+        <input type="text" id="kH" inputmode="decimal" autocomplete="off" value="0">
       </div>
 
       <div class="modal-actions">
@@ -865,6 +865,52 @@
     return fmtMode === 'hm' ? pre + fmtHm(Math.abs(n)) : pre + fmtDec(Math.abs(n)) + ' h';
   }
   function signClass(n) { return n > 0.001 ? 'pos' : n < -0.001 ? 'neg' : 'zero'; }
+
+  /* ---------- Zahlen eintippen ----------
+     Die Stundenfelder sind bewusst type="text" mit inputmode="decimal":
+     Ein type="number" wirft in vielen Browsern und auf dem Handy alles weg,
+     was ein Komma enthaelt – aus "12,5" wird dann ein leeres Feld. Hier ist
+     beides erlaubt, Komma wie Punkt, und angezeigt wird deutsch mit Komma. */
+
+  // Feldinhalt -> Zahl. Leer, "-" oder "," allein sind (noch) keine Zahl.
+  function parseNum(v) {
+    var t = String(v == null ? '' : v).replace(/[\s\u00a0]/g, '')
+      .replace(/[\u2212\u2013\u2014]/g, '-')     // typografische Minuszeichen
+      .replace(',', '.');
+    if (!/^-?(\d+\.?\d*|\.\d+)$/.test(t)) return NaN;
+    return parseFloat(t);
+  }
+
+  // Zahl -> Feldinhalt (deutsch mit Komma), leer bleibt leer
+  function numField(n) {
+    if (n === null || n === undefined || n === '' || isNaN(n)) return '';
+    return fmtDec(+n);
+  }
+
+  // Waehrend des Tippens alles wegraeumen, was keine Zahl sein kann.
+  // Laeuft in der Capture-Phase, also bevor die Felder selbst reagieren.
+  function cleanNumInput(el) {
+    var alt = el.value;
+    var neu = alt.replace(/[^0-9,.\-\u2212\u2013\u2014]/g, '')
+      .replace(/[\u2212\u2013\u2014]/g, '-')
+      .replace(/\./g, ',');
+    var minus = neu.charAt(0) === '-';
+    neu = neu.replace(/-/g, '');
+    var teile = neu.split(',');
+    if (teile.length > 1) neu = teile.shift() + ',' + teile.join('');
+    if (minus) neu = '-' + neu;
+    if (neu === alt) return;
+    var pos = (el.selectionStart || 0) - (alt.length - neu.length);
+    el.value = neu;
+    try { el.setSelectionRange(pos, pos); } catch (e) {}
+  }
+
+  document.addEventListener('input', function (ev) {
+    var el = ev.target;
+    if (el && el.tagName === 'INPUT' && el.getAttribute('inputmode') === 'decimal') {
+      cleanNumInput(el);
+    }
+  }, true);
 
   /* ---------- Feiertage (Österreich) – siehe ueberstunden-rechner.js ---------- */
 
@@ -1342,7 +1388,7 @@
             '<button type="button" data-m="delta" title="Stunden dazurechnen">±</button>' +
             '<button type="button" data-m="fix" title="Monat auf genau diesen Wert setzen">=</button>' +
           '</div>' +
-          '<input type="number" step="0.25" min="-999" max="999" inputmode="decimal" ' +
+          '<input type="text" inputmode="decimal" autocomplete="off" ' +
             'placeholder="–" aria-label="Anpassung ' + name + '">' +
           '<button type="button" class="anp-del" title="Anpassung löschen">✕</button>' +
           '</div>';
@@ -1366,7 +1412,7 @@
       if (rec) sub += ' → zählt als ' + fmtSigned(m.roh + wirkungOf(rec, m.roh));
       row.querySelector('.an-sub').textContent = sub;
 
-      if (document.activeElement !== inp) inp.value = rec ? rec.h : '';
+      if (document.activeElement !== inp) inp.value = rec ? numField(rec.h) : '';
     });
 
     renderGesamt(extra, jetzt);
@@ -1380,7 +1426,7 @@
     inGOn.checked = !!g.aktiv;
     row.className = 'anp-row' + (g.aktiv ? ' set' : ' off');
     markMode(document.getElementById('gModus'), g.aktiv ? g.modus : '');
-    if (document.activeElement !== inGH) inGH.value = g.h;
+    if (document.activeElement !== inGH) inGH.value = numField(g.h);
 
     // Der Stand, der sich ohne diese Anpassung ergäbe
     var roh = e.ausgleich ? e.ausgleich.roh : (jetzt ? jetzt.saldo : null);
@@ -1405,9 +1451,8 @@
 
   // Einen Monat setzen (leeres Feld = Anpassung wieder weg)
   function setMonatsAnp(mk, modus, rohWert) {
-    var txt = String(rohWert == null ? '' : rohWert).trim().replace(',', '.');
-    var h = parseFloat(txt);
-    if (txt === '' || isNaN(h)) delete anpassungen.monate[mk];
+    var h = parseNum(rohWert);
+    if (isNaN(h)) delete anpassungen.monate[mk];
     else {
       anpassungen.monate[mk] = {
         modus: modus === 'fix' ? 'fix' : 'delta',
@@ -1459,8 +1504,7 @@
   });
 
   function readGesamt() {
-    var txt = String(inGH.value).trim().replace(',', '.');
-    var h = parseFloat(txt);
+    var h = parseNum(inGH.value);
     anpassungen.gesamt = {
       aktiv: !!inGOn.checked,
       modus: anpassungen.gesamt.modus,
@@ -1525,7 +1569,7 @@
   function openKorr() {
     document.getElementById('kDatum').value = todayKey;
     document.getElementById('kText').value = '';
-    document.getElementById('kH').value = '0';
+    document.getElementById('kH').value = numField(0);
     overlay.classList.add('open');
     document.getElementById('kText').focus();
   }
@@ -1553,12 +1597,12 @@
     document.getElementById('kText').value = q.text;
     // Beim Zeitausgleich immer das aktuelle Tages-Soll vorschlagen
     document.getElementById('kH').value = q.text === 'Zeitausgleich genommen'
-      ? String(-Math.round(tagesSoll() * 100) / 100)
-      : String(q.h);
+      ? numField(-tagesSoll())
+      : numField(q.h);
   });
 
   document.getElementById('kSave').addEventListener('click', function () {
-    var h = parseFloat(String(document.getElementById('kH').value).replace(',', '.'));
+    var h = parseNum(document.getElementById('kH').value);
     if (isNaN(h) || h === 0) { alert('Bitte Stunden eintragen – mit Minus, wenn sie vom Konto abgehen.'); return; }
     var rec = {
       datum: document.getElementById('kDatum').value || todayKey,
@@ -1602,8 +1646,8 @@
   var inZa = document.getElementById('fZa');
 
   function fillSettings() {
-    if (document.activeElement !== inWoche) inWoche.value = settings.wochenSoll;
-    if (document.activeElement !== inStart) inStart.value = settings.startSaldo;
+    if (document.activeElement !== inWoche) inWoche.value = numField(settings.wochenSoll);
+    if (document.activeElement !== inStart) inStart.value = numField(settings.startSaldo);
     if (document.activeElement !== inAb) inAb.value = settings.startDatum;
     inZa.checked = settings.zaAbzug;
 
@@ -1618,9 +1662,9 @@
   }
 
   function readSettings() {
-    var w = parseFloat(String(inWoche.value).replace(',', '.'));
+    var w = parseNum(inWoche.value);
     settings.wochenSoll = w > 0 ? w : DEFAULTS.wochenSoll;
-    var s = parseFloat(String(inStart.value).replace(',', '.'));
+    var s = parseNum(inStart.value);
     settings.startSaldo = isNaN(s) ? 0 : s;
     settings.startDatum = inAb.value || '';
     settings.zaAbzug = inZa.checked;
