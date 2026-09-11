@@ -811,6 +811,8 @@
      liest dieselbe Datei, damit beide Seiten gleich rechnen.
      ========================================================= */
 
+  var APP_STAND = '11.09.2026';          // steht unten in der Fusszeile
+
   var PEOPLE = (window.NESSIE_DIENSTPLAN && window.NESSIE_DIENSTPLAN.people) || [];
 
   if (!PEOPLE.length) {
@@ -923,42 +925,65 @@
   /* ---------- Zahlen eintippen ----------
      Stundenfelder sind type="text" mit inputmode="decimal". Ein type="number"
      wirft in vielen Browsern und auf dem Handy alles weg, was ein Komma
-     enthaelt – aus "7,5" wird dann ein leeres Feld. Hier zaehlt beides. */
+     enthaelt – aus "7,5" wird dann ein leeres Feld. Hier zaehlt jeder
+     Trenner, den eine Tastatur hergibt, und auch "7:30" wird verstanden.
+     Dieselben Regeln stehen im Überstunden-Rechner.                   */
 
+  // Alles, was auf einer Tastatur als Dezimaltrenner herauskommen kann
+  var SEP_RE   = /[.,\u00b7\u02d9\u2022\u2027\u066b\u060c\u2032'\u2019`\u00b4]/g;
+  // Minuszeichen, die keine echten Bindestriche sind
+  var MINUS_RE = /[\u2212\u2010\u2011\u2013\u2014]/g;
+
+  // Feldinhalt -> Zahl. Leer, "-" oder "," allein sind (noch) keine Zahl.
   function parseNum(v) {
-    var t = String(v == null ? '' : v).replace(/[\s\u00a0]/g, '')
-      .replace(/[\u2212\u2013\u2014]/g, '-')
-      .replace(',', '.');
+    var t = String(v == null ? '' : v).replace(/[\s\u00a0]/g, '').replace(MINUS_RE, '-');
+    var hm = /^(-?)(\d{1,3}):([0-5]?\d)$/.exec(t);        // "7:30" sind 7,5 Stunden
+    if (hm) return (hm[1] ? -1 : 1) * (+hm[2] + (+hm[3]) / 60);
+    t = t.replace(SEP_RE, '.');
     if (!/^-?(\d+\.?\d*|\.\d+)$/.test(t)) return NaN;
     return parseFloat(t);
   }
 
+  // Zahl -> Feldinhalt (deutsch mit Komma), leer bleibt leer
   function numField(n) {
     if (n === null || n === undefined || n === '' || isNaN(n)) return '';
     return fmtDec(+n);
   }
 
-  function cleanNumInput(el) {
-    var alt = el.value;
-    var neu = alt.replace(/[^0-9,.\-\u2212\u2013\u2014]/g, '')
-      .replace(/[\u2212\u2013\u2014]/g, '-')
-      .replace(/\./g, ',');
-    var minus = neu.charAt(0) === '-';
-    neu = neu.replace(/-/g, '');
-    var teile = neu.split(',');
-    if (teile.length > 1) neu = teile.shift() + ',' + teile.join('');
-    if (minus) neu = '-' + neu;
-    if (neu === alt) return;
-    var pos = (el.selectionStart || 0) - (alt.length - neu.length);
-    el.value = neu;
-    try { el.setSelectionRange(pos, pos); } catch (e) {}
+  // Aus Zeichensalat die beste Zahl machen: jeder Trenner wird zum Komma,
+  // alles andere fliegt raus, und mehr als ein Trenner bleibt nicht uebrig.
+  function cleanNum(v) {
+    var t = String(v == null ? '' : v)
+      .replace(MINUS_RE, '-').replace(SEP_RE, ',').replace(/[^0-9,:\-]/g, '');
+    var minus = t.charAt(0) === '-';
+    t = t.replace(/-/g, '');
+    var i = t.search(/[,:]/);                            // nur der erste Trenner zaehlt
+    if (i >= 0) t = t.slice(0, i + 1) + t.slice(i + 1).replace(/[,:]/g, '');
+    return minus ? '-' + t : t;
   }
 
-  document.addEventListener('input', function (ev) {
+  function isNumFeld(el) {
+    return !!el && el.tagName === 'INPUT' && el.getAttribute('inputmode') === 'decimal';
+  }
+
+  /* Waehrend des Tippens wird am Feld bewusst nichts umgeschrieben.
+     Genau daran ist das Komma bisher gescheitert: schreibt ein Skript
+     dem Feld mitten im Tippen einen neuen Wert hinein, verschlucken
+     manche Handy- und Zahlentastaturen das Zeichen, das gerade gekommen
+     ist. Gelesen wird ohnehin mit parseNum(), dem Komma, Punkt und
+     Doppelpunkt gleich recht sind. Sauber hingeschrieben wird erst,
+     wenn das Feld fertig ist.                                        */
+  document.addEventListener('blur', function (ev) {
     var el = ev.target;
-    if (el && el.tagName === 'INPUT' && el.getAttribute('inputmode') === 'decimal') {
-      cleanNumInput(el);
-    }
+    if (!isNumFeld(el)) return;
+    var roh = String(el.value);
+    var h = parseNum(roh);
+    if (isNaN(h) && roh.trim() !== '') h = parseNum(cleanNum(roh));
+    var neu = (roh.trim() === '' || isNaN(h)) ? '' : numField(h);
+    if (neu === roh) return;
+    el.value = neu;
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    el.dispatchEvent(new Event('change', { bubbles: true }));
   }, true);
 
   /* ---------- Firebase starten ---------- */
@@ -1301,7 +1326,8 @@
     document.getElementById('monthName').innerHTML =
       MONTH_NAMES[curM] + ' <span>' + curY + '</span>';
     document.getElementById('footerInfo').innerHTML =
-      'Dienstplan ' + escapeHtml(person().fullName) + '<br>' + escapeHtml(person().meta);
+      'Dienstplan ' + escapeHtml(person().fullName) + '<br>' + escapeHtml(person().meta) +
+      '<br>Stand der App: ' + APP_STAND;
 
     renderLegend();
     renderStats(days);

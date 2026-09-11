@@ -639,7 +639,7 @@
         <div class="field">
           <label for="fStart">Übertrag / Startsaldo</label>
           <input type="text" id="fStart" inputmode="decimal" autocomplete="off">
-          <span class="unit">Stunden, die es vorher schon gab – z. B. 12,5</span>
+          <span class="unit">Stunden, die es vorher schon gab – 12,5 oder 12.5, notfalls 12:30</span>
         </div>
         <div class="field">
           <label for="fAb">Konto zählt ab</label>
@@ -684,7 +684,9 @@
       <h2>🎚️ Überstunden von Hand setzen</h2>
       <p class="hint">Wenn im Betrieb etwas anderes im Konto steht als hier gerechnet wird:
         <b>±</b> rechnet Stunden dazu (Minus mit „−“ davor), <b>=</b> setzt das Ergebnis auf
-        genau diese Zahl. Der Dienstplan bleibt dabei, wie er ist. Leeres Feld = keine Anpassung.</p>
+        genau diese Zahl. Der Dienstplan bleibt dabei, wie er ist. Leeres Feld = keine Anpassung.<br>
+        Halbe Stunden gehen mit Komma <b>und</b> mit Punkt – 12,5 oder 12.5 – und wenn die
+        Tastatur beides nicht hergibt, tut es auch 12:30.</p>
 
       <div class="anp-group" id="anpMonate"></div>
 
@@ -725,6 +727,7 @@
     <div class="actions">
       <a href="arbeitszeiten.html">🗓️ Zeiten im Dienstplan ändern</a>
       <button id="csvBtn" type="button">📄 Wochen als CSV</button>
+      <button id="reloadBtn" type="button" title="Holt die Seite frisch vom Server, statt sie aus dem Zwischenspeicher zu nehmen">🔄 App neu laden</button>
     </div>
 
     <footer id="footerInfo"></footer>
@@ -749,6 +752,7 @@
       <div class="field">
         <label for="kH">Stunden (Minus mit −)</label>
         <input type="text" id="kH" inputmode="decimal" autocomplete="off" value="0">
+        <span class="unit">Komma oder Punkt – 2,5 oder 2.5 oder 2:30</span>
       </div>
 
       <div class="modal-actions">
@@ -786,6 +790,7 @@
   }
 
   var PERSON_ID = 'tobias';
+  var APP_STAND = '11.09.2026';          // steht unten in der Fusszeile
 
   var ALL = (window.NESSIE_DIENSTPLAN && window.NESSIE_DIENSTPLAN.people) || [];
   var PERSON = null;
@@ -869,14 +874,22 @@
   /* ---------- Zahlen eintippen ----------
      Die Stundenfelder sind bewusst type="text" mit inputmode="decimal":
      Ein type="number" wirft in vielen Browsern und auf dem Handy alles weg,
-     was ein Komma enthaelt – aus "12,5" wird dann ein leeres Feld. Hier ist
-     beides erlaubt, Komma wie Punkt, und angezeigt wird deutsch mit Komma. */
+     was ein Komma enthaelt – aus "12,5" wird dann ein leeres Feld.
+     Hier zaehlt jedes Trennzeichen, das eine Tastatur so hergibt: Komma,
+     Punkt, Mittelpunkt, Hochkomma. Und wer partout keinen Trenner findet,
+     tippt "12:30". Angezeigt wird immer deutsch mit Komma.             */
+
+  // Alles, was auf einer Tastatur als Dezimaltrenner herauskommen kann
+  var SEP_RE   = /[.,\u00b7\u02d9\u2022\u2027\u066b\u060c\u2032'\u2019`\u00b4]/g;
+  // Minuszeichen, die keine echten Bindestriche sind
+  var MINUS_RE = /[\u2212\u2010\u2011\u2013\u2014]/g;
 
   // Feldinhalt -> Zahl. Leer, "-" oder "," allein sind (noch) keine Zahl.
   function parseNum(v) {
-    var t = String(v == null ? '' : v).replace(/[\s\u00a0]/g, '')
-      .replace(/[\u2212\u2013\u2014]/g, '-')     // typografische Minuszeichen
-      .replace(',', '.');
+    var t = String(v == null ? '' : v).replace(/[\s\u00a0]/g, '').replace(MINUS_RE, '-');
+    var hm = /^(-?)(\d{1,3}):([0-5]?\d)$/.exec(t);        // "7:30" sind 7,5 Stunden
+    if (hm) return (hm[1] ? -1 : 1) * (+hm[2] + (+hm[3]) / 60);
+    t = t.replace(SEP_RE, '.');
     if (!/^-?(\d+\.?\d*|\.\d+)$/.test(t)) return NaN;
     return parseFloat(t);
   }
@@ -887,29 +900,40 @@
     return fmtDec(+n);
   }
 
-  // Waehrend des Tippens alles wegraeumen, was keine Zahl sein kann.
-  // Laeuft in der Capture-Phase, also bevor die Felder selbst reagieren.
-  function cleanNumInput(el) {
-    var alt = el.value;
-    var neu = alt.replace(/[^0-9,.\-\u2212\u2013\u2014]/g, '')
-      .replace(/[\u2212\u2013\u2014]/g, '-')
-      .replace(/\./g, ',');
-    var minus = neu.charAt(0) === '-';
-    neu = neu.replace(/-/g, '');
-    var teile = neu.split(',');
-    if (teile.length > 1) neu = teile.shift() + ',' + teile.join('');
-    if (minus) neu = '-' + neu;
-    if (neu === alt) return;
-    var pos = (el.selectionStart || 0) - (alt.length - neu.length);
-    el.value = neu;
-    try { el.setSelectionRange(pos, pos); } catch (e) {}
+  // Aus Zeichensalat die beste Zahl machen: jeder Trenner wird zum Komma,
+  // alles andere fliegt raus, und mehr als ein Trenner bleibt nicht uebrig.
+  function cleanNum(v) {
+    var t = String(v == null ? '' : v)
+      .replace(MINUS_RE, '-').replace(SEP_RE, ',').replace(/[^0-9,:\-]/g, '');
+    var minus = t.charAt(0) === '-';
+    t = t.replace(/-/g, '');
+    var i = t.search(/[,:]/);                            // nur der erste Trenner zaehlt
+    if (i >= 0) t = t.slice(0, i + 1) + t.slice(i + 1).replace(/[,:]/g, '');
+    return minus ? '-' + t : t;
   }
 
-  document.addEventListener('input', function (ev) {
+  function isNumFeld(el) {
+    return !!el && el.tagName === 'INPUT' && el.getAttribute('inputmode') === 'decimal';
+  }
+
+  /* Waehrend des Tippens wird am Feld bewusst nichts umgeschrieben.
+     Genau daran ist das Komma bisher gescheitert: schreibt ein Skript
+     dem Feld mitten im Tippen einen neuen Wert hinein, verschlucken
+     manche Handy- und Zahlentastaturen das Zeichen, das gerade gekommen
+     ist. Gelesen wird ohnehin mit parseNum(), dem Komma, Punkt und
+     Doppelpunkt gleich recht sind. Sauber hingeschrieben wird erst,
+     wenn das Feld fertig ist.                                        */
+  document.addEventListener('blur', function (ev) {
     var el = ev.target;
-    if (el && el.tagName === 'INPUT' && el.getAttribute('inputmode') === 'decimal') {
-      cleanNumInput(el);
-    }
+    if (!isNumFeld(el)) return;
+    var roh = String(el.value);
+    var h = parseNum(roh);
+    if (isNaN(h) && roh.trim() !== '') h = parseNum(cleanNum(roh));
+    var neu = (roh.trim() === '' || isNaN(h)) ? '' : numField(h);
+    if (neu === roh) return;
+    el.value = neu;
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    el.dispatchEvent(new Event('change', { bubbles: true }));
   }, true);
 
   /* ---------- Feiertage (Österreich) – siehe ueberstunden-rechner.js ---------- */
@@ -935,7 +959,7 @@
 
   // Von Hand gesetzte Überstunden: je Monat und einmal fürs ganze Konto.
   // modus 'delta' = dazurechnen, modus 'fix' = auf genau diesen Wert setzen.
-  var anpassungen = { monate: {}, gesamt: { aktiv: false, modus: 'fix', h: 0 } };
+  var anpassungen = { monate: {}, gesamt: { aktiv: false, modus: 'fix', h: 0 }, vorgaben: {} };
 
   (function loadKonto() {
     try {
@@ -971,8 +995,40 @@
         aktiv: !!g.aktiv,
         modus: g.modus === 'delta' ? 'delta' : 'fix',
         h: isNaN(h) ? 0 : h
-      }
+      },
+      vorgaben: a.vorgaben || {}                 // welche Vorgaben schon gelaufen sind
     };
+  }
+
+  /* ---------- Vorgaben ----------
+     Stunden, die uns aus dem Betrieb durchgesagt wurden und die einmal
+     ins Konto wandern sollen – so, als haetten wir sie oben unter
+     "Überstunden von Hand setzen" selbst eingetippt. Jede Vorgabe laeuft
+     genau ein Mal; dass sie gelaufen ist, merkt sich das Konto unter
+     "vorgaben". Wer den Wert danach aendert oder loescht, behaelt seine
+     Version – sie kommt nicht wieder.                                */
+
+  var VORGABEN = [
+    // August 2026: insgesamt 12,5 Überstunden gesammelt.
+    { id: 'aug2026', monat: '2026-08', modus: 'fix', h: 12.5 }
+  ];
+
+  // true, wenn dabei etwas ins Konto gekommen ist
+  function applyVorgaben() {
+    var neu = false;
+    VORGABEN.forEach(function (v) {
+      if (anpassungen.vorgaben[v.id]) return;
+      anpassungen.vorgaben[v.id] = true;
+      anpassungen.monate[v.monat] = {
+        modus: v.modus === 'delta' ? 'delta' : 'fix',
+        h: v.h,
+        by: 'Vorgabe',
+        ts: Date.now()
+      };
+      neu = true;
+    });
+    if (neu) saveKontoLocal();
+    return neu;
   }
 
   function saveKontoLocal() {
@@ -982,6 +1038,8 @@
       }));
     } catch (e) {}
   }
+
+  applyVorgaben();               // einmal auf den Stand, der auf diesem Geraet liegt
 
   var userName = '';
   try { userName = localStorage.getItem(NAME_KEY) || ''; } catch (e) {}
@@ -1087,7 +1145,8 @@
       renderAnp([], [], null, null);
       renderKorr();
       renderRules();
-      document.getElementById('footerInfo').textContent = 'Keine Plandaten vorhanden.';
+      document.getElementById('footerInfo').textContent =
+        'Keine Plandaten vorhanden. \u00b7 Stand der App: ' + APP_STAND;
       return;
     }
 
@@ -1114,7 +1173,8 @@
     document.getElementById('footerInfo').innerHTML =
       'Konto von ' + escapeHtml(PERSON.fullName) + '<br>' +
       'Daten vom ' + shortDate(dateOfKey(r.von)) + dateOfKey(r.von).getFullYear() +
-      ' bis ' + shortDate(dateOfKey(r.bis)) + dateOfKey(r.bis).getFullYear();
+      ' bis ' + shortDate(dateOfKey(r.bis)) + dateOfKey(r.bis).getFullYear() + '<br>' +
+      'Stand der App: ' + APP_STAND;
   }
 
   function renderHero(jetzt, extra) {
@@ -1739,6 +1799,12 @@
     URL.revokeObjectURL(url);
   });
 
+  // Handys halten eine einmal geoeffnete Seite gern ewig fest. Mit einem
+  // frischen Zeitstempel in der Adresse muss der Browser sie neu holen.
+  document.getElementById('reloadBtn').addEventListener('click', function () {
+    location.replace(location.pathname + '?v=' + Date.now());
+  });
+
   /* ---------- Firebase ---------- */
 
   var db = null, firebaseReady = false;
@@ -1777,6 +1843,9 @@
       // Konto-Einstellungen und Korrekturen
       this.kontoRef().on('value', function (snap) {
         applyKonto(snap.val() || {});
+        // Eine noch nicht gelaufene Vorgabe wandert jetzt ins Konto und
+        // gleich auch in die Datenbank – danach ist sie erledigt.
+        if (applyVorgaben()) Store.setAnp();
         saveKontoLocal();
         render();
         fillSettings();
@@ -1801,6 +1870,7 @@
       if (!firebaseReady) return;
       this.kontoRef().child('anpassungen').set({
         monate: anpassungen.monate,
+        vorgaben: anpassungen.vorgaben,
         gesamt: {
           aktiv: !!anpassungen.gesamt.aktiv,
           modus: anpassungen.gesamt.modus,
