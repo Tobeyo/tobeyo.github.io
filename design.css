@@ -1,0 +1,272 @@
+/*
+ * Nessie-Hub · gemeinsame Design-Grundlage
+ *
+ * Drei Designs, gewählt auf der Startseite und gespeichert im Browser:
+ *   loch    – Loch Ness: dunkel, Serifen-Schrift, Gold
+ *   papier  – Papier & Farbe: hell, jede App in ihrer eigenen Farbe
+ *   raster  – Raster: schwarz, Linienraster, Mono-Schrift, Signal-Orange
+ *
+ * Hier stehen nur Farb-/Schrift-Variablen (--n-…), die Seitenübergänge und
+ * ein paar gemeinsame Bausteine mit „n-“-Präfix. Jede Seite baut ihr
+ * eigenes Aussehen aus diesen Variablen – so bleibt die Logik der Apps
+ * unberührt.
+ */
+
+/* ---------------------------------------------------------------------- */
+/* Variablen                                                               */
+/* ---------------------------------------------------------------------- */
+
+:root,
+html[data-design="loch"] {
+  --n-bg: #0b1411;
+  --n-bg-deco: radial-gradient(120% 55% at 50% 118%, rgba(240, 180, 60, 0.08), transparent 62%);
+  --n-surface: rgba(235, 228, 211, 0.035);
+  --n-surface-2: rgba(235, 228, 211, 0.075);
+  --n-solid: #122019;
+  --n-field: rgba(235, 228, 211, 0.05);
+  --n-line: rgba(235, 228, 211, 0.11);
+  --n-line-2: rgba(235, 228, 211, 0.24);
+  --n-text: #ebe4d3;
+  --n-muted: #959f97;
+  --n-faint: #66726b;
+  --n-accent: #f0b43c;
+  --n-accent-2: #f5c86a;
+  --n-on-accent: #1a1405;
+  --n-active-bg: #f0b43c;
+  --n-active-fg: #1a1405;
+  --n-ok: #a3d98a;
+  --n-bad: #ff7d6b;
+  --n-warn: #f0b43c;
+  --n-info: #8fc8d8;
+  --n-overlay: rgba(4, 9, 7, 0.74);
+  --n-nav: rgba(11, 20, 17, 0.84);
+  --n-r-lg: 18px;
+  --n-r: 14px;
+  --n-r-sm: 10px;
+  --n-r-pill: 999px;
+  --n-font: 'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --n-font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --n-font-mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --n-display-weight: 400;
+  --n-display-track: -0.02em;
+  --n-display-case: none;
+  --n-display-stretch: 100%;
+  --n-label-font: var(--n-font-mono);
+  --n-label-case: uppercase;
+  --n-label-track: 0.1em;
+  --n-shadow: 0 18px 40px -26px rgba(0, 0, 0, 0.9);
+  --n-grain: 0.07;
+  --n-grain-blend: overlay;
+  --n-enter: n-rise;
+  --n-enter-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --n-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --n-ease-io: cubic-bezier(0.7, 0, 0.2, 1);
+  --n-spring: linear(0, 0.009, 0.035 2.1%, 0.141 4.4%, 0.723 12.9%, 0.938 16.7%, 1.017 19.4%, 1.067, 1.089 24.6%, 1.084 26.6%, 1.061 29.3%, 0.991 38.7%, 0.978 42.3%, 0.994 57.5%, 1);
+}
+
+html[data-design="papier"] {
+  --n-bg: #f1ece2;
+  --n-bg-deco: none;
+  --n-surface: #fbf8f2;
+  --n-surface-2: #fffdf9;
+  --n-solid: #fbf8f2;
+  --n-field: #ffffff;
+  --n-line: rgba(27, 26, 23, 0.1);
+  --n-line-2: rgba(27, 26, 23, 0.24);
+  --n-text: #1b1a17;
+  --n-muted: #6b655a;
+  --n-faint: #9d968a;
+  /* Jede App setzt --n-app auf ihre eigene Farbe */
+  --n-accent: var(--n-app, #4057e0);
+  --n-accent-2: color-mix(in srgb, var(--n-app, #4057e0) 82%, #1b1a17);
+  --n-on-accent: #ffffff;
+  --n-active-bg: #1b1a17;
+  --n-active-fg: #f1ece2;
+  --n-ok: #1f8f4e;
+  --n-bad: #cf3a4e;
+  --n-warn: #b36b00;
+  --n-info: #1f6fb2;
+  --n-overlay: rgba(46, 38, 24, 0.42);
+  --n-nav: rgba(241, 236, 226, 0.88);
+  --n-r-lg: 26px;
+  --n-r: 16px;
+  --n-r-sm: 12px;
+  --n-r-pill: 999px;
+  --n-font: 'Bricolage Grotesque', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --n-font-display: 'Bricolage Grotesque', system-ui, sans-serif;
+  --n-font-mono: 'Bricolage Grotesque', system-ui, sans-serif;
+  --n-display-weight: 800;
+  --n-display-track: -0.035em;
+  --n-display-case: none;
+  --n-display-stretch: 100%;
+  --n-label-font: var(--n-font);
+  --n-label-case: none;
+  --n-label-track: 0;
+  --n-shadow: 0 1px 0 rgba(27, 26, 23, 0.04), 0 14px 30px -20px rgba(27, 26, 23, 0.4);
+  --n-grain: 0.3;
+  --n-grain-blend: multiply;
+  --n-enter: n-lift;
+  --n-enter-ease: var(--n-spring);
+}
+
+html[data-design="raster"] {
+  --n-bg: #0d0d0c;
+  --n-bg-deco: none;
+  --n-surface: rgba(239, 238, 232, 0.015);
+  --n-surface-2: rgba(239, 238, 232, 0.055);
+  --n-solid: #141413;
+  --n-field: rgba(239, 238, 232, 0.03);
+  --n-line: #2b2b28;
+  --n-line-2: #4d4d48;
+  --n-text: #efeee8;
+  --n-muted: #8c8b83;
+  --n-faint: #5e5d57;
+  --n-accent: #ff5a1f;
+  --n-accent-2: #ff7a45;
+  --n-on-accent: #0d0d0c;
+  --n-active-bg: #efeee8;
+  --n-active-fg: #0d0d0c;
+  --n-ok: #c6f36b;
+  --n-bad: #ff4f6e;
+  --n-warn: #ffb020;
+  --n-info: #7fd3ff;
+  --n-overlay: rgba(0, 0, 0, 0.82);
+  --n-nav: #0d0d0c;
+  --n-r-lg: 0px;
+  --n-r: 0px;
+  --n-r-sm: 0px;
+  --n-r-pill: 0px;
+  --n-font: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --n-font-display: 'Archivo', system-ui, -apple-system, sans-serif;
+  --n-font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --n-display-weight: 800;
+  --n-display-track: -0.02em;
+  --n-display-case: uppercase;
+  --n-display-stretch: 115%;
+  --n-label-font: var(--n-font-mono);
+  --n-label-case: uppercase;
+  --n-label-track: 0.08em;
+  --n-shadow: none;
+  --n-grain: 0;
+  --n-grain-blend: normal;
+  --n-enter: n-wipe;
+  --n-enter-ease: var(--n-ease-io);
+}
+
+/* Dunkle bzw. helle Formularfelder & Scrollbalken – nur auf Seiten, die
+   ganz im gewählten Design gezeichnet werden (class="n-themed") */
+html.n-themed { color-scheme: dark; }
+html.n-themed[data-design="papier"] { color-scheme: light; }
+
+/* ---------------------------------------------------------------------- */
+/* Gemeinsame Bausteine (nur mit n-Präfix, damit nichts Bestehendes        */
+/* ungewollt anders aussieht)                                              */
+/* ---------------------------------------------------------------------- */
+
+/* Körnung über der ganzen Seite – nur auf Seiten mit class="n-themed" */
+html.n-themed body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2147483000;
+  opacity: var(--n-grain);
+  mix-blend-mode: var(--n-grain-blend);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+html[data-design="raster"].n-themed body::after { display: none; }
+
+/* App-Icon im Seitenkopf – wandert beim Öffnen aus der Startseite hierher */
+.n-app-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: middle;
+  view-transition-name: n-app-icon;
+}
+html[data-design="raster"] .n-app-icon { border-radius: 0; }
+
+/* Der „Zurück zur Startseite“-Knopf auf Seiten mit eigenem Aussehen
+   (Lernzettel, Wohnungsplaner, Banking-Spielereien) */
+a.n-hub-btn {
+  position: fixed;
+  top: max(12px, env(safe-area-inset-top));
+  left: 12px;
+  z-index: 999999;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px 8px 10px;
+  text-decoration: none;
+  font: 600 14px/1.1 var(--n-font);
+  letter-spacing: 0;
+  color: var(--n-text);
+  background: var(--n-nav);
+  border: 1px solid var(--n-line-2);
+  border-radius: var(--n-r-pill);
+  box-shadow: 0 6px 22px -8px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: transform 0.4s var(--n-ease), background 0.2s;
+}
+a.n-hub-btn:hover { transform: translateY(-1px); }
+a.n-hub-btn:active { transform: scale(0.96); }
+a.n-hub-btn .n-hub-arrow {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--n-accent);
+  color: var(--n-on-accent);
+  font-size: 13px;
+  transition: transform 0.4s var(--n-ease);
+}
+a.n-hub-btn:hover .n-hub-arrow { transform: translateX(-2px); }
+html[data-design="loch"] a.n-hub-btn { font-family: var(--n-font-mono); font-weight: 500; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
+html[data-design="papier"] a.n-hub-btn { font-weight: 700; --n-accent: #1b1a17; --n-on-accent: #f1ece2; }
+html[data-design="raster"] a.n-hub-btn { border-radius: 0; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; box-shadow: none; backdrop-filter: none; }
+html[data-design="raster"] a.n-hub-btn .n-hub-arrow { border-radius: 0; }
+
+/* Einblenden beim Laden – für Abschnitte, die es haben sollen */
+@keyframes n-rise { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
+@keyframes n-lift { from { opacity: 0; transform: translateY(26px) scale(0.97); } to { opacity: 1; transform: none; } }
+@keyframes n-pop { from { opacity: 0; transform: translateY(26px) scale(0.94) rotate(1.2deg); } to { opacity: 1; transform: none; } }
+@keyframes n-wipe { from { opacity: 0; clip-path: inset(0 0 100% 0); } to { opacity: 1; clip-path: inset(0 0 0 0); } }
+@keyframes n-fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* ---------------------------------------------------------------------- */
+/* Seitenübergänge (Chrome, Edge, Safari ab 18.2 – sonst ganz normal)      */
+/* ---------------------------------------------------------------------- */
+
+@view-transition { navigation: auto; }
+
+@keyframes n-vt-out-soft { to { opacity: 0; transform: scale(0.97); filter: brightness(0.7); } }
+@keyframes n-vt-in-rise { from { opacity: 0; transform: translateY(28px); } }
+@keyframes n-vt-in-card { from { clip-path: inset(100% 0 0 0 round 32px); transform: translateY(24px); } to { clip-path: inset(0 0 0 0 round 0); } }
+@keyframes n-vt-out-card { to { transform: scale(0.94); opacity: 0.4; } }
+@keyframes n-vt-in-wipe { from { clip-path: inset(100% 0 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes n-vt-out-wipe { to { transform: translateY(-4%); opacity: 0.5; } }
+
+html[data-design="loch"]::view-transition-old(root) { animation: n-vt-out-soft 0.35s ease both; }
+html[data-design="loch"]::view-transition-new(root) { animation: n-vt-in-rise 0.6s var(--n-ease) both; }
+
+html[data-design="papier"]::view-transition-old(root) { animation: n-vt-out-card 0.55s var(--n-ease) both; }
+html[data-design="papier"]::view-transition-new(root) { animation: n-vt-in-card 0.6s var(--n-ease) both; }
+
+html[data-design="raster"]::view-transition-old(root) { animation: n-vt-out-wipe 0.55s var(--n-ease-io) both; }
+html[data-design="raster"]::view-transition-new(root) { animation: n-vt-in-wipe 0.55s var(--n-ease-io) both; }
+
+::view-transition-group(n-app-icon) { animation-duration: 0.55s; animation-timing-function: var(--n-ease); }
+
+/* Beim Design-Wechsel auf der Startseite steuert design.js die Animation */
+html.n-switching::view-transition-old(root),
+html.n-switching::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) { animation: none !important; }
+}

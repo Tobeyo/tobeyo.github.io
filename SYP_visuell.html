@@ -16,6 +16,9 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="SYP">
+<!-- Design-Auswahl von der Startseite (Farben, Schriften, Übergänge) -->
+<script src="design.js"></script>
+<link rel="stylesheet" href="design.css">
 <style>
 :root{--ink:#0f172a;--mut:#475569;--line:#e2e8f0;--bg:#f7f6fb;--acc:#7c3aed;--acc2:#5b21b6;--defb:#e0f2fe;--defl:#0284c7;--bsb:#dcfce7;--bsl:#16a34a;--wnb:#fee2e2;--wnl:#dc2626}
 *{box-sizing:border-box}
@@ -73,6 +76,48 @@ section.fav{border:2px solid #f59e0b;box-shadow:0 2px 12px #f59e0b40}
 .basics{background:#eef2ff;border-left:4px solid #6366f1;border-radius:10px;padding:8px 12px;margin:6px 0;font-size:.9rem}
 .prax{background:#fff7ed;border:2px dashed #f59e0b;border-radius:12px;padding:10px 14px;margin:10px 0;font-size:.9rem}
 </style>
+<style>
+/* ---- Design der Startseite (design.css) für Kopf, Navigation & Überschriften.
+        Der Lerninhalt selbst bleibt hell und farbig markiert. ---- */
+header.top h1,h2.korb,section.topic h3{font-family:var(--n-font-display);font-weight:var(--n-display-weight);letter-spacing:var(--n-display-track);font-stretch:var(--n-display-stretch)}
+header.top{padding-top:62px;position:relative;overflow:hidden}
+header.top h1,header.top p,header.top .chips{animation:n-rise .8s var(--n-ease) backwards}
+header.top p{animation-delay:.08s}
+header.top .chips{animation-delay:.16s}
+nav.bar a{transition:background .2s,color .2s}
+section.topic{animation:n-rise .6s var(--n-ease) backwards}
+
+html[data-design="loch"] body{background:#f4f1ea}
+html[data-design="loch"] header.top{background:var(--n-bg) var(--n-bg-deco);color:var(--n-text);text-align:left;padding:66px 28px 30px}
+html[data-design="loch"] header.top h1{font-weight:300;font-size:2.7rem;line-height:1;font-variation-settings:"opsz" 144;margin-bottom:10px}
+html[data-design="loch"] header.top p{color:var(--n-muted);opacity:1}
+html[data-design="loch"] header.top .chips{justify-content:flex-start}
+html[data-design="loch"] nav.bar{background:#0b1411f0;border-bottom-color:#0b1411}
+html[data-design="loch"] nav.bar a{color:var(--n-text);font-family:var(--n-font-mono);font-weight:500;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
+html[data-design="loch"] nav.bar a:hover{background:rgba(240,180,60,.16);color:var(--n-accent)}
+html[data-design="loch"] h2.korb{background:var(--n-bg);color:var(--n-text);font-weight:400;font-size:1.35rem;border-left:4px solid var(--n-accent)}
+
+html[data-design="papier"] body{background:var(--n-bg)}
+html[data-design="papier"] header.top{background:var(--acc);text-align:left;padding:66px 28px 30px}
+html[data-design="papier"] header.top h1{font-size:2.6rem;line-height:1}
+html[data-design="papier"] header.top .chips{justify-content:flex-start}
+html[data-design="papier"] nav.bar{background:#f1ece2ee;font-family:var(--n-font)}
+html[data-design="papier"] nav.bar a{border-radius:99px;font-family:var(--n-font);font-weight:700}
+html[data-design="papier"] h2.korb{background:var(--acc);border-radius:18px;font-size:1.35rem}
+html[data-design="papier"] section.topic{border-radius:22px;box-shadow:var(--n-shadow)}
+
+html[data-design="raster"] header.top{background:var(--n-bg);color:var(--n-text);text-align:left;padding:66px 24px 26px;border-bottom:1px solid #2b2b28}
+html[data-design="raster"] header.top h1{font-weight:900;font-stretch:125%;text-transform:uppercase;font-size:2.4rem;line-height:.95;margin-bottom:12px}
+html[data-design="raster"] header.top p{font-family:var(--n-font-mono);color:var(--n-muted);opacity:1;text-transform:uppercase;font-size:.78rem;letter-spacing:.06em}
+html[data-design="raster"] header.top .chips{justify-content:flex-start}
+html[data-design="raster"] header.top .chip{border-radius:0}
+html[data-design="raster"] nav.bar{background:var(--n-bg);border-bottom-color:#2b2b28}
+html[data-design="raster"] nav.bar a{color:var(--n-text);font-family:var(--n-font-mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;border-radius:0}
+html[data-design="raster"] nav.bar a:hover{background:var(--n-accent);color:var(--n-on-accent)}
+html[data-design="raster"] h2.korb{background:var(--n-bg);border-radius:0;text-transform:uppercase;font-weight:800;border-left:6px solid var(--n-accent)}
+html[data-design="raster"] section.topic,html[data-design="raster"] .toc div,html[data-design="raster"] .card{border-radius:0}
+@media (prefers-reduced-motion:reduce){header.top *,section.topic{animation:none!important}}
+</style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute"><defs>
@@ -88,7 +133,7 @@ section.fav{border:2px solid #f59e0b;box-shadow:0 2px 12px #f59e0b40}
 <nav class="bar">
 <a href="#k1">1 Projektmanagement</a><a href="#k2">2 SW-Entwicklung</a><a href="#k3">3 Konzeption &amp; Modellierung</a><a href="#k4">4 IKT-Betrieb</a><a href="#k5">5 Sicherheit &amp; Recht</a>
 </nav>
-<a href="index.html" style="position:fixed;top:12px;left:12px;background:rgba(0,0,0,0.6);color:#fff;padding:8px 16px;border-radius:20px;text-decoration:none;font-weight:bold;z-index:999999;backdrop-filter:blur(4px);display:flex;align-items:center;gap:6px;font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:14px;box-shadow:0 2px 10px rgba(0,0,0,0.2);"><span>🏠</span> Nessie-Hub</a>
+<a href="index.html" class="n-hub-btn"><span class="n-hub-arrow" aria-hidden="true">←</span> Nessie-Hub</a>
 <main>
 <div class="toc">
 <div><b>Korb 1 – Projektmanagement</b><a href="#s11" style="font-weight:700;color:#b45309">⭐ 1.1 SWOT &amp; Pitch</a><a href="#s12">1.2 Projektumfeld &amp; Stakeholder</a><a href="#s13">1.3 PSP &amp; Gantt</a><a href="#s14">1.4 Risikomanagement</a><a href="#s16">1.6 Qualitätsmanagement</a><a href="#s17" style="font-weight:700;color:#b45309">⭐ 1.7 Projektphasen (Wasserfall)</a></div>

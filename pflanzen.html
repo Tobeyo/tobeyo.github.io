@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" class="n-themed">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +8,7 @@
 
   <!-- Eigenes App-Manifest & Icons für „Zum Startbildschirm hinzufügen" -->
   <link rel="manifest" href="pflanzen.webmanifest">
-  <meta name="theme-color" content="#2e7d32">
+  <meta name="theme-color" content="#0b1411" data-design>
   <link rel="icon" type="image/svg+xml" href="icons/pflanzen.svg">
   <link rel="icon" type="image/png" sizes="32x32" href="icons/pflanzen-32.png">
   <link rel="icon" type="image/png" sizes="192x192" href="icons/pflanzen-192.png">
@@ -18,25 +18,35 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Pflanzen">
 
+  <!-- Design-Auswahl von der Startseite (Farben, Schriften, Übergänge) -->
+  <script src="design.js"></script>
+  <link rel="stylesheet" href="design.css">
+
   <style>
     :root {
-      --green: #2e7d32;
-      --green-dark: #1b5e20;
-      --green-light: #e8f5e9;
-      --text: #1a1a1a;
-      --bg: #f4f8f4;
-      --card: #ffffff;
-      --border: #cccccc;
-      --error: #c62828;
+      /* Farbe dieser App im Design „Papier & Farbe“ */
+      --n-app: #2f8f45;
+      /* Alle Farben kommen aus dem gewählten Design (design.css) */
+      --green: var(--n-accent);
+      --green-dark: var(--n-accent-2);
+      --green-light: color-mix(in srgb, var(--n-accent) 16%, var(--n-bg));
+      --text: var(--n-text);
+      --bg: var(--n-bg);
+      --card: var(--n-surface);
+      --border: var(--n-line-2);
+      --error: var(--n-bad);
     }
 
     * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: var(--n-font);
       background: var(--bg);
+      background-image: var(--n-bg-deco);
+      background-attachment: fixed;
       color: var(--text);
+      -webkit-font-smoothing: antialiased;
       font-size: 20px;
       line-height: 1.5;
     }
@@ -60,20 +70,24 @@
     .history-btn, .hub-btn {
       display: inline-flex;
       align-items: center;
-      background: #fff;
-      color: var(--green-dark);
-      border: 3px solid var(--green);
-      border-radius: 14px;
-      padding: 9px 11px;
-      font-size: 0.9em;
+      background: var(--card);
+      color: var(--text);
+      border: 2px solid var(--border);
+      border-radius: var(--n-r-pill);
+      padding: 9px 13px;
+      font-size: 0.8em;
       font-weight: 700;
+      font-family: inherit;
       text-decoration: none;
       cursor: pointer;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.12);
+      transition: background 0.2s, border-color 0.2s, transform 0.4s var(--n-ease);
       -webkit-tap-highlight-color: transparent;
       white-space: nowrap;
     }
-    .history-btn:hover, .hub-btn:hover { background: var(--green-light); }
+    .history-btn:hover, .hub-btn:hover { background: var(--n-surface-2); border-color: var(--green); }
+    .hub-btn .n-back { display: inline-grid; place-items: center; width: 26px; height: 26px; margin: -3px 8px -3px -5px; border-radius: 50%; background: var(--n-active-bg); color: var(--n-active-fg); font-size: 0.85em; transition: transform 0.4s var(--n-ease); }
+    html[data-design="raster"] .hub-btn .n-back { border-radius: 0; }
+    .hub-btn:hover .n-back { transform: translateX(-3px); }
     .history-btn:active, .hub-btn:active { transform: scale(0.98); }
     .history-btn .icon, .hub-btn .icon { margin-right: 5px; }
 
@@ -83,23 +97,33 @@
     }
 
     header h1 {
-      font-size: 2em;
-      color: var(--green-dark);
-      margin: 12px 0 4px;
+      font-family: var(--n-font-display);
+      font-weight: var(--n-display-weight);
+      font-stretch: var(--n-display-stretch);
+      text-transform: var(--n-display-case);
+      letter-spacing: var(--n-display-track);
+      font-size: 2.1em;
+      line-height: 1.05;
+      color: var(--text);
+      margin: 14px 0 8px;
     }
+    html[data-design="loch"] header h1 { font-weight: 300; font-size: 2.4em; }
+    html[data-design="raster"] header h1 { font-size: 1.5em; hyphens: manual; }
+    html[data-design="raster"] .history-btn, html[data-design="raster"] .hub-btn { font-size: 0.7em; }
 
     header p {
-      font-size: 1.05em;
-      color: #444;
+      font-size: 1em;
+      color: var(--n-muted);
       margin: 0;
     }
 
     .logo {
-      width: 96px;
-      height: 96px;
-      border-radius: 22px;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.18);
+      width: 88px;
+      height: 88px;
+      border-radius: 24px;
+      box-shadow: 0 12px 28px -12px rgba(0,0,0,0.45);
     }
+    html[data-design="raster"] .logo { border-radius: 0; }
 
     /* Buttons */
     .btn {
@@ -110,30 +134,33 @@
       font-size: 1.15em;
       font-weight: 700;
       border: none;
-      border-radius: 16px;
+      border-radius: var(--n-r-lg);
       cursor: pointer;
       text-align: center;
-      color: #fff;
+      font-family: inherit;
+      color: var(--n-on-accent);
       background: var(--green);
-      box-shadow: 0 3px 6px rgba(0,0,0,0.15);
-      transition: background 0.15s, transform 0.05s;
+      box-shadow: var(--n-shadow);
+      transition: filter 0.2s, transform 0.4s var(--n-ease), background 0.2s;
       -webkit-tap-highlight-color: transparent;
     }
 
     .btn:active { transform: scale(0.98); }
-    .btn:hover { background: var(--green-dark); }
+    .btn:hover { filter: brightness(1.07); transform: translateY(-2px); }
 
     .btn-secondary {
-      background: #ffffff;
-      color: var(--green-dark);
-      border: 3px solid var(--green);
+      background: var(--card);
+      color: var(--text);
+      border: 2px solid var(--border);
     }
     .btn-secondary:hover {
-      background: var(--green-light);
+      background: var(--n-surface-2);
+      border-color: var(--green);
     }
 
     .btn-submit {
-      background: var(--green-dark);
+      background: var(--n-active-bg);
+      color: var(--n-active-fg);
       font-size: 1.3em;
     }
 
@@ -179,14 +206,14 @@
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    .loading p { font-size: 1.1em; color: #444; }
+    .loading p { font-size: 1.1em; color: var(--n-muted); }
 
     /* Error */
     .error-box {
-      background: #ffebee;
-      border: 3px solid var(--error);
+      background: color-mix(in srgb, var(--error) 12%, transparent);
+      border: 2px solid var(--error);
       color: var(--error);
-      border-radius: 16px;
+      border-radius: var(--n-r-lg);
       padding: 20px;
       margin: 18px 0;
       font-size: 1.05em;
@@ -195,24 +222,33 @@
 
     /* Results */
     .results h2 {
+      font-family: var(--n-font-display);
+      font-weight: var(--n-display-weight);
+      font-stretch: var(--n-display-stretch);
+      text-transform: var(--n-display-case);
+      letter-spacing: var(--n-display-track);
       font-size: 1.5em;
-      color: var(--green-dark);
+      color: var(--text);
       margin: 24px 0 12px;
     }
 
     .result-card {
       background: var(--card);
-      border-radius: 16px;
+      border: 1px solid var(--n-line);
+      border-radius: var(--n-r-lg);
       padding: 18px 20px;
       margin: 14px 0;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      border-left: 8px solid var(--green);
+      box-shadow: var(--n-shadow);
+      border-left: 6px solid var(--green);
+      animation: var(--n-enter) 0.6s var(--n-enter-ease) backwards;
     }
+    .result-card:nth-child(2) { animation-delay: 80ms; }
+    .result-card:nth-child(3) { animation-delay: 160ms; }
 
     .result-rank {
       display: inline-block;
       background: var(--green);
-      color: #fff;
+      color: var(--n-on-accent);
       font-weight: 700;
       border-radius: 50%;
       width: 38px;
@@ -239,29 +275,29 @@
 
     .result-family {
       font-size: 1em;
-      color: #555;
+      color: var(--n-muted);
       margin: 4px 0 12px;
     }
 
     .bar-label {
       font-size: 0.95em;
-      color: #444;
+      color: var(--n-muted);
       margin-bottom: 4px;
     }
 
     .bar-track {
-      background: #e0e0e0;
-      border-radius: 10px;
+      background: var(--n-surface-2);
+      border-radius: var(--n-r-sm);
       height: 28px;
       overflow: hidden;
       width: 100%;
     }
 
     .bar-fill {
-      background: linear-gradient(90deg, #66bb6a, #2e7d32);
+      background: var(--green);
       height: 100%;
-      border-radius: 10px;
-      color: #fff;
+      border-radius: var(--n-r-sm);
+      color: var(--n-on-accent);
       font-weight: 700;
       text-align: right;
       padding-right: 10px;
@@ -279,17 +315,22 @@
     /* Pflege-Bereich */
     .care-card {
       background: var(--card);
-      border-radius: 16px;
+      border: 1px solid var(--n-line);
+      border-radius: var(--n-r-lg);
       padding: 18px 20px;
       margin: 14px 0;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      border-left: 8px solid #00897b;
+      box-shadow: var(--n-shadow);
+      border-left: 6px solid var(--n-info);
+      animation: var(--n-enter) 0.6s var(--n-enter-ease) backwards;
     }
 
     .care-title {
+      font-family: var(--n-font-display);
+      font-stretch: var(--n-display-stretch);
+      text-transform: var(--n-display-case);
       font-size: 1.35em;
-      font-weight: 700;
-      color: #00695c;
+      font-weight: var(--n-display-weight);
+      color: var(--text);
       margin: 0 0 12px;
     }
 
@@ -297,15 +338,15 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      color: #555;
+      color: var(--n-muted);
       font-size: 1.05em;
     }
 
     .care-loading .mini-spinner {
       width: 28px;
       height: 28px;
-      border: 5px solid #e0f2f1;
-      border-top-color: #00897b;
+      border: 5px solid var(--n-surface-2);
+      border-top-color: var(--n-info);
       border-radius: 50%;
       animation: spin 1s linear infinite;
       flex-shrink: 0;
@@ -316,7 +357,7 @@
       gap: 12px;
       align-items: flex-start;
       padding: 12px 0;
-      border-bottom: 1px solid #eee;
+      border-bottom: 1px solid var(--n-line);
     }
     .care-row:last-child { border-bottom: none; }
 
@@ -335,13 +376,13 @@
     }
 
     .care-value {
-      color: #333;
+      color: var(--text);
       font-size: 1.05em;
     }
 
     .care-note {
       font-size: 0.9em;
-      color: #888;
+      color: var(--n-faint);
       margin-top: 10px;
       font-style: italic;
     }
@@ -349,45 +390,46 @@
     .care-retry {
       display: inline-block;
       margin-top: 12px;
-      background: #00897b;
-      color: #fff;
+      background: var(--green);
+      color: var(--n-on-accent);
       border: none;
-      border-radius: 12px;
+      border-radius: var(--n-r);
       padding: 12px 20px;
+      font-family: inherit;
       font-size: 1.05em;
       font-weight: 700;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
     }
-    .care-retry:hover { background: #00695c; }
+    .care-retry:hover { filter: brightness(1.07); }
 
     /* Pflege: Quellen-Hinweis (Gattung/Familie) */
     .care-level {
-      background: #fff8e1;
-      border-radius: 10px;
+      background: color-mix(in srgb, var(--n-warn) 13%, transparent);
+      border-radius: var(--n-r-sm);
       padding: 8px 12px;
       margin: 0 0 10px;
       font-size: 0.92em;
-      color: #8d6e00;
+      color: var(--n-warn);
     }
 
     /* Pflege: Warn-Zeile (z. B. giftig) */
     .care-row.care-warn {
-      background: #fff3e0;
-      border-radius: 12px;
+      background: color-mix(in srgb, var(--n-warn) 13%, transparent);
+      border-radius: var(--n-r);
       padding: 12px;
       border-bottom: none;
     }
-    .care-row.care-warn .care-label { color: #c62828; }
+    .care-row.care-warn .care-label { color: var(--error); }
 
     /* Unsicherheits-Hinweis im Ergebnis */
     .result-uncertain {
       margin-top: 14px;
-      background: #fff3e0;
-      border-radius: 12px;
+      background: color-mix(in srgb, var(--n-warn) 13%, transparent);
+      border-radius: var(--n-r);
       padding: 12px 14px;
       font-size: 0.95em;
-      color: #8a5a00;
+      color: var(--n-warn);
     }
 
     /* Aktions-Knöpfe (Vorlesen / Teilen / Mehr erfahren) */
@@ -405,19 +447,20 @@
       align-items: center;
       justify-content: center;
       gap: 6px;
-      background: #fff;
-      color: var(--green-dark);
-      border: 3px solid var(--green);
-      border-radius: 14px;
+      background: var(--card);
+      color: var(--text);
+      border: 2px solid var(--border);
+      border-radius: var(--n-r);
       padding: 14px 12px;
       font-size: 1.02em;
       font-weight: 700;
+      font-family: inherit;
       text-decoration: none;
       cursor: pointer;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: border-color 0.2s, background 0.2s;
       -webkit-tap-highlight-color: transparent;
     }
-    .action-btn:hover { background: var(--green-light); }
+    .action-btn:hover { background: var(--n-surface-2); border-color: var(--green); }
     .action-btn:active { transform: scale(0.98); }
 
     /* Fehler-Box: Text + Nochmal-Knopf */
@@ -427,23 +470,24 @@
       gap: 8px;
       margin-top: 14px;
       background: var(--error);
-      color: #fff;
+      color: var(--n-bg);
       border: none;
-      border-radius: 12px;
+      border-radius: var(--n-r);
       padding: 14px 22px;
+      font-family: inherit;
       font-size: 1.05em;
       font-weight: 700;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
     }
-    .error-retry:hover { background: #a01818; }
+    .error-retry:hover { filter: brightness(1.08); }
 
     /* Verlauf: einzelnen Eintrag löschen */
     .history-del {
       align-self: flex-start;
       flex-shrink: 0;
-      background: #f5f5f5;
-      color: #999;
+      background: var(--n-surface-2);
+      color: var(--n-faint);
       border: none;
       border-radius: 50%;
       width: 36px;
@@ -454,21 +498,26 @@
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
     }
-    .history-del:hover { background: #ffebee; color: var(--error); }
+    .history-del:hover { background: color-mix(in srgb, var(--error) 12%, transparent); color: var(--error); }
 
     /* Verlauf-Ansicht */
     .history-view h2 {
+      font-family: var(--n-font-display);
+      font-weight: var(--n-display-weight);
+      font-stretch: var(--n-display-stretch);
+      text-transform: var(--n-display-case);
+      letter-spacing: var(--n-display-track);
       font-size: 1.5em;
-      color: var(--green-dark);
+      color: var(--text);
       margin: 12px 0 16px;
     }
 
     .history-empty {
       text-align: center;
       font-size: 1.1em;
-      color: #555;
+      color: var(--n-muted);
       background: var(--card);
-      border-radius: 16px;
+      border-radius: var(--n-r-lg);
       padding: 28px 20px;
       margin: 18px 0;
     }
@@ -478,11 +527,13 @@
       gap: 14px;
       align-items: flex-start;
       background: var(--card);
-      border-radius: 16px;
+      border: 1px solid var(--n-line);
+      border-radius: var(--n-r-lg);
       padding: 14px;
       margin: 14px 0;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      border-left: 8px solid var(--green);
+      box-shadow: var(--n-shadow);
+      border-left: 6px solid var(--green);
+      animation: var(--n-enter) 0.6s var(--n-enter-ease) backwards;
     }
 
     .history-thumb {
@@ -490,7 +541,7 @@
       height: 84px;
       flex-shrink: 0;
       object-fit: cover;
-      border-radius: 12px;
+      border-radius: var(--n-r);
       border: 3px solid var(--green-light);
     }
 
@@ -512,7 +563,7 @@
 
     .history-meta {
       font-size: 0.9em;
-      color: #666;
+      color: var(--n-muted);
     }
 
     .history-score {
@@ -520,7 +571,7 @@
       background: var(--green-light);
       color: var(--green-dark);
       font-weight: 700;
-      border-radius: 8px;
+      border-radius: var(--n-r-pill);
       padding: 2px 10px;
       font-size: 0.95em;
       margin-top: 4px;
@@ -529,19 +580,19 @@
     .history-date {
       display: block;
       font-size: 0.85em;
-      color: #888;
+      color: var(--n-faint);
       margin-top: 4px;
     }
 
     .history-care {
       margin-top: 8px;
       padding-top: 8px;
-      border-top: 1px solid #eee;
+      border-top: 1px solid var(--n-line);
     }
 
     .history-care-row {
       font-size: 0.92em;
-      color: #444;
+      color: var(--n-muted);
       margin: 3px 0;
       display: flex;
       gap: 6px;
@@ -554,19 +605,28 @@
       text-align: center;
       margin-top: 40px;
       padding-top: 20px;
-      border-top: 1px solid var(--border);
-      color: #666;
-      font-size: 0.95em;
+      border-top: 1px solid var(--n-line);
+      color: var(--n-muted);
+      font-size: 0.8em;
     }
 
     footer a { color: var(--green-dark); }
+
+    /* Beim Öffnen bauen sich die Abschnitte nacheinander auf */
+    .container > * { animation: var(--n-enter) 0.7s var(--n-enter-ease) backwards; }
+    .container > :nth-child(2) { animation-delay: 70ms; }
+    .container > :nth-child(3) { animation-delay: 140ms; }
+    .container > :nth-child(n+4) { animation-delay: 200ms; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition-duration: 0.01ms !important; }
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="topbar">
       <a class="hub-btn" href="./index.html">
-        <span class="icon">🏠</span>Nessie-Hub
+        <span class="n-back" aria-hidden="true">←</span>Nessie-Hub
       </a>
       <button class="history-btn" id="historyBtn">
         <span class="icon">🕘</span>Meine Pflanzen
@@ -574,8 +634,8 @@
     </div>
 
     <header>
-      <img src="logo.png" alt="Pflanzenerkenner Logo" class="logo">
-      <h1>Pflanzenerkenner</h1>
+      <img src="icons/pflanzen.svg" alt="Pflanzenerkenner Logo" class="logo n-app-icon">
+      <h1>Pflanzen&shy;erkenner</h1>
       <p>Fotografieren Sie eine Blume oder Pflanze, und wir sagen Ihnen, wie sie heißt.</p>
     </header>
 
