@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" class="n-themed">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,45 +7,50 @@
 
   <!-- Eigenes App-Manifest & Icons für „Zum Startbildschirm hinzufügen" -->
   <link rel="manifest" href="garden.webmanifest">
-  <meta name="theme-color" content="#1a1b26">
+  <meta name="theme-color" content="#0b1411" data-design>
   <link rel="icon" type="image/svg+xml" href="icons/garden.svg">
   <link rel="icon" type="image/png" sizes="32x32" href="icons/garden-32.png">
   <link rel="icon" type="image/png" sizes="192x192" href="icons/garden-192.png">
   <link rel="apple-touch-icon" sizes="180x180" href="icons/garden-180.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" data-design>
   <meta name="apple-mobile-web-app-title" content="Garden">
   
   
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
+  <!-- Design-Auswahl von der Startseite (Farben, Schriften, Übergänge) -->
+  <script src="design.js"></script>
+  <link rel="stylesheet" href="design.css">
 
+  <style>
     :root {
-      --bg-color: #0f1015;
-      --card-bg: rgba(255, 255, 255, 0.05);
-      --card-border: rgba(255, 255, 255, 0.1);
-      --accent-1: #27e08a; /* Green */
-      --accent-2: #13c4d8; /* Cyan */
-      --danger: #ff4757;
-      --text-main: #ffffff;
-      --text-muted: #a0a4b8;
+      /* Farbe dieser App im Design „Papier & Farbe“ */
+      --n-app: #13a384;
+      /* Alle Farben kommen aus dem gewählten Design (design.css) */
+      --bg-color: var(--n-bg);
+      --card-bg: var(--n-surface);
+      --card-border: var(--n-line);
+      --accent-1: var(--n-accent);
+      --accent-2: var(--n-accent-2);
+      --danger: var(--n-bad);
+      --text-main: var(--n-text);
+      --text-muted: var(--n-muted);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: 'Outfit', sans-serif;
+      font-family: var(--n-font);
       background-color: var(--bg-color);
       color: var(--text-main);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      background-image: 
-        radial-gradient(circle at 15% 50%, rgba(39, 224, 138, 0.1), transparent 25%),
-        radial-gradient(circle at 85% 30%, rgba(19, 196, 216, 0.1), transparent 25%);
+      background-image: var(--n-bg-deco);
+      background-attachment: fixed;
       overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
     }
 
     /* Navigation */
@@ -55,7 +60,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: rgba(0, 0, 0, 0.3);
+      background: var(--n-nav);
       backdrop-filter: blur(10px);
       border-bottom: 1px solid var(--card-border);
       position: sticky;
@@ -71,22 +76,27 @@
       align-items: center;
       gap: 8px;
       background: var(--card-bg);
-      padding: 8px 16px;
-      border-radius: 20px;
+      padding: 8px 16px 8px 10px;
+      border-radius: var(--n-r-pill);
       border: 1px solid var(--card-border);
       transition: all 0.2s;
+      white-space: nowrap;
     }
 
     .top-nav a:hover {
-      background: rgba(255, 255, 255, 0.1);
+      background: var(--n-surface-2);
     }
+    .n-back { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--n-active-bg); color: var(--n-active-fg); font-size: 0.85rem; transition: transform 0.4s var(--n-ease); }
+    html[data-design="raster"] .n-back { border-radius: 0; }
+    .top-nav a:hover .n-back { transform: translateX(-3px); }
 
     .wither-timer {
       font-weight: 800;
       color: var(--accent-2);
-      background: rgba(0,0,0,0.5);
+      background: var(--n-surface-2);
       padding: 5px 12px;
-      border-radius: 12px;
+      border-radius: var(--n-r-sm);
+      font-family: var(--n-font-mono);
       border: 1px solid var(--card-border);
       font-variant-numeric: tabular-nums;
     }
@@ -115,41 +125,57 @@
     .login-box {
       background: var(--card-bg);
       padding: 40px;
-      border-radius: 24px;
+      border-radius: var(--n-r-lg);
       border: 1px solid var(--card-border);
       text-align: center;
       width: 100%;
-      backdrop-filter: blur(10px);
+      box-shadow: var(--n-shadow);
+      animation: var(--n-enter) 0.8s var(--n-enter-ease) backwards;
     }
+    .login-box .n-app-icon { width: 56px; height: 56px; border-radius: 16px; margin-bottom: 16px; box-shadow: 0 10px 24px -10px rgba(0, 0, 0, 0.5); }
+    html[data-design="raster"] .login-box .n-app-icon { border-radius: 0; }
+    .login-box h2 {
+      font-family: var(--n-font-display);
+      font-weight: var(--n-display-weight);
+      font-stretch: var(--n-display-stretch);
+      text-transform: var(--n-display-case);
+      letter-spacing: var(--n-display-track);
+      font-size: 1.7rem;
+      line-height: 1.1;
+    }
+    html[data-design="loch"] .login-box h2 { font-weight: 300; font-size: 2rem; }
 
     input[type="text"] {
       width: 100%;
       padding: 15px;
       margin: 20px 0;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      color: white;
+      background: var(--n-field);
+      border: 1px solid var(--n-line-2);
+      border-radius: var(--n-r);
+      color: var(--text-main);
       font-size: 1.1rem;
       font-family: inherit;
     }
+    input[type="text"]::placeholder { color: var(--n-faint); }
     
-    input[type="text"]:focus { outline: none; border-color: var(--accent-1); }
+    input[type="text"]:focus { outline: none; border-color: var(--accent-1); box-shadow: 0 0 0 3px color-mix(in srgb, var(--n-accent) 22%, transparent); }
 
     .btn {
-      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-      color: #000;
+      background: var(--n-accent);
+      color: var(--n-on-accent);
       border: none;
       padding: 15px 30px;
       font-size: 1.1rem;
       font-weight: 800;
-      border-radius: 12px;
+      font-family: inherit;
+      border-radius: var(--n-r);
       cursor: pointer;
       width: 100%;
-      transition: transform 0.2s;
+      transition: transform 0.4s var(--n-ease), filter 0.2s;
     }
-    .btn:hover { transform: translateY(-2px); }
-    .btn.danger { background: var(--danger); color: white; }
+    .btn:hover { transform: translateY(-2px); filter: brightness(1.06); }
+    .btn:active { transform: scale(0.98); }
+    .btn.danger { background: var(--danger); color: var(--n-bg); }
 
     /* Main App */
     #appView {
@@ -170,7 +196,7 @@
       gap: 10px;
       background: var(--card-bg);
       padding: 5px;
-      border-radius: 16px;
+      border-radius: var(--n-r);
       border: 1px solid var(--card-border);
     }
     .tab {
@@ -178,14 +204,18 @@
       text-align: center;
       padding: 10px;
       cursor: pointer;
-      border-radius: 12px;
+      border-radius: calc(var(--n-r) - 4px);
       font-weight: 600;
       color: var(--text-muted);
-      transition: all 0.3s;
+      transition: all 0.3s var(--n-ease);
+      white-space: nowrap;
     }
+    .tab:hover { color: var(--text-main); }
+    html[data-design="raster"] .tabs { gap: 4px; }
+    html[data-design="raster"] .tab { font-size: 0.82rem; padding: 10px 4px; }
     .tab.active {
-      background: rgba(255,255,255,0.1);
-      color: var(--text-main);
+      background: var(--n-active-bg);
+      color: var(--n-active-fg);
     }
 
     /* Views */
@@ -198,7 +228,8 @@
     .timer-container {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 30px;
+      border-radius: var(--n-r-lg);
+      box-shadow: var(--n-shadow);
       padding: 40px 20px;
       text-align: center;
       display: flex;
@@ -211,7 +242,7 @@
       width: 250px;
       height: 250px;
       border-radius: 50%;
-      border: 8px solid rgba(255,255,255,0.05);
+      border: 8px solid var(--n-surface-2);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -237,17 +268,18 @@
 
     @keyframes spin { 100% { transform: rotate(405deg); } }
 
-    .time-display { font-size: 4rem; font-weight: 800; }
+    .time-display { font-family: var(--n-font-display); font-stretch: var(--n-display-stretch); font-size: 4.2rem; font-weight: var(--n-display-weight); letter-spacing: var(--n-display-track); }
+    html[data-design="loch"] .time-display { font-weight: 300; font-size: 4.6rem; }
     .selected-plant-preview { font-size: 3rem; margin-bottom: -10px; }
 
     .controls { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; width: 100%; }
     
     .selector {
-      background: rgba(0,0,0,0.2);
-      border: 1px solid var(--card-border);
+      background: var(--n-field);
+      border: 1px solid var(--n-line-2);
       padding: 10px 15px;
-      border-radius: 12px;
-      color: white;
+      border-radius: var(--n-r-sm);
+      color: var(--text-main);
       font-family: inherit;
       font-size: 1rem;
       cursor: pointer;
@@ -278,19 +310,19 @@
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       padding: 15px;
-      border-radius: 20px;
+      border-radius: var(--n-r-lg);
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-    .garden-status h3 { color: var(--accent-1); margin: 0; }
+    .garden-status h3 { color: var(--accent-2); margin: 0; font-family: var(--n-font-display); font-stretch: var(--n-display-stretch); text-transform: var(--n-display-case); font-weight: var(--n-display-weight); }
     .garden-status.withered h3 { color: var(--text-muted); }
 
     #garden3D {
       width: 100%;
       height: 400px;
       background: #000;
-      border-radius: 20px;
+      border-radius: var(--n-r-lg);
       border: 1px solid var(--card-border);
       overflow: hidden;
       position: relative;
@@ -303,9 +335,9 @@
       left: 50%;
       transform: translateX(-50%);
       background: var(--accent-1);
-      color: black;
+      color: var(--n-on-accent);
       padding: 10px 20px;
-      border-radius: 20px;
+      border-radius: var(--n-r-pill);
       font-weight: bold;
       pointer-events: none;
       box-shadow: 0 4px 15px rgba(0,0,0,0.5);
@@ -322,7 +354,7 @@
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       padding: 15px;
-      border-radius: 12px;
+      border-radius: var(--n-r);
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -334,6 +366,14 @@
     }
     .add-tag-form input { margin: 0; flex-grow: 1; }
     .add-tag-form button { width: auto; padding: 0 20px; }
+
+    /* Beim Öffnen bauen sich die Abschnitte nacheinander auf */
+    #appView > * { animation: var(--n-enter) 0.7s var(--n-enter-ease) backwards; }
+    #appView > :nth-child(2) { animation-delay: 80ms; }
+    #appView > :nth-child(n+3) { animation-delay: 160ms; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition-duration: 0.01ms !important; }
+    }
 
   </style>
 </head>
@@ -347,13 +387,14 @@
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
   <div class="top-nav hidden" id="topNav">
-    <a href="index.html"><span>🏠</span> Nessie-Hub</a>
+    <a href="index.html"><span class="n-back" aria-hidden="true">←</span> Nessie-Hub</a>
     <div class="wither-timer" id="witherTimerDisplay">Lädt...</div>
     <div class="user-info" id="navUser"></div>
   </div>
 
   <div id="loginView">
     <div class="login-box">
+      <img class="n-app-icon" src="icons/garden.svg" alt="">
       <h2>Willkommen im 3D-Garten!</h2>
       <p style="color:var(--text-muted); margin-top:10px;">Gib deinen Namen ein, um deinen Garten zu laden.</p>
       <input type="text" id="nameInput" placeholder="Dein Name..." autocomplete="off">
