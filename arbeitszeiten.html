@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Arbeitszeiten</title>
-  <meta name="description" content="Dienstplan-Kalender mit allen Arbeitszeiten von Tobias und Daniel.">
+  <meta name="description" content="Dienstplan-Kalender mit allen Arbeitszeiten von Tobias und Daniel – für Tobias auch mit dem Mittagsmenü im Haus.">
 
   <!-- Eigenes App-Manifest & Icons für „Zum Startbildschirm hinzufügen" -->
   <link rel="manifest" href="arbeitszeiten.webmanifest">
@@ -59,6 +59,11 @@
       --a-fortbildung: #ffb454;
       --a-krank: #ff5470;
       --a-sonderurlaub: #7fd1ff;
+
+      /* Die drei Mittagsmenüs im Essensplan */
+      --m-hausmann: var(--t-seminar);
+      --m-leicht: var(--t-hw);
+      --m-diabetiker: var(--t-n1);
     }
 
     /* Auf hellem Papier brauchen die Vermerk-Farben mehr Kraft */
@@ -555,6 +560,114 @@
       line-height: 1.6;
     }
 
+    /* ---------- Essensplan (nur Tobias) ---------- */
+    .food-filter {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+    .food-filter button {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 7px 13px;
+      border-radius: var(--n-r-pill);
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .food-filter button:hover { background: var(--n-surface-2); color: var(--text-main); }
+    .food-filter button.active { background: var(--n-active-bg); color: var(--n-active-fg); border-color: transparent; }
+    .food-filter i { width: 8px; height: 8px; border-radius: 50%; background: var(--mc); flex-shrink: 0; }
+    .calm .week-block { animation: none; }
+
+    .week-head .food-note { color: var(--text-muted); font-size: 0.78rem; font-weight: 300; white-space: nowrap; }
+
+    .food-day { padding: 12px 0 14px; border-bottom: 1px solid var(--n-line); }
+    .food-day:last-child { border-bottom: none; }
+    .fd-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .fd-date { font-weight: 700; font-size: 0.95rem; display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 6px; }
+    .fd-date small { color: var(--text-muted); font-weight: 300; font-size: 0.82rem; font-variant-numeric: tabular-nums; }
+    .food-day.today .fd-date { color: var(--accent-2); }
+    .fd-badge {
+      align-self: center;
+      font-size: 0.64rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: var(--n-r-pill);
+      background: var(--n-accent);
+      color: var(--n-on-accent);
+      font-family: var(--n-label-font);
+      text-transform: var(--n-label-case);
+      letter-spacing: var(--n-label-track);
+    }
+    .fd-shift {
+      flex-shrink: 0;
+      background: var(--n-field);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      padding: 5px 11px;
+      border-radius: var(--n-r-pill);
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .fd-shift:hover { background: var(--n-surface-2); border-color: var(--n-line-2); }
+    .fd-shift.free { color: var(--free); font-weight: 300; }
+
+    .fd-menus { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .fd-menus.single { grid-template-columns: 1fr; }
+    .menu {
+      background: var(--n-field);
+      border: 1px solid var(--card-border);
+      border-left: 3px solid var(--mc);
+      border-radius: var(--n-r-sm);
+      padding: 9px 11px 10px;
+      font-size: 0.86rem;
+      line-height: 1.4;
+    }
+    .menu .m-lbl {
+      font-family: var(--n-label-font);
+      text-transform: var(--n-label-case);
+      letter-spacing: var(--n-label-track);
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--mc);
+      margin-bottom: 4px;
+    }
+    .menu .m-soup, .menu .m-sweet { color: var(--text-muted); font-weight: 300; }
+    .menu .m-main { margin: 2px 0; }
+    .menu .m-main b { font-weight: 700; }
+
+    /* Im Tages-Fenster: das Mittagessen unter dem Dienst */
+    .m-food { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--card-border); }
+    .m-food:empty { display: none; }
+    .m-food .mf-title {
+      font-family: var(--n-label-font);
+      text-transform: var(--n-label-case);
+      letter-spacing: var(--n-label-track);
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .m-food .fd-menus { grid-template-columns: 1fr; gap: 8px; }
+
     /* ---------- Legende / Footer-Aktionen ---------- */
     .legend {
       display: flex;
@@ -764,6 +877,7 @@
       .row .rdate { width: 62px; font-size: 0.85rem; }
       .row .rtime { font-size: 0.88rem; }
       .switch-row { gap: 8px; }
+      .fd-menus { grid-template-columns: 1fr; gap: 8px; }
     }
   </style>
 </head>
@@ -785,6 +899,9 @@
   <!-- Rechenkern für das Überstunden-Feld oben – teilt sich die Regeln
        mit "ueberstunden.html", damit beide dieselbe Zahl zeigen -->
   <script src="ueberstunden-rechner.js"></script>
+
+  <!-- Mittagsmenüs aus dem Haus – nur für Tobias -->
+  <script src="essensplan-daten.js"></script>
 
   <div class="container">
 
@@ -815,6 +932,7 @@
       <div class="view-switch">
         <button id="viewCal" class="active" type="button">Kalender</button>
         <button id="viewList" type="button">Liste</button>
+        <button id="viewFood" type="button" hidden>Essen</button>
       </div>
       <div class="view-switch small" title="Anzeige der Stunden">
         <button id="fmtDec" class="active" type="button">7,5 h</button>
@@ -830,6 +948,8 @@
     </div>
 
     <div id="listView" style="display:none"></div>
+
+    <div id="foodView" style="display:none"></div>
 
     <div class="legend" id="legend"></div>
 
@@ -917,6 +1037,8 @@
       </div>
 
       <div class="modal-meta" id="mMeta"></div>
+
+      <div class="m-food" id="mFood"></div>
     </div>
   </div>
 
@@ -932,7 +1054,7 @@
      liest dieselbe Datei, damit beide Seiten gleich rechnen.
      ========================================================= */
 
-  var APP_STAND = '11.09.2026';          // steht unten in der Fusszeile
+  var APP_STAND = '27.09.2026';          // steht unten in der Fusszeile
 
   var PEOPLE = (window.NESSIE_DIENSTPLAN && window.NESSIE_DIENSTPLAN.people) || [];
 
@@ -1450,10 +1572,17 @@
       'Dienstplan ' + escapeHtml(person().fullName) + '<br>' + escapeHtml(person().meta) +
       '<br>Stand der App: ' + APP_STAND;
 
+    // "Essen" gibt es nur, wenn die Person einen Essensplan hat (Tobias)
+    btnFood.hidden = !foodPlan();
+    if (mode === 'food' && !foodPlan()) applyMode('cal');
+    foodView.classList.remove('calm');
+
     renderLegend();
     renderStats(days);
     renderKonto();
-    if (mode === 'cal') renderCalendar(days); else renderList(days);
+    if (mode === 'cal') renderCalendar(days);
+    else if (mode === 'list') renderList(days);
+    else renderFood();
   }
 
   /* ---------- Überstunden-Konto ----------
@@ -1505,6 +1634,8 @@
   }
 
   function renderLegend() {
+    // Die Farbpunkte gehören zum Kalender – beim Essen sind sie fehl am Platz
+    document.getElementById('legend').style.display = mode === 'food' ? 'none' : '';
     var html = person().tags.map(function (t) {
       return '<span><i class="dot ' + tagClass(t) + '"></i> ' + escapeHtml(t) + '</span>';
     }).join('');
@@ -1692,6 +1823,174 @@
     });
   }
 
+  /* ---------- Essensplan ----------
+     Die drei Mittagsmenüs aus dem Haus (Hausmannskost, Leichte
+     Vollkost, Diabetiker geeignet). Die Menüs stehen in
+     "essensplan-daten.js"; wer dort keinen Plan hat (Daniel),
+     bekommt die Ansicht gar nicht erst angeboten.            */
+
+  var ESSEN = window.NESSIE_ESSENSPLAN || null;
+  var MENUES = (ESSEN && ESSEN.menues) || [];
+  var FOOD_KEY = 'nessie_dienstplan_essen';
+  var foodView = document.getElementById('foodView');
+
+  function foodPlan() {
+    var p = ESSEN && ESSEN.plaene && ESSEN.plaene[personId];
+    return p && MENUES.length ? p : null;
+  }
+  function foodOf(key) {
+    var p = foodPlan();
+    return p ? p[key] || null : null;
+  }
+
+  // Welche Menülinie angezeigt wird – leer heißt alle drei
+  var foodFilter = '';
+  try { foodFilter = localStorage.getItem(FOOD_KEY) || ''; } catch (e) {}
+  if (!MENUES.some(function (m) { return m.id === foodFilter; })) foodFilter = '';
+
+  function setFoodFilter(id) {
+    foodFilter = id;
+    try { localStorage.setItem(FOOD_KEY, id); } catch (e) {}
+    foodView.classList.add('calm');          // beim Umschalten nicht neu einblenden
+    renderFood();
+  }
+
+  function menuColor(id) {
+    return '--mc:var(--m-' + String(id).replace(/[^a-z0-9-]/gi, '') + ', var(--t-other))';
+  }
+
+  // Ein Menü in der Reihenfolge des Aushangs: erste Zeile Suppe,
+  // letzte Nachspeise, dazwischen der Hauptgang mit den Beilagen.
+  function menuHtml(m, items) {
+    items = Array.isArray(items) ? items.filter(Boolean) : [];
+    if (!items.length) return '';
+    var n = items.length;
+    var soup = n >= 2 ? items[0] : '';
+    var sweet = n >= 3 ? items[n - 1] : '';
+    var main = n >= 3 ? items.slice(1, -1) : items.slice(n - 1);
+
+    return '<div class="menu" style="' + menuColor(m.id) + '">' +
+      '<div class="m-lbl">' + escapeHtml(m.label) + '</div>' +
+      (soup ? '<div class="m-soup">' + escapeHtml(soup) + '</div>' : '') +
+      '<div class="m-main"><b>' + escapeHtml(main[0]) + '</b>' +
+        main.slice(1).map(function (x) { return ' · ' + escapeHtml(x); }).join('') + '</div>' +
+      (sweet ? '<div class="m-sweet">' + escapeHtml(sweet) + '</div>' : '') +
+      '</div>';
+  }
+
+  function menusHtml(day, only) {
+    var list = MENUES.filter(function (m) { return !only || m.id === only; });
+    return '<div class="fd-menus' + (list.length === 1 ? ' single' : '') + '">' +
+      list.map(function (m) { return menuHtml(m, day[m.id]); }).join('') + '</div>';
+  }
+
+  // Der Dienst des Tages, damit man sieht, an welchen Tagen man im Haus isst
+  function shiftOf(key) {
+    var e = getEntry(key);
+    if (!e) return { cls: 'free', txt: 'frei', aria: 'dienstfrei' };
+    if (e.art) return { cls: 'art', txt: artLabel(e.art), aria: artLabel(e.art) };
+    return { cls: 'work', txt: e.von + '–' + e.bis, aria: 'Dienst ' + e.von + ' bis ' + e.bis };
+  }
+
+  function renderFood() {
+    foodView.innerHTML = '';
+    var plan = foodPlan();
+    if (!plan) return;
+
+    var bar = document.createElement('div');
+    bar.className = 'food-filter';
+    bar.setAttribute('role', 'group');
+    bar.setAttribute('aria-label', 'Menü auswählen');
+    [{ id: '', kurz: 'Alle' }].concat(MENUES).forEach(function (m) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      if (m.id === foodFilter) b.className = 'active';
+      b.setAttribute('aria-pressed', m.id === foodFilter ? 'true' : 'false');
+      b.innerHTML = (m.id ? '<i style="' + menuColor(m.id) + '"></i>' : '') + escapeHtml(m.kurz || m.label);
+      b.addEventListener('click', function () { setFoodFilter(m.id); });
+      bar.appendChild(b);
+    });
+    foodView.appendChild(bar);
+
+    // Immer ganze Wochen (Mo–So), die in den Monat ragen – der
+    // Aushang gilt ja für eine Woche, nicht für einen Monat.
+    var first = new Date(curY, curM, 1);
+    var last = new Date(curY, curM + 1, 0);
+    var mon = new Date(curY, curM, 1 - (first.getDay() + 6) % 7);
+    var shown = 0;
+
+    for (; mon <= last; mon = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + 7)) {
+      var days = [];
+      for (var i = 0; i < 7; i++) {
+        var d = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + i);
+        var k = keyOf(d.getFullYear(), d.getMonth(), d.getDate());
+        if (plan[k]) days.push({ date: d, key: k, menu: plan[k] });
+      }
+      if (!days.length) continue;
+      foodView.appendChild(foodWeek(mon, days));
+      shown++;
+    }
+
+    if (!shown) {
+      var hint = document.createElement('div');
+      hint.className = 'empty-hint';
+      hint.textContent = 'Für ' + MONTH_NAMES[curM] + ' ' + curY + ' ist noch kein Essensplan hinterlegt.';
+      foodView.appendChild(hint);
+    }
+  }
+
+  function foodWeek(mon, days) {
+    var a = days[0].date, b = days[days.length - 1].date;
+    var range;
+    if (a.getMonth() !== b.getMonth()) {
+      range = a.getDate() + '. ' + MONTH_NAMES[a.getMonth()] + ' – ' + b.getDate() + '. ' + MONTH_NAMES[b.getMonth()];
+    } else {
+      range = (a.getDate() === b.getDate() ? a.getDate() + '. ' : a.getDate() + '.–' + b.getDate() + '. ') +
+              MONTH_NAMES[b.getMonth()];
+    }
+
+    var html = '<div class="week-head"><div class="wk">KW ' + isoWeek(mon) + '<small>' + range + '</small></div>' +
+               '<div class="food-note">Mittagessen</div></div>';
+
+    days.forEach(function (x) {
+      var s = shiftOf(x.key);
+      var isToday = x.key === todayKey;
+      html += '<div class="food-day' + (isToday ? ' today' : '') + '">' +
+        '<div class="fd-head">' +
+          '<div class="fd-date">' + DAY_LONG[x.date.getDay()] +
+            '<small>' + pad(x.date.getDate()) + '.' + pad(x.date.getMonth() + 1) + '.</small>' +
+            (isToday ? '<span class="fd-badge">Heute</span>' : '') + '</div>' +
+          '<button type="button" class="fd-shift ' + s.cls + '" data-key="' + x.key + '"' +
+            ' aria-label="' + escapeHtml(s.aria) + ' – antippen zum Ändern">' + escapeHtml(s.txt) + '</button>' +
+        '</div>' +
+        menusHtml(x.menu, foodFilter) +
+        '</div>';
+    });
+
+    var block = document.createElement('div');
+    block.className = 'week-block';
+    block.innerHTML = html;
+    block.querySelectorAll('.fd-shift').forEach(function (btn) {
+      btn.addEventListener('click', function () { openModal(btn.getAttribute('data-key')); });
+    });
+    return block;
+  }
+
+  // Beim Öffnen der Ansicht gleich zum heutigen Tag springen
+  function scrollToFoodToday() {
+    var el = foodView.querySelector('.food-day.today');
+    if (!el || !el.scrollIntoView) return;
+    var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    el.scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block: 'center' });
+  }
+
+  // Im Tages-Fenster: was es an dem Tag zu Mittag gibt
+  function renderModalFood(key) {
+    var box = document.getElementById('mFood');
+    var day = foodOf(key);
+    box.innerHTML = day ? '<div class="mf-title">Mittagessen im Haus</div>' + menusHtml(day, '') : '';
+  }
+
   /* ---------- Modal ---------- */
 
   var overlay = document.getElementById('overlay');
@@ -1776,6 +2075,7 @@
     });
 
     renderMeta(key);
+    renderModalFood(key);
     syncArtFields();
     overlay.classList.add('open');
     document.getElementById('mSave').focus();
@@ -1890,23 +2190,31 @@
   });
   document.getElementById('todayBtn').addEventListener('click', function () {
     curY = today.getFullYear(); curM = today.getMonth(); render();
+    if (mode === 'food') scrollToFoodToday();
   });
 
   var btnCal = document.getElementById('viewCal');
   var btnList = document.getElementById('viewList');
-  btnCal.addEventListener('click', function () {
-    mode = 'cal';
-    btnCal.classList.add('active'); btnList.classList.remove('active');
-    document.getElementById('calendarView').style.display = '';
-    listView.style.display = 'none';
+  var btnFood = document.getElementById('viewFood');
+
+  // Kalender, Liste oder Essen – "Essen" nur, wenn es einen Plan gibt
+  function applyMode(m) {
+    if (m === 'food' && !foodPlan()) m = 'cal';
+    mode = m;
+    btnCal.classList.toggle('active', m === 'cal');
+    btnList.classList.toggle('active', m === 'list');
+    btnFood.classList.toggle('active', m === 'food');
+    document.getElementById('calendarView').style.display = m === 'cal' ? '' : 'none';
+    listView.style.display = m === 'list' ? '' : 'none';
+    foodView.style.display = m === 'food' ? '' : 'none';
+  }
+  btnCal.addEventListener('click', function () { applyMode('cal'); render(); });
+  btnList.addEventListener('click', function () { applyMode('list'); render(); });
+  btnFood.addEventListener('click', function () {
+    var again = mode === 'food';
+    applyMode('food');
     render();
-  });
-  btnList.addEventListener('click', function () {
-    mode = 'list';
-    btnList.classList.add('active'); btnCal.classList.remove('active');
-    document.getElementById('calendarView').style.display = 'none';
-    listView.style.display = '';
-    render();
+    if (!again) scrollToFoodToday();
   });
 
   var btnDec = document.getElementById('fmtDec');

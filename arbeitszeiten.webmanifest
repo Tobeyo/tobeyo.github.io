@@ -2,7 +2,7 @@
   "id": "./arbeitszeiten",
   "name": "Arbeitszeiten",
   "short_name": "Dienstplan",
-  "description": "Die Dienstpläne von Tobias und Daniel als Kalender – mit Stunden und Wochensummen.",
+  "description": "Die Dienstpläne von Tobias und Daniel als Kalender – mit Stunden, Wochensummen und Tobias’ Essensplan.",
   "lang": "de",
   "dir": "ltr",
   "start_url": "./arbeitszeiten.html",
