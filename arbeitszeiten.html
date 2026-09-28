@@ -654,9 +654,101 @@
     .menu .m-main { margin: 2px 0; }
     .menu .m-main b { font-weight: 700; }
 
-    /* Im Tages-Fenster: das Mittagessen unter dem Dienst */
-    .m-food { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--card-border); }
-    .m-food:empty { display: none; }
+    /* Im Tages-Fenster: zuerst das Mittagessen, nach links wischen
+       kommen die Tageseinstellungen. Ohne Essen gibt es nur die
+       Einstellungen – dann bleiben Reiter und Wischen weg.       */
+    .m-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .m-x {
+      flex-shrink: 0;
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      background: var(--n-field);
+      border: 1px solid var(--card-border);
+      border-radius: 50%;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .m-x:hover { background: var(--n-surface-2); color: var(--text-main); }
+    html[data-design="raster"] .m-x { border-radius: 0; }
+
+    .m-tabs {
+      position: relative;
+      display: none;
+      grid-template-columns: 1fr 1fr;
+      background: var(--n-field);
+      border: 1px solid var(--card-border);
+      border-radius: var(--n-r);
+      padding: 4px;
+      margin: 12px 0 16px;
+    }
+    .modal.has-food .m-tabs { display: grid; }
+    /* Der Balken wandert beim Wischen mit dem Finger mit */
+    .m-tabs::before {
+      content: '';
+      position: absolute;
+      top: 4px;
+      bottom: 4px;
+      left: 4px;
+      width: calc(50% - 4px);
+      background: var(--n-active-bg);
+      border-radius: calc(var(--n-r) - 4px);
+      transform: translateX(calc(var(--pos, 0) * 100%));
+    }
+    .m-tabs button {
+      position: relative;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 600;
+      padding: 8px 10px;
+      cursor: pointer;
+      transition: color 0.25s;
+    }
+    .m-tabs button.active { color: var(--n-active-fg); }
+
+    .m-pager {
+      display: flex;
+      align-items: flex-start;
+      margin: 0 calc(-1 * var(--m-pad));
+      overflow-x: auto;
+      overflow-y: hidden;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+    }
+    .m-pager::-webkit-scrollbar { display: none; }
+    .m-page {
+      flex: 0 0 100%;
+      min-width: 0;
+      padding: 4px var(--m-pad);
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+    }
+    .modal:not(.has-food) .m-page.m-food { display: none; }
+
+    .m-next {
+      display: block;
+      margin: 14px auto 0;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 300;
+      cursor: pointer;
+      padding: 6px 10px;
+    }
+    .m-next:hover { color: var(--text-main); }
+    .m-next span { display: inline-block; margin-left: 4px; font-weight: 600; animation: m-nudge 1.6s var(--n-ease) 0.6s 2; }
+    @keyframes m-nudge { 50% { transform: translateX(5px); } }
+
     .m-food .mf-title {
       font-family: var(--n-label-font);
       text-transform: var(--n-label-case);
@@ -719,7 +811,8 @@
       border-radius: var(--n-r-lg);
       width: 100%;
       max-width: 420px;
-      padding: 24px;
+      --m-pad: 24px;
+      padding: var(--m-pad);
       max-height: 88vh;
       overflow-y: auto;
       animation: pop 0.45s var(--n-ease);
@@ -964,8 +1057,21 @@
 
   <!-- Detail / Bearbeiten -->
   <div class="overlay" id="overlay">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
-      <h3 id="mTitle">Tag</h3>
+    <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+      <div class="m-head">
+        <h3 id="mTitle">Tag</h3>
+        <button class="m-x" id="mClose" type="button" aria-label="Schließen">✕</button>
+      </div>
+
+      <div class="m-tabs" id="mTabs" role="tablist" aria-label="Ansicht im Tages-Fenster">
+        <button type="button" role="tab" id="mTabFood" data-page="0" aria-controls="mFood">Essen</button>
+        <button type="button" role="tab" id="mTabDay" data-page="1" aria-controls="mDay">Einstellungen</button>
+      </div>
+
+      <div class="m-pager" id="mPager">
+      <section class="m-page m-food" id="mFood" role="tabpanel" aria-labelledby="mTabFood"></section>
+
+      <section class="m-page" id="mDay" role="tabpanel" aria-labelledby="mTabDay">
       <div class="sub" id="mSub"></div>
 
       <div class="calc-preview">
@@ -1037,8 +1143,8 @@
       </div>
 
       <div class="modal-meta" id="mMeta"></div>
-
-      <div class="m-food" id="mFood"></div>
+      </section>
+      </div>
     </div>
   </div>
 
@@ -1970,8 +2076,9 @@
     var block = document.createElement('div');
     block.className = 'week-block';
     block.innerHTML = html;
+    // Das Essen steht hier schon da – der Dienst-Knopf führt gleich zu den Einstellungen
     block.querySelectorAll('.fd-shift').forEach(function (btn) {
-      btn.addEventListener('click', function () { openModal(btn.getAttribute('data-key')); });
+      btn.addEventListener('click', function () { openModal(btn.getAttribute('data-key'), 1); });
     });
     return block;
   }
@@ -1984,11 +2091,16 @@
     el.scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block: 'center' });
   }
 
-  // Im Tages-Fenster: was es an dem Tag zu Mittag gibt
+  // Im Tages-Fenster: was es an dem Tag zu Mittag gibt – liefert,
+  // ob es überhaupt eine Essens-Seite gibt
   function renderModalFood(key) {
     var box = document.getElementById('mFood');
     var day = foodOf(key);
-    box.innerHTML = day ? '<div class="mf-title">Mittagessen im Haus</div>' + menusHtml(day, '') : '';
+    box.innerHTML = day
+      ? '<div class="mf-title">Mittagessen im Haus</div>' + menusHtml(day, '') +
+        '<button type="button" class="m-next">Wischen für die Tageseinstellungen<span aria-hidden="true">›</span></button>'
+      : '';
+    return !!day;
   }
 
   /* ---------- Modal ---------- */
@@ -2002,6 +2114,92 @@
   var fNeutral = document.getElementById('fNeutral');
   var tagPicker = document.getElementById('tagPicker');
   var lastFocus = null;
+
+  /* ---------- Wisch-Ansicht im Tages-Fenster ----------
+     Seite 0 ist das Essen, Seite 1 die Tageseinstellungen. Das
+     Wischen selbst macht der Browser (Scroll-Snap); hier wird nur
+     die Höhe mitgeführt, damit das Fenster nicht so hoch bleibt
+     wie die längere Seite, und der Reiter oben nachgezogen.     */
+
+  var modal = document.getElementById('modal');
+  var mPager = document.getElementById('mPager');
+  var mPages = [document.getElementById('mFood'), document.getElementById('mDay')];
+  var mTabs = document.getElementById('mTabs');
+  var tabBtns = mTabs.querySelectorAll('[role="tab"]');
+  var hasFoodPage = false;
+  var curPage = -1;
+  var pagerW = 0;
+
+  function reducedMotion() {
+    return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  }
+
+  // 0 = Essen, 1 = Einstellungen, dazwischen mitten im Wischen
+  function pagerPos() {
+    var w = mPager.clientWidth;
+    return w ? Math.max(0, Math.min(1, mPager.scrollLeft / w)) : 0;
+  }
+
+  function markPage(p) {
+    curPage = p;
+    tabBtns.forEach(function (b, i) {
+      b.classList.toggle('active', i === p);
+      b.setAttribute('aria-selected', i === p ? 'true' : 'false');
+      b.tabIndex = i === p ? 0 : -1;
+    });
+  }
+
+  function fitPager() {
+    pagerW = mPager.clientWidth;
+    if (!hasFoodPage) { mPager.style.height = ''; return; }
+    var pos = pagerPos();
+    var h0 = mPages[0].offsetHeight, h1 = mPages[1].offsetHeight;
+    mPager.style.height = Math.round(h0 + (h1 - h0) * pos) + 'px';
+    mTabs.style.setProperty('--pos', pos.toFixed(3));
+    var p = Math.round(pos);
+    if (p !== curPage) markPage(p);
+  }
+
+  function showPage(p, smooth) {
+    var left = p * mPager.clientWidth;
+    if (smooth && !reducedMotion() && mPager.scrollTo) {
+      try { mPager.scrollTo({ left: left, behavior: 'smooth' }); return; } catch (e) {}
+    }
+    mPager.scrollLeft = left;
+    fitPager();
+  }
+
+  // Andere Art des Tages, gedrehtes Handy … die Höhe zieht mit. Ist das
+  // Fenster breiter oder schmäler geworden, wird neu eingerastet.
+  function refitPager() {
+    if (!overlay.classList.contains('open')) return;
+    if (hasFoodPage && curPage > -1 && mPager.clientWidth !== pagerW) showPage(curPage, false);
+    else fitPager();
+  }
+
+  mPager.addEventListener('scroll', fitPager, { passive: true });
+  window.addEventListener('resize', refitPager);
+  if (window.ResizeObserver) {
+    var ro = new ResizeObserver(refitPager);
+    mPages.forEach(function (el) { ro.observe(el); });
+  }
+
+  tabBtns.forEach(function (b) {
+    b.addEventListener('click', function () { showPage(+b.getAttribute('data-page'), true); });
+  });
+  // Pfeiltasten auf den Reitern
+  mTabs.addEventListener('keydown', function (ev) {
+    if (ev.key !== 'ArrowLeft' && ev.key !== 'ArrowRight') return;
+    ev.preventDefault();
+    var p = ev.key === 'ArrowLeft' ? 0 : 1;
+    showPage(p, true);
+    tabBtns[p].focus();
+  });
+  // "Wischen für die Tageseinstellungen" lässt sich auch antippen
+  mPages[0].addEventListener('click', function (ev) {
+    var t = ev.target.closest && ev.target.closest('.m-next');
+    if (t) showPage(1, true);
+  });
 
   function buildTagPicker() {
     tagPicker.innerHTML = '';
@@ -2040,9 +2238,11 @@
       ? 'Arbeitszeit abzüglich Pause'
       : 'angerechnete Stunden';
     updatePreview();
+    refitPager();
   }
 
-  function openModal(key) {
+  // page: 0 = mit dem Essen beginnen (Standard), 1 = gleich die Einstellungen
+  function openModal(key, page) {
     editKey = key;
     lastFocus = document.activeElement;
     var parts = key.split('-');
@@ -2075,10 +2275,20 @@
     });
 
     renderMeta(key);
-    renderModalFood(key);
+    hasFoodPage = renderModalFood(key);
+    modal.classList.toggle('has-food', hasFoodPage);
     syncArtFields();
     overlay.classList.add('open');
-    document.getElementById('mSave').focus();
+    modal.scrollTop = 0;
+
+    // Erst jetzt ist das Fenster sichtbar und hat eine Breite.
+    // Ohne Essen sind die Einstellungen die einzige Seite und stehen ganz links.
+    var foodFirst = hasFoodPage && page !== 1;
+    curPage = -1;
+    showPage(hasFoodPage && !foodFirst ? 1 : 0, false);
+
+    if (foodFirst) tabBtns[0].focus({ preventScroll: true });
+    else document.getElementById('mSave').focus();
   }
 
   // Zeigt, wer den Tag zuletzt geändert hat – plus Knopf zum Zurücksetzen.
@@ -2177,6 +2387,7 @@
   }
 
   document.getElementById('mCancel').addEventListener('click', closeModal);
+  document.getElementById('mClose').addEventListener('click', closeModal);
   overlay.addEventListener('click', function (ev) { if (ev.target === overlay) closeModal(); });
   document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape') closeModal(); });
 
