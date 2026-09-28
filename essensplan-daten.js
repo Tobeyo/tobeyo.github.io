@@ -99,6 +99,43 @@ window.NESSIE_ESSENSPLAN = {
         hausmann:   ['Gebundene Gemüsesuppe', 'Surschopfbraten', 'Letscho', 'Reis', 'Himbeer-Vanilleschnitte'],
         leicht:     ['Rindsuppe mit Grießnockerl', 'Kürbisstrudel', 'Dillsauce', 'Salzerdäpfel', 'Nusskuchen'],
         diabetiker: ['Rindsuppe mit Grießnockerl', 'Putenschinkenknödel', 'Natursaftl', 'Rahmsauerkraut', 'Nusskuchen']
+      },
+
+      /* ---- Wochenmenüplan 28.09. – 04.10.2026 (mit Abendessen, nur ME übernommen) ---- */
+      '2026-09-28': {
+        hausmann:   ['Karottencremesuppe', 'Tiroler Knödel mit Schwein', 'Linsen', 'Zitronen-Topfencreme'],
+        leicht:     ['Rindsuppe mit Sternchen', 'Kräuterrahmschnitzel vom Hühnerfilet', 'Gemüsereis', 'Häuptelsalat', 'Zitronen-Topfencreme'],
+        diabetiker: ['Karottencremesuppe', 'Nussnudeln mit Kartoffelnudeln', 'Milch', 'Pfirsichkompott']
+      },
+      '2026-09-29': {
+        hausmann:   ['Klare Gemüse-Kartoffelsuppe', 'Grüne Bandnudeln', 'Lachs-Weißweinsauce', 'Gemischter Blattsalat', 'Sauerkirschenkompott'],
+        leicht:     ['Zucchinicremesuppe', 'Topfenscheiterhaufen', 'Himbeersauce', 'Sauerkirschenkompott'],
+        diabetiker: ['Zucchinicremesuppe', 'Kümmelfleisch vom Schwein mit Gemüse', 'Petersilerdäpfel', 'Grießkoch']
+      },
+      '2026-09-30': {
+        hausmann:   ['Knoblauchrahmsuppe', 'Gekochtes Beinfleisch', 'Wirsingkohl', 'Salzerdäpfel', 'Schokopudding'],
+        leicht:     ['Klare Gemüsesuppe mit Profiteroles', 'Gebratenes Seehechtfilet', 'Glacierte Karotten', 'Salzerdäpfel', 'Schokopudding'],
+        diabetiker: ['Klare Gemüsesuppe mit Profiteroles', 'Indonesische Nudelpfanne mit Tofu und Gemüse (Bami Goreng)', 'Chinakohlsalat', 'Apfelmus']
+      },
+      '2026-10-01': {
+        hausmann:   ['Minestrone', 'Gebackene Apfelspalten', 'Zimt-Zucker', 'Vanillesauce', 'Erdbeerkompott'],
+        leicht:     ['Haferflockensuppe', 'Gemüse-Frittata', 'Petersilerdäpfel', 'Bummerlsalat', 'Erdbeerkompott'],
+        diabetiker: ['Haferflockensuppe', 'Paprikahendl', 'Vollkornnockerln', 'Bummerlsalat', 'Joghurt Vanille']
+      },
+      '2026-10-02': {
+        hausmann:   ['Dinkelsuppe mit Gemüse', 'Cremespinat', 'Gekochtes Ei', 'Geröstete Erdäpfel', 'Kokoscreme'],
+        leicht:     ['Dinkelsuppe mit Gemüse', 'Faschierte Laibchen mit Saft', 'Erdäpfelpüree', 'Rote Rübensalat', 'Kokoscreme'],
+        diabetiker: ['Rindsuppe mit Fleischnockerln', 'Kabeljaufilet gebraten', 'Röstgemüse', 'Tomatenreis', 'Ananaskompott']
+      },
+      '2026-10-03': {
+        hausmann:   ['Hühnersuppe mit Butternockerl', 'Spaghetti', 'Sauce Arrabiata mit Schweinsspeck', 'Geriebener Hartkäse', 'Chinakohlsalat', 'Mandarinenkompott'],
+        leicht:     ['Hühnersuppe mit Butternockerl', 'Gemüseeintopf', 'Polentaschnitte', 'Mandarinenkompott'],
+        diabetiker: ['Schwarzwurzelsuppe', 'Geröstete Schweinsnierndln', 'Zwiebelkartoffel', 'Chinakohlsalat', 'Erdbeerpudding']
+      },
+      '2026-10-04': {
+        hausmann:   ['Champignoncremesuppe', 'Schweinsschnitzel gebacken', 'Erdäpfelsalat', 'Zitrone', 'Nougat-Pistazienschnitte'],
+        leicht:     ['Rindsuppe mit Kräuterfrittaten', 'Putenragout mit Gemüse', 'Reis', 'Topfenschnitte gebacken'],
+        diabetiker: ['Rindsuppe mit Kräuterfrittaten', 'Knödel mit Ei', 'Endiviensalat', 'Topfenschnitte gebacken']
       }
     }
   }
