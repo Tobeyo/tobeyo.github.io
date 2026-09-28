@@ -687,7 +687,7 @@
       margin: 12px 0 16px;
     }
     .modal.has-food .m-tabs { display: grid; }
-    /* Der Balken wandert beim Wischen mit dem Finger mit */
+    /* Der Balken wandert beim Umschalten mit */
     .m-tabs::before {
       content: '';
       position: absolute;
@@ -717,10 +717,10 @@
       display: flex;
       align-items: flex-start;
       margin: 0 calc(-1 * var(--m-pad));
-      overflow-x: auto;
-      overflow-y: hidden;
-      overscroll-behavior-x: contain;
-      scroll-snap-type: x mandatory;
+      /* Kein freies Scrollen: eine Wischbewegung schaltet per Skript
+         ganz auf die andere Seite um, halb stehen bleiben geht nicht. */
+      overflow: hidden;
+      touch-action: pan-y;
       scrollbar-width: none;
     }
     .m-pager::-webkit-scrollbar { display: none; }
@@ -728,8 +728,6 @@
       flex: 0 0 100%;
       min-width: 0;
       padding: 4px var(--m-pad);
-      scroll-snap-align: start;
-      scroll-snap-stop: always;
     }
     .modal:not(.has-food) .m-page.m-food { display: none; }
 
@@ -2116,10 +2114,12 @@
   var lastFocus = null;
 
   /* ---------- Wisch-Ansicht im Tages-Fenster ----------
-     Seite 0 ist das Essen, Seite 1 die Tageseinstellungen. Das
-     Wischen selbst macht der Browser (Scroll-Snap); hier wird nur
-     die Höhe mitgeführt, damit das Fenster nicht so hoch bleibt
-     wie die längere Seite, und der Reiter oben nachgezogen.     */
+     Seite 0 ist das Essen, Seite 1 die Tageseinstellungen. Eine
+     waagrechte Wischbewegung schaltet sofort ganz auf die andere
+     Seite um (kein Mitziehen, kein halbes Stehenbleiben). Beim
+     Umschalten wird die Höhe mitgeführt, damit das Fenster nicht
+     so hoch bleibt wie die längere Seite, und der Reiter oben
+     nachgezogen.                                                 */
 
   var modal = document.getElementById('modal');
   var mPager = document.getElementById('mPager');
@@ -2156,18 +2156,68 @@
     var h0 = mPages[0].offsetHeight, h1 = mPages[1].offsetHeight;
     mPager.style.height = Math.round(h0 + (h1 - h0) * pos) + 'px';
     mTabs.style.setProperty('--pos', pos.toFixed(3));
-    var p = Math.round(pos);
-    if (p !== curPage) markPage(p);
   }
 
+  var anim = 0;
+
   function showPage(p, smooth) {
+    if (anim) { cancelAnimationFrame(anim); anim = 0; }
     var left = p * mPager.clientWidth;
-    if (smooth && !reducedMotion() && mPager.scrollTo) {
-      try { mPager.scrollTo({ left: left, behavior: 'smooth' }); return; } catch (e) {}
+    var from = mPager.scrollLeft;
+    markPage(p);
+    if (!smooth || reducedMotion() || Math.abs(left - from) < 1) {
+      mPager.scrollLeft = left;
+      fitPager();
+      return;
     }
-    mPager.scrollLeft = left;
-    fitPager();
+    var t0 = null, dur = 260;
+    function step(t) {
+      if (t0 === null) t0 = t;
+      var k = Math.min(1, (t - t0) / dur);
+      var e = 1 - Math.pow(1 - k, 3);
+      mPager.scrollLeft = from + (left - from) * e;
+      fitPager();
+      anim = k < 1 ? requestAnimationFrame(step) : 0;
+    }
+    anim = requestAnimationFrame(step);
   }
+
+  // Wischgeste: sobald der Finger klar waagrecht gezogen wird, wird
+  // umgeschaltet. Senkrechtes Ziehen bleibt normales Scrollen.
+  var sw = null;
+  mPager.addEventListener('touchstart', function (ev) {
+    if (!hasFoodPage || ev.touches.length !== 1) { sw = null; return; }
+    sw = { x: ev.touches[0].clientX, y: ev.touches[0].clientY, dir: 0 };
+  }, { passive: true });
+  mPager.addEventListener('touchmove', function (ev) {
+    if (!sw || sw.dir === 2) return;
+    var dx = ev.touches[0].clientX - sw.x, dy = ev.touches[0].clientY - sw.y;
+    if (!sw.dir) {
+      if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
+      sw.dir = Math.abs(dx) > Math.abs(dy) ? 1 : 2;
+      if (sw.dir === 2) return;
+    }
+    if (ev.cancelable) ev.preventDefault();
+    if (sw.done || Math.abs(dx) < 30) return;
+    sw.done = true;
+    var p = dx < 0 ? 1 : 0;
+    if (p !== curPage) showPage(p, true);
+  }, { passive: false });
+  mPager.addEventListener('touchend', function () { sw = null; });
+  mPager.addEventListener('touchcancel', function () { sw = null; });
+
+  // Trackpad: waagrechtes Wischen schaltet einmal pro Geste um
+  var wheelLock = 0;
+  mPager.addEventListener('wheel', function (ev) {
+    if (!hasFoodPage || Math.abs(ev.deltaX) <= Math.abs(ev.deltaY)) return;
+    ev.preventDefault();
+    var now = Date.now();
+    if (now < wheelLock) { wheelLock = now + 250; return; }
+    if (Math.abs(ev.deltaX) < 15) return;
+    wheelLock = now + 250;
+    var p = ev.deltaX > 0 ? 1 : 0;
+    if (p !== curPage) showPage(p, true);
+  }, { passive: false });
 
   // Andere Art des Tages, gedrehtes Handy … die Höhe zieht mit. Ist das
   // Fenster breiter oder schmäler geworden, wird neu eingerastet.
