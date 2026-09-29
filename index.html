@@ -18,6 +18,9 @@
   <!-- Design-Auswahl: muss vor dem ersten Zeichnen laufen -->
   <script src="design.js"></script>
   <link rel="stylesheet" href="design.css">
+  <!-- „Zusammen“ gibt es nur für Tobias & Daniel: die Kachel erscheint erst,
+       wenn sich auf diesem Gerät einer der beiden dort angemeldet hat -->
+  <script>try { if (localStorage.getItem('nessie_zusammen_geraet') === '1') document.documentElement.classList.add('n-zusammen'); } catch (e) {}</script>
 
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -206,6 +209,12 @@
     .app { text-decoration: none; color: inherit; }
     .app .ico { display: block; border-radius: 13px; }
     .app .num, .app .cal, .app .duo, .grp, .fill { display: none; }
+
+    /* Private Kachel „Zusammen“ – nur auf Geräten, auf denen sich Tobias oder Daniel angemeldet hat */
+    html:not(.n-zusammen) .n-privat { display: none !important; }
+    .n12 { display: none; }
+    html.n-zusammen .n11 { display: none; }
+    html.n-zusammen .n12 { display: inline; }
     .app .txt { min-width: 0; }
     .app .name { display: block; hyphens: auto; -webkit-hyphens: auto; overflow-wrap: break-word; }
     .app .desc { display: block; }
@@ -501,6 +510,7 @@
     .duo i:nth-child(2) { animation-delay: 0.05s; }
     .duo i:nth-child(3) { animation-delay: 0.1s; }
     .duo i:nth-child(4) { animation-delay: 0.15s; }
+    .duo i:nth-child(5) { animation-delay: 0.2s; }
     html[data-design="papier"] .app:hover .cal i.now { animation: pulse 1.2s ease-in-out infinite; }
     @keyframes pulse { 50% { transform: scale(0.82); } }
 
@@ -674,8 +684,8 @@
       letter-spacing: 0.1em;
       text-align: center;
     }
-    /* 12 Kacheln füllen das Raster ganz – die Uhr bekommt eine eigene Zeile */
-    html[data-design="raster"] .fill { grid-column: 1 / -1; flex-direction: row; gap: 18px; min-height: 110px; }
+    /* Mit der privaten Kachel sind es 12 – das Raster ist voll, die Uhr bekommt eine eigene Zeile */
+    html.n-zusammen[data-design="raster"] .fill { grid-column: 1 / -1; flex-direction: row; gap: 18px; min-height: 110px; }
     .fill .clock { font-family: var(--n-font-display); font-stretch: 125%; font-weight: 900; font-size: 46px; color: var(--n-text); letter-spacing: -0.03em; line-height: 1; }
     html[data-design="raster"] footer { border-top: 0; padding: 16px 18px max(22px, env(safe-area-inset-bottom)); }
 
@@ -744,7 +754,9 @@
       .hero-raster .info div:nth-child(2) { display: none; }
       html[data-design="raster"] .apps { grid-template-columns: 1fr 1fr; }
       html[data-design="raster"] .app, html[data-design="raster"] .fill { min-height: 168px; padding: 14px; }
-      html[data-design="raster"] .fill { min-height: 96px; }
+      html.n-zusammen[data-design="raster"] .fill { min-height: 96px; }
+      html[data-design="papier"] .app .duo { gap: 5px; margin-top: 10px; }
+      .duo i { font-size: 12px; padding: 4px 9px; }
       html[data-design="raster"] .app .name { font-size: 18px; }
       html[data-design="raster"] .app .desc { display: none; }
       html[data-design="raster"] .app .ico { width: 34px; height: 34px; margin: 14px 0 12px; }
@@ -764,7 +776,7 @@
 </head>
 <body>
 
-  <div class="ticker only-raster" aria-hidden="true"><div>Arbeitszeiten<b>✱</b>Überstunden<b>✱</b>Prowin Kassa<b>✱</b>DBI Lernen<b>✱</b>SYP Lernen<b>✱</b>Nessie-Garden<b>✱</b>Zusammen<b>✱</b>Wohnungsplaner<b>✱</b>Pflanzen Erkenner<b>✱</b>WM Wetten<b>✱</b>Mein ELBA<b>✱</b>George<b>✱</b>Arbeitszeiten<b>✱</b>Überstunden<b>✱</b>Prowin Kassa<b>✱</b>DBI Lernen<b>✱</b>SYP Lernen<b>✱</b>Nessie-Garden<b>✱</b>Zusammen<b>✱</b>Wohnungsplaner<b>✱</b>Pflanzen Erkenner<b>✱</b>WM Wetten<b>✱</b>Mein ELBA<b>✱</b>George<b>✱</b></div></div>
+  <div class="ticker only-raster" aria-hidden="true"><div>Arbeitszeiten<b>✱</b>Überstunden<b>✱</b>Prowin Kassa<b>✱</b>DBI Lernen<b>✱</b>SYP Lernen<b>✱</b>Nessie-Garden<b>✱</b>Wohnungsplaner<b>✱</b>Pflanzen Erkenner<b>✱</b>WM Wetten<b>✱</b>Mein ELBA<b>✱</b>George<b>✱</b>Arbeitszeiten<b>✱</b>Überstunden<b>✱</b>Prowin Kassa<b>✱</b>DBI Lernen<b>✱</b>SYP Lernen<b>✱</b>Nessie-Garden<b>✱</b>Wohnungsplaner<b>✱</b>Pflanzen Erkenner<b>✱</b>WM Wetten<b>✱</b>Mein ELBA<b>✱</b>George<b>✱</b></div></div>
 
   <header class="bar">
     <a class="brand" href="index.html" aria-label="Nessie-Hub">
@@ -774,7 +786,7 @@
     </a>
     <div class="bar-right">
       <span class="today" data-now="bar"></span>
-      <span class="count">12 Apps</span>
+      <span class="count"><span class="n11">11</span><span class="n12">12</span> Apps</span>
       <button class="design-btn" id="designBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="designMenu">
         <span class="sw" aria-hidden="true"><i></i><i></i><i></i></span>
         <span class="lbl-long">Design: <span id="designName">Loch Ness</span></span>
@@ -806,7 +818,7 @@
   <main class="hub">
     <section class="hero">
       <div class="hero-loch only-loch">
-        <p class="kicker">Zwölf Werkzeuge · für Tobi &amp; Familie</p>
+        <p class="kicker"><span class="n11">Elf</span><span class="n12">Zwölf</span> Werkzeuge · für Tobi &amp; Familie</p>
         <h1><span><em>Nessie</em></span><span><em>Hub</em></span></h1>
         <p class="lead">Dienstpläne, Überstunden, Lernzettel, die WM-Tipprunde und alles andere, das irgendwann einmal gebraucht wurde.</p>
         <div class="loch" aria-hidden="true">
@@ -837,7 +849,7 @@
       <div class="hero-raster">
         <h1 aria-label="Nessie"><span>N</span><span>E</span><span>S</span><span>S</span><span>I</span><span>E</span><span>.</span></h1>
         <div class="info">
-          <div><i>Index</i><b>12 Anwendungen</b></div>
+          <div><i>Index</i><b><span class="n11">11</span><span class="n12">12</span> Anwendungen</b></div>
           <div><i>Stand</i><b data-now="date"></b></div>
           <div><i>Von</i><b>Tobi</b></div>
         </div>
@@ -887,46 +899,47 @@
       </a>
 
       <h2 class="grp" style="--i:8">Zuhause</h2>
-      <a class="app big" href="zusammen.html" data-n-app="zusammen" style="--c:#d9468f;--c2:#ff9ccb;--i:9;--o:2">
+      <a class="app" href="Wohnungsplaner.html" data-n-app="wohnungsplaner" style="--c:#b8612f;--c2:#e8a86a;--i:9;--o:7">
         <span class="num" data-grp="Zuhause">07</span>
-        <img class="ico" data-n-icon src="icons/zusammen.svg" alt="" width="46" height="46">
-        <span class="duo" aria-hidden="true"><i>🏠 Wann</i><i>🍝 Essen</i><i>🛒 Einkauf</i><i>📝 Notizen</i></span>
-        <span class="txt"><span class="name">Zusammen</span><span class="desc">Tobias &amp; Daniel: wann Tobias bei Daniel ist, was es zu essen gibt, die Einkaufsliste und Notizen.</span></span>
-        <span class="go" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 8h11M9 4l4 4-4 4"/></svg></span>
-      </a>
-      <a class="app" href="Wohnungsplaner.html" data-n-app="wohnungsplaner" style="--c:#b8612f;--c2:#e8a86a;--i:10;--o:7">
-        <span class="num" data-grp="Zuhause">08</span>
         <img class="ico" data-n-icon src="icons/wohnungsplaner.svg" alt="" width="46" height="46">
         <span class="txt"><span class="name">Wohnungs&shy;planer</span><span class="desc">Plane und gestalte die Einrichtung der Wohnung.</span></span>
         <span class="go" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 8h11M9 4l4 4-4 4"/></svg></span>
       </a>
-      <a class="app" href="pflanzen.html" data-n-app="pflanzen" style="--c:#2f8f45;--c2:#7bd66b;--i:11;--o:5">
-        <span class="num" data-grp="Zuhause">09</span>
+      <a class="app" href="pflanzen.html" data-n-app="pflanzen" style="--c:#2f8f45;--c2:#7bd66b;--i:10;--o:5">
+        <span class="num" data-grp="Zuhause">08</span>
         <img class="ico" data-n-icon src="icons/pflanzen.svg" alt="" width="46" height="46">
         <span class="txt"><span class="name">Pflanzen Erkenner</span><span class="desc">Fotografiere Pflanzen und Blumen, um mehr über sie zu erfahren.</span></span>
         <span class="go" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 8h11M9 4l4 4-4 4"/></svg></span>
       </a>
-      <a class="app" href="wm-wetten.html" data-n-app="wm-wetten" style="--c:#10264d;--c2:#4f86e8;--i:12;--o:4">
-        <span class="num" data-grp="Zuhause">10</span>
+      <a class="app" href="wm-wetten.html" data-n-app="wm-wetten" style="--c:#10264d;--c2:#4f86e8;--i:11;--o:4">
+        <span class="num" data-grp="Zuhause">09</span>
         <img class="ico" data-n-icon src="icons/wm-wetten.svg" alt="" width="46" height="46">
         <span class="txt"><span class="name">WM Wetten</span><span class="desc">Die Tipprunde für die Weltmeisterschaft in der Familie.</span></span>
         <span class="go" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 8h11M9 4l4 4-4 4"/></svg></span>
       </a>
 
-      <h2 class="grp" style="--i:13">Spielwiese</h2>
-      <a class="app" href="raiffeisen.html" data-n-app="elba" style="--c:#ffd400;--c2:#ffe500;--i:14;--o:11">
-        <span class="num" data-grp="Spiel">11</span>
+      <h2 class="grp" style="--i:12">Spielwiese</h2>
+      <a class="app" href="raiffeisen.html" data-n-app="elba" style="--c:#ffd400;--c2:#ffe500;--i:13;--o:11">
+        <span class="num" data-grp="Spiel">10</span>
         <img class="ico" data-n-icon src="icons/elba.svg" alt="" width="46" height="46">
         <span class="txt"><span class="name">Mein ELBA</span><span class="desc">Raiffeisen Banking-Klon zum Spaßhaben. Konten, Karten &amp; Überweisungen frei einstellbar.</span></span>
         <span class="go" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 8h11M9 4l4 4-4 4"/></svg></span>
       </a>
-      <a class="app" href="george.html" data-n-app="george" style="--c:#0b66b0;--c2:#2196e8;--i:15;--o:12">
-        <span class="num" data-grp="Spiel">12</span>
+      <a class="app" href="george.html" data-n-app="george" style="--c:#0b66b0;--c2:#2196e8;--i:14;--o:12">
+        <span class="num" data-grp="Spiel">11</span>
         <img class="ico" data-n-icon src="icons/george.svg" alt="" width="46" height="46">
         <span class="txt"><span class="name">George</span><span class="desc">Erste Bank Banking-Klon zum Spaßhaben. Sparziele, Karten &amp; alles frei einstellbar.</span></span>
         <span class="go" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 8h11M9 4l4 4-4 4"/></svg></span>
       </a>
-      <div class="fill" style="--i:16" aria-hidden="true"><span class="clock" data-now="time"></span><span>© Nessie-Hub</span></div>
+      <h2 class="grp n-privat" style="--i:15">Privat</h2>
+      <a class="app big n-privat" href="zusammen.html" data-n-app="zusammen" style="--c:#1d8c8c;--c2:#6fe0d2;--i:16;--o:2">
+        <span class="num" data-grp="Privat">12</span>
+        <img class="ico" data-n-icon src="icons/zusammen.svg" alt="" width="46" height="46">
+        <span class="duo" aria-hidden="true"><i>📅 Wann</i><i>🍝 Essen</i><i>🛒 Einkauf</i><i>🧹 Haushalt</i><i>💶 Geld</i></span>
+        <span class="txt"><span class="name">Zusammen</span><span class="desc">Nur für Tobias &amp; Daniel: Besuche, Essen, Einkauf, Vorrat, Putzplan, Geld und Notizen.</span></span>
+        <span class="go" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 8h11M9 4l4 4-4 4"/></svg></span>
+      </a>
+      <div class="fill" style="--i:17" aria-hidden="true"><span class="clock" data-now="time"></span><span>© Nessie-Hub</span></div>
     </nav>
   </main>
 

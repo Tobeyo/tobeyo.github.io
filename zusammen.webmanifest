@@ -2,7 +2,7 @@
   "id": "./zusammen",
   "name": "Zusammen",
   "short_name": "Zusammen",
-  "description": "Tobias & Daniel: wann Tobias bei Daniel ist, was es zu essen gibt, die gemeinsame Einkaufsliste und Notizen.",
+  "description": "Nur für Tobias & Daniel: Besuche, Essen, Einkauf, Vorrat, Haushalt, Geld und Notizen – mit Anmeldung.",
   "lang": "de",
   "dir": "ltr",
   "start_url": "./zusammen.html",
@@ -48,25 +48,49 @@
       "name": "Einkaufsliste",
       "short_name": "Einkauf",
       "url": "./zusammen.html#einkauf",
-      "icons": [{ "src": "icons/zusammen-192.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [
+        {
+          "src": "icons/zusammen-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     },
     {
       "name": "Abendessen planen",
       "short_name": "Essen",
       "url": "./zusammen.html#essen",
-      "icons": [{ "src": "icons/zusammen-192.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [
+        {
+          "src": "icons/zusammen-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     },
     {
-      "name": "Kalender",
-      "short_name": "Kalender",
-      "url": "./zusammen.html#kalender",
-      "icons": [{ "src": "icons/zusammen-192.png", "sizes": "192x192", "type": "image/png" }]
+      "name": "Putzplan & Müll",
+      "short_name": "Haushalt",
+      "url": "./zusammen.html#haushalt",
+      "icons": [
+        {
+          "src": "icons/zusammen-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     },
     {
-      "name": "Notizen",
-      "short_name": "Notizen",
-      "url": "./zusammen.html#notizen",
-      "icons": [{ "src": "icons/zusammen-192.png", "sizes": "192x192", "type": "image/png" }]
+      "name": "Geld",
+      "short_name": "Geld",
+      "url": "./zusammen.html#geld",
+      "icons": [
+        {
+          "src": "icons/zusammen-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     }
   ]
 }
