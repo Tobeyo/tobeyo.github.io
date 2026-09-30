@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Arbeitszeiten</title>
-  <meta name="description" content="Dienstplan-Kalender mit allen Arbeitszeiten von Tobias und Daniel – für Tobias auch mit dem Mittagsmenü im Haus.">
+  <meta name="description" content="Dienstplan-Kalender mit allen Arbeitszeiten von Tobias und Daniel – für Tobias auch mit dem Mittagsmenü im Haus und den Kollegen im Dienst.">
 
   <!-- Eigenes App-Manifest & Icons für „Zum Startbildschirm hinzufügen" -->
   <link rel="manifest" href="arbeitszeiten.webmanifest">
@@ -480,6 +480,23 @@
     .dot.tx { background: var(--t-tx); }
     .dot.custom { background: var(--t-custom); }
 
+    /* Kollegen im Dienst – ganz unten im Tag, abgesetzt vom eigenen Dienst */
+    .day .team {
+      margin-top: auto;
+      width: 100%;
+      padding-top: 4px;
+      border-top: 1px solid var(--n-line);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0 5px;
+      font-size: 0.62rem;
+      font-weight: 600;
+      line-height: 1.3;
+      color: var(--text-muted);
+    }
+    .legend .lg-team { font-size: 0.72rem; font-weight: 600; color: var(--text-main); }
+
     /* ---------- Listenansicht ---------- */
     .week-block {
       background: var(--card-bg);
@@ -529,6 +546,7 @@
     .row .rdate small { display: block; color: var(--text-muted); font-weight: 300; font-size: 0.75rem; }
     .row .rtime { flex-grow: 1; font-size: 0.95rem; font-variant-numeric: tabular-nums; }
     .row .rtime .muted { color: var(--free); font-weight: 300; }
+    .row .rteam { display: block; margin-top: 2px; font-size: 0.75rem; color: var(--text-muted); font-weight: 300; }
     .row .rhrs { font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
 
     .chip {
@@ -760,6 +778,32 @@
     }
     .m-food .fd-menus { grid-template-columns: 1fr; gap: 8px; }
 
+    /* Im Tages-Fenster über den Reitern: wer von den Kollegen da ist */
+    .m-team { margin-top: 12px; }
+    .modal:not(.has-food) .m-team { margin-bottom: 14px; }
+    .m-team .mt-title {
+      font-family: var(--n-label-font);
+      text-transform: var(--n-label-case);
+      letter-spacing: var(--n-label-track);
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .m-team .mt-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .m-team .mt-k {
+      background: var(--n-field);
+      border: 1px solid var(--card-border);
+      border-radius: var(--n-r-pill);
+      padding: 3px 10px;
+      font-size: 0.8rem;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-muted);
+    }
+    .m-team .mt-k b { color: var(--text-main); font-weight: 700; margin-right: 4px; }
+    .m-team .mt-none { font-size: 0.85rem; color: var(--free); font-weight: 300; }
+    .m-team .mt-note { margin-top: 6px; font-size: 0.78rem; color: var(--text-muted); font-weight: 300; }
+
     /* ---------- Legende / Footer-Aktionen ---------- */
     .legend {
       display: flex;
@@ -967,6 +1011,7 @@
       .day .art { font-size: 0.58rem; }
       .day .hrs { font-size: 0.85rem; }
       .day .dnum { font-size: 0.78rem; }
+      .day .team { font-size: 0.56rem; gap: 0 3px; padding-top: 3px; }
       .row .rdate { width: 62px; font-size: 0.85rem; }
       .row .rtime { font-size: 0.88rem; }
       .switch-row { gap: 8px; }
@@ -995,6 +1040,9 @@
 
   <!-- Mittagsmenüs aus dem Haus – nur für Tobias -->
   <script src="essensplan-daten.js"></script>
+
+  <!-- Wer von den Kollegen an welchem Tag Dienst hat – nur für Tobias -->
+  <script src="kollegen-daten.js"></script>
 
   <div class="container">
 
@@ -1062,6 +1110,8 @@
         <h3 id="mTitle">Tag</h3>
         <button class="m-x" id="mClose" type="button" aria-label="Schließen">✕</button>
       </div>
+
+      <div class="m-team" id="mTeam" hidden></div>
 
       <div class="m-tabs" id="mTabs" role="tablist" aria-label="Ansicht im Tages-Fenster">
         <button type="button" role="tab" id="mTabFood" data-page="0" aria-controls="mFood">Essen</button>
@@ -1160,7 +1210,7 @@
      liest dieselbe Datei, damit beide Seiten gleich rechnen.
      ========================================================= */
 
-  var APP_STAND = '28.09.2026';          // steht unten in der Fusszeile
+  var APP_STAND = '30.09.2026';          // steht unten in der Fusszeile
 
   var PEOPLE = (window.NESSIE_DIENSTPLAN && window.NESSIE_DIENSTPLAN.people) || [];
 
@@ -1664,6 +1714,54 @@
     return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
   }
 
+  /* ---------- Kollegen im Dienst ----------
+     Wer laut Sollplan des Teams an einem Tag da ist. Die Einträge
+     stehen in "kollegen-daten.js"; wer dort kein Team hat (Daniel),
+     sieht davon nichts.                                           */
+
+  var KOLLEGEN = window.NESSIE_KOLLEGEN || null;
+  var SHIFT_RE = /^(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})$/;
+
+  function team() {
+    var t = KOLLEGEN && KOLLEGEN.teams && KOLLEGEN.teams[personId];
+    return t && Array.isArray(t.leute) && t.leute.length ? t : null;
+  }
+
+  // "Cardeloni T." -> "CarT": 3 Buchstaben Nachname + Anfangsbuchstabe Vorname
+  function kuerzel(k) {
+    if (k.kurz) return k.kurz;
+    var teile = String(k.name || '').replace(/[.,]/g, ' ').trim().split(/\s+/);
+    var nach = teile[0] || '', vor = teile[1] || '';
+    return nach.slice(0, 3) + vor.charAt(0).toUpperCase();
+  }
+
+  // Ein Tag im Team: "da" hat eine Uhrzeit, Urlaub und alles andere
+  // (z. B. "SP") stehen extra – in der Reihenfolge des Aushangs.
+  function teamOf(key) {
+    var res = { da: [], sonst: [], urlaub: [] };
+    var t = team();
+    if (!t) return res;
+    t.leute.forEach(function (k) {
+      var v = k.tage && k.tage[key];
+      if (!v) return;
+      var item = { kurz: kuerzel(k), name: k.name || kuerzel(k) };
+      var m = SHIFT_RE.exec(String(v).trim());
+      if (m) { item.von = m[1]; item.bis = m[2]; res.da.push(item); }
+      else if (v === 'U') res.urlaub.push(item);
+      else { item.txt = String(v); res.sonst.push(item); }
+    });
+    return res;
+  }
+
+  // Gibt es für den Monat überhaupt einen Team-Plan? Sonst heißt ein
+  // leerer Tag nicht "niemand da", sondern "noch nichts eingetragen".
+  function teamHasMonth(mk) {
+    var t = team();
+    return !!t && t.leute.some(function (k) {
+      return Object.keys(k.tage || {}).some(function (d) { return d.indexOf(mk) === 0; });
+    });
+  }
+
   /* ---------- Rendering ---------- */
 
   var grid = document.getElementById('grid');
@@ -1746,6 +1844,9 @@
       return '<span><i class="dot ' + tagClass(t) + '"></i> ' + escapeHtml(t) + '</span>';
     }).join('');
     html += '<span><i class="dot custom"></i> von Hand geändert</span>';
+    if (teamHasMonth(monthKeyOf(curY, curM))) {
+      html += '<span><b class="lg-team">' + escapeHtml(kuerzel(team().leute[0])) + '</b> Kollegen im Dienst</span>';
+    }
     document.getElementById('legend').innerHTML = html;
   }
 
@@ -1856,11 +1957,18 @@
       } else {
         html += '<div class="free-lbl">frei</div>';
       }
+      var da = teamOf(x.key).da;
+      if (da.length) {
+        html += '<div class="team">' + da.map(function (k) {
+          return '<span>' + escapeHtml(k.kurz) + '</span>';
+        }).join('') + '</div>';
+      }
       cell.innerHTML = html;
       cell.setAttribute('aria-label',
         x.d + '. ' + MONTH_NAMES[curM] + ' – ' +
         (x.entry ? (x.entry.art ? artLabel(x.entry.art) : x.entry.von + ' bis ' + x.entry.bis) : 'frei') +
-        (isNeutral(x.key) ? ' – zählt nicht aufs Überstunden-Konto' : ''));
+        (isNeutral(x.key) ? ' – zählt nicht aufs Überstunden-Konto' : '') +
+        (da.length ? ' – im Dienst: ' + da.map(function (k) { return k.kurz; }).join(', ') : ''));
       cell.addEventListener('click', function () { openModal(x.key); });
       frag.appendChild(cell);
     });
@@ -1912,6 +2020,10 @@
         } else {
           middle = escapeHtml(x.entry.von) + ' – ' + escapeHtml(x.entry.bis) +
             (x.entry.pause > 0 ? ' <span class="muted">(' + fmtH(x.entry.pause) + ' Pause)</span>' : '');
+        }
+        var da = teamOf(x.key).da;
+        if (da.length) {
+          chips += '<small class="rteam">mit ' + da.map(function (k) { return escapeHtml(k.kurz); }).join(' · ') + '</small>';
         }
 
         return '<button type="button" class="row" data-key="' + x.key + '">' +
@@ -2275,6 +2387,7 @@
     });
 
     renderMeta(key);
+    renderModalTeam(key);
     hasFoodPage = renderModalFood(key);
     modal.classList.toggle('has-food', hasFoodPage);
     syncArtFields();
@@ -2289,6 +2402,32 @@
 
     if (foodFirst) tabBtns[0].focus({ preventScroll: true });
     else document.getElementById('mSave').focus();
+  }
+
+  // Über den Reitern: wer von den Kollegen an dem Tag mit welcher Zeit da
+  // ist, darunter Urlaub und sonstige Vermerke aus dem Plan
+  function renderModalTeam(key) {
+    var box = document.getElementById('mTeam');
+    if (!teamHasMonth(key.slice(0, 7))) { box.hidden = true; box.innerHTML = ''; return; }
+
+    var tm = teamOf(key);
+    var html = '<div class="mt-title">Kollegen im Dienst</div>';
+    html += tm.da.length
+      ? '<div class="mt-list">' + tm.da.map(function (k) {
+          return '<span class="mt-k" title="' + escapeHtml(k.name) + '"><b>' + escapeHtml(k.kurz) + '</b>' +
+                 escapeHtml(k.von) + '–' + escapeHtml(k.bis) + '</span>';
+        }).join('') + '</div>'
+      : '<div class="mt-none">Laut Plan ist niemand eingeteilt.</div>';
+
+    var notes = [];
+    var byTxt = {};
+    tm.sonst.forEach(function (k) { (byTxt[k.txt] = byTxt[k.txt] || []).push(k.kurz); });
+    Object.keys(byTxt).forEach(function (t) { notes.push(t + ': ' + byTxt[t].join(', ')); });
+    if (tm.urlaub.length) notes.push('Urlaub: ' + tm.urlaub.map(function (k) { return k.kurz; }).join(', '));
+    if (notes.length) html += '<div class="mt-note">' + escapeHtml(notes.join(' · ')) + '</div>';
+
+    box.innerHTML = html;
+    box.hidden = false;
   }
 
   // Zeigt, wer den Tag zuletzt geändert hat – plus Knopf zum Zurücksetzen.
