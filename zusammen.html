@@ -1484,7 +1484,6 @@
   var TAB_KEY    = 'nessie_zusammen_tab';
   var SUB_KEY    = 'nessie_zusammen_sub';
   var CACHE_KEY  = 'nessie_zusammen_daten';
-  var GERAET_KEY = 'nessie_zusammen_geraet';   // Startseite zeigt die Kachel nur auf solchen Geräten
   var PUSH_KEY   = 'nessie_zusammen_push';
   var ERINN_KEY  = 'nessie_zusammen_erinnert';
   var FOOD_KEY   = 'nessie_dienstplan_essen';  // gewählte Menülinie aus dem Dienstplan
@@ -2094,7 +2093,6 @@
         clearNotice();
         if (firstValue) {
           firstValue = false;
-          writeLS(GERAET_KEY, '1');
           zeigeApp();
           resolveMe(true);
           schutzPruefen();
@@ -2106,7 +2104,6 @@
         readFailed = true;
         if (/permission/i.test(String(err.code || '') + ' ' + err.message)) {
           removeLS(CACHE_KEY);
-          removeLS(GERAET_KEY);
           D = normalize(null);
           zeigeDenied();
           return;
@@ -2131,7 +2128,6 @@
     prevD = null;
     me = '';
     removeLS(CACHE_KEY);
-    removeLS(GERAET_KEY);
     removeLS(ME_KEY);
     $('schutzArea').innerHTML = '';
   }
