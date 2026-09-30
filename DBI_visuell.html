@@ -114,6 +114,38 @@ html[data-design="raster"] nav.bar a{color:var(--n-text);font-family:var(--n-fon
 html[data-design="raster"] nav.bar a:hover{background:var(--n-accent);color:var(--n-on-accent)}
 html[data-design="raster"] h2.korb{background:var(--n-bg);border-radius:0;text-transform:uppercase;font-weight:800;border-left:6px solid var(--n-accent)}
 html[data-design="raster"] section.topic,html[data-design="raster"] .toc div,html[data-design="raster"] .card{border-radius:0}
+html[data-design="schlicht"] body{background:var(--n-bg)}
+html[data-design="schlicht"] header.top{background:#fff;color:var(--n-text);text-align:left;padding:66px 28px 30px;border-bottom:1px solid var(--n-line)}
+html[data-design="schlicht"] header.top h1{font-size:2.5rem;line-height:1.05;letter-spacing:-.045em;margin-bottom:10px}
+html[data-design="schlicht"] header.top p{color:var(--n-muted);opacity:1}
+html[data-design="schlicht"] header.top .chips{justify-content:flex-start}
+html[data-design="schlicht"] nav.bar{background:#f6f6f3ee;border-bottom-color:var(--n-line)}
+html[data-design="schlicht"] nav.bar a{color:var(--n-text);border-radius:99px;font-family:var(--n-font);font-weight:600}
+html[data-design="schlicht"] nav.bar a:hover{background:#fff;box-shadow:0 1px 3px rgba(22,22,21,.1)}
+html[data-design="schlicht"] h2.korb{background:none;color:var(--n-text);border-radius:0;border-bottom:1px solid var(--n-line-2);padding:10px 2px;font-size:1.5rem}
+html[data-design="schlicht"] section.topic{border-radius:16px;border-color:var(--n-line);box-shadow:var(--n-shadow)}
+
+html[data-design="nachtpapier"] body{background:#ece6da}
+html[data-design="nachtpapier"] header.top{background:color-mix(in oklab,var(--acc) 38%,#191815);color:var(--n-text);text-align:left;padding:66px 28px 30px}
+html[data-design="nachtpapier"] header.top h1{font-size:2.6rem;line-height:1}
+html[data-design="nachtpapier"] header.top p{color:rgba(243,238,228,.78);opacity:1}
+html[data-design="nachtpapier"] header.top .chips{justify-content:flex-start}
+html[data-design="nachtpapier"] nav.bar{background:#191815f0;border-bottom-color:#191815}
+html[data-design="nachtpapier"] nav.bar a{color:var(--n-text);border-radius:99px;font-family:var(--n-font);font-weight:700}
+html[data-design="nachtpapier"] nav.bar a:hover{background:rgba(255,255,255,.1);color:#fff}
+html[data-design="nachtpapier"] h2.korb{background:color-mix(in oklab,var(--acc) 38%,#191815);border-radius:18px;font-size:1.35rem}
+html[data-design="nachtpapier"] section.topic{border-radius:22px;box-shadow:var(--n-shadow)}
+
+html[data-design="kalligraphie"] body{background:var(--n-bg)}
+html[data-design="kalligraphie"] header.top{background:var(--n-bg);color:var(--n-text);padding:66px 28px 26px;border-bottom:3px double var(--n-line-2)}
+html[data-design="kalligraphie"] header.top h1{font-size:2.9rem;line-height:1.05;margin-bottom:8px}
+html[data-design="kalligraphie"] header.top p{color:var(--n-muted);opacity:1;font-family:var(--n-font);font-style:italic}
+html[data-design="kalligraphie"] nav.bar{background:#f6f2eaee;border-bottom-color:var(--n-line)}
+html[data-design="kalligraphie"] nav.bar a{color:var(--n-text);font-family:var(--n-font);font-style:italic;font-weight:500;font-size:.9rem}
+html[data-design="kalligraphie"] nav.bar a:hover{background:none;color:var(--n-accent)}
+html[data-design="kalligraphie"] h2.korb{background:none;color:var(--n-text);border-radius:0;border-bottom:1px solid var(--n-line-2);padding:8px 0 6px;font-size:1.6rem}
+html[data-design="kalligraphie"] h2.korb::before{content:"";display:inline-block;width:.3em;height:.3em;margin:0 .5em .12em .1em;background:var(--n-accent);transform:rotate(45deg);vertical-align:middle}
+html[data-design="kalligraphie"] section.topic{border-radius:10px;background:#fffdf8;box-shadow:var(--n-shadow)}
 @media (prefers-reduced-motion:reduce){header.top *,section.topic{animation:none!important}}
 </style>
 </head>

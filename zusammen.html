@@ -504,6 +504,7 @@
     html[data-design="loch"] .month-name { font-weight: 300; font-size: 2.1rem; }
     html[data-design="loch"] .month-name span { font-style: italic; color: var(--n-accent); font-weight: 400; }
     html[data-design="raster"] .month-name span { color: var(--n-accent); font-weight: 800; }
+    html[data-design="kalligraphie"] .month-name span { font-family: var(--n-font); font-style: italic; font-weight: 400; color: var(--n-accent); }
     .icon-btn {
       background: var(--n-surface);
       border: 1px solid var(--n-line);
@@ -571,7 +572,7 @@
     .grid > .day:nth-child(n+29) { animation-delay: 120ms; }
     .day.empty { background: transparent; border-color: transparent; pointer-events: none; }
     .day.weekend { background: transparent; }
-    html[data-design="papier"] .day.weekend { border-style: dashed; }
+    html:is([data-design="papier"], [data-design="nachtpapier"]) .day.weekend { border-style: dashed; }
     .day.past { opacity: 0.55; }
     .day.today { border-color: var(--n-accent); box-shadow: 0 0 0 1px var(--n-accent); opacity: 1; }
     html[data-design="raster"] .day.today { box-shadow: inset 0 3px 0 var(--n-accent); }
@@ -848,7 +849,7 @@
     }
     .notes.calm .note { animation: none; }
     .note.pin { border-color: color-mix(in srgb, var(--n-accent) 55%, transparent); background: color-mix(in srgb, var(--n-accent) 7%, var(--n-surface)); }
-    html[data-design="papier"] .note.pin { background: #fff7d6; }
+    html:is([data-design="papier"], [data-design="schlicht"], [data-design="kalligraphie"]) .note.pin { background: #fff7d6; }
     .note-text { font-size: 0.95rem; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
     .note-text a { color: var(--n-accent-2); }
     .note-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--n-line); }

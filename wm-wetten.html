@@ -81,6 +81,12 @@
     html[data-design="papier"] .hero p{ color:rgba(255,255,255,.85); }
     html[data-design="papier"] .hero::after{ border-color:rgba(255,255,255,.12); }
     html[data-design="raster"] .hero{ background:transparent; }
+    html[data-design="nachtpapier"] .hero{ background:color-mix(in oklab, var(--n-app) 40%, #1c1b18); border-color:color-mix(in srgb, var(--n-accent) 22%, transparent); }
+    html[data-design="nachtpapier"] .hero p{ color:rgba(243,238,228,.75); }
+    html[data-design="nachtpapier"] .hero::after{ border-color:rgba(255,255,255,.07); }
+    html[data-design="schlicht"] .hero{ background:var(--n-surface); }
+    html[data-design="schlicht"] .hero::after{ border-color:color-mix(in srgb, var(--n-accent) 8%, transparent); }
+    html[data-design="kalligraphie"] .hero{ background:var(--n-surface); }
 
     /* Login */
     .login-card{

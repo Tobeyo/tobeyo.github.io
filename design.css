@@ -1,10 +1,13 @@
 /*
  * Nessie-Hub · gemeinsame Design-Grundlage
  *
- * Drei Designs, gewählt auf der Startseite und gespeichert im Browser:
- *   loch    – Loch Ness: dunkel, Serifen-Schrift, Gold
- *   papier  – Papier & Farbe: hell, jede App in ihrer eigenen Farbe
- *   raster  – Raster: schwarz, Linienraster, Mono-Schrift, Signal-Orange
+ * Sechs Designs, gewählt auf der Startseite und gespeichert im Browser:
+ *   loch          – Loch Ness: dunkel, Serifen-Schrift, Gold
+ *   papier        – Papier & Farbe: hell, jede App in ihrer eigenen Farbe
+ *   raster        – Raster: schwarz, Linienraster, Mono-Schrift, Signal-Orange
+ *   schlicht      – Schlicht: hell, ruhig, viel Weißraum, ein Blau
+ *   nachtpapier   – Nachtpapier: wie Papier & Farbe, nur dunkel
+ *   kalligraphie  – Kalligraphie: Reispapier, Tusche, rotes Siegel
  *
  * Hier stehen nur Farb-/Schrift-Variablen (--n-…), die Seitenübergänge und
  * ein paar gemeinsame Bausteine mit „n-“-Präfix. Jede Seite baut ihr
@@ -153,10 +156,150 @@ html[data-design="raster"] {
   --n-enter-ease: var(--n-ease-io);
 }
 
+html[data-design="schlicht"] {
+  --n-bg: #f6f6f3;
+  --n-bg-deco: none;
+  --n-surface: #ffffff;
+  --n-surface-2: #efefeb;
+  --n-solid: #ffffff;
+  --n-field: #ffffff;
+  --n-line: rgba(22, 22, 21, 0.08);
+  --n-line-2: rgba(22, 22, 21, 0.18);
+  --n-text: #161615;
+  --n-muted: #6c6c67;
+  --n-faint: #a3a39d;
+  --n-accent: #2f5bea;
+  --n-accent-2: #1f44c4;
+  --n-on-accent: #ffffff;
+  --n-active-bg: #161615;
+  --n-active-fg: #ffffff;
+  --n-ok: #17864a;
+  --n-bad: #d23b3b;
+  --n-warn: #b36d08;
+  --n-info: #2a70c4;
+  --n-overlay: rgba(22, 22, 21, 0.3);
+  --n-nav: rgba(246, 246, 243, 0.86);
+  --n-r-lg: 16px;
+  --n-r: 12px;
+  --n-r-sm: 9px;
+  --n-r-pill: 999px;
+  --n-font: 'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --n-font-display: 'Manrope', system-ui, -apple-system, sans-serif;
+  --n-font-mono: 'Manrope', system-ui, sans-serif;
+  --n-display-weight: 600;
+  --n-display-track: -0.03em;
+  --n-display-case: none;
+  --n-display-stretch: 100%;
+  --n-label-font: var(--n-font);
+  --n-label-case: none;
+  --n-label-track: 0;
+  --n-shadow: 0 1px 2px rgba(22, 22, 21, 0.04), 0 10px 26px -18px rgba(22, 22, 21, 0.22);
+  --n-grain: 0;
+  --n-grain-blend: normal;
+  --n-enter: n-soft;
+  --n-enter-ease: var(--n-ease);
+}
+
+html[data-design="nachtpapier"] {
+  --n-bg: #191815;
+  --n-bg-deco: radial-gradient(80% 50% at 85% -8%, rgba(255, 212, 110, 0.08), transparent 62%);
+  --n-surface: #22211d;
+  --n-surface-2: #2b2a25;
+  --n-solid: #22211d;
+  --n-field: #2a2924;
+  --n-line: rgba(243, 238, 228, 0.09);
+  --n-line-2: rgba(243, 238, 228, 0.2);
+  --n-text: #f3eee4;
+  --n-muted: #a9a295;
+  --n-faint: #777165;
+  /* Wie bei Papier: jede App in ihrer Farbe – nur heller, damit sie im Dunkeln leuchtet */
+  --n-accent: color-mix(in oklab, var(--n-app, #e0a92e) 62%, #ffffff);
+  --n-accent-2: color-mix(in oklab, var(--n-app, #e0a92e) 44%, #ffffff);
+  --n-on-accent: #191815;
+  --n-active-bg: #f3eee4;
+  --n-active-fg: #191815;
+  --n-ok: #7fd892;
+  --n-bad: #ff8677;
+  --n-warn: #ffc24d;
+  --n-info: #7cc4ff;
+  --n-overlay: rgba(8, 7, 5, 0.68);
+  --n-nav: rgba(25, 24, 21, 0.86);
+  --n-r-lg: 26px;
+  --n-r: 16px;
+  --n-r-sm: 12px;
+  --n-r-pill: 999px;
+  --n-font: 'Bricolage Grotesque', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --n-font-display: 'Bricolage Grotesque', system-ui, sans-serif;
+  --n-font-mono: 'Bricolage Grotesque', system-ui, sans-serif;
+  --n-display-weight: 800;
+  --n-display-track: -0.035em;
+  --n-display-case: none;
+  --n-display-stretch: 100%;
+  --n-label-font: var(--n-font);
+  --n-label-case: none;
+  --n-label-track: 0;
+  --n-shadow: 0 1px 0 rgba(0, 0, 0, 0.35), 0 18px 36px -22px rgba(0, 0, 0, 0.95);
+  --n-grain: 0.2;
+  --n-grain-blend: overlay;
+  --n-enter: n-pop;
+  --n-enter-ease: var(--n-spring);
+}
+
+html[data-design="kalligraphie"] {
+  --n-bg: #f6f2ea;
+  --n-bg-deco: radial-gradient(120% 70% at 50% -20%, #fffdf8, transparent 62%);
+  --n-surface: #fcfaf5;
+  --n-surface-2: #f0ebe0;
+  --n-solid: #fcfaf5;
+  --n-field: #fffefb;
+  --n-line: rgba(31, 27, 22, 0.1);
+  --n-line-2: rgba(31, 27, 22, 0.24);
+  --n-text: #1f1b16;
+  --n-muted: #6f675b;
+  --n-faint: #a59c8d;
+  /* Zinnoberrot wie ein Namenssiegel */
+  --n-accent: #c0432e;
+  --n-accent-2: #9a3222;
+  --n-on-accent: #fffaf2;
+  --n-active-bg: #1f1b16;
+  --n-active-fg: #f6f2ea;
+  --n-ok: #3e7a4f;
+  --n-bad: #8f1d3a;
+  --n-warn: #a86d12;
+  --n-info: #2f5f8f;
+  --n-overlay: rgba(31, 27, 22, 0.36);
+  --n-nav: rgba(246, 242, 234, 0.88);
+  --n-r-lg: 10px;
+  --n-r: 8px;
+  --n-r-sm: 6px;
+  --n-r-pill: 999px;
+  --n-font: 'Alegreya', Georgia, 'Times New Roman', serif;
+  --n-font-display: 'Cormorant Upright', 'Cormorant Garamond', Georgia, serif;
+  --n-font-mono: 'Alegreya', Georgia, serif;
+  --n-display-weight: 600;
+  --n-display-track: 0;
+  --n-display-case: none;
+  --n-display-stretch: 100%;
+  --n-label-font: var(--n-font);
+  --n-label-case: uppercase;
+  --n-label-track: 0.12em;
+  --n-shadow: 0 1px 0 rgba(31, 27, 22, 0.04), 0 12px 26px -20px rgba(31, 27, 22, 0.4);
+  --n-grain: 0.24;
+  --n-grain-blend: multiply;
+  --n-enter: n-ink;
+  --n-enter-ease: var(--n-ease);
+}
+/* Zahlen in Tabellen & Kalendern lieber in gleicher Höhe und Breite
+   (als Feature-Einstellung, damit sie auch dort gilt, wo eine Seite
+   font-variant-numeric selbst setzt – und weil sie vererbt wird) */
+html[data-design="kalligraphie"] body { font-feature-settings: "lnum" 1, "tnum" 1; }
+
 /* Dunkle bzw. helle Formularfelder & Scrollbalken – nur auf Seiten, die
    ganz im gewählten Design gezeichnet werden (class="n-themed") */
 html.n-themed { color-scheme: dark; }
-html.n-themed[data-design="papier"] { color-scheme: light; }
+html.n-themed[data-design="papier"],
+html.n-themed[data-design="schlicht"],
+html.n-themed[data-design="kalligraphie"] { color-scheme: light; }
 
 /* ---------------------------------------------------------------------- */
 /* Gemeinsame Bausteine (nur mit n-Präfix, damit nichts Bestehendes        */
@@ -229,6 +372,12 @@ html[data-design="loch"] a.n-hub-btn { font-family: var(--n-font-mono); font-wei
 html[data-design="papier"] a.n-hub-btn { font-weight: 700; --n-accent: #1b1a17; --n-on-accent: #f1ece2; }
 html[data-design="raster"] a.n-hub-btn { border-radius: 0; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; box-shadow: none; backdrop-filter: none; }
 html[data-design="raster"] a.n-hub-btn .n-hub-arrow { border-radius: 0; }
+html[data-design="schlicht"] a.n-hub-btn { font-weight: 600; background: rgba(255, 255, 255, 0.9); border-color: var(--n-line); box-shadow: 0 6px 20px -10px rgba(22, 22, 21, 0.3); --n-accent: #161615; --n-on-accent: #ffffff; }
+html[data-design="nachtpapier"] a.n-hub-btn { font-weight: 700; --n-accent: #f3eee4; --n-on-accent: #191815; }
+html[data-design="nachtpapier"] a.n-hub-btn:hover { transform: translateY(-2px) rotate(-1.5deg); }
+html[data-design="kalligraphie"] a.n-hub-btn { font-family: var(--n-font-display); font-size: 16px; font-weight: 600; box-shadow: 0 6px 20px -12px rgba(31, 27, 22, 0.4); }
+html[data-design="kalligraphie"] a.n-hub-btn .n-hub-arrow { border-radius: 5px; transform: rotate(-4deg); }
+html[data-design="kalligraphie"] a.n-hub-btn:hover .n-hub-arrow { transform: translateX(-2px) rotate(3deg); }
 
 /* Einblenden beim Laden – für Abschnitte, die es haben sollen */
 @keyframes n-rise { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
@@ -236,6 +385,13 @@ html[data-design="raster"] a.n-hub-btn .n-hub-arrow { border-radius: 0; }
 @keyframes n-pop { from { opacity: 0; transform: translateY(26px) scale(0.94) rotate(1.2deg); } to { opacity: 1; transform: none; } }
 @keyframes n-wipe { from { opacity: 0; clip-path: inset(0 0 100% 0); } to { opacity: 1; clip-path: inset(0 0 0 0); } }
 @keyframes n-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes n-soft { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes n-ink { from { opacity: 0; transform: translateY(6px); filter: blur(6px); } to { opacity: 1; transform: none; filter: blur(0); } }
+
+/* Spielereien beim Antippen (design.js legt die Teilchen hier hinein) */
+.n-fx { position: fixed; left: 0; top: 0; width: 0; height: 0; pointer-events: none; z-index: 2147482999; }
+.n-fx > * { position: absolute; left: 0; top: 0; pointer-events: none; will-change: transform, opacity; }
+html[data-design="kalligraphie"] .n-fx { mix-blend-mode: multiply; }
 
 /* ---------------------------------------------------------------------- */
 /* Seitenübergänge (Chrome, Edge, Safari ab 18.2 – sonst ganz normal)      */
@@ -259,11 +415,37 @@ html[data-design="papier"]::view-transition-new(root) { animation: n-vt-in-card 
 html[data-design="raster"]::view-transition-old(root) { animation: n-vt-out-wipe 0.55s var(--n-ease-io) both; }
 html[data-design="raster"]::view-transition-new(root) { animation: n-vt-in-wipe 0.55s var(--n-ease-io) both; }
 
+/* Schlicht: kurz und leise */
+@keyframes n-vt-out-quiet { to { opacity: 0; transform: scale(0.985); } }
+@keyframes n-vt-in-quiet { from { opacity: 0; transform: translateY(14px); } }
+html[data-design="schlicht"]::view-transition-old(root) { animation: n-vt-out-quiet 0.28s ease both; }
+html[data-design="schlicht"]::view-transition-new(root) { animation: n-vt-in-quiet 0.5s 0.06s var(--n-ease) both; }
+
+/* Nachtpapier: ein neues Blatt wird schräg auf den Stapel gelegt */
+@keyframes n-vt-out-stack { to { transform: scale(0.93) translateY(-2%); filter: brightness(0.45); } }
+@keyframes n-vt-in-sheet { from { transform: translateY(75%) rotate(5deg); opacity: 0.5; } 45% { opacity: 1; } }
+html[data-design="nachtpapier"]::view-transition-old(root) { animation: n-vt-out-stack 0.6s var(--n-ease) both; }
+html[data-design="nachtpapier"]::view-transition-new(root) { animation: n-vt-in-sheet 0.8s var(--n-spring) both; transform-origin: 20% 100%; }
+
+/* Kalligraphie: die neue Seite wird wie mit einem breiten Pinsel aufgetragen */
+@keyframes n-vt-hold { to { filter: blur(2px); } }
+@keyframes n-vt-in-brush { from { -webkit-mask-position: 100% 0; mask-position: 100% 0; filter: blur(3px); } to { -webkit-mask-position: 0 0; mask-position: 0 0; filter: blur(0); } }
+html[data-design="kalligraphie"]::view-transition-old(root) { animation: n-vt-hold 0.9s ease both; }
+html[data-design="kalligraphie"]::view-transition-new(root) {
+  -webkit-mask-image: linear-gradient(100deg, #000 40%, rgba(0, 0, 0, 0.6) 47%, transparent 60%);
+  mask-image: linear-gradient(100deg, #000 40%, rgba(0, 0, 0, 0.6) 47%, transparent 60%);
+  -webkit-mask-size: 260% 100%;
+  mask-size: 260% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  animation: n-vt-in-brush 0.9s cubic-bezier(0.65, 0, 0.25, 1) both;
+}
+
 ::view-transition-group(n-app-icon) { animation-duration: 0.55s; animation-timing-function: var(--n-ease); }
 
 /* Beim Design-Wechsel auf der Startseite steuert design.js die Animation */
 html.n-switching::view-transition-old(root),
-html.n-switching::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+html.n-switching::view-transition-new(root) { animation: none; mix-blend-mode: normal; -webkit-mask-image: none; mask-image: none; }
 
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-group(*),

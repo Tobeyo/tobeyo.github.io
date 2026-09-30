@@ -66,8 +66,8 @@
       --m-diabetiker: var(--t-n1);
     }
 
-    /* Auf hellem Papier brauchen die Vermerk-Farben mehr Kraft */
-    html[data-design="papier"] {
+    /* Auf hellem Grund brauchen die Vermerk-Farben mehr Kraft */
+    html:is([data-design="papier"], [data-design="schlicht"], [data-design="kalligraphie"]) {
       --t-klub: #0a86a6;
       --t-seminar: #b86200;
       --t-hw: #1f8f4e;
@@ -82,8 +82,14 @@
       --a-fortbildung: #b86200;
       --a-krank: #cf3a4e;
       --a-sonderurlaub: #1f6fb2;
+    }
+    html[data-design="papier"] {
       --day-work: #ffffff;
       --day-special: #faf6ee;
+    }
+    html[data-design="kalligraphie"] {
+      --day-work: #fffdf8;
+      --day-special: #f3eee3;
     }
     html[data-design="raster"] {
       --day-work: rgba(239, 238, 232, 0.045);
@@ -317,6 +323,7 @@
     html[data-design="loch"] .month-name { font-weight: 300; font-size: 2.3rem; }
     html[data-design="loch"] .month-name span { font-style: italic; color: var(--n-accent); font-weight: 400; }
     html[data-design="raster"] .month-name span { color: var(--n-accent); font-weight: 800; }
+    html[data-design="kalligraphie"] .month-name span { font-family: var(--n-font); font-style: italic; font-weight: 400; color: var(--n-accent); }
 
     /* ---------- Statistik ---------- */
     .stats {
@@ -452,8 +459,9 @@
     .day.today { border-color: var(--accent-1); box-shadow: 0 0 0 1px var(--accent-1), 0 0 18px color-mix(in srgb, var(--n-accent) 25%, transparent); }
     .day.work { background: var(--day-work); }
     .day.special { background: var(--day-special); }
-    html[data-design="papier"] .day.work { box-shadow: var(--n-shadow); }
-    html[data-design="papier"] .day.weekend:not(.work):not(.special) { border-style: dashed; }
+    html:is([data-design="papier"], [data-design="nachtpapier"]) .day.work { box-shadow: var(--n-shadow); }
+    html:is([data-design="papier"], [data-design="nachtpapier"]) .day.weekend:not(.work):not(.special) { border-style: dashed; }
+    html[data-design="kalligraphie"] .day.work { box-shadow: var(--n-shadow); }
     html[data-design="raster"] .day.today { box-shadow: inset 0 3px 0 var(--n-accent); }
 
     .day .dnum { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
