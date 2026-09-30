@@ -1,0 +1,96 @@
+{
+  "id": "./zusammen",
+  "name": "Zusammen",
+  "short_name": "Zusammen",
+  "description": "Nur für Tobias & Daniel: Besuche, Essen, Einkauf, Vorrat, Haushalt, Geld und Notizen – mit Anmeldung.",
+  "lang": "de",
+  "dir": "ltr",
+  "start_url": "./zusammen.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f1015",
+  "theme_color": "#0f1015",
+  "icons": [
+    {
+      "src": "icons/zusammen-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/zusammen-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/zusammen-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/zusammen-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/zusammen.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Einkaufsliste",
+      "short_name": "Einkauf",
+      "url": "./zusammen.html#einkauf",
+      "icons": [
+        {
+          "src": "icons/zusammen-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Abendessen planen",
+      "short_name": "Essen",
+      "url": "./zusammen.html#essen",
+      "icons": [
+        {
+          "src": "icons/zusammen-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Putzplan & Müll",
+      "short_name": "Haushalt",
+      "url": "./zusammen.html#haushalt",
+      "icons": [
+        {
+          "src": "icons/zusammen-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Geld",
+      "short_name": "Geld",
+      "url": "./zusammen.html#geld",
+      "icons": [
+        {
+          "src": "icons/zusammen-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
+}
