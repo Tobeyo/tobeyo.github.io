@@ -1,7 +1,10 @@
 /*
  * Nessie-Hub · gemeinsame Design-Grundlage
  *
- * Sechs Designs, gewählt auf der Startseite und gespeichert im Browser:
+ * Sechs Designs, gewählt auf der Startseite und gespeichert im Browser.
+ * Jedes gibt es hell und dunkel (<html data-mode="light|dark">): der
+ * Block html[data-design="…"] beschreibt den eigenen Modus des Designs,
+ * html[data-design="…"][data-mode="…"] darunter die Farben des anderen.
  *   loch          – Loch Ness: dunkel, Serifen-Schrift, Gold
  *   papier        – Papier & Farbe: hell, jede App in ihrer eigenen Farbe
  *   raster        – Raster: schwarz, Linienraster, Mono-Schrift, Signal-Orange
@@ -289,6 +292,177 @@ html[data-design="kalligraphie"] {
   --n-enter: n-ink;
   --n-enter-ease: var(--n-ease);
 }
+/* ---------------------------------------------------------------------- */
+/* Das jeweils andere Licht: nur Farben, Schrift & Formen bleiben gleich   */
+/* ---------------------------------------------------------------------- */
+
+/* Loch Ness bei Tag: Pergament, Tannengrün, dunkles Gold */
+html[data-design="loch"][data-mode="light"] {
+  --n-bg: #f3efe4;
+  --n-bg-deco: radial-gradient(120% 55% at 50% 118%, rgba(176, 124, 20, 0.12), transparent 62%);
+  --n-surface: rgba(20, 35, 28, 0.03);
+  --n-surface-2: rgba(20, 35, 28, 0.065);
+  --n-solid: #faf7ef;
+  --n-field: rgba(20, 35, 28, 0.045);
+  --n-line: rgba(20, 35, 28, 0.12);
+  --n-line-2: rgba(20, 35, 28, 0.26);
+  --n-text: #14231c;
+  --n-muted: #5d6a62;
+  --n-faint: #8b958e;
+  --n-accent: #a87412;
+  --n-accent-2: #8a5e08;
+  --n-on-accent: #fffaf0;
+  --n-active-bg: #14231c;
+  --n-active-fg: #f3efe4;
+  --n-ok: #2f7d3a;
+  --n-bad: #c2412f;
+  --n-warn: #a86f08;
+  --n-info: #2c7489;
+  --n-overlay: rgba(20, 35, 28, 0.36);
+  --n-nav: rgba(243, 239, 228, 0.86);
+  --n-shadow: 0 18px 40px -28px rgba(20, 35, 28, 0.5);
+  --n-grain: 0.2;
+  --n-grain-blend: multiply;
+}
+
+/* Papier & Farbe im Dunkeln (die Farben von Nachtpapier) */
+html[data-design="papier"][data-mode="dark"] {
+  --n-bg: #191815;
+  --n-bg-deco: radial-gradient(80% 50% at 85% -8%, rgba(255, 212, 110, 0.08), transparent 62%);
+  --n-surface: #22211d;
+  --n-surface-2: #2b2a25;
+  --n-solid: #22211d;
+  --n-field: #2a2924;
+  --n-line: rgba(243, 238, 228, 0.09);
+  --n-line-2: rgba(243, 238, 228, 0.2);
+  --n-text: #f3eee4;
+  --n-muted: #a9a295;
+  --n-faint: #777165;
+  --n-accent: color-mix(in oklab, var(--n-app, #e0a92e) 62%, #ffffff);
+  --n-accent-2: color-mix(in oklab, var(--n-app, #e0a92e) 44%, #ffffff);
+  --n-on-accent: #191815;
+  --n-active-bg: #f3eee4;
+  --n-active-fg: #191815;
+  --n-ok: #7fd892;
+  --n-bad: #ff8677;
+  --n-warn: #ffc24d;
+  --n-info: #7cc4ff;
+  --n-overlay: rgba(8, 7, 5, 0.68);
+  --n-nav: rgba(25, 24, 21, 0.86);
+  --n-shadow: 0 1px 0 rgba(0, 0, 0, 0.35), 0 18px 36px -22px rgba(0, 0, 0, 0.95);
+  --n-grain: 0.2;
+  --n-grain-blend: overlay;
+}
+
+/* Raster hell: Zeichenpapier, schwarze Linien, gleiches Signal-Orange */
+html[data-design="raster"][data-mode="light"] {
+  --n-bg: #efeee8;
+  --n-surface: rgba(13, 13, 12, 0.02);
+  --n-surface-2: rgba(13, 13, 12, 0.06);
+  --n-solid: #f7f6f1;
+  --n-field: rgba(13, 13, 12, 0.035);
+  --n-line: #cfcdc4;
+  --n-line-2: #a3a198;
+  --n-text: #0d0d0c;
+  --n-muted: #66655e;
+  --n-faint: #95938a;
+  --n-accent: #ff5a1f;
+  --n-accent-2: #d8440c;
+  --n-on-accent: #0d0d0c;
+  --n-active-bg: #0d0d0c;
+  --n-active-fg: #efeee8;
+  --n-ok: #3d8a10;
+  --n-bad: #d62f4f;
+  --n-warn: #b87400;
+  --n-info: #1b7db6;
+  --n-overlay: rgba(13, 13, 12, 0.5);
+  --n-nav: #efeee8;
+}
+
+/* Schlicht dunkel: fast schwarz, ruhig, helleres Blau */
+html[data-design="schlicht"][data-mode="dark"] {
+  --n-bg: #111111;
+  --n-surface: #1b1b1a;
+  --n-surface-2: #252524;
+  --n-solid: #1b1b1a;
+  --n-field: #1b1b1a;
+  --n-line: rgba(242, 242, 238, 0.09);
+  --n-line-2: rgba(242, 242, 238, 0.2);
+  --n-text: #f2f2ee;
+  --n-muted: #9b9b95;
+  --n-faint: #6b6b66;
+  --n-accent: #7090ff;
+  --n-accent-2: #97adff;
+  --n-on-accent: #0c0f1c;
+  --n-active-bg: #f2f2ee;
+  --n-active-fg: #111111;
+  --n-ok: #5fd08a;
+  --n-bad: #ff6b6b;
+  --n-warn: #f0b34a;
+  --n-info: #6fb6ff;
+  --n-overlay: rgba(0, 0, 0, 0.6);
+  --n-nav: rgba(17, 17, 17, 0.86);
+  --n-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 26px -18px rgba(0, 0, 0, 0.85);
+}
+
+/* Nachtpapier bei Tag (die Farben von Papier & Farbe) */
+html[data-design="nachtpapier"][data-mode="light"] {
+  --n-bg: #f1ece2;
+  --n-bg-deco: none;
+  --n-surface: #fbf8f2;
+  --n-surface-2: #fffdf9;
+  --n-solid: #fbf8f2;
+  --n-field: #ffffff;
+  --n-line: rgba(27, 26, 23, 0.1);
+  --n-line-2: rgba(27, 26, 23, 0.24);
+  --n-text: #1b1a17;
+  --n-muted: #6b655a;
+  --n-faint: #9d968a;
+  --n-accent: var(--n-app, #4057e0);
+  --n-accent-2: color-mix(in srgb, var(--n-app, #4057e0) 82%, #1b1a17);
+  --n-on-accent: #ffffff;
+  --n-active-bg: #1b1a17;
+  --n-active-fg: #f1ece2;
+  --n-ok: #1f8f4e;
+  --n-bad: #cf3a4e;
+  --n-warn: #b36b00;
+  --n-info: #1f6fb2;
+  --n-overlay: rgba(46, 38, 24, 0.42);
+  --n-nav: rgba(241, 236, 226, 0.88);
+  --n-shadow: 0 1px 0 rgba(27, 26, 23, 0.04), 0 14px 30px -20px rgba(27, 26, 23, 0.4);
+  --n-grain: 0.3;
+  --n-grain-blend: multiply;
+}
+
+/* Kalligraphie bei Nacht: dunkles Papier, helle Tusche, leuchtendes Siegelrot */
+html[data-design="kalligraphie"][data-mode="dark"] {
+  --n-bg: #191613;
+  --n-bg-deco: radial-gradient(120% 70% at 50% -20%, rgba(255, 238, 205, 0.06), transparent 62%);
+  --n-surface: #221e1a;
+  --n-surface-2: #2c2722;
+  --n-solid: #221e1a;
+  --n-field: #1e1a17;
+  --n-line: rgba(236, 228, 212, 0.1);
+  --n-line-2: rgba(236, 228, 212, 0.24);
+  --n-text: #ece4d4;
+  --n-muted: #aa9f8d;
+  --n-faint: #786f61;
+  --n-accent: #e0624a;
+  --n-accent-2: #f08a72;
+  --n-on-accent: #1a1411;
+  --n-active-bg: #ece4d4;
+  --n-active-fg: #191613;
+  --n-ok: #80c08b;
+  --n-bad: #ea7d93;
+  --n-warn: #e0a84a;
+  --n-info: #80b0e0;
+  --n-overlay: rgba(0, 0, 0, 0.62);
+  --n-nav: rgba(25, 22, 19, 0.88);
+  --n-shadow: 0 1px 0 rgba(0, 0, 0, 0.3), 0 12px 26px -20px rgba(0, 0, 0, 0.9);
+  --n-grain: 0.18;
+  --n-grain-blend: overlay;
+}
+
 /* Zahlen in Tabellen & Kalendern lieber in gleicher Höhe und Breite
    (als Feature-Einstellung, damit sie auch dort gilt, wo eine Seite
    font-variant-numeric selbst setzt – und weil sie vererbt wird) */
@@ -297,9 +471,7 @@ html[data-design="kalligraphie"] body { font-feature-settings: "lnum" 1, "tnum" 
 /* Dunkle bzw. helle Formularfelder & Scrollbalken – nur auf Seiten, die
    ganz im gewählten Design gezeichnet werden (class="n-themed") */
 html.n-themed { color-scheme: dark; }
-html.n-themed[data-design="papier"],
-html.n-themed[data-design="schlicht"],
-html.n-themed[data-design="kalligraphie"] { color-scheme: light; }
+html.n-themed[data-mode="light"] { color-scheme: light; }
 
 /* ---------------------------------------------------------------------- */
 /* Gemeinsame Bausteine (nur mit n-Präfix, damit nichts Bestehendes        */
@@ -369,11 +541,11 @@ a.n-hub-btn .n-hub-arrow {
 }
 a.n-hub-btn:hover .n-hub-arrow { transform: translateX(-2px); }
 html[data-design="loch"] a.n-hub-btn { font-family: var(--n-font-mono); font-weight: 500; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
-html[data-design="papier"] a.n-hub-btn { font-weight: 700; --n-accent: #1b1a17; --n-on-accent: #f1ece2; }
+html[data-design="papier"] a.n-hub-btn { font-weight: 700; --n-accent: var(--n-active-bg); --n-on-accent: var(--n-active-fg); }
 html[data-design="raster"] a.n-hub-btn { border-radius: 0; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; box-shadow: none; backdrop-filter: none; }
 html[data-design="raster"] a.n-hub-btn .n-hub-arrow { border-radius: 0; }
-html[data-design="schlicht"] a.n-hub-btn { font-weight: 600; background: rgba(255, 255, 255, 0.9); border-color: var(--n-line); box-shadow: 0 6px 20px -10px rgba(22, 22, 21, 0.3); --n-accent: #161615; --n-on-accent: #ffffff; }
-html[data-design="nachtpapier"] a.n-hub-btn { font-weight: 700; --n-accent: #f3eee4; --n-on-accent: #191815; }
+html[data-design="schlicht"] a.n-hub-btn { font-weight: 600; background: color-mix(in srgb, var(--n-solid) 92%, transparent); border-color: var(--n-line); box-shadow: 0 6px 20px -10px rgba(0, 0, 0, 0.3); --n-accent: var(--n-active-bg); --n-on-accent: var(--n-active-fg); }
+html[data-design="nachtpapier"] a.n-hub-btn { font-weight: 700; --n-accent: var(--n-active-bg); --n-on-accent: var(--n-active-fg); }
 html[data-design="nachtpapier"] a.n-hub-btn:hover { transform: translateY(-2px) rotate(-1.5deg); }
 html[data-design="kalligraphie"] a.n-hub-btn { font-family: var(--n-font-display); font-size: 16px; font-weight: 600; box-shadow: 0 6px 20px -12px rgba(31, 27, 22, 0.4); }
 html[data-design="kalligraphie"] a.n-hub-btn .n-hub-arrow { border-radius: 5px; transform: rotate(-4deg); }
@@ -392,6 +564,7 @@ html[data-design="kalligraphie"] a.n-hub-btn:hover .n-hub-arrow { transform: tra
 .n-fx { position: fixed; left: 0; top: 0; width: 0; height: 0; pointer-events: none; z-index: 2147482999; }
 .n-fx > * { position: absolute; left: 0; top: 0; pointer-events: none; will-change: transform, opacity; }
 html[data-design="kalligraphie"] .n-fx { mix-blend-mode: multiply; }
+html[data-design="kalligraphie"][data-mode="dark"] .n-fx { mix-blend-mode: screen; }
 
 /* ---------------------------------------------------------------------- */
 /* Seitenübergänge (Chrome, Edge, Safari ab 18.2 – sonst ganz normal)      */

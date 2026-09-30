@@ -4,7 +4,9 @@
  * Wird auf jeder Seite ganz oben im <head> geladen. Liest das gewählte
  * Design aus dem lokalen Speicher und setzt es auf <html data-design="…">,
  * bevor die Seite gezeichnet wird – so blitzt nie das falsche Design auf.
- * Ausgewählt wird das Design nur auf der Startseite (index.html).
+ * Jedes Design gibt es hell und dunkel: <html data-mode="light|dark">.
+ * Der Modus wird pro Design gemerkt; ohne Wahl gilt der „eigene“ Modus
+ * des Designs (native). Ausgewählt wird beides nur auf der Startseite.
  *
  * Außerdem: die passenden Schriften laden und beim Wechsel zwischen
  * Startseite und App das App-Icon mitwandern lassen (View Transitions).
@@ -13,48 +15,49 @@
   'use strict';
 
   var KEY = 'nessie-design';
+  var MODE_KEY = 'nessie-mode';   // {"loch":"light", …} – nur Abweichungen vom eigenen Modus zählen
   var FALLBACK = 'loch';
   var DESIGNS = {
     loch: {
       name: 'Loch Ness',
-      sub: 'Dunkel & redaktionell',
-      color: '#0b1411',
-      light: false,
+      sub: 'Redaktionell, Serifen & Gold',
+      native: 'dark',
+      colors: { dark: '#0b1411', light: '#f3efe4' },
       fonts: 'family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Geist:wght@300..700&family=Geist+Mono:wght@400;500'
     },
     papier: {
       name: 'Papier & Farbe',
-      sub: 'Hell, verspielt, bunt',
-      color: '#f1ece2',
-      light: true,
+      sub: 'Verspielt & bunt',
+      native: 'light',
+      colors: { dark: '#191815', light: '#f1ece2' },
       fonts: 'family=Bricolage+Grotesque:opsz,wght@12..96,300..800'
     },
     raster: {
       name: 'Raster',
-      sub: 'Dunkel, technisch, Schweizer Stil',
-      color: '#0d0d0c',
-      light: false,
+      sub: 'Technisch, Schweizer Stil',
+      native: 'dark',
+      colors: { dark: '#0d0d0c', light: '#efeee8' },
       fonts: 'family=Archivo:wdth,wght@62..125,400..900&family=IBM+Plex+Mono:wght@400;500;600'
     },
     schlicht: {
       name: 'Schlicht',
-      sub: 'Hell, ruhig, viel Luft',
-      color: '#f6f6f3',
-      light: true,
+      sub: 'Ruhig, viel Luft',
+      native: 'light',
+      colors: { dark: '#111111', light: '#f6f6f3' },
       fonts: 'family=Manrope:wght@300..800'
     },
     nachtpapier: {
       name: 'Nachtpapier',
-      sub: 'Papier & Farbe, nur dunkel',
-      color: '#191815',
-      light: false,
+      sub: 'Papier & Farbe mit Mond & Sternen',
+      native: 'dark',
+      colors: { dark: '#191815', light: '#f1ece2' },
       fonts: 'family=Bricolage+Grotesque:opsz,wght@12..96,300..800'
     },
     kalligraphie: {
       name: 'Kalligraphie',
       sub: 'Tusche, Feder & rotes Siegel',
-      color: '#f6f2ea',
-      light: true,
+      native: 'light',
+      colors: { dark: '#191613', light: '#f6f2ea' },
       fonts: 'family=Alegreya:ital,wght@0,400..900;1,400..900&family=Cormorant+Upright:wght@400;500;600;700&family=Pinyon+Script'
     }
   };
@@ -66,6 +69,20 @@
     var v = null;
     try { v = window.localStorage.getItem(KEY); } catch (e) { /* privater Modus o. ä. */ }
     return DESIGNS[v] ? v : FALLBACK;
+  }
+
+  var sessionModes = {};   // falls der Speicher gesperrt ist: wenigstens für diesen Besuch
+  function readModes() {
+    var v = null;
+    try { v = JSON.parse(window.localStorage.getItem(MODE_KEY)); } catch (e) { /* kaputt oder gesperrt */ }
+    var all = v && typeof v === 'object' ? v : {};
+    for (var k in sessionModes) all[k] = sessionModes[k];
+    return all;
+  }
+
+  function modeOf(id) {
+    var m = readModes()[id];
+    return m === 'light' || m === 'dark' ? m : DESIGNS[id].native;
   }
 
   function fontHref(id) {
@@ -83,14 +100,16 @@
   }
 
   function apply(id) {
+    var mode = modeOf(id);
     root.setAttribute('data-design', id);
+    root.setAttribute('data-mode', mode);
     loadFonts(id);
 
     // Browserleiste & iOS-Statusleiste nur auf Seiten, die das ausdrücklich wollen
     var meta = document.querySelector('meta[name="theme-color"][data-design]');
-    if (meta) meta.setAttribute('content', DESIGNS[id].color);
+    if (meta) meta.setAttribute('content', DESIGNS[id].colors[mode]);
     var bar = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"][data-design]');
-    if (bar) bar.setAttribute('content', DESIGNS[id].light ? 'default' : 'black-translucent');
+    if (bar) bar.setAttribute('content', mode === 'light' ? 'default' : 'black-translucent');
 
     var ev;
     try { ev = new CustomEvent('nessie-design', { detail: id }); } catch (e) { ev = null; }
@@ -114,7 +133,7 @@
   // Zurück-Knopf des Browsers (Seite aus dem Cache) oder anderer Tab:
   // immer das zuletzt gewählte Design zeigen.
   window.addEventListener('pageshow', function () { apply(read()); });
-  window.addEventListener('storage', function (e) { if (e.key === KEY) apply(read()); });
+  window.addEventListener('storage', function (e) { if (e.key === KEY || e.key === MODE_KEY) apply(read()); });
 
   /* ---------- Design wechseln (nur Startseite) ---------- */
 
@@ -139,26 +158,40 @@
     if (!DESIGNS[id]) return Promise.resolve();
     save(id);
     if (id === root.getAttribute('data-design')) return Promise.resolve();
+    return waitForFonts(id, 900).then(function () { return reveal(id, origin); });
+  }
 
-    return waitForFonts(id, 900).then(function () {
-      if (reduceMotion || !document.startViewTransition) { apply(id); return; }
+  // Hell ↔ dunkel für das aktuelle Design, mit derselben Kreis-Animation
+  function setMode(mode, origin) {
+    var id = root.getAttribute('data-design') || read();
+    if (mode !== 'light' && mode !== 'dark') return Promise.resolve();
+    var all = readModes();
+    if (mode === DESIGNS[id].native) delete all[id]; else all[id] = mode;
+    try { window.localStorage.setItem(MODE_KEY, JSON.stringify(all)); }
+    catch (e) { sessionModes[id] = mode; }
+    if (mode === root.getAttribute('data-mode')) return Promise.resolve();
+    return reveal(id, origin);
+  }
 
-      root.classList.add('n-switching');
-      var t = document.startViewTransition(function () { apply(id); });
-      t.ready.then(function () {
-        var x = origin ? origin.x : window.innerWidth / 2;
-        var y = origin ? origin.y : 0;
-        var r = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
-        root.animate(
-          { clipPath: ['circle(0px at ' + x + 'px ' + y + 'px)', 'circle(' + r + 'px at ' + x + 'px ' + y + 'px)'] },
-          { duration: 700, easing: 'cubic-bezier(.7,0,.2,1)', pseudoElement: '::view-transition-new(root)' }
-        );
-      }).catch(function () {});
-      return t.finished.then(
-        function () { root.classList.remove('n-switching'); },
-        function () { root.classList.remove('n-switching'); }
+  // Neues Aussehen kreisförmig vom Knopf aus aufziehen
+  function reveal(id, origin) {
+    if (reduceMotion || !document.startViewTransition) { apply(id); return Promise.resolve(); }
+
+    root.classList.add('n-switching');
+    var t = document.startViewTransition(function () { apply(id); });
+    t.ready.then(function () {
+      var x = origin ? origin.x : window.innerWidth / 2;
+      var y = origin ? origin.y : 0;
+      var r = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+      root.animate(
+        { clipPath: ['circle(0px at ' + x + 'px ' + y + 'px)', 'circle(' + r + 'px at ' + x + 'px ' + y + 'px)'] },
+        { duration: 700, easing: 'cubic-bezier(.7,0,.2,1)', pseudoElement: '::view-transition-new(root)' }
       );
-    });
+    }).catch(function () {});
+    return t.finished.then(
+      function () { root.classList.remove('n-switching'); },
+      function () { root.classList.remove('n-switching'); }
+    );
   }
 
   /* ---------- App-Icon wandert zwischen Startseite und App ---------- */
@@ -250,7 +283,8 @@
     },
     // Ein Tropfen Tusche, der ins Papier sickert – selten auch Siegelrot
     kalligraphie: function (x, y) {
-      var ink = Math.random() < 0.18 ? '192,67,46' : '31,27,22';
+      var dark = root.getAttribute('data-mode') === 'dark';
+      var ink = Math.random() < 0.18 ? (dark ? '224,98,74' : '192,67,46') : (dark ? '236,228,212' : '31,27,22');
       function blob(size, px, py, delay, dur, strength) {
         var b = function () { return Math.round(rand(38, 62)) + '%'; };
         var shape = b() + ' ' + b() + ' ' + b() + ' ' + b() + ' / ' + b() + ' ' + b() + ' ' + b() + ' ' + b();
@@ -292,7 +326,10 @@
   window.NessieDesign = {
     list: DESIGNS,
     get: function () { return root.getAttribute('data-design') || read(); },
+    getMode: function () { return root.getAttribute('data-mode') || modeOf(read()); },
+    modeOf: modeOf,
     set: set,
+    setMode: setMode,
     preload: function () { Object.keys(DESIGNS).forEach(loadFonts); },
     reattach: reattach
   };

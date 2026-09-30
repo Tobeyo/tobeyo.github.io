@@ -155,7 +155,7 @@
     .opt {
       width: 100%;
       display: grid;
-      grid-template-columns: 76px 1fr 22px;
+      grid-template-columns: 76px 1fr 54px;
       align-items: center;
       gap: 14px;
       padding: 8px;
@@ -165,13 +165,13 @@
       cursor: pointer;
       text-align: left;
       transition: background 0.2s, border-color 0.2s;
-      animation: n-rise 0.5s var(--n-ease) backwards;
     }
-    .opt:nth-of-type(2) { animation-delay: 0.04s; }
-    .opt:nth-of-type(3) { animation-delay: 0.08s; }
-    .opt:nth-of-type(4) { animation-delay: 0.12s; }
-    .opt:nth-of-type(5) { animation-delay: 0.16s; }
-    .opt:nth-of-type(6) { animation-delay: 0.2s; }
+    .opt-row { position: relative; animation: n-rise 0.5s var(--n-ease) backwards; }
+    .opt-row:nth-of-type(2) { animation-delay: 0.04s; }
+    .opt-row:nth-of-type(3) { animation-delay: 0.08s; }
+    .opt-row:nth-of-type(4) { animation-delay: 0.12s; }
+    .opt-row:nth-of-type(5) { animation-delay: 0.16s; }
+    .opt-row:nth-of-type(6) { animation-delay: 0.2s; }
     .opt:hover { background: var(--n-surface-2); }
     .opt[aria-pressed="true"] { border-color: var(--n-accent); background: var(--n-surface-2); }
     .opt .pv {
@@ -202,6 +202,7 @@
     .opt b { display: block; font-family: var(--n-font); font-size: 15px; font-weight: 600; color: var(--n-text); }
     .opt small { display: block; font-size: 12.5px; color: var(--n-muted); margin-top: 2px; }
     .opt .tick {
+      justify-self: end;
       width: 22px; height: 22px; border-radius: 50%;
       border: 1px solid var(--n-line-2);
       display: grid; place-items: center;
@@ -209,6 +210,89 @@
       transition: all 0.3s var(--n-ease);
     }
     .opt[aria-pressed="true"] .tick { background: var(--n-accent); border-color: var(--n-accent); color: var(--n-on-accent); }
+    .opt-row.on .tick { opacity: 0; transform: scale(0.4); }
+
+    /* Schieberegler hell / dunkel – erscheint beim gewählten Design */
+    .mode-sw {
+      position: absolute;
+      right: 9px;
+      top: 50%;
+      width: 54px;
+      height: 30px;
+      padding: 0;
+      border-radius: 999px;
+      border: 1px solid var(--n-line-2);
+      background: linear-gradient(90deg, #ffe7a3, #ffd36b);
+      cursor: pointer;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-50%) scale(0.5);
+      transition: opacity 0.25s, visibility 0.25s, transform 0.5s var(--n-spring), background 0.4s;
+      overflow: hidden;
+    }
+    .mode-sw::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, #1b2240, #2c3a6e);
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+    .mode-sw[aria-checked="true"]::before { opacity: 1; }
+    .mode-sw::after {
+      content: "";
+      position: absolute;
+      left: 8px;
+      top: 8px;
+      width: 2px;
+      height: 2px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 7px 7px 0 #fff, 13px -2px 0 rgba(255, 255, 255, 0.7);
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 0.4s 0.1s, transform 0.5s 0.1s var(--n-ease);
+    }
+    .mode-sw[aria-checked="true"]::after { opacity: 1; transform: none; }
+    .opt-row.on .mode-sw { opacity: 1; visibility: visible; transform: translateY(-50%); }
+    .mode-sw:hover .knob { box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35), 0 0 0 4px rgba(255, 255, 255, 0.25); }
+    .mode-sw:active .knob { width: 28px; }
+    .mode-sw[aria-checked="true"]:active .knob { transform: translateX(18px); }
+    .mode-sw .knob {
+      position: absolute;
+      z-index: 1;
+      top: 3px;
+      left: 3px;
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      background: #fffdf6;
+      color: #e39a12;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      transition: transform 0.5s var(--n-spring), width 0.25s var(--n-ease), background 0.4s, color 0.4s, box-shadow 0.3s;
+    }
+    .mode-sw[aria-checked="true"] .knob { transform: translateX(24px); background: #e9ecf8; color: #2c3a6e; }
+    .mode-sw .knob svg { grid-area: 1 / 1; transition: opacity 0.35s, transform 0.5s var(--n-spring); }
+    .mode-sw .ms-moon { opacity: 0; transform: rotate(-90deg) scale(0.4); }
+    .mode-sw[aria-checked="true"] .ms-sun { opacity: 0; transform: rotate(90deg) scale(0.4); }
+    .mode-sw[aria-checked="true"] .ms-moon { opacity: 1; transform: none; }
+    html[data-design="raster"] .mode-sw,
+    html[data-design="raster"] .mode-sw .knob { border-radius: 0; }
+
+    /* Vorschau zeigt das Licht, das für das Design gemerkt ist */
+    .pv { transition: background-color 0.4s, color 0.4s; }
+    .opt-row.alt .pv-loch { background: #f3efe4; color: #14231c; }
+    .opt-row.alt .pv-loch i { background: #a87412; }
+    .opt-row.alt .pv-papier { background: #191815; color: #f3eee4; }
+    .opt-row.alt .pv-raster { background: #efeee8; color: #0d0d0c; }
+    .opt-row.alt .pv-schlicht { background: #111111; color: #f2f2ee; }
+    .opt-row.alt .pv-schlicht i { background: #7090ff; }
+    .opt-row.alt .pv-nachtpapier { background: #f1ece2; color: #1b1a17; }
+    .opt-row.alt .pv-nachtpapier i { box-shadow: -18px 0 0 #ff8a7a, -36px 0 0 #7aa2ff; }
+    .opt-row.alt .pv-kalligraphie { background: #191613; color: #ece4d4; }
+    .opt-row.alt .pv-kalligraphie i { background: #e0624a; }
     .design-menu p { font-size: 12px; color: var(--n-faint); padding: 10px 8px 4px; line-height: 1.45; }
 
     /* ================================================================== */
@@ -286,6 +370,9 @@
     .loch .hump:nth-child(4) { animation-delay: -2.4s; }
     @keyframes flow { to { transform: translateX(-120px); } }
     @keyframes swim { from { transform: translateX(-200px); } to { transform: translateX(760px); } }
+    html[data-mode="light"] .loch .nessie > g { fill: #e6dbc1; stroke: var(--n-accent); }
+    html[data-mode="light"] .loch .nessie circle { fill: var(--n-accent); }
+    html[data-mode="light"] .loch .water { stroke: var(--n-accent); }
     @keyframes bob { 50% { transform: translateY(-4px); } }
 
     html[data-design="loch"] .grp {
@@ -470,7 +557,7 @@
       animation-delay: calc(var(--o) * 50ms + 100ms);
       order: var(--o);
     }
-    html[data-design="papier"] .app[data-n-app="elba"] { --fg: #1b1a17; }
+    html[data-mode="light"]:is([data-design="papier"], [data-design="nachtpapier"]) .app[data-n-app="elba"] { --fg: #1b1a17; }
     html:is([data-design="papier"], [data-design="nachtpapier"]) .app .ico {
       width: 52px; height: 52px; border-radius: 15px;
       box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35), 0 8px 18px -8px rgba(0, 0, 0, 0.4);
@@ -486,7 +573,7 @@
       background: rgba(255, 255, 255, 0.2);
       transition: transform 0.6s var(--n-spring), background 0.3s, color 0.3s;
     }
-    html[data-design="papier"] .app[data-n-app="elba"] .go { background: rgba(27, 26, 23, 0.1); }
+    html[data-mode="light"]:is([data-design="papier"], [data-design="nachtpapier"]) .app[data-n-app="elba"] .go { background: rgba(27, 26, 23, 0.1); }
     html:is([data-design="papier"], [data-design="nachtpapier"]) .app .name { font-size: 25px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.05; }
     html:is([data-design="papier"], [data-design="nachtpapier"]) .app .desc { display: none; font-size: 13.5px; line-height: 1.35; opacity: 0.85; margin-top: 5px; font-weight: 500; max-width: 36ch; }
     html:is([data-design="papier"], [data-design="nachtpapier"]) .app.wide .desc,
@@ -802,17 +889,17 @@
     html[data-design="schlicht"] footer { max-width: 860px; margin: 0 auto; width: 100%; padding-left: 32px; padding-right: 32px; font-family: var(--n-font); font-size: 13px; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--n-faint); }
 
     /* ================================================================== */
-    /* E · NACHTPAPIER – Layout von Papier & Farbe, hier nur das Dunkle     */
+    /* E · NACHTPAPIER – Layout von Papier & Farbe. Im Dunkeln (Papier      */
+    /*     dunkel oder Nachtpapier) werden die Kacheln zu dunklem Karton;   */
+    /*     Mobile, Kippen & Lichtkegel gehören zu Nachtpapier (hell & dunkel) */
     /* ================================================================== */
 
-    html[data-design="nachtpapier"] .brand-mark rect { fill: #f3eee4; }
-    html[data-design="nachtpapier"] .brand-mark path:first-of-type { stroke: #191815; }
-    html[data-design="nachtpapier"] .design-btn:hover { border-color: var(--n-text); }
-    html[data-design="nachtpapier"] .design-menu { box-shadow: 0 30px 70px -20px rgba(0, 0, 0, 0.85); }
-    html[data-design="nachtpapier"] .hero-papier { position: relative; }
+    html[data-mode="dark"]:is([data-design="papier"], [data-design="nachtpapier"]) .brand-mark rect { fill: #f3eee4; }
+    html[data-mode="dark"]:is([data-design="papier"], [data-design="nachtpapier"]) .brand-mark path:first-of-type { stroke: #191815; }
+    html[data-mode="dark"]:is([data-design="papier"], [data-design="nachtpapier"]) .design-menu { box-shadow: 0 30px 70px -20px rgba(0, 0, 0, 0.85); }
     /* Leuchtmarker: „heute“ erscheint erst, wenn der Marker darüber streicht */
-    html[data-design="nachtpapier"] .hero-papier h1 .hl { color: #191815; }
-    html[data-design="nachtpapier"] .hero-papier h1 .hl::after {
+    html[data-mode="dark"]:is([data-design="papier"], [data-design="nachtpapier"]) .hero-papier h1 .hl { color: #191815; }
+    html[data-mode="dark"]:is([data-design="papier"], [data-design="nachtpapier"]) .hero-papier h1 .hl::after {
       top: 0.12em;
       bottom: 0.02em;
       height: auto;
@@ -823,17 +910,33 @@
     }
     @keyframes neon { 50% { box-shadow: 0 0 46px rgba(255, 212, 0, 0.65), 0 0 6px rgba(255, 230, 120, 0.9); } }
 
-    html[data-design="nachtpapier"] .app {
+    html[data-mode="dark"]:is([data-design="papier"], [data-design="nachtpapier"]) .app {
       --fg: var(--c2);
-      --tilt: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
       background: color-mix(in oklab, var(--c) 30%, #1c1b18);
       color: #f3eee4;
-      isolation: isolate;
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), inset 0 0 0 1px color-mix(in srgb, var(--c2) 14%, transparent), 0 18px 34px -22px rgba(0, 0, 0, 0.95);
+    }
+    html[data-mode="dark"]:is([data-design="papier"], [data-design="nachtpapier"]) .app:hover,
+    html[data-mode="dark"]:is([data-design="papier"], [data-design="nachtpapier"]) .app:focus-visible {
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 0 0 1px color-mix(in srgb, var(--c2) 40%, transparent), 0 26px 44px -20px #000, 0 0 44px -12px color-mix(in srgb, var(--c2) 45%, transparent);
+    }
+    html[data-mode="dark"]:is([data-design="papier"], [data-design="nachtpapier"]) .app .ico { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1), 0 10px 22px -10px rgba(0, 0, 0, 0.8); }
+    html[data-mode="dark"]:is([data-design="papier"], [data-design="nachtpapier"]) .app .desc { color: rgba(243, 238, 228, 0.72); opacity: 1; }
+    html[data-mode="dark"]:is([data-design="papier"], [data-design="nachtpapier"]) .go { background: rgba(255, 255, 255, 0.08); }
+    html[data-mode="dark"]:is([data-design="papier"], [data-design="nachtpapier"]) .app:hover .go { background: var(--c2); color: #191815; }
+    html[data-mode="dark"]:is([data-design="papier"], [data-design="nachtpapier"]) .cal i { background: rgba(255, 255, 255, 0.07); }
+    html[data-mode="dark"]:is([data-design="papier"], [data-design="nachtpapier"]) .cal i.on { background: var(--c2); }
+    html[data-mode="dark"]:is([data-design="papier"], [data-design="nachtpapier"]) .cal i.now { background: #ffd400; box-shadow: 0 0 12px rgba(255, 212, 0, 0.75); }
+    html[data-mode="dark"]:is([data-design="papier"], [data-design="nachtpapier"]) .duo i { background: rgba(255, 255, 255, 0.06); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c2) 30%, transparent); color: var(--c2); }
+
+    /* Nachtpapier: Kacheln kippen zur Maus, ein Lichtkegel folgt ihr */
+    html[data-design="nachtpapier"] .hero-papier { position: relative; }
+    html[data-design="nachtpapier"] .app {
+      --tilt: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+      isolation: isolate;
       transform: var(--tilt);
       transition: transform 0.7s var(--n-spring), box-shadow 0.4s;
     }
-    /* Taschenlampe: ein Lichtkegel folgt der Maus über die Kachel */
     html[data-design="nachtpapier"] .app::before {
       content: "";
       position: absolute;
@@ -847,31 +950,21 @@
     html[data-design="nachtpapier"] .app:hover::before,
     html[data-design="nachtpapier"] .app:focus-visible::before { opacity: 1; }
     html[data-design="nachtpapier"] .app:hover,
-    html[data-design="nachtpapier"] .app:focus-visible {
-      transform: var(--tilt) translateY(-5px);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 0 0 1px color-mix(in srgb, var(--c2) 40%, transparent), 0 26px 44px -20px #000, 0 0 44px -12px color-mix(in srgb, var(--c2) 45%, transparent);
-    }
+    html[data-design="nachtpapier"] .app:focus-visible { transform: var(--tilt) translateY(-5px); }
     html[data-design="nachtpapier"] .app:active { transform: var(--tilt) scale(0.96); transition-duration: 0.2s; }
-    html[data-design="nachtpapier"] .app .ico { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1), 0 10px 22px -10px rgba(0, 0, 0, 0.8); }
-    html[data-design="nachtpapier"] .app .desc { color: rgba(243, 238, 228, 0.72); opacity: 1; }
-    html[data-design="nachtpapier"] .go { background: rgba(255, 255, 255, 0.08); }
-    html[data-design="nachtpapier"] .app:hover .go { background: var(--c2); color: #191815; }
-    html[data-design="nachtpapier"] .cal i { background: rgba(255, 255, 255, 0.07); }
-    html[data-design="nachtpapier"] .cal i.on { background: var(--c2); }
-    html[data-design="nachtpapier"] .cal i.now { background: #ffd400; box-shadow: 0 0 12px rgba(255, 212, 0, 0.75); }
-    html[data-design="nachtpapier"] .duo i { background: rgba(255, 255, 255, 0.06); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c2) 30%, transparent); color: var(--c2); }
 
     /* Mobile aus Papier: Mond und Sterne hängen an Fäden und schaukeln */
     .mobile { display: none; }
     html[data-design="nachtpapier"] .mobile { display: block; position: absolute; left: 51%; top: -400px; width: 200px; height: 0; z-index: 5; pointer-events: none; animation: n-fade 1s 0.3s both; }
     .mob-arm { position: absolute; inset: 0; transform-origin: 50% 0; animation: mob-sway 7s ease-in-out infinite; }
-    .mob-top { position: absolute; left: 50%; top: 0; width: 1px; height: 430px; background: linear-gradient(rgba(243, 238, 228, 0.05), rgba(243, 238, 228, 0.35)); }
+    .mob-top { position: absolute; left: 50%; top: 0; width: 1px; height: 430px; background: linear-gradient(transparent, color-mix(in srgb, var(--n-text) 38%, transparent)); }
     .mob-bar { position: absolute; left: 0; right: 0; top: 428px; height: 4px; border-radius: 3px; background: #c9a36a; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5); }
     .mob-item { position: absolute; top: 431px; left: var(--x); width: 56px; margin-left: -28px; transform-origin: 50% 0; animation: mob-swing var(--t, 4s) var(--dl, 0s) ease-in-out infinite; pointer-events: auto; cursor: grab; }
     .mob-push { transform-origin: 50% 0; }
     .mob-push.push { animation: mob-push 1.8s cubic-bezier(0.3, 0.6, 0.4, 1); }
-    .mob-str { display: block; width: 1px; height: var(--len); margin: 0 auto; background: rgba(243, 238, 228, 0.4); }
+    .mob-str { display: block; width: 1px; height: var(--len); margin: 0 auto; background: color-mix(in srgb, var(--n-text) 40%, transparent); }
     .mob-item svg { display: block; margin: -3px auto 0; overflow: visible; filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.55)); }
+    html[data-mode="light"] .mob-item svg { filter: drop-shadow(0 5px 6px rgba(60, 40, 10, 0.25)); }
     .mob-item .glow { animation: twinkle var(--t, 4s) var(--dl, 0s) ease-in-out infinite; }
     @keyframes mob-sway { 0%, 100% { transform: rotate(-2.5deg); } 50% { transform: rotate(2.5deg); } }
     @keyframes mob-swing { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
@@ -1144,37 +1237,85 @@
 
     <div class="design-menu" id="designMenu" hidden>
       <h2>Design wählen</h2>
-      <button class="opt" type="button" data-design-opt="loch" aria-pressed="false">
-        <span class="pv pv-loch" aria-hidden="true">Aa<i></i></span>
-        <span><b>Loch Ness</b><small>Dunkel &amp; redaktionell</small></span>
-        <span class="tick" aria-hidden="true">✓</span>
-      </button>
-      <button class="opt" type="button" data-design-opt="papier" aria-pressed="false">
-        <span class="pv pv-papier" aria-hidden="true">Aa<i></i></span>
-        <span><b>Papier &amp; Farbe</b><small>Hell, verspielt, bunt</small></span>
-        <span class="tick" aria-hidden="true">✓</span>
-      </button>
-      <button class="opt" type="button" data-design-opt="raster" aria-pressed="false">
-        <span class="pv pv-raster" aria-hidden="true">Aa<i></i></span>
-        <span><b>Raster</b><small>Schwarz, technisch, Schweizer Stil</small></span>
-        <span class="tick" aria-hidden="true">✓</span>
-      </button>
-      <button class="opt" type="button" data-design-opt="schlicht" aria-pressed="false">
-        <span class="pv pv-schlicht" aria-hidden="true">Aa<i></i></span>
-        <span><b>Schlicht</b><small>Hell, ruhig, viel Luft</small></span>
-        <span class="tick" aria-hidden="true">✓</span>
-      </button>
-      <button class="opt" type="button" data-design-opt="nachtpapier" aria-pressed="false">
-        <span class="pv pv-nachtpapier" aria-hidden="true">Aa<i></i></span>
-        <span><b>Nachtpapier</b><small>Papier &amp; Farbe, nur dunkel</small></span>
-        <span class="tick" aria-hidden="true">✓</span>
-      </button>
-      <button class="opt" type="button" data-design-opt="kalligraphie" aria-pressed="false">
-        <span class="pv pv-kalligraphie" aria-hidden="true">Aa<i></i></span>
-        <span><b>Kalligraphie</b><small>Tusche, Feder &amp; rotes Siegel</small></span>
-        <span class="tick" aria-hidden="true">✓</span>
-      </button>
-      <p>Gilt für alle Seiten und wird auf diesem Gerät gespeichert.</p>
+      <div class="opt-row" data-row="loch">
+        <button class="opt" type="button" data-design-opt="loch" aria-pressed="false">
+          <span class="pv pv-loch" aria-hidden="true">Aa<i></i></span>
+          <span><b>Loch Ness</b><small>Redaktionell, Serifen &amp; Gold</small></span>
+          <span class="tick" aria-hidden="true">✓</span>
+        </button>
+        <button class="mode-sw" type="button" role="switch" aria-checked="false" aria-label="Dunkler Modus" tabindex="-1">
+          <span class="knob" aria-hidden="true">
+            <svg class="ms-sun" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="4.2" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></g></svg>
+            <svg class="ms-moon" viewBox="0 0 24 24" width="14" height="14"><path d="M20 14.6A8.5 8.5 0 0 1 9.4 4a8.5 8.5 0 1 0 10.6 10.6z" fill="currentColor"/></svg>
+          </span>
+        </button>
+      </div>
+      <div class="opt-row" data-row="papier">
+        <button class="opt" type="button" data-design-opt="papier" aria-pressed="false">
+          <span class="pv pv-papier" aria-hidden="true">Aa<i></i></span>
+          <span><b>Papier &amp; Farbe</b><small>Verspielt &amp; bunt</small></span>
+          <span class="tick" aria-hidden="true">✓</span>
+        </button>
+        <button class="mode-sw" type="button" role="switch" aria-checked="false" aria-label="Dunkler Modus" tabindex="-1">
+          <span class="knob" aria-hidden="true">
+            <svg class="ms-sun" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="4.2" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></g></svg>
+            <svg class="ms-moon" viewBox="0 0 24 24" width="14" height="14"><path d="M20 14.6A8.5 8.5 0 0 1 9.4 4a8.5 8.5 0 1 0 10.6 10.6z" fill="currentColor"/></svg>
+          </span>
+        </button>
+      </div>
+      <div class="opt-row" data-row="raster">
+        <button class="opt" type="button" data-design-opt="raster" aria-pressed="false">
+          <span class="pv pv-raster" aria-hidden="true">Aa<i></i></span>
+          <span><b>Raster</b><small>Technisch, Schweizer Stil</small></span>
+          <span class="tick" aria-hidden="true">✓</span>
+        </button>
+        <button class="mode-sw" type="button" role="switch" aria-checked="false" aria-label="Dunkler Modus" tabindex="-1">
+          <span class="knob" aria-hidden="true">
+            <svg class="ms-sun" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="4.2" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></g></svg>
+            <svg class="ms-moon" viewBox="0 0 24 24" width="14" height="14"><path d="M20 14.6A8.5 8.5 0 0 1 9.4 4a8.5 8.5 0 1 0 10.6 10.6z" fill="currentColor"/></svg>
+          </span>
+        </button>
+      </div>
+      <div class="opt-row" data-row="schlicht">
+        <button class="opt" type="button" data-design-opt="schlicht" aria-pressed="false">
+          <span class="pv pv-schlicht" aria-hidden="true">Aa<i></i></span>
+          <span><b>Schlicht</b><small>Ruhig, viel Luft</small></span>
+          <span class="tick" aria-hidden="true">✓</span>
+        </button>
+        <button class="mode-sw" type="button" role="switch" aria-checked="false" aria-label="Dunkler Modus" tabindex="-1">
+          <span class="knob" aria-hidden="true">
+            <svg class="ms-sun" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="4.2" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></g></svg>
+            <svg class="ms-moon" viewBox="0 0 24 24" width="14" height="14"><path d="M20 14.6A8.5 8.5 0 0 1 9.4 4a8.5 8.5 0 1 0 10.6 10.6z" fill="currentColor"/></svg>
+          </span>
+        </button>
+      </div>
+      <div class="opt-row" data-row="nachtpapier">
+        <button class="opt" type="button" data-design-opt="nachtpapier" aria-pressed="false">
+          <span class="pv pv-nachtpapier" aria-hidden="true">Aa<i></i></span>
+          <span><b>Nachtpapier</b><small>Papier &amp; Farbe mit Mond &amp; Sternen</small></span>
+          <span class="tick" aria-hidden="true">✓</span>
+        </button>
+        <button class="mode-sw" type="button" role="switch" aria-checked="false" aria-label="Dunkler Modus" tabindex="-1">
+          <span class="knob" aria-hidden="true">
+            <svg class="ms-sun" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="4.2" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></g></svg>
+            <svg class="ms-moon" viewBox="0 0 24 24" width="14" height="14"><path d="M20 14.6A8.5 8.5 0 0 1 9.4 4a8.5 8.5 0 1 0 10.6 10.6z" fill="currentColor"/></svg>
+          </span>
+        </button>
+      </div>
+      <div class="opt-row" data-row="kalligraphie">
+        <button class="opt" type="button" data-design-opt="kalligraphie" aria-pressed="false">
+          <span class="pv pv-kalligraphie" aria-hidden="true">Aa<i></i></span>
+          <span><b>Kalligraphie</b><small>Tusche, Feder &amp; rotes Siegel</small></span>
+          <span class="tick" aria-hidden="true">✓</span>
+        </button>
+        <button class="mode-sw" type="button" role="switch" aria-checked="false" aria-label="Dunkler Modus" tabindex="-1">
+          <span class="knob" aria-hidden="true">
+            <svg class="ms-sun" viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="4.2" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></g></svg>
+            <svg class="ms-moon" viewBox="0 0 24 24" width="14" height="14"><path d="M20 14.6A8.5 8.5 0 0 1 9.4 4a8.5 8.5 0 1 0 10.6 10.6z" fill="currentColor"/></svg>
+          </span>
+        </button>
+      </div>
+      <p>Gilt für alle Seiten und wird auf diesem Gerät gespeichert. Hell oder dunkel merkt sich jedes Design einzeln.</p>
     </div>
   </header>
 
@@ -1405,15 +1546,42 @@
       var btn = document.getElementById('designBtn');
       var menu = document.getElementById('designMenu');
       var opts = menu.querySelectorAll('[data-design-opt]');
+      var rows = menu.querySelectorAll('.opt-row');
+      var reduceMenu = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
       function showCurrent() {
         var cur = NessieDesign.get();
+        var mode = NessieDesign.getMode();
         var name = NessieDesign.list[cur].name;
         document.getElementById('designName').textContent = name;
-        document.getElementById('footDesign').textContent = 'Design: ' + name;
+        document.getElementById('footDesign').textContent = 'Design: ' + name + (mode === 'dark' ? ' · dunkel' : ' · hell');
         opts.forEach(function (o) { o.setAttribute('aria-pressed', String(o.getAttribute('data-design-opt') === cur)); });
+        rows.forEach(function (r) {
+          var id = r.getAttribute('data-row');
+          var on = id === cur;
+          var m = on ? mode : NessieDesign.modeOf(id);
+          var sw = r.querySelector('.mode-sw');
+          r.classList.toggle('on', on);
+          r.classList.toggle('alt', m !== NessieDesign.list[id].native);
+          sw.setAttribute('aria-checked', String(m === 'dark'));
+          sw.tabIndex = on ? 0 : -1;
+          if (on) sw.removeAttribute('aria-hidden'); else sw.setAttribute('aria-hidden', 'true');
+        });
         tick();
       }
+
+      // Hell ↔ dunkel: erst gleitet der Knopf, dann breitet sich das neue Licht vom Regler aus
+      menu.querySelectorAll('.mode-sw').forEach(function (sw) {
+        sw.addEventListener('click', function (e) {
+          e.stopPropagation();
+          var next = NessieDesign.getMode() === 'dark' ? 'light' : 'dark';
+          sw.setAttribute('aria-checked', String(next === 'dark'));
+          var r = sw.getBoundingClientRect();
+          setTimeout(function () {
+            NessieDesign.setMode(next, { x: r.left + r.width / 2, y: r.top + r.height / 2 });
+          }, reduceMenu ? 0 : 280);
+        });
+      });
 
       function open() {
         NessieDesign.preload();

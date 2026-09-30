@@ -66,8 +66,8 @@
       --m-diabetiker: var(--t-n1);
     }
 
-    /* Auf hellem Grund brauchen die Vermerk-Farben mehr Kraft */
-    html:is([data-design="papier"], [data-design="schlicht"], [data-design="kalligraphie"]) {
+    /* Auf hellem Grund (jedes Design im hellen Modus) brauchen die Vermerk-Farben mehr Kraft */
+    html[data-mode="light"] {
       --t-klub: #0a86a6;
       --t-seminar: #b86200;
       --t-hw: #1f8f4e;
@@ -83,17 +83,17 @@
       --a-krank: #cf3a4e;
       --a-sonderurlaub: #1f6fb2;
     }
-    html[data-design="papier"] {
+    html[data-design="papier"][data-mode="light"] {
       --day-work: #ffffff;
       --day-special: #faf6ee;
     }
-    html[data-design="kalligraphie"] {
+    html[data-design="kalligraphie"][data-mode="light"] {
       --day-work: #fffdf8;
       --day-special: #f3eee3;
     }
     html[data-design="raster"] {
-      --day-work: rgba(239, 238, 232, 0.045);
-      --day-special: rgba(239, 238, 232, 0.02);
+      --day-work: color-mix(in srgb, var(--n-text) 4.5%, transparent);
+      --day-special: color-mix(in srgb, var(--n-text) 2%, transparent);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }

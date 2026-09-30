@@ -849,7 +849,7 @@
     }
     .notes.calm .note { animation: none; }
     .note.pin { border-color: color-mix(in srgb, var(--n-accent) 55%, transparent); background: color-mix(in srgb, var(--n-accent) 7%, var(--n-surface)); }
-    html:is([data-design="papier"], [data-design="schlicht"], [data-design="kalligraphie"]) .note.pin { background: #fff7d6; }
+    html[data-mode="light"] .note.pin { background: #fff7d6; }
     .note-text { font-size: 0.95rem; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
     .note-text a { color: var(--n-accent-2); }
     .note-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--n-line); }

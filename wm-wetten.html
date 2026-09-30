@@ -77,13 +77,13 @@
     .hero h1{ position:relative; margin:12px 0 0; font-family:var(--n-font-display); font-size:2.2em; font-weight:var(--n-display-weight); font-stretch:var(--n-display-stretch); text-transform:var(--n-display-case); letter-spacing:var(--n-display-track); line-height:1.05; }
     .hero p{ position:relative; margin:6px 0 0; color:var(--muted); font-size:0.95em; }
     html[data-design="loch"] .hero h1{ font-weight:300; font-size:2.5em; }
-    html[data-design="papier"] .hero{ background:var(--n-app); color:#fff; border-color:transparent; }
-    html[data-design="papier"] .hero p{ color:rgba(255,255,255,.85); }
-    html[data-design="papier"] .hero::after{ border-color:rgba(255,255,255,.12); }
+    html[data-mode="light"]:is([data-design="papier"], [data-design="nachtpapier"]) .hero{ background:var(--n-app); color:#fff; border-color:transparent; }
+    html[data-mode="light"]:is([data-design="papier"], [data-design="nachtpapier"]) .hero p{ color:rgba(255,255,255,.85); }
+    html[data-mode="light"]:is([data-design="papier"], [data-design="nachtpapier"]) .hero::after{ border-color:rgba(255,255,255,.12); }
     html[data-design="raster"] .hero{ background:transparent; }
-    html[data-design="nachtpapier"] .hero{ background:color-mix(in oklab, var(--n-app) 40%, #1c1b18); border-color:color-mix(in srgb, var(--n-accent) 22%, transparent); }
-    html[data-design="nachtpapier"] .hero p{ color:rgba(243,238,228,.75); }
-    html[data-design="nachtpapier"] .hero::after{ border-color:rgba(255,255,255,.07); }
+    html[data-mode="dark"]:is([data-design="papier"], [data-design="nachtpapier"]) .hero{ background:color-mix(in oklab, var(--n-app) 40%, #1c1b18); border-color:color-mix(in srgb, var(--n-accent) 22%, transparent); }
+    html[data-mode="dark"]:is([data-design="papier"], [data-design="nachtpapier"]) .hero p{ color:rgba(243,238,228,.75); }
+    html[data-mode="dark"]:is([data-design="papier"], [data-design="nachtpapier"]) .hero::after{ border-color:rgba(255,255,255,.07); }
     html[data-design="schlicht"] .hero{ background:var(--n-surface); }
     html[data-design="schlicht"] .hero::after{ border-color:color-mix(in srgb, var(--n-accent) 8%, transparent); }
     html[data-design="kalligraphie"] .hero{ background:var(--n-surface); }
