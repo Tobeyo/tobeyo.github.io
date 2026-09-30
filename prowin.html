@@ -47,7 +47,8 @@
   --radius-sm:var(--n-r-sm);
   --safe-b:env(safe-area-inset-bottom,0px);
 }
-html[data-design="papier"]{ --gift:#8a4fc7; --muted-2:#857e72; }
+/* Auf hellem Grund: kräftigeres Lila und etwas dunkleres Grau für Nebensächliches */
+html[data-mode="light"]{ --gift:#8a4fc7; --muted-2:color-mix(in srgb, var(--n-faint) 55%, var(--n-muted)); }
 
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 
