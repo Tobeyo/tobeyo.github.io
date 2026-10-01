@@ -36,7 +36,7 @@ window.NESSIE_DIENSTPLAN = {
       // Eigene Auswertung – der Kalender verlinkt sein Konto-Feld dorthin
       kontoSeite: 'ueberstunden.html',
       // Monats-Soll aus dem Dienstplan ("fiktiv 5-Tage-Woche")
-      soll: { '2026-08': 155.5, '2026-09': 163, '2026-10': 162.5 },
+      soll: { '2026-08': 155.5, '2026-09': 163, '2026-10': 162.5, '2026-11': 155.5 },
       plan: {
         // ---- August 2026 ----
         '2026-08-03': { von: '08:30', bis: '16:30', pause: 0.5, tags: ['Seminar'] },
@@ -119,8 +119,36 @@ window.NESSIE_DIENSTPLAN = {
         '2026-10-27': { von: '07:30', bis: '16:00', pause: 0.5, tags: [] },        // 8,0
         '2026-10-28': { von: '08:30', bis: '18:00', pause: 0.5, tags: [] },        // 9,0
         '2026-10-29': { von: '07:30', bis: '16:00', pause: 0.5, tags: [] },        // 8,0
-        '2026-10-30': { von: '07:30', bis: '14:00', pause: 0.5, tags: [] }         // 6,0
+        '2026-10-30': { von: '07:30', bis: '14:00', pause: 0.5, tags: [] },        // 6,0
         // Sa 31.10. laut Plan dienstfrei
+
+        // ---- November 2026 (Monats-Soll 155,50) ----
+        // So 01.11. Allerheiligen – fällt auf einen Sonntag, nichts angerechnet
+        '2026-11-02': { von: '07:30', bis: '15:30', pause: 0.5, tags: [] },        // 7,5
+        '2026-11-03': { von: '07:30', bis: '15:00', pause: 0.5, tags: [] },        // 7,0
+        '2026-11-04': { von: '08:30', bis: '18:00', pause: 0.5, tags: ['Klub'] },  // 9,0
+        '2026-11-05': { von: '07:30', bis: '15:30', pause: 0.5, tags: [] },        // 7,5
+        '2026-11-06': { von: '07:30', bis: '14:00', pause: 0.5, tags: [] },        // 6,0
+
+        '2026-11-09': { von: '07:30', bis: '16:00', pause: 0.5, tags: [] },        // 8,0
+        '2026-11-10': { von: '08:30', bis: '17:00', pause: 0.5, tags: ['Klub'] },  // 8,0
+        '2026-11-11': { von: '07:30', bis: '16:00', pause: 0.5, tags: [] },        // 8,0
+        '2026-11-12': { von: '07:30', bis: '15:00', pause: 0.5, tags: [] },        // 7,0
+        '2026-11-13': { von: '07:30', bis: '14:00', pause: 0.5, tags: [] },        // 6,0
+
+        '2026-11-16': { von: '07:30', bis: '15:00', pause: 0.5, tags: [] },        // 7,0
+        '2026-11-17': { von: '07:30', bis: '15:30', pause: 0.5, tags: [] },        // 7,5
+        '2026-11-18': { von: '07:30', bis: '16:00', pause: 0.5, tags: [] },        // 8,0
+        '2026-11-19': { von: '07:30', bis: '15:00', pause: 0.5, tags: [] },        // 7,0
+        '2026-11-20': { von: '09:00', bis: '17:00', pause: 0.5, tags: ['Klub'] },  // 7,5
+
+        '2026-11-23': { von: '07:30', bis: '16:00', pause: 0.5, tags: [] },        // 8,0
+        '2026-11-24': { von: '08:30', bis: '17:00', pause: 0.5, tags: ['Klub'] },  // 8,0
+        '2026-11-25': { von: '07:30', bis: '16:00', pause: 0.5, tags: [] },        // 8,0
+        '2026-11-26': { von: '07:30', bis: '15:00', pause: 0.5, tags: [] },        // 7,0
+        '2026-11-27': { von: '07:30', bis: '14:00', pause: 0.5, tags: [] },        // 6,0
+
+        '2026-11-30': { von: '07:30', bis: '15:30', pause: 0.5, tags: [] }         // 7,5
       }
     },
 
