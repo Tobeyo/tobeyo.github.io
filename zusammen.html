@@ -1200,6 +1200,9 @@
   <!-- Mittagsmenüs aus dem Haus (Tobias) – damit abends nicht dasselbe auf den Tisch kommt -->
   <script src="essensplan-daten.js"></script>
 
+  <!-- Startrezepte für „Essen → Unsere Rezepte“ (werden einmal in die Datenbank übernommen) -->
+  <script src="zusammen-rezepte.js"></script>
+
   <!-- ============ Anmeldung ============ -->
   <div class="gate" id="gate">
     <div class="gate-box">
@@ -1446,13 +1449,14 @@
        muell/<id>         { art, start, alle, by, ts }
        ausgaben/<id>      { was, cent, zahlt, teilung, datum, art, by, ts }
        notizen/<id>       { text, pin, by, ts }
+       meta/rezepte       { v, ts }            – Startrezepte schon übernommen
 
      Die Dienste kommen aus "dienstplan-daten.js" plus den
      Änderungen unter "dienstplan/<person>/entries" – hier
      wird nur mitgelesen, nie geschrieben.
      ========================================================= */
 
-  var APP_STAND = '29.09.2026';          // steht unten in der Fusszeile
+  var APP_STAND = '02.10.2026';          // steht unten in der Fusszeile
 
   /* --- FIREBASE-PROJEKT --------------------------------------
      Der Web-API-Schlüssel ist öffentlich und darf hier stehen –
@@ -1466,7 +1470,7 @@
     projectId: 'wm-tippspiel-d4f4f'
   };
   var DB_ROOT = 'zusammen';
-  var COLLS = ['leute', 'tage', 'serien', 'essen', 'ideen', 'einkauf', 'verlauf', 'vorrat', 'aufgaben', 'muell', 'ausgaben', 'notizen'];
+  var COLLS = ['leute', 'tage', 'serien', 'essen', 'ideen', 'einkauf', 'verlauf', 'vorrat', 'aufgaben', 'muell', 'ausgaben', 'notizen', 'meta'];
   // Bereiche der anderen Apps in derselben Datenbank – bleiben in den Regeln offen
   var OFFENE_BEREICHE = ['bets', 'dienstplan', 'arbeitszeiten'];
 
@@ -2096,6 +2100,7 @@
           firstValue = false;
           zeigeApp();
           resolveMe(true);
+          rezepteEinspielen();
           schutzPruefen();
           setTimeout(erinnern, 1500);
         }
@@ -2163,6 +2168,26 @@
   function save(path, val) { var u = {}; u[path] = val; saveMany(u); }
 
   function stamp(o) { o.by = me || ''; o.ts = Date.now(); return o; }
+
+  /* ---------- Startrezepte (zusammen-rezepte.js) ----------
+     Je Version einmal: fehlende Rezepte anlegen und merken, dass es erledigt ist.
+     Danach bleibt alles so, wie ihr es gelöscht oder geändert habt. */
+  function rezepteEinspielen() {
+    var R = window.ZUSAMMEN_REZEPTE;
+    if (!R || !Array.isArray(R.rezepte) || !user) return;
+    if (((D.meta.rezepte || {}).v || 0) >= R.version) return;
+    var u = {}, n = 0;
+    R.rezepte.forEach(function (r) {
+      if (ideaByName(r.name)) return;
+      var o = { name: r.name, portionen: r.portionen, zutaten: r.zutaten.slice() };
+      if (r.anleitung) o.anleitung = r.anleitung;
+      u['ideen/' + r.id] = stamp(o);
+      n++;
+    });
+    u['meta/rezepte'] = { v: R.version, ts: Date.now() };
+    saveMany(u);
+    if (n) toast(n + (n === 1 ? ' Rezept' : ' Rezepte') + ' unter „Unsere Rezepte“ hinzugefügt');
+  }
   function sameFields(a, b, fields) {
     a = a || {}; b = b || {};
     return fields.every(function (f) { return JSON.stringify(a[f] || '') === JSON.stringify(b[f] || ''); });
