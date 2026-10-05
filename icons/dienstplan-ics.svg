@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="g_dienstplan_ics" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0" stop-color="#f48fd8"/>
+      <stop offset="1" stop-color="#b02a8c"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#g_dienstplan_ics)"/>
+    <rect x="120" y="150" width="272" height="246" rx="34" fill="#ffffff"/>
+    <path d="M120 186a36 36 0 0 1 36-36h200a36 36 0 0 1 36 36v34H120z" fill="#b02a8c"/>
+    <g fill="#ffffff">
+      <rect x="176" y="122" width="20" height="56" rx="10"/>
+      <rect x="316" y="122" width="20" height="56" rx="10"/>
+    </g>
+    <g fill="none" stroke="#b02a8c" stroke-width="26" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M256 248v86"/>
+      <path d="M218 300l38 38 38-38"/>
+    </g></svg>
