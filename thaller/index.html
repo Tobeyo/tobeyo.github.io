@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="de" class="n-themed">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Dienste</title>
+  <meta name="description" content="Alle eingetragenen Dienste von ThaJ als Liste.">
+  <!-- Nur über den direkten Link /thaller erreichbar: nicht im Hub, nicht in Suchmaschinen -->
+  <meta name="robots" content="noindex, nofollow">
+
+  <!-- Eigenes App-Manifest & Icons für „Zum Startbildschirm hinzufügen" -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#0b1411" data-design>
+  <link rel="icon" type="image/svg+xml" href="../icons/thaller.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="../icons/thaller-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="../icons/thaller-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../icons/thaller-180.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" data-design>
+  <meta name="apple-mobile-web-app-title" content="Dienste">
+
+  <!-- Gleiche Designs wie die übrigen Apps (Farben, Schriften) -->
+  <script src="../design.js"></script>
+  <link rel="stylesheet" href="../design.css">
+
+  <style>
+    :root {
+      /* Farbe dieser Seite im Design „Papier & Farbe“ */
+      --n-app: #d9581c;
+
+      --c-urlaub: #5ccf8a;
+      --c-code: #ffb454;
+    }
+    html[data-mode="light"] {
+      --c-urlaub: #1f8f4e;
+      --c-code: #b86200;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: var(--n-font);
+      background-color: var(--n-bg);
+      color: var(--n-text);
+      min-height: 100vh;
+      background-image: var(--n-bg-deco);
+      background-attachment: fixed;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      padding-bottom: max(40px, env(safe-area-inset-bottom));
+    }
+    [hidden] { display: none !important; }
+    :focus-visible { outline: 2px solid var(--n-accent-2); outline-offset: 2px; }
+
+    .container {
+      max-width: 620px;
+      margin: 0 auto;
+      padding: 24px 16px 0;
+      padding-top: max(28px, calc(env(safe-area-inset-top) + 16px));
+    }
+
+    /* ---------- Kopf ---------- */
+    .intro { margin: 4px 2px 22px; }
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-family: var(--n-label-font);
+      text-transform: var(--n-label-case);
+      letter-spacing: var(--n-label-track);
+      font-size: 0.78rem;
+      color: var(--n-muted);
+      margin-bottom: 10px;
+    }
+    .intro h1 {
+      font-family: var(--n-font-display);
+      font-weight: var(--n-display-weight);
+      font-stretch: var(--n-display-stretch);
+      text-transform: var(--n-display-case);
+      letter-spacing: var(--n-display-track);
+      font-size: clamp(2rem, 7vw, 2.6rem);
+      line-height: 1.05;
+    }
+
+    /* ---------- Nächster Dienst ---------- */
+    .next {
+      background: var(--n-surface);
+      border: 1px solid var(--n-line);
+      border-radius: var(--n-r-lg);
+      padding: 18px 20px;
+      margin-bottom: 26px;
+      box-shadow: var(--n-shadow);
+      animation: var(--n-enter) 0.6s var(--n-enter-ease) backwards;
+      position: relative;
+      overflow: hidden;
+    }
+    .next::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
+      background: var(--n-accent);
+    }
+    .next .label {
+      font-family: var(--n-label-font);
+      text-transform: var(--n-label-case);
+      letter-spacing: var(--n-label-track);
+      font-size: 0.72rem;
+      color: var(--n-accent);
+      margin-bottom: 8px;
+    }
+    .next .when {
+      font-family: var(--n-font-display);
+      font-weight: var(--n-display-weight);
+      font-stretch: var(--n-display-stretch);
+      text-transform: var(--n-display-case);
+      letter-spacing: var(--n-display-track);
+      font-size: 1.45rem;
+      line-height: 1.15;
+    }
+    .next .time {
+      font-family: var(--n-font-mono);
+      font-size: 1.05rem;
+      margin-top: 6px;
+    }
+    .next .rel { color: var(--n-muted); font-size: 0.88rem; margin-top: 4px; }
+
+    /* ---------- Liste ---------- */
+    .month { margin-bottom: 22px; animation: var(--n-enter) 0.6s var(--n-enter-ease) backwards; }
+    .month h2 {
+      font-family: var(--n-label-font);
+      text-transform: var(--n-label-case);
+      letter-spacing: var(--n-label-track);
+      font-size: 0.74rem;
+      font-weight: 500;
+      color: var(--n-muted);
+      margin: 0 4px 8px;
+    }
+    .rows {
+      list-style: none;
+      background: var(--n-surface);
+      border: 1px solid var(--n-line);
+      border-radius: var(--n-r-lg);
+      overflow: hidden;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 5.4rem 1fr auto;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      min-height: 52px;
+    }
+    .row + .row { border-top: 1px solid var(--n-line); }
+    .row .day { display: flex; align-items: baseline; gap: 7px; }
+    .row .day b { font-weight: 600; width: 1.9em; flex-shrink: 0; }
+    .row .day span { color: var(--n-muted); font-variant-numeric: tabular-nums; }
+    .row .what { font-family: var(--n-font-mono); font-variant-numeric: tabular-nums; }
+    .row.urlaub .what,
+    .row.code .what { font-family: var(--n-font); font-weight: 500; }
+    .row.urlaub .what { color: var(--c-urlaub); }
+    .row.code .what { color: var(--c-code); }
+    .row.weekend .day b { color: var(--n-accent); }
+
+    .badge {
+      font-family: var(--n-label-font);
+      text-transform: var(--n-label-case);
+      letter-spacing: var(--n-label-track);
+      font-size: 0.68rem;
+      padding: 4px 9px;
+      border-radius: var(--n-r-pill);
+      background: var(--n-active-bg);
+      color: var(--n-active-fg);
+      white-space: nowrap;
+    }
+    html[data-design="raster"] .badge { border-radius: 0; }
+    .row.today { background: var(--n-surface-2); }
+    .row.past { opacity: 0.5; }
+
+    /* ---------- Vergangene Dienste (eingeklappt) ---------- */
+    .past-box { margin-bottom: 22px; }
+    .past-box > summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 16px;
+      border: 1px dashed var(--n-line-2);
+      border-radius: var(--n-r-lg);
+      color: var(--n-muted);
+      font-size: 0.92rem;
+    }
+    .past-box > summary::-webkit-details-marker { display: none; }
+    .past-box > summary::after { content: "▾"; transition: transform 0.3s var(--n-ease); }
+    .past-box[open] > summary { margin-bottom: 16px; }
+    .past-box[open] > summary::after { transform: rotate(180deg); }
+
+    .empty {
+      text-align: center;
+      color: var(--n-muted);
+      padding: 40px 16px;
+      border: 1px dashed var(--n-line-2);
+      border-radius: var(--n-r-lg);
+    }
+    .foot {
+      text-align: center;
+      color: var(--n-faint);
+      font-size: 0.8rem;
+      line-height: 1.6;
+      margin-top: 28px;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="container">
+    <header class="intro">
+      <p class="eyebrow"><img class="n-app-icon" src="../icons/thaller.svg" alt=""> <span id="who">ThaJ</span></p>
+      <h1>Dienste</h1>
+    </header>
+
+    <section class="next" id="next" hidden aria-live="polite"></section>
+
+    <details class="past-box" id="pastBox" hidden>
+      <summary id="pastSummary"></summary>
+      <div id="pastList"></div>
+    </details>
+
+    <div id="list"></div>
+    <p class="empty" id="empty" hidden>Noch keine Dienste eingetragen.</p>
+
+    <footer class="foot" id="foot"></footer>
+  </main>
+
+  <!-- Gemeinsame Datenbasis – neue Monate werden nur dort eingetragen -->
+  <script src="../kollegen-daten.js"></script>
+  <script>
+  (function () {
+    'use strict';
+
+    /* Die Dienste kommen aus "kollegen-daten.js" (Sollplan des Teams).
+       Gezeigt wird nur die eine Person mit diesem Kürzel – sonst nichts. */
+    var KURZ = 'ThaJ';
+
+    var SHIFT_RE = /^(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})$/;
+    var WD = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+    var WD_LONG = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+    var MONTHS = ['Jänner', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli',
+                  'August', 'September', 'Oktober', 'November', 'Dezember'];
+    var CODES = { U: 'Urlaub' };
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+    function pad(n) { return (n < 10 ? '0' : '') + n; }
+    function keyOf(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+    function dateOf(key) { var p = key.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
+    function minutes(hhmm) { var p = hhmm.split(':'); return +p[0] * 60 + +p[1]; }
+
+    // Person (und ihr Team) in den Kollegen-Daten suchen
+    function find() {
+      var teams = (window.NESSIE_KOLLEGEN && window.NESSIE_KOLLEGEN.teams) || {};
+      for (var id in teams) {
+        var leute = (teams[id] && teams[id].leute) || [];
+        for (var i = 0; i < leute.length; i++) {
+          if (leute[i] && leute[i].kurz === KURZ) return { team: teams[id], person: leute[i] };
+        }
+      }
+      return null;
+    }
+
+    function entries(person) {
+      var tage = person.tage || {};
+      return Object.keys(tage).sort().map(function (key) {
+        var v = String(tage[key]).trim();
+        var e = { key: key, date: dateOf(key) };
+        var m = SHIFT_RE.exec(v);
+        if (m) { e.kind = 'dienst'; e.von = m[1]; e.bis = m[2]; }
+        else if (v === 'U') { e.kind = 'urlaub'; e.txt = CODES.U; }
+        else { e.kind = 'code'; e.txt = CODES[v] || v; }
+        return e;
+      });
+    }
+
+    // Vorbei = früherer Tag, oder heute und der Dienst ist schon zu Ende
+    function isPast(e, todayKey, nowMin) {
+      if (e.key < todayKey) return true;
+      return e.key === todayKey && e.kind === 'dienst' && minutes(e.bis) <= nowMin;
+    }
+
+    function what(e) {
+      return e.kind === 'dienst' ? escapeHtml(e.von) + ' – ' + escapeHtml(e.bis) : escapeHtml(e.txt);
+    }
+
+    function rowHtml(e, todayKey, past, nextKey) {
+      var wd = e.date.getDay();
+      var cls = ['row', e.kind];
+      if (wd === 0 || wd === 6) cls.push('weekend');
+      if (past) cls.push('past');
+      if (e.key === todayKey) cls.push('today');
+      var badge = '';
+      if (e.key === todayKey) badge = '<span class="badge">Heute</span>';
+      else if (e.key === nextKey) badge = '<span class="badge">Nächster</span>';
+      return '<li class="' + cls.join(' ') + '">' +
+        '<span class="day"><b>' + WD[wd] + '</b><span>' + pad(e.date.getDate()) + '.' + pad(e.date.getMonth() + 1) + '.</span></span>' +
+        '<span class="what">' + what(e) + '</span>' + badge + '</li>';
+    }
+
+    // Nach Monaten gruppiert, in der Reihenfolge des Plans
+    function monthsHtml(list, todayKey, past, nextKey) {
+      var html = '', cur = null;
+      list.forEach(function (e) {
+        var mk = e.key.slice(0, 7);
+        if (mk !== cur) {
+          if (cur) html += '</ul></section>';
+          cur = mk;
+          html += '<section class="month"><h2>' + MONTHS[e.date.getMonth()] + ' ' + e.date.getFullYear() +
+            '</h2><ul class="rows">';
+        }
+        html += rowHtml(e, todayKey, past, nextKey);
+      });
+      if (cur) html += '</ul></section>';
+      return html;
+    }
+
+    function relDays(from, to) {
+      var d = Math.round((to - from) / 86400000);
+      if (d === 0) return 'heute';
+      if (d === 1) return 'morgen';
+      if (d === 2) return 'übermorgen';
+      return 'in ' + d + ' Tagen';
+    }
+
+    var elNext = document.getElementById('next');
+    var elPastBox = document.getElementById('pastBox');
+    var elPastSummary = document.getElementById('pastSummary');
+    var elPastList = document.getElementById('pastList');
+    var elList = document.getElementById('list');
+    var elEmpty = document.getElementById('empty');
+    var elFoot = document.getElementById('foot');
+
+    function render() {
+      var found = find();
+      var all = found ? entries(found.person) : [];
+
+      var now = new Date();
+      var todayKey = keyOf(now);
+      var today = dateOf(todayKey);
+      var nowMin = now.getHours() * 60 + now.getMinutes();
+
+      var past = [], coming = [];
+      all.forEach(function (e) { (isPast(e, todayKey, nowMin) ? past : coming).push(e); });
+
+      var next = null;
+      for (var i = 0; i < coming.length; i++) {
+        if (coming[i].kind === 'dienst') { next = coming[i]; break; }
+      }
+
+      // Nächster Dienst groß oben
+      if (next) {
+        var running = next.key === todayKey && minutes(next.von) <= nowMin;
+        elNext.innerHTML =
+          '<p class="label">' + (running ? 'Gerade im Dienst' : 'Nächster Dienst') + '</p>' +
+          '<p class="when">' + WD_LONG[next.date.getDay()] + ', ' + next.date.getDate() + '. ' +
+            MONTHS[next.date.getMonth()] + '</p>' +
+          '<p class="time">' + what(next) + '</p>' +
+          '<p class="rel">' + (running ? 'bis ' + escapeHtml(next.bis) : relDays(today, next.date)) + '</p>';
+      }
+      elNext.hidden = !next;
+
+      // Vergangene eingeklappt, kommende offen
+      elPastBox.hidden = !past.length;
+      elPastSummary.textContent = 'Vergangene Dienste (' + past.length + ')';
+      elPastList.innerHTML = monthsHtml(past, todayKey, true, null);
+      elList.innerHTML = monthsHtml(coming, todayKey, false, next && next.key !== todayKey ? next.key : null);
+      elEmpty.hidden = !!coming.length;
+      if (!coming.length && all.length) elEmpty.textContent = 'Keine weiteren Dienste eingetragen.';
+
+      // Wie weit der Plan des Teams schon reicht
+      var last = '';
+      if (found) {
+        (found.team.leute || []).forEach(function (k) {
+          Object.keys((k && k.tage) || {}).forEach(function (d) { if (d > last) last = d; });
+        });
+      }
+      elFoot.textContent = last
+        ? 'Plan eingetragen bis Ende ' + MONTHS[dateOf(last).getMonth()] + ' ' + dateOf(last).getFullYear()
+        : '';
+    }
+
+    render();
+
+    // Wieder geöffnet (auch am nächsten Tag): Liste neu einordnen
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) render(); });
+    window.addEventListener('pageshow', function (e) { if (e.persisted) render(); });
+  })();
+  </script>
+</body>
+</html>

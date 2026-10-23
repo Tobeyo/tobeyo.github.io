@@ -5,6 +5,11 @@
    nur bei Personen, die hier unter "teams" stehen – also nur
    bei Tobias, nicht bei Daniel.
 
+   Außerdem liest "thaller/index.html" (nur über den Link
+   /thaller erreichbar, nicht im Hub) die Zeile mit dem Kürzel
+   „ThaJ“ und zeigt daraus die Dienstliste – das Kürzel also
+   nicht umbenennen.
+
    Quelle ist der Sollplan aus CGM ON DUTY („Tag.Familie BRI“).
 
    DATENSCHUTZ: Hier stehen nie volle Namen, nur Kürzel –
