@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="g_thaller" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0" stop-color="#ffb067"/>
+      <stop offset="1" stop-color="#d9581c"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#g_thaller)"/>
+    <rect x="130" y="132" width="252" height="248" rx="34" fill="#ffffff"/>
+    <path d="M130 168a38 38 0 0 1 38-36h176a38 38 0 0 1 38 36v34H130z" fill="#d9581c"/>
+    <g fill="#ffffff">
+      <rect x="184" y="108" width="20" height="56" rx="10"/>
+      <rect x="308" y="108" width="20" height="56" rx="10"/>
+    </g>
+    <g fill="#d9581c">
+      <circle cx="180" cy="246" r="14"/>
+      <rect x="210" y="236" width="128" height="20" rx="10"/>
+      <circle cx="180" cy="292" r="14" opacity="0.55"/>
+      <rect x="210" y="282" width="108" height="20" rx="10" opacity="0.55"/>
+      <circle cx="180" cy="338" r="14" opacity="0.3"/>
+      <rect x="210" y="328" width="118" height="20" rx="10" opacity="0.3"/>
+    </g></svg>
