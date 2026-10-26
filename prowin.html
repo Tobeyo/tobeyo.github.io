@@ -511,7 +511,6 @@ html[data-design="raster"] .sw::after{border-radius:0}
         <input id="lagerSearch" type="text" placeholder="🔍 Im Lager suchen…" autocomplete="off">
         <div class="tag-row" style="margin-top:11px" id="lagerFilter">
           <button class="tag active" data-f="alle">Alle</button>
-          <button class="tag" data-f="nach">Nachbestellen</button>
           <button class="tag" data-f="leer">Leer</button>
           <button class="tag" data-f="da">Vorrätig</button>
         </div>
@@ -566,10 +565,6 @@ html[data-design="raster"] .sw::after{border-radius:0}
       <div class="sec">
         <div class="sec-h"><h2>Beste Kundinnen</h2></div>
         <div class="list" id="topKunden"></div>
-      </div>
-      <div class="sec">
-        <div class="sec-h"><h2>Nachbestellen</h2><span class="sub">unter Mindestbestand</span></div>
-        <div class="list" id="nachbestellen"></div>
       </div>
       <div class="sec">
         <div class="sec-h"><h2>Wo das Geld hingeht</h2></div>
@@ -699,7 +694,7 @@ let D = { prod:{}, book:{} };           // abgeleitete Werte
 let db = null, dbReady = false;
 let aktiveView = 'buchen';
 
-const defaults = { ekFaktor:0.376, minBestand:2, pin:'', ready:false };
+const defaults = { ekFaktor:0.376, pin:'', ready:false };
 const setting = k => (S.settings && S.settings[k] !== undefined && S.settings[k] !== '') ? S.settings[k] : defaults[k];
 
 const products  = () => Object.entries(S.products||{}).map(([id,p]) => ({...p, id}));
@@ -813,12 +808,9 @@ function ekWert(pid){
   if(p.ekStart != null && p.ekStart !== '') return Number(p.ekStart)||0;
   return (Number(p.listenpreis)||0) * setting('ekFaktor');
 }
-function minBestand(p){
-  return (p.minBestand != null && p.minBestand !== '') ? Number(p.minBestand) : setting('minBestand');
-}
 
 /* Ein Produkt zaehlt erst als "gefuehrt", wenn es schon einmal bewegt wurde.
-   Sonst wuerde ein frisch angelegter Katalog lauter falsche Nachbestell-Warnungen erzeugen. */
+   Sonst wuerde ein frisch angelegter Katalog lauter falsche "ausverkauft"-Meldungen erzeugen. */
 function imSortiment(pid){
   const a = D.prod[pid];
   if(!a) return false;
@@ -870,7 +862,7 @@ function kennzahlen(von, bis){
 }
 
 function lagerKennzahlen(){
-  let wertEk = 0, wertVk = 0, stueck = 0, artikel = 0, gefuehrt = 0, nach = 0, leer = 0;
+  let wertEk = 0, wertVk = 0, stueck = 0, artikel = 0, gefuehrt = 0, leer = 0;
   for(const p of products()){
     if(p.aktiv === false) continue;
     const q = bestand(p.id);
@@ -879,9 +871,8 @@ function lagerKennzahlen(){
     if(!imSortiment(p.id)) continue;      // nie bewegt = noch kein Sortiment
     gefuehrt++;
     if(q <= 0) leer++;
-    else if(q < minBestand(p)) nach++;
   }
-  return {wertEk, wertVk, stueck, artikel, gefuehrt, nach, leer};
+  return {wertEk, wertVk, stueck, artikel, gefuehrt, leer};
 }
 </script>
 
@@ -1378,7 +1369,7 @@ const prodSuche = setupSuche('prodSearch','prodResults', q => {
   });
   const out = liste.slice(0,40).map(p => {
     const b = bestand(p.id);
-    const cls = b <= 0 ? 'bad' : (b < minBestand(p) ? 'warn' : 'ok');
+    const cls = b <= 0 ? 'bad' : 'ok';
     return {
       id: p.id,
       html: `<span>${esc(p.name)}</span> <span class="badge ${cls}" style="margin-left:6px">${stk(b)}</span>`,
@@ -1625,7 +1616,6 @@ function renderLager(){
   $('lagerKpis').innerHTML = `
     <div class="kpi"><div class="k">📦 Lagerwert</div><div class="v">${eur0(l.wertEk)}</div><div class="s">zum Einkaufspreis</div></div>
     <div class="kpi info"><div class="k">🏷️ Verkaufswert</div><div class="v">${eur0(l.wertVk)}</div><div class="s">${stk(l.stueck)} Stück auf Lager</div></div>
-    <div class="kpi ${l.nach?'warn':''}"><div class="k">🔁 Nachbestellen</div><div class="v">${l.nach}</div><div class="s">unter Mindestbestand</div></div>
     <div class="kpi ${l.leer?'bad':''}"><div class="k">🚫 Ausverkauft</div><div class="v">${l.leer}</div><div class="s">von ${l.gefuehrt} geführten Artikeln</div></div>`;
 
   const q = $('lagerSearch').value.trim();
@@ -1633,7 +1623,6 @@ function renderLager(){
   if(q) liste = liste.filter(p => passt(p.name + ' ' + (p.kat||''), q));
   liste = liste.filter(p => {
     const b = bestand(p.id);
-    if(lagerFilterAkt === 'nach') return imSortiment(p.id) && b > 0 && b < minBestand(p);
     if(lagerFilterAkt === 'leer') return imSortiment(p.id) && b <= 0;
     if(lagerFilterAkt === 'da')   return b > 0;
     return true;
@@ -1647,18 +1636,18 @@ function renderLager(){
     return;
   }
   el.innerHTML = liste.map(p => {
-    const b = bestand(p.id), mb = minBestand(p), ek = ekWert(p.id);
-    const cls = b <= 0 ? 'bad' : (b < mb ? 'warn' : 'ok');
+    const b = bestand(p.id), ek = ekWert(p.id);
+    const cls = b <= 0 ? 'bad' : 'ok';
     const a = D.prod[p.id] || {};
     return `<button class="item" data-p="${p.id}">
-        <div class="avatar" style="font-size:.95rem;font-weight:700;color:${b<=0?'var(--danger)':(b<mb?'var(--warn)':'var(--ok)')}">${stk(b)}</div>
+        <div class="avatar" style="font-size:.95rem;font-weight:700;color:${b<=0?'var(--danger)':'var(--ok)'}">${stk(b)}</div>
         <div class="main">
           <div class="t">${esc(p.name)}${p.aktiv===false?' <span class="badge mut">inaktiv</span>':''}</div>
           <div class="d">${eur(p.listenpreis||0)} · EK ${eur(ek)}${a.verkauftStk?' · '+stk(a.verkauftStk)+'× verkauft':''}</div>
         </div>
         <div class="right">
           <div class="r1">${eur(Math.max(b,0) * ek)}</div>
-          <div class="r2"><span class="badge ${cls}">${b<=0?'leer':(b<mb?'knapp':'ok')}</span></div>
+          <div class="r2"><span class="badge ${cls}">${b<=0?'leer':'ok'}</span></div>
         </div>
       </button>`;
   }).join('');
@@ -1670,6 +1659,8 @@ $('neuProdBtn').onclick = () => produktModal(null);
 function produktModal(pid, vorschlagName, danach){
   const p = pid ? produkt(pid) : null;
   const neu = !p;
+  // Beim Anlegen aus dem Buchen heraus setzt die Buchung selbst den Bestand
+  const mitBestand = neu && !danach;
   const name = p ? p.name : (vorschlagName || '');
   const katVorschlag = /^kundengeschenk/i.test(name) ? 'Kundengeschenk' : (p ? (p.kat||'Sonstiges') : 'Reinigung');
   const b = pid ? bestand(pid) : 0;
@@ -1690,9 +1681,9 @@ function produktModal(pid, vorschlagName, danach){
       <div class="frow"><label class="fl">Listenpreis (Verkauf)</label><input id="pLp" inputmode="decimal" value="${p&&p.listenpreis!=null?String(p.listenpreis).replace('.',','):''}" placeholder="0,00"></div>
       <div class="frow"><label class="fl">Einkaufspreis</label><input id="pEk" inputmode="decimal" value="${p&&p.ekStart!=null&&p.ekStart!==''?String(p.ekStart).replace('.',','):''}" placeholder="wird berechnet"></div>
     </div>
-    <div class="grid2">
+    <div class="${mitBestand?'grid2':''}">
       <div class="frow"><label class="fl">Kategorie</label><select id="pKat">${KATEGORIEN.map(k=>`<option${k===katVorschlag?' selected':''}>${k}</option>`).join('')}</select></div>
-      <div class="frow"><label class="fl">Mindestbestand</label><input id="pMin" inputmode="numeric" value="${p&&p.minBestand!=null&&p.minBestand!==''?p.minBestand:''}" placeholder="${setting('minBestand')}"></div>
+      ${mitBestand?`<div class="frow"><label class="fl">Bestand (Stück)</label><input id="pBest" inputmode="decimal" placeholder="0"></div>`:''}
     </div>
     <p class="hint" id="ekHint"></p>
     ${!neu?`<div class="switch" id="pAktivRow"><div><div class="sw-t">Aktiv</div><div class="sw-d">Inaktive Produkte tauchen beim Buchen nicht mehr auf.</div></div>
@@ -1720,21 +1711,25 @@ function produktModal(pid, vorschlagName, danach){
     if(!n) return toast('Bitte eine Bezeichnung eingeben.','err');
     const doppelt = products().find(x => x.id !== pid && x.name.toLowerCase() === n.toLowerCase());
     if(doppelt) return toast('Es gibt schon ein Produkt mit diesem Namen.','err');
+    const menge = mitBestand ? inputNum($('pBest').value, 0) : 0;
+    if(menge < 0) return toast('Der Bestand kann nicht negativ sein.','err');
     const ekRoh = $('pEk').value.trim();
-    const minRoh = $('pMin').value.trim();
     const obj = {
       name: n,
       kat: $('pKat').value,
       listenpreis: inputNum($('pLp').value, 0),
       ekStart: ekRoh === '' ? '' : inputNum(ekRoh, 0),
-      minBestand: minRoh === '' ? '' : inputNum(minRoh, 0),
       aktiv: $('pAktiv') ? $('pAktiv').classList.contains('on') : true,
       ts: p ? (p.ts || Date.now()) : Date.now()
     };
     const id = pid || uid();
     await speichere('products/' + id, obj);
+    if(menge > 0) await speichere('bookings/' + uid(), {
+      ts: Date.now(), typ:'korrektur', summe:0, notiz:'Anfangsbestand',
+      items:[{ pid:id, name:n, menge, preis:0 }]
+    });
     modalZu();
-    toast(neu ? 'Produkt angelegt' : 'Gespeichert');
+    toast(neu ? (menge > 0 ? `Produkt angelegt · ${stk(menge)} Stück eingebucht` : 'Produkt angelegt') : 'Gespeichert');
     if(danach) danach({...obj, id});
   };
 
@@ -2159,17 +2154,6 @@ function renderAuswertung(){
     </button>`).join('') : '<div class="empty"><span class="e-ic">👥</span><p>Noch keine Verkäufe mit Kundin in diesem Zeitraum.</p></div>';
   $$('[data-c2]').forEach(b => b.onclick = () => kundenModal(b.dataset.c2));
 
-  // Nachbestellen
-  const nach = products().filter(p => p.aktiv !== false && imSortiment(p.id) && bestand(p.id) < minBestand(p))
-    .map(p => ({...p, b: bestand(p.id), verkauft: (D.prod[p.id]||{}).verkauftStk || 0}))
-    .sort((a,b) => b.verkauft - a.verkauft || a.b - b.b);
-  $('nachbestellen').innerHTML = nach.length ? nach.slice(0,20).map(p => `<button class="item" data-p2="${p.id}">
-      <div class="avatar" style="color:${p.b<=0?'var(--danger)':'var(--warn)'};font-weight:700;font-size:.95rem">${stk(p.b)}</div>
-      <div class="main"><div class="t">${esc(p.name)}</div><div class="d">${p.verkauft?stk(p.verkauft)+'× verkauft bisher':'noch nie verkauft'} · Mindestbestand ${stk(minBestand(p))}</div></div>
-      <div class="right"><div class="r1">${eur(ekWert(p.id))}</div><div class="r2">Einkauf</div></div>
-    </button>`).join('') : '<div class="empty"><span class="e-ic">✅</span><p>Alles ausreichend auf Lager. Hier tauchen nur Produkte auf, die du schon einmal eingekauft oder verkauft hast.</p></div>';
-  $$('[data-p2]').forEach(b => b.onclick = () => produktModal(b.dataset.p2));
-
   // Geldfluss
   $('geldFluss').innerHTML = `
     <div class="stat-row"><span>Umsatz (verkauft)</span><b style="color:var(--ok)">+ ${eur(k.umsatz)}</b></div>
@@ -2194,10 +2178,7 @@ $('settingsBtn').onclick = () => einstellungenModal();
 
 function einstellungenModal(){
   modalAuf(kopf('Einstellungen') + `
-    <div class="grid2">
-      <div class="frow"><label class="fl">Einkaufsfaktor</label><input id="sFaktor" inputmode="decimal" value="${String(setting('ekFaktor')).replace('.',',')}"></div>
-      <div class="frow"><label class="fl">Mindestbestand</label><input id="sMin" inputmode="numeric" value="${setting('minBestand')}"></div>
-    </div>
+    <div class="frow"><label class="fl">Einkaufsfaktor</label><input id="sFaktor" inputmode="decimal" value="${String(setting('ekFaktor')).replace('.',',')}"></div>
     <p class="hint">Der Faktor schätzt den Einkaufspreis aus dem Listenpreis, solange es für ein Produkt noch keinen echten Einkauf gibt.
     ${(setting('ekFaktor')*100).toFixed(1).replace('.',',')} % heißt: ein Produkt um 29,90 € kostet dich ${eur(29.9*setting('ekFaktor'))}.</p>
 
@@ -2238,7 +2219,6 @@ function einstellungenModal(){
   $('sSave').onclick = async () => {
     await speichere('settings', {
       ekFaktor: inputNum($('sFaktor').value, defaults.ekFaktor),
-      minBestand: inputNum($('sMin').value, defaults.minBestand),
       pin: $('sPin').value.trim(),
       ready: true
     });
@@ -2309,12 +2289,12 @@ function exportVerlauf(){
 }
 
 function exportLager(){
-  const zeilen = [['Produkt','Kategorie','Bestand','Listenpreis','Ø Einkaufspreis','Lagerwert Einkauf','Lagerwert Verkauf','Mindestbestand','Verkauft gesamt','Umsatz gesamt','Aktiv']];
+  const zeilen = [['Produkt','Kategorie','Bestand','Listenpreis','Ø Einkaufspreis','Lagerwert Einkauf','Lagerwert Verkauf','Verkauft gesamt','Umsatz gesamt','Aktiv']];
   for(const p of products().sort((a,b) => a.name.localeCompare(b.name,'de'))){
     const b = bestand(p.id), ek = ekWert(p.id), a = D.prod[p.id] || {};
     zeilen.push([p.name, p.kat||'', stk(b), csvZahl(p.listenpreis), csvZahl(ek),
       csvZahl(Math.max(b,0)*ek), csvZahl(Math.max(b,0)*(p.listenpreis||0)),
-      stk(minBestand(p)), stk(a.verkauftStk||0), csvZahl(a.verkauftUmsatz||0), p.aktiv===false?'nein':'ja']);
+      stk(a.verkauftStk||0), csvZahl(a.verkauftUmsatz||0), p.aktiv===false?'nein':'ja']);
   }
   download('prowin-lager-' + new Date().toISOString().slice(0,10) + '.csv',
     zeilen.map(z => z.map(csvFeld).join(';')).join('\r\n'), 'text/csv');
@@ -2353,7 +2333,7 @@ function importModal(){
     for(const p of l){
       if(products().some(x => nameKey(x.name) === nameKey(p.name))) continue;
       await speichere('products/' + uid(), {
-        name: p.name, listenpreis: p.lp, ekStart: p.ek, minBestand: '',
+        name: p.name, listenpreis: p.lp, ekStart: p.ek,
         kat: /^kundengeschenk/i.test(p.name) ? 'Kundengeschenk' : 'Sonstiges',
         aktiv: true, ts: Date.now()
       });
@@ -2395,7 +2375,7 @@ function seedModal(){
     for(const s of neu){
       if(products().some(p => nameKey(p.name) === nameKey(s[0]))) continue;
       await speichere('products/' + uid(), {
-        name: s[0], listenpreis: s[1], ekStart:'', minBestand:'',
+        name: s[0], listenpreis: s[1], ekStart:'',
         kat: /^kundengeschenk/i.test(s[0]) ? 'Kundengeschenk' : 'Reinigung',
         aktiv:true, ts: Date.now()
       });
