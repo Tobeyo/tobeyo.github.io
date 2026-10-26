@@ -503,6 +503,7 @@ html[data-design="raster"] .sw::after{border-radius:0}
 
     <!-- ---------- LAGER ---------- -->
     <section class="view" id="view-lager">
+      <div class="sec" id="dupBanner" style="display:none"></div>
       <div class="sec">
         <div class="kpis" id="lagerKpis"></div>
       </div>
@@ -1566,7 +1567,60 @@ $$('#lagerFilter .tag').forEach(t => t.onclick = () => {
   renderLager();
 });
 
+/* Gleichnamige Produkte (Gross/Klein und Leerzeichen egal) – pro Gruppe bleibt das
+   mit den meisten Buchungen, bei Gleichstand das aelteste */
+const nameKey = n => String(n||'').trim().replace(/\s+/g,' ').toLowerCase();
+
+function doppelteProdukte(){
+  const nutzung = {};
+  for(const b of bookings()) for(const it of b.items) nutzung[it.pid] = (nutzung[it.pid]||0) + 1;
+  const gruppen = {};
+  for(const p of products()){
+    const k = nameKey(p.name);
+    (gruppen[k] = gruppen[k] || []).push(p);
+  }
+  return Object.values(gruppen).filter(g => g.length > 1).map(g => {
+    g.sort((a,b) => (nutzung[b.id]||0) - (nutzung[a.id]||0) || (a.ts||0) - (b.ts||0) || a.id.localeCompare(b.id));
+    return { behalten: g[0], weg: g.slice(1) };
+  });
+}
+
+/* Loescht die Doppelten in einem Schritt. Buchungen, die auf ein geloeschtes Produkt
+   zeigen, werden auf das behaltene umgehaengt – so geht kein Bestand verloren. */
+async function doppelteBereinigen(){
+  if(!db || !nutzer) throw new Error('nicht angemeldet');
+  const ziel = {};
+  for(const g of doppelteProdukte()) for(const p of g.weg) ziel[p.id] = g.behalten.id;
+  const upd = {};
+  for(const pid of Object.keys(ziel)) upd['products/' + pid] = null;
+  for(const [bid, b] of Object.entries(S.bookings||{}))
+    for(const [i, it] of Object.entries(b.items||{}))
+      if(it && ziel[it.pid]) upd['bookings/' + bid + '/items/' + i + '/pid'] = ziel[it.pid];
+  await db.ref(ROOT).update(upd);
+  return Object.keys(ziel).length;
+}
+
+function renderDupBanner(){
+  const el = $('dupBanner');
+  const n = doppelteProdukte().reduce((s,g) => s + g.weg.length, 0);
+  el.style.display = n ? '' : 'none';
+  if(!n){ el.innerHTML = ''; return; }
+  el.innerHTML = `<div class="card" style="padding:14px;border-color:var(--warn)">
+      <div style="font-weight:600;margin-bottom:5px">⚠️ ${n} Produkte sind doppelt angelegt</div>
+      <div style="font-size:.86rem;color:var(--muted);line-height:1.55;margin-bottom:12px">Pro Produkt bleibt eines übrig, die anderen werden gelöscht.</div>
+      <button class="btn sm primary" id="dupGo">🧹 Doppelte entfernen</button>
+    </div>`;
+  $('dupGo').onclick = async () => {
+    const ok = await frage('Doppelte entfernen?',
+      n + ' doppelte Produkte werden gelöscht, von jedem Produkt bleibt eines übrig. Buchungen bleiben erhalten.', 'Entfernen', true);
+    if(!ok) return;
+    try{ toast(await doppelteBereinigen() + ' Doppelte entfernt'); }
+    catch(e){ toast('Bereinigen fehlgeschlagen: ' + e.message, 'err'); }
+  };
+}
+
 function renderLager(){
+  renderDupBanner();
   const l = lagerKennzahlen();
   $('lagerKpis').innerHTML = `
     <div class="kpi"><div class="k">📦 Lagerwert</div><div class="v">${eur0(l.wertEk)}</div><div class="s">zum Einkaufspreis</div></div>
@@ -2293,10 +2347,11 @@ function importModal(){
     $('impHint').textContent = l.length ? `${l.length} Zeilen erkannt · ${neu.length} neu, ${l.length-neu.length} schon vorhanden` : '';
   };
   $('impGo').onclick = async () => {
+    $('impGo').disabled = true;
     const l = parse();
     let n = 0;
     for(const p of l){
-      if(products().some(x => x.name.toLowerCase() === p.name.toLowerCase())) continue;
+      if(products().some(x => nameKey(x.name) === nameKey(p.name))) continue;
       await speichere('products/' + uid(), {
         name: p.name, listenpreis: p.lp, ekStart: p.ek, minBestand: '',
         kat: /^kundengeschenk/i.test(p.name) ? 'Kundengeschenk' : 'Sonstiges',
@@ -2336,7 +2391,9 @@ function seedModal(){
     </div>
     <button class="btn primary block" id="seedGo"${neu.length?'':' disabled'}>${neu.length?neu.length+' Produkte anlegen':'Alle schon vorhanden'}</button>`);
   $('seedGo').onclick = async () => {
+    $('seedGo').disabled = true;
     for(const s of neu){
+      if(products().some(p => nameKey(p.name) === nameKey(s[0]))) continue;
       await speichere('products/' + uid(), {
         name: s[0], listenpreis: s[1], ekStart:'', minBestand:'',
         kat: /^kundengeschenk/i.test(s[0]) ? 'Kundengeschenk' : 'Reinigung',
