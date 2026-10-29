@@ -36,7 +36,7 @@ window.NESSIE_DIENSTPLAN = {
       // Eigene Auswertung – der Kalender verlinkt sein Konto-Feld dorthin
       kontoSeite: 'ueberstunden.html',
       // Monats-Soll aus dem Dienstplan ("fiktiv 5-Tage-Woche")
-      soll: { '2026-08': 155.5, '2026-09': 163, '2026-10': 162.5, '2026-11': 155.5 },
+      soll: { '2026-08': 155.5, '2026-09': 163, '2026-10': 162.5, '2026-11': 155.5, '2026-12': 170.5 },
       plan: {
         // ---- August 2026 ----
         '2026-08-03': { von: '08:30', bis: '16:30', pause: 0.5, tags: ['Seminar'] },
@@ -148,7 +148,41 @@ window.NESSIE_DIENSTPLAN = {
         '2026-11-26': { von: '07:30', bis: '15:00', pause: 0.5, tags: [] },        // 7,0
         '2026-11-27': { von: '07:30', bis: '14:00', pause: 0.5, tags: [] },        // 6,0
 
-        '2026-11-30': { von: '07:30', bis: '15:30', pause: 0.5, tags: [] }         // 7,5
+        '2026-11-30': { von: '07:30', bis: '15:30', pause: 0.5, tags: [] },        // 7,5
+
+        // ---- Dezember 2026 (Monats-Soll 170,50) ----
+        '2026-12-01': { von: '08:30', bis: '17:00', pause: 0.5, tags: ['Klub'] },  // 8,0
+        '2026-12-02': { von: '08:30', bis: '18:00', pause: 0.5, tags: ['Klub'] },  // 9,0
+        '2026-12-03': { von: '07:30', bis: '15:00', pause: 0.5, tags: [] },        // 7,0
+        '2026-12-04': { von: '07:30', bis: '14:00', pause: 0.5, tags: [] },        // 6,0
+
+        '2026-12-07': { von: '07:30', bis: '15:00', pause: 0.5, tags: [] },        // 7,0
+        // Di 08.12. Mariä Empfängnis, im Plan mit 7,5 angerechnet
+        '2026-12-08': { art: 'feiertag', h: 7.5 },
+        '2026-12-09': { von: '07:30', bis: '15:30', pause: 0.5, tags: [] },        // 7,5
+        '2026-12-10': { von: '07:30', bis: '15:00', pause: 0.5, tags: [] },        // 7,0
+        '2026-12-11': { von: '09:00', bis: '17:00', pause: 0.5, tags: ['Klub'] },  // 7,5
+
+        '2026-12-14': { von: '07:30', bis: '15:30', pause: 0.5, tags: [] },        // 7,5
+        '2026-12-15': { von: '07:30', bis: '15:00', pause: 0.5, tags: [] },        // 7,0
+        '2026-12-16': { von: '08:30', bis: '18:00', pause: 0.5, tags: ['Klub'] },  // 9,0
+        '2026-12-17': { von: '07:30', bis: '15:00', pause: 0.5, tags: [] },        // 7,0
+        '2026-12-18': { von: '07:30', bis: '14:00', pause: 0.5, tags: [] },        // 6,0
+
+        '2026-12-21': { von: '07:30', bis: '16:00', pause: 0.5, tags: [] },        // 8,0
+        '2026-12-22': { von: '07:30', bis: '15:00', pause: 0.5, tags: [] },        // 7,0
+        '2026-12-23': { von: '07:30', bis: '15:00', pause: 0.5, tags: [] },        // 7,0
+        // Do 24.12. Heiliger Abend – kein gesetzlicher Feiertag, laut Plan
+        // aber dienstfrei und mit 7,5 angerechnet
+        '2026-12-24': { art: 'feiertag', h: 7.5 },
+        // Fr 25.12. Christtag, im Plan mit 7,0 angerechnet
+        '2026-12-25': { art: 'feiertag', h: 7 },
+        // Sa 26.12. Stefanitag – fällt auf einen Samstag, nichts angerechnet
+
+        '2026-12-28': { von: '07:30', bis: '16:00', pause: 0.5, tags: [] },        // 8,0
+        '2026-12-29': { von: '07:30', bis: '15:00', pause: 0.5, tags: [] },        // 7,0
+        '2026-12-30': { von: '07:30', bis: '17:00', pause: 0.5, tags: ['Klub'] },  // 9,0
+        '2026-12-31': { von: '07:30', bis: '15:00', pause: 0.5, tags: [] }         // 7,0
       }
     },
 
