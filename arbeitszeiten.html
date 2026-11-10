@@ -1792,8 +1792,9 @@
 
   /* ---------- Überstunden-Konto ----------
      Zeigt denselben Stand wie der Überstunden-Rechner: Übertrag plus
-     alle Tagesdifferenzen bis heute plus Korrekturen. Der Wert hängt
-     nicht am angezeigten Monat.                                      */
+     alle Tagesdifferenzen bis heute plus Korrekturen – bzw. ab der
+     letzten Monatsabrechnung deren Stand plus alles, was seitdem kam.
+     Der Wert hängt nicht am angezeigten Monat.                       */
 
   var kontoPill = document.getElementById('kontoPill');
   var kontoVal = document.getElementById('kontoVal');

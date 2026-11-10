@@ -17,7 +17,9 @@
                                         mindestens das Tages-Soll
                         Zeitausgleich → Soll minus genommene
                                         Stunden (Konto sinkt)
-     Konto = Übertrag + Summe der Tagesdifferenzen + Korrekturen
+     Konto = Übertrag + Summe der Tagesdifferenzen + Korrekturen –
+             bis eine Abrechnung den Stand am Ende eines Monats festlegt;
+             ab dann: Stand laut Abrechnung + alles, was danach kommt
 
      Wichtig: Weil Soll und Ist an normalen Werktagen beide aus
      demselben Aushang stammen, heben sie sich gegenseitig auf,
@@ -32,15 +34,15 @@
         markiert werden (Feld "neutral"). Dann ist sein Soll gleich
         seinem Ist – der Tag darf also beliebig vom Aushang abweichen,
         ohne dass daraus Plus- oder Minusstunden werden.
-     2. Über "anpassungen" wird das Ergebnis pro Monat und fürs
-        Gesamtkonto von Hand gesetzt (siehe weiter unten).
+     2. Über "anpassungen" wird der Kontostand am Ende eines Monats so
+        gesetzt, wie er auf der Abrechnung steht (siehe weiter unten).
 
    Ein "ctx" ist dabei immer ein Objekt mit:
      plan        die gedruckten Dienste der Person
      entries     die Änderungen aus dem Kalender
      settings    { wochenSoll, startSaldo, startDatum, zaAbzug }
      korrekturen die von Hand erfassten Korrekturen
-     anpassungen die Anpassungen pro Monat / fürs Gesamtkonto
+     anpassungen der Stand laut Abrechnung je Monat
      getEntry    Funktion(key) → Eintrag des Tages oder null
    ========================================================= */
 
@@ -150,51 +152,44 @@
     }).sort(function (a, b) { return a.datum < b.datum ? -1 : a.datum > b.datum ? 1 : 0; });
   }
 
-  /* ---------- Anpassungen von Hand ----------
-     "anpassungen" sieht so aus:
+  /* ---------- Stand laut Abrechnung ----------
+     Jeden Monat kommt aus dem Betrieb eine Abrechnung für den Vormonat,
+     z. B. "Ende Oktober: 10,75 Überstunden". Genau diese Zahl wird beim
+     Monat eingetragen. "anpassungen" sieht dafür so aus:
 
-       {
-         monate: { '2026-09': { modus: 'delta'|'fix', h: 3.5 } },
-         gesamt: { aktiv: true, modus: 'delta'|'fix', h: 12 }
-       }
+       { monate: { '2026-10': { h: 10.75 } } }
 
-     modus 'delta' = die Stunden kommen zum Ergebnis dazu (mit Minus
-                     gehen sie ab).
-     modus 'fix'   = das Ergebnis IST genau diese Zahl; gerechnet wird
-                     die Differenz zum Wert, der sich aus dem Plan ergibt.
+     Bedeutung: Am letzten Tag dieses Monats steht das Konto auf GENAU
+     dieser Zahl – es wird nichts dazu- oder abgerechnet. Alles davor
+     (Übertrag, Dienstplan, Korrekturen, ältere Abrechnungen) ist damit
+     erledigt; was danach im Dienstplan passiert, kommt ganz normal dazu.
 
-     Bei den Monaten meint "das Ergebnis" die Überstunden dieses Monats,
-     beim Gesamtkonto der Kontostand am Stichtag (normalerweise heute).
+     Ältere Einträge haben noch ein Feld "modus" ('delta' = dazurechnen,
+     'fix' = nur das Ergebnis dieses einen Monats setzen). Gemeint war
+     damit aber immer die Zahl aus der Abrechnung, deshalb gilt jetzt jeder
+     Eintrag als Stand am Monatsende. Nur ein altes "±0" (entstand schon
+     beim Antippen einer leeren Zeile) heißt weiterhin "nichts".
+     Das frühere "Gesamtkonto von Hand" hielt die große Zahl an jedem Tag
+     auf demselben Wert fest, neue Dienste wären so nie dazugekommen –
+     das wird nicht mehr mitgerechnet.
+
      Die Funktion darf gefahrlos auf schon geprüfte Daten angewendet
      werden – sie liefert dann dasselbe zurück.                       */
 
   function normAnpassungen(raw) {
-    var a = raw || {};
-    var srcM = a.monate || {};
+    var src = (raw && raw.monate) || {};
     var monate = {};
 
-    Object.keys(srcM).forEach(function (mk) {
+    Object.keys(src).forEach(function (mk) {
       if (!/^\d{4}-\d{2}$/.test(mk)) return;
-      var x = srcM[mk] || {};
+      var x = src[mk] || {};
       var h = parseFloat(x.h);
       if (isNaN(h)) return;
-      var modus = x.modus === 'fix' ? 'fix' : 'delta';
-      if (modus === 'delta' && Math.abs(h) < 0.005) return;   // "+0 dazu" ist nichts
-      monate[mk] = { modus: modus, h: h, by: x.by || '', ts: x.ts || 0 };
+      if (x.modus === 'delta' && Math.abs(h) < 0.005) return;   // altes "±0" ist nichts
+      monate[mk] = { h: h, by: x.by || '', ts: x.ts || 0 };
     });
 
-    var g = a.gesamt || {};
-    var gh = parseFloat(g.h);
-    var gesamt = null;
-    if (g.aktiv && !isNaN(gh)) {
-      gesamt = {
-        aktiv: true,
-        modus: g.modus === 'delta' ? 'delta' : 'fix',
-        h: gh, by: g.by || '', ts: g.ts || 0
-      };
-    }
-
-    return { monate: monate, gesamt: gesamt };
+    return { monate: monate };
   }
 
   /* ---------- Der eigentliche Rechenkern ---------- */
@@ -331,68 +326,71 @@
     return out;
   }
 
-  // Was die Monats-Anpassungen tatsächlich bewirken. Nur Monate, für die
-  // es auch Tage gibt, zählen mit – sonst hinge eine Anpassung in der Luft.
-  function monatsAnpassungen(days, korr, anpassungen) {
+  /* Die Abrechnungen in zeitlicher Reihenfolge. Jede greift am letzten
+     Tag ihres Monats, für den es Daten gibt ("tag"). Dazu steht drin,
+     wo das Konto an diesem Tag ohne sie stünde ("roh"), und die eine
+     Buchung, die es genau auf die Zahl aus der Abrechnung bringt
+     ("wirkung" = Abrechnung − roh). Nur Monate, für die es auch Tage
+     gibt, zählen mit – sonst hinge die Zahl in der Luft.            */
+  function abrechnungen(days, korr, settings, anpassungen) {
     var a = normAnpassungen(anpassungen);
     var out = [];
     monatsBloecke(days, korr).forEach(function (m) {
       var x = a.monate[m.key];
       if (!x) return;
-      out.push({
-        key: m.key, modus: x.modus, h: x.h, roh: m.roh,
-        wirkung: x.modus === 'fix' ? x.h - m.roh : x.h
-      });
+      var tag = m.days[m.days.length - 1].key;
+      // Ältere Abrechnungen sind hier schon drin, spätere noch nicht
+      var roh = saldoUntil(days, korr, settings, tag, { monate: out.slice() }).saldo;
+      out.push({ key: m.key, tag: tag, h: x.h, roh: roh, wirkung: x.h - roh, by: x.by, ts: x.ts });
     });
     return out;
   }
 
-  /* Alles Zusätzliche in einem Rutsch: die Monats-Anpassungen und der
-     Ausgleich fürs Gesamtkonto. Der Ausgleich ist die eine Buchung, die
-     das Konto am Stichtag ("refKey", normalerweise heute) auf den von
-     Hand gewünschten Stand hebt – davor bleibt alles, wie es war.     */
-  function extrasOf(days, korr, settings, anpassungen, refKey) {
-    var a = normAnpassungen(anpassungen);
-    var monate = monatsAnpassungen(days, korr, a);
-    var extra = { monate: monate, ausgleich: null };
-
-    if (a.gesamt && refKey) {
-      var ohne = saldoUntil(days, korr, settings, refKey, { monate: monate });
-      extra.ausgleich = {
-        key: refKey,
-        modus: a.gesamt.modus,
-        ziel: a.gesamt.h,
-        roh: ohne.saldo,
-        h: a.gesamt.modus === 'fix' ? a.gesamt.h - ohne.saldo : a.gesamt.h
-      };
-    }
-    return extra;
+  /* Alles, was von Hand dazukommt, in einem Rutsch – das sind die
+     Abrechnungen. Ein fünfter Wert (früher der Stichtag fürs
+     Gesamtkonto) wird nicht mehr gebraucht und schadet auch nicht.  */
+  function extrasOf(days, korr, settings, anpassungen) {
+    return { monate: abrechnungen(days, korr, settings, anpassungen) };
   }
 
   // Konto-Stand bis einschließlich Datum "bisKey".
   // "extra" ist das Ergebnis von extrasOf() – fehlt es, wird schlicht
-  // ohne die Anpassungen von Hand gerechnet.
+  // ohne die Abrechnungen gerechnet.
+  // Hat bis dahin eine Abrechnung gegriffen, steht sie in "abrechnung",
+  // und "seit" sagt, was danach aus dem Plan und aus Korrekturen dazukam.
+  // Der Stand ist dann genau: Abrechnung + seit.plan + seit.korr.
   function saldoUntil(days, korr, settings, bisKey, extra) {
-    var plan = 0, za = 0, ist = 0, soll = 0;
+    var e = extra || {};
+    var letzte = null, anp = 0;
+    (e.monate || []).forEach(function (x) {
+      if (x.tag > bisKey) return;
+      anp += x.wirkung;
+      letzte = x;
+    });
+    var ab = letzte ? letzte.tag : null;
+
+    var plan = 0, za = 0, ist = 0, soll = 0, seitPlan = 0;
     days.forEach(function (x) {
       if (x.key > bisKey) return;
       plan += x.diff; za += x.za; ist += x.ist; soll += x.soll;
+      if (ab && x.key > ab) seitPlan += x.diff;
     });
-    var k = 0;
-    (korr || []).forEach(function (x) { if (!x.datum || x.datum <= bisKey) k += x.h; });
-
-    var e = extra || {};
-    var bisMonat = String(bisKey).slice(0, 7);
-    var mAnp = 0;
-    // Eine Monats-Anpassung zählt, sobald der Monat begonnen hat –
-    // sonst würde sich das Konto im laufenden Monat nicht rühren.
-    (e.monate || []).forEach(function (x) { if (x.key <= bisMonat) mAnp += x.wirkung; });
-    var aus = (e.ausgleich && bisKey >= e.ausgleich.key) ? e.ausgleich.h : 0;
+    var k = 0, seitKorr = 0;
+    (korr || []).forEach(function (x) {
+      if (x.datum && x.datum > bisKey) return;
+      k += x.h;
+      if (ab && x.datum && x.datum > ab) seitKorr += x.h;
+    });
 
     return {
-      plan: plan, korr: k, za: za, ist: ist, soll: soll,
-      monatsAnp: mAnp, ausgleich: aus, anp: mAnp + aus,
-      saldo: settings.startSaldo + plan + k + mAnp + aus
+      plan: plan, korr: k, za: za, ist: ist, soll: soll, anp: anp,
+      abrechnung: letzte,
+      seit: letzte ? { plan: seitPlan, korr: seitKorr } : null,
+      // Mit Abrechnung direkt von deren Zahl aus gerechnet – so steht am
+      // Stichtag wirklich exakt die Zahl da, ohne Rundungsrest.
+      saldo: letzte
+        ? letzte.h + seitPlan + seitKorr
+        : settings.startSaldo + plan + k
     };
   }
 
@@ -407,7 +405,7 @@
     if (!days.length) return null;
     var nowKey = todayKey > r.bis ? r.bis : todayKey;
     var korr = korrList(ctx.korrekturen);
-    var extra = extrasOf(days, korr, ctx.settings, ctx.anpassungen, nowKey);
+    var extra = extrasOf(days, korr, ctx.settings, ctx.anpassungen);
     var res = saldoUntil(days, korr, ctx.settings, nowKey, extra);
     res.nowKey = nowKey;
     res.range = r;
@@ -429,7 +427,7 @@
     dataRange: dataRange,
     allDays: allDays,
     monatsBloecke: monatsBloecke,
-    monatsAnpassungen: monatsAnpassungen,
+    abrechnungen: abrechnungen,
     extrasOf: extrasOf,
     saldoUntil: saldoUntil,
     stand: stand
