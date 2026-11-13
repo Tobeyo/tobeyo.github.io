@@ -51,6 +51,7 @@
       --t-tx: #ff9f6e;
       --t-custom: #ff79c6;
       --t-other: #a0a4b8;
+      --t-dani: #5fd35f;     /* Dani hat Klub */
 
       /* Abwesenheits-Arten */
       --a-feiertag: #ffd166;
@@ -76,6 +77,7 @@
       --t-tx: #cc5226;
       --t-custom: #c2408f;
       --t-other: #6b655a;
+      --t-dani: #26892b;
       --a-feiertag: #a67800;
       --a-urlaub: #0f8a82;
       --a-zeitausgleich: #6b655a;
@@ -487,6 +489,8 @@
     .dot.n2 { background: var(--t-n2); }
     .dot.tx { background: var(--t-tx); }
     .dot.custom { background: var(--t-custom); }
+    .dot.dani { background: var(--t-dani); }
+    .day .free-lbl + .dots { margin-top: -4px; margin-bottom: 4px; }
 
     /* Kollegen im Dienst – ganz unten im Tag, abgesetzt vom eigenen Dienst */
     .day .team {
@@ -576,6 +580,7 @@
     .chip.n2 { color: var(--t-n2); }
     .chip.tx { color: var(--t-tx); }
     .chip.custom { color: var(--t-custom); }
+    .chip.dani { color: var(--t-dani); }
     .chip.neutral { color: var(--free); }
 
     .empty-hint {
@@ -1846,6 +1851,9 @@
       return '<span><i class="dot ' + tagClass(t) + '"></i> ' + escapeHtml(t) + '</span>';
     }).join('');
     html += '<span><i class="dot custom"></i> von Hand geändert</span>';
+    if (daniKlubImMonat(monthKeyOf(curY, curM))) {
+      html += '<span><i class="dot dani"></i> Dani hat Klub</span>';
+    }
     if (teamHasMonth(monthKeyOf(curY, curM))) {
       html += '<span><b class="lg-team">' + escapeHtml(team().leute[0].kurz || '') + '</b> Kollegen im Dienst</span>';
     }
@@ -1910,11 +1918,23 @@
     return sums.reduce(function (a, b) { return a + b; }, 0) / sums.length;
   }
 
-  function dotsFor(entry) {
-    var dots = entry.tags.map(function (t) {
+  // Hat Dani an diesem Tag laut Dienstplan Klub? (steht nur bei Tobias)
+  function hatDaniKlub(key) {
+    var l = person().daniKlub;
+    return !!l && l.indexOf(key) > -1;
+  }
+  function daniKlubImMonat(mk) {
+    var l = person().daniKlub;
+    return !!l && l.some(function (k) { return k.indexOf(mk) === 0; });
+  }
+
+  // entry darf fehlen (dienstfreier Tag) – Danis Klub-Punkt kommt trotzdem
+  function dotsFor(entry, key) {
+    var dots = entry ? entry.tags.map(function (t) {
       return '<span class="dot ' + tagClass(t) + '" title="' + escapeHtml(t) + '"></span>';
-    }).join('');
-    if (entry.custom) dots += '<span class="dot custom" title="von Hand geändert"></span>';
+    }).join('') : '';
+    if (entry && entry.custom) dots += '<span class="dot custom" title="von Hand geändert"></span>';
+    if (hatDaniKlub(key)) dots += '<span class="dot dani" title="Dani hat Klub"></span>';
     return dots ? '<div class="dots">' + dots + '</div>' : '';
   }
 
@@ -1951,13 +1971,14 @@
         html += '<div class="art" style="color:' + artColor(x.entry.art) + '">' +
                 escapeHtml(artLabel(x.entry.art)) + '</div>';
         html += '<div class="hrs">' + fmtH(x.hours) + '</div>';
-        html += dotsFor(x.entry);
+        html += dotsFor(x.entry, x.key);
       } else if (x.entry) {
         html += '<div class="time">' + escapeHtml(x.entry.von) + '<br>' + escapeHtml(x.entry.bis) + '</div>';
         html += '<div class="hrs">' + fmtH(x.hours) + '</div>';
-        html += dotsFor(x.entry);
+        html += dotsFor(x.entry, x.key);
       } else {
         html += '<div class="free-lbl">frei</div>';
+        html += dotsFor(null, x.key);
       }
       var da = teamOf(x.key).da;
       if (da.length) {
@@ -1970,6 +1991,7 @@
         x.d + '. ' + MONTH_NAMES[curM] + ' – ' +
         (x.entry ? (x.entry.art ? artLabel(x.entry.art) : x.entry.von + ' bis ' + x.entry.bis) : 'frei') +
         (isNeutral(x.key) ? ' – zählt nicht aufs Überstunden-Konto' : '') +
+        (hatDaniKlub(x.key) ? ' – Dani hat Klub' : '') +
         (da.length ? ' – im Dienst: ' + da.map(function (k) { return k.kurz; }).join(', ') : ''));
       cell.addEventListener('click', function () { openModal(x.key); });
       frag.appendChild(cell);
@@ -2013,6 +2035,7 @@
           return '<span class="chip ' + tagClass(t) + '">' + escapeHtml(t) + '</span>';
         }).join('');
         if (x.entry.custom) chips += '<span class="chip custom">geändert</span>';
+        if (hatDaniKlub(x.key)) chips += '<span class="chip dani">Dani Klub</span>';
         if (isNeutral(x.key)) chips += '<span class="chip neutral">ohne Überstunden</span>';
 
         var middle;
@@ -2371,6 +2394,7 @@
       ? (e.custom ? 'Von Hand eingetragen' : 'Laut Dienstplan')
       : (raw && raw.frei ? 'Von Hand freigestellt' : 'Dienstfrei – trage hier einen Dienst ein');
     if (raw && raw.neutral) sub += ' · zählt nicht aufs Konto';
+    if (hatDaniKlub(key)) sub += ' · Dani hat Klub';
     document.getElementById('mSub').textContent = sub;
 
     fArt.value = e && e.art ? e.art : 'dienst';
