@@ -37,6 +37,14 @@ window.NESSIE_DIENSTPLAN = {
       kontoSeite: 'ueberstunden.html',
       // Monats-Soll aus dem Dienstplan ("fiktiv 5-Tage-Woche")
       soll: { '2026-08': 155.5, '2026-09': 163, '2026-10': 162.5, '2026-11': 155.5, '2026-12': 170.5 },
+      // Tage, an denen Dani laut Dienstplan (Zeile „Info“) Klub hat –
+      // im Kalender ein grüner Punkt, egal ob Tobias selbst Dienst hat
+      daniKlub: [
+        // November 2026
+        '2026-11-06', '2026-11-11', '2026-11-17', '2026-11-25',
+        // Dezember 2026
+        '2026-12-02', '2026-12-04', '2026-12-09', '2026-12-18'
+      ],
       plan: {
         // ---- August 2026 ----
         '2026-08-03': { von: '08:30', bis: '16:30', pause: 0.5, tags: ['Seminar'] },
