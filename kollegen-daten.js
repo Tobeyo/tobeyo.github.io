@@ -10,6 +10,10 @@
    „ThaJ“ und zeigt daraus die Dienstliste – das Kürzel also
    nicht umbenennen.
 
+   Und "edwin/index.html" (nur über /edwin, nicht im Hub)
+   zeigt dasselbe Team "tobias" – Edwin ist ebenfalls
+   Zivildiener im Haus BRI.
+
    Quelle ist der Sollplan aus CGM ON DUTY („Tag.Familie BRI“).
 
    DATENSCHUTZ: Hier stehen nie volle Namen, nur Kürzel –

@@ -1,0 +1,46 @@
+{
+  "id": "./",
+  "name": "Dienstplan Edwin",
+  "short_name": "Dienstplan",
+  "description": "Edwins Dienstplan als Kalender – mit Stunden, Überstunden-Konto und dem Mittagsmenü im Haus.",
+  "lang": "de",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b1411",
+  "theme_color": "#0b1411",
+  "icons": [
+    {
+      "src": "../icons/edwin-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "../icons/edwin-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "../icons/edwin-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "../icons/edwin-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "../icons/edwin.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

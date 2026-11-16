@@ -1,0 +1,2633 @@
+<!DOCTYPE html>
+<html lang="de" class="n-themed">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dienstplan</title>
+  <meta name="description" content="Dienstplan-Kalender von Edwin – mit Stunden, Wochensummen, Überstunden-Konto, dem Mittagsmenü im Haus und den Kollegen im Dienst.">
+  <!-- Nur über den direkten Link /edwin erreichbar: nicht im Hub, nicht in Suchmaschinen -->
+  <meta name="robots" content="noindex, nofollow">
+
+  <!-- Eigenes App-Manifest & Icons für „Zum Startbildschirm hinzufügen" -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#0b1411" data-design>
+  <link rel="icon" type="image/svg+xml" href="../icons/edwin.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="../icons/edwin-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="../icons/edwin-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../icons/edwin-180.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" data-design>
+  <meta name="apple-mobile-web-app-title" content="Dienstplan">
+
+  <!-- Gleiche Designs wie die übrigen Apps (Farben, Schriften, Übergänge) -->
+  <script src="../design.js"></script>
+  <link rel="stylesheet" href="../design.css">
+
+  <style>
+    :root {
+      /* Farbe dieser App im Design „Papier & Farbe“ */
+      --n-app: #12876a;
+
+      /* Alle Farben kommen aus dem gewählten Design (design.css) */
+      --bg-color: var(--n-bg);
+      --card-bg: var(--n-surface);
+      --card-border: var(--n-line);
+      --accent-1: var(--n-accent);
+      --accent-2: var(--n-accent-2);
+      --free: var(--n-faint);
+      --danger: var(--n-bad);
+      --ok: var(--n-ok);
+      --text-main: var(--n-text);
+      --text-muted: var(--n-muted);
+      --day-work: linear-gradient(160deg, color-mix(in srgb, var(--n-accent) 13%, transparent), color-mix(in srgb, var(--n-accent) 3%, transparent));
+      --day-special: linear-gradient(160deg, var(--n-surface-2), var(--n-surface));
+      --day-weekend: transparent;
+
+      /* Vermerke / Bereiche aus dem Personaleinsatzplan */
+      --t-klub: #00d2ff;
+      --t-seminar: #ffb454;
+      --t-hw: #3ddc97;
+      --t-n1: #6c8cff;
+      --t-n2: #c792ea;
+      --t-tx: #ff9f6e;
+      --t-custom: #ff79c6;
+      --t-other: #a0a4b8;
+      --t-dani: #5fd35f;     /* Dani hat Klub */
+
+      /* Abwesenheits-Arten */
+      --a-feiertag: #ffd166;
+      --a-urlaub: #4ecdc4;
+      --a-zeitausgleich: #9aa0b5;
+      --a-fortbildung: #ffb454;
+      --a-krank: #ff5470;
+      --a-sonderurlaub: #7fd1ff;
+
+      /* Die drei Mittagsmenüs im Essensplan */
+      --m-hausmann: var(--t-seminar);
+      --m-leicht: var(--t-hw);
+      --m-diabetiker: var(--t-n1);
+    }
+
+    /* Auf hellem Grund (jedes Design im hellen Modus) brauchen die Vermerk-Farben mehr Kraft */
+    html[data-mode="light"] {
+      --t-klub: #0a86a6;
+      --t-seminar: #b86200;
+      --t-hw: #1f8f4e;
+      --t-n1: #3d5bd9;
+      --t-n2: #8a4fc7;
+      --t-tx: #cc5226;
+      --t-custom: #c2408f;
+      --t-other: #6b655a;
+      --t-dani: #26892b;
+      --a-feiertag: #a67800;
+      --a-urlaub: #0f8a82;
+      --a-zeitausgleich: #6b655a;
+      --a-fortbildung: #b86200;
+      --a-krank: #cf3a4e;
+      --a-sonderurlaub: #1f6fb2;
+    }
+    html[data-design="papier"][data-mode="light"] {
+      --day-work: #ffffff;
+      --day-special: #faf6ee;
+    }
+    html[data-design="kalligraphie"][data-mode="light"] {
+      --day-work: #fffdf8;
+      --day-special: #f3eee3;
+    }
+    html[data-design="raster"] {
+      --day-work: color-mix(in srgb, var(--n-text) 4.5%, transparent);
+      --day-special: color-mix(in srgb, var(--n-text) 2%, transparent);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: var(--n-font);
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      background-image: var(--n-bg-deco);
+      background-attachment: fixed;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      padding-bottom: 40px;
+    }
+
+    /* ---------- Nav ---------- */
+    .top-nav {
+      width: 100%;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      background: var(--n-nav);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--card-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .top-nav a.home {
+      color: var(--text-main);
+      text-decoration: none;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--card-bg);
+      padding: 8px 16px 8px 10px;
+      border-radius: var(--n-r-pill);
+      border: 1px solid var(--card-border);
+      transition: background 0.2s, transform 0.4s var(--n-ease);
+      white-space: nowrap;
+    }
+    .top-nav a.home:hover { background: var(--n-surface-2); }
+    .top-nav a.home:active { transform: scale(0.96); }
+    .n-back {
+      display: inline-grid;
+      place-items: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--n-active-bg);
+      color: var(--n-active-fg);
+      font-size: 0.85rem;
+      transition: transform 0.4s var(--n-ease);
+    }
+    html[data-design="raster"] .n-back { border-radius: 0; }
+    .top-nav a.home:hover .n-back { transform: translateX(-3px); }
+
+    .nav-title {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-family: var(--n-font-display);
+      font-weight: var(--n-display-weight);
+      font-stretch: var(--n-display-stretch);
+      text-transform: var(--n-display-case);
+      font-size: 1.15rem;
+      letter-spacing: var(--n-display-track);
+      white-space: nowrap;
+    }
+
+    .icon-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      border-radius: var(--n-r);
+      padding: 8px 12px;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .icon-btn:hover { background: var(--n-surface-2); border-color: var(--n-line-2); }
+    .icon-btn:active { transform: scale(0.94); }
+    :focus-visible { outline: 2px solid var(--accent-2); outline-offset: 2px; }
+
+    .container { max-width: 1000px; margin: 0 auto; padding: 24px 16px 0; }
+
+    /* ---------- Personen-Tabs ---------- */
+    .person-tabs {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--n-r-lg);
+      padding: 6px;
+      margin-bottom: 16px;
+    }
+    .person-tab {
+      background: transparent;
+      border: none;
+      border-radius: calc(var(--n-r-lg) - 5px);
+      padding: 10px 12px;
+      font-family: inherit;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+      line-height: 1.2;
+    }
+    .person-tab .pt-name { font-size: 1rem; font-weight: 700; }
+    .person-tab .pt-sub { font-size: 0.72rem; font-weight: 300; opacity: 0.85; }
+    .person-tab:hover { background: var(--n-surface-2); color: var(--text-main); }
+    .person-tab.active {
+      background: var(--n-active-bg);
+      color: var(--n-active-fg);
+    }
+    .person-tab.active .pt-sub { opacity: 0.75; }
+
+    /* ---------- Sync-Leiste ---------- */
+    .sync-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      font-size: 0.82rem;
+    }
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--text-muted);
+      font-weight: 600;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 6px 13px;
+      border-radius: var(--n-r-pill);
+    }
+    .status i { width: 8px; height: 8px; border-radius: 50%; background: var(--free); flex-shrink: 0; }
+    .status.live i { background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+    .status.live { color: var(--ok); }
+    .status.err i { background: var(--danger); }
+    .status.err { color: var(--danger); }
+
+    .name-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 6px 13px;
+      border-radius: var(--n-r-pill);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .name-btn:hover { background: var(--n-surface-2); color: var(--text-main); }
+
+    /* Überstunden-Konto: Stand heute, gilt für den ganzen Plan und
+       nicht nur für den gerade angezeigten Monat.                  */
+    .konto-pill {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 6px 13px;
+      border-radius: var(--n-r-pill);
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .konto-pill.on { display: inline-flex; }
+    .konto-pill b {
+      font-size: 0.95rem;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-main);
+    }
+    .konto-pill b.pos { color: var(--ok); }
+    .konto-pill b.neg { color: var(--danger); }
+    a.konto-pill:hover { background: var(--n-surface-2); color: var(--text-main); }
+
+    .notice {
+      background: color-mix(in srgb, var(--n-bad) 12%, transparent);
+      border: 1px solid color-mix(in srgb, var(--n-bad) 32%, transparent);
+      color: var(--n-bad);
+      border-radius: var(--n-r);
+      padding: 11px 14px;
+      margin-bottom: 16px;
+      font-size: 0.88rem;
+      font-weight: 300;
+      line-height: 1.5;
+    }
+
+    /* ---------- Monatskopf ---------- */
+    .month-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .month-name {
+      font-family: var(--n-font-display);
+      font-size: 2rem;
+      font-weight: var(--n-display-weight);
+      font-stretch: var(--n-display-stretch);
+      text-transform: var(--n-display-case);
+      letter-spacing: var(--n-display-track);
+      line-height: 1.1;
+    }
+    .month-name span { color: var(--text-muted); font-weight: 300; margin-left: 6px; }
+    html[data-design="loch"] .month-name { font-weight: 300; font-size: 2.3rem; }
+    html[data-design="loch"] .month-name span { font-style: italic; color: var(--n-accent); font-weight: 400; }
+    html[data-design="raster"] .month-name span { color: var(--n-accent); font-weight: 800; }
+    html[data-design="kalligraphie"] .month-name span { font-family: var(--n-font); font-style: italic; font-weight: 400; color: var(--n-accent); }
+
+    /* ---------- Statistik ---------- */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .stat {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--n-r-lg);
+      padding: 14px 12px;
+      text-align: center;
+      box-shadow: var(--n-shadow);
+    }
+    .stat .val {
+      font-family: var(--n-font-display);
+      font-size: 1.6rem;
+      font-weight: var(--n-display-weight);
+      font-stretch: var(--n-display-stretch);
+      letter-spacing: var(--n-display-track);
+      line-height: 1.1;
+      font-variant-numeric: tabular-nums;
+    }
+    .stat .lbl {
+      font-family: var(--n-label-font);
+      text-transform: var(--n-label-case);
+      letter-spacing: var(--n-label-track);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+      font-weight: 400;
+    }
+    html[data-design="loch"] .stat { text-align: left; padding: 14px 16px; }
+    html[data-design="loch"] .stat .lbl { font-size: 0.64rem; }
+    html[data-design="raster"] .stats { gap: 0; border: 1px solid var(--n-line); }
+    html[data-design="raster"] .stat { text-align: left; border: 0; border-right: 1px solid var(--n-line); padding: 14px 16px; }
+    html[data-design="raster"] .stat:last-child { border-right: 0; }
+    html[data-design="raster"] .stat .lbl { font-size: 0.64rem; }
+    .stat .val.pos { color: var(--ok); }
+    .stat .val.neg { color: var(--danger); }
+
+    /* ---------- Umschalter ---------- */
+    .switch-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+    .view-switch {
+      display: flex;
+      gap: 6px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--n-r);
+      padding: 5px;
+      width: fit-content;
+    }
+    .view-switch button {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.92rem;
+      font-weight: 600;
+      padding: 8px 18px;
+      border-radius: calc(var(--n-r) - 4px);
+      cursor: pointer;
+      transition: background 0.3s var(--n-ease), color 0.3s;
+    }
+    .view-switch button:hover { color: var(--text-main); }
+    .view-switch button.active {
+      background: var(--n-active-bg);
+      color: var(--n-active-fg);
+    }
+    .view-switch.small button { font-size: 0.82rem; padding: 7px 13px; }
+
+    /* ---------- Kalender ---------- */
+    .weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .weekdays div {
+      text-align: center;
+      font-family: var(--n-label-font);
+      text-transform: var(--n-label-case);
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: var(--n-label-track);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+    }
+
+    .day {
+      position: relative;
+      min-height: 92px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--n-r);
+      padding: 8px 6px 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+      transition: transform 0.35s var(--n-ease), border-color 0.2s, background 0.2s;
+      overflow: hidden;
+      animation: var(--n-enter) 0.55s var(--n-enter-ease) backwards;
+      font: inherit;
+      color: inherit;
+      text-align: center;
+      width: 100%;
+    }
+    .day:hover { transform: translateY(-3px); border-color: var(--n-line-2); }
+    .day:active { transform: scale(0.96); }
+    .grid > .day:nth-child(n+8) { animation-delay: 40ms; }
+    .grid > .day:nth-child(n+15) { animation-delay: 80ms; }
+    .grid > .day:nth-child(n+22) { animation-delay: 120ms; }
+    .grid > .day:nth-child(n+29) { animation-delay: 160ms; }
+    .grid > .day:nth-child(n+36) { animation-delay: 200ms; }
+    .day.empty { background: transparent; border-color: transparent; cursor: default; pointer-events: none; }
+    .day.weekend { background: var(--day-weekend); }
+    .day.today { border-color: var(--accent-1); box-shadow: 0 0 0 1px var(--accent-1), 0 0 18px color-mix(in srgb, var(--n-accent) 25%, transparent); }
+    .day.work { background: var(--day-work); }
+    .day.special { background: var(--day-special); }
+    html:is([data-design="papier"], [data-design="nachtpapier"]) .day.work { box-shadow: var(--n-shadow); }
+    html:is([data-design="papier"], [data-design="nachtpapier"]) .day.weekend:not(.work):not(.special) { border-style: dashed; }
+    html[data-design="kalligraphie"] .day.work { box-shadow: var(--n-shadow); }
+    html[data-design="raster"] .day.today { box-shadow: inset 0 3px 0 var(--n-accent); }
+
+    .day .dnum { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
+    .day.work .dnum, .day.special .dnum { color: var(--text-main); }
+    .day .time { font-size: 0.72rem; font-weight: 600; line-height: 1.25; }
+    .day .art { font-size: 0.68rem; font-weight: 600; line-height: 1.2; margin-top: 2px; }
+    .day .hrs {
+      font-family: var(--n-font-display);
+      font-stretch: var(--n-display-stretch);
+      font-size: 0.98rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: var(--accent-2);
+    }
+    .day .free-lbl { font-size: 0.7rem; color: var(--free); font-weight: 300; margin-top: auto; margin-bottom: 6px; }
+
+    .dots { display: flex; gap: 4px; margin-top: 3px; }
+    .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; background: var(--t-other); }
+    .dot.klub { background: var(--t-klub); }
+    .dot.seminar { background: var(--t-seminar); }
+    .dot.hw { background: var(--t-hw); }
+    .dot.n1 { background: var(--t-n1); }
+    .dot.n2 { background: var(--t-n2); }
+    .dot.tx { background: var(--t-tx); }
+    .dot.custom { background: var(--t-custom); }
+    .dot.dani { background: var(--t-dani); }
+    .day .free-lbl + .dots { margin-top: -4px; margin-bottom: 4px; }
+
+    /* Kollegen im Dienst – ganz unten im Tag, abgesetzt vom eigenen Dienst */
+    .day .team {
+      margin-top: auto;
+      width: 100%;
+      padding-top: 4px;
+      border-top: 1px solid var(--n-line);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0 5px;
+      font-size: 0.62rem;
+      font-weight: 600;
+      line-height: 1.3;
+      color: var(--text-muted);
+    }
+    .legend .lg-team { font-size: 0.72rem; font-weight: 600; color: var(--text-main); }
+
+    /* ---------- Listenansicht ---------- */
+    .week-block {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--n-r-lg);
+      padding: 6px 16px 12px;
+      margin-bottom: 14px;
+      box-shadow: var(--n-shadow);
+      animation: var(--n-enter) 0.6s var(--n-enter-ease) backwards;
+    }
+    .week-block:nth-child(2) { animation-delay: 50ms; }
+    .week-block:nth-child(3) { animation-delay: 100ms; }
+    .week-block:nth-child(4) { animation-delay: 150ms; }
+    .week-block:nth-child(n+5) { animation-delay: 200ms; }
+    .week-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 10px;
+      padding: 10px 0 8px;
+      border-bottom: 1px solid var(--card-border);
+      margin-bottom: 4px;
+    }
+    .week-head .wk { font-family: var(--n-font-display); font-stretch: var(--n-display-stretch); font-weight: 600; font-size: 1rem; }
+    .week-head .wk small { color: var(--text-muted); font-weight: 300; margin-left: 6px; }
+    .week-head .sum { font-weight: 800; color: var(--accent-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--n-line);
+      cursor: pointer;
+      width: 100%;
+      background: none;
+      border-left: none;
+      border-right: none;
+      border-top: none;
+      font: inherit;
+      color: inherit;
+      text-align: left;
+    }
+    .row:last-child { border-bottom: none; }
+    .row:hover { background: var(--n-surface-2); }
+    .row .rdate { width: 74px; flex-shrink: 0; font-weight: 600; font-size: 0.9rem; }
+    .row .rdate small { display: block; color: var(--text-muted); font-weight: 300; font-size: 0.75rem; }
+    .row .rtime { flex-grow: 1; font-size: 0.95rem; font-variant-numeric: tabular-nums; }
+    .row .rtime .muted { color: var(--free); font-weight: 300; }
+    .row .rteam { display: block; margin-top: 2px; font-size: 0.75rem; color: var(--text-muted); font-weight: 300; }
+    .row .rhrs { font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+    .chip {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: var(--n-r-pill);
+      margin-left: 6px;
+      vertical-align: middle;
+      color: var(--t-other);
+      border: 1px solid currentColor;
+      background: var(--n-field);
+    }
+    .chip.klub { color: var(--t-klub); }
+    .chip.seminar { color: var(--t-seminar); }
+    .chip.hw { color: var(--t-hw); }
+    .chip.n1 { color: var(--t-n1); }
+    .chip.n2 { color: var(--t-n2); }
+    .chip.tx { color: var(--t-tx); }
+    .chip.custom { color: var(--t-custom); }
+    .chip.dani { color: var(--t-dani); }
+    .chip.neutral { color: var(--free); }
+
+    .empty-hint {
+      text-align: center;
+      color: var(--text-muted);
+      font-weight: 300;
+      padding: 50px 20px;
+      line-height: 1.6;
+    }
+
+    /* ---------- Essensplan (nur Tobias) ---------- */
+    .food-filter {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+    .food-filter button {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 7px 13px;
+      border-radius: var(--n-r-pill);
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .food-filter button:hover { background: var(--n-surface-2); color: var(--text-main); }
+    .food-filter button.active { background: var(--n-active-bg); color: var(--n-active-fg); border-color: transparent; }
+    .food-filter i { width: 8px; height: 8px; border-radius: 50%; background: var(--mc); flex-shrink: 0; }
+    .calm .week-block { animation: none; }
+
+    .week-head .food-note { color: var(--text-muted); font-size: 0.78rem; font-weight: 300; white-space: nowrap; }
+
+    .food-day { padding: 12px 0 14px; border-bottom: 1px solid var(--n-line); }
+    .food-day:last-child { border-bottom: none; }
+    .fd-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .fd-date { font-weight: 700; font-size: 0.95rem; display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 6px; }
+    .fd-date small { color: var(--text-muted); font-weight: 300; font-size: 0.82rem; font-variant-numeric: tabular-nums; }
+    .food-day.today .fd-date { color: var(--accent-2); }
+    .fd-badge {
+      align-self: center;
+      font-size: 0.64rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: var(--n-r-pill);
+      background: var(--n-accent);
+      color: var(--n-on-accent);
+      font-family: var(--n-label-font);
+      text-transform: var(--n-label-case);
+      letter-spacing: var(--n-label-track);
+    }
+    .fd-shift {
+      flex-shrink: 0;
+      background: var(--n-field);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      padding: 5px 11px;
+      border-radius: var(--n-r-pill);
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .fd-shift:hover { background: var(--n-surface-2); border-color: var(--n-line-2); }
+    .fd-shift.free { color: var(--free); font-weight: 300; }
+
+    .fd-menus { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .fd-menus.single { grid-template-columns: 1fr; }
+    .menu {
+      background: var(--n-field);
+      border: 1px solid var(--card-border);
+      border-left: 3px solid var(--mc);
+      border-radius: var(--n-r-sm);
+      padding: 9px 11px 10px;
+      font-size: 0.86rem;
+      line-height: 1.4;
+    }
+    .menu .m-lbl {
+      font-family: var(--n-label-font);
+      text-transform: var(--n-label-case);
+      letter-spacing: var(--n-label-track);
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--mc);
+      margin-bottom: 4px;
+    }
+    .menu .m-soup, .menu .m-sweet { color: var(--text-muted); font-weight: 300; }
+    .menu .m-main { margin: 2px 0; }
+    .menu .m-main b { font-weight: 700; }
+
+    /* Im Tages-Fenster: zuerst das Mittagessen, nach links wischen
+       kommen die Tageseinstellungen. Ohne Essen gibt es nur die
+       Einstellungen – dann bleiben Reiter und Wischen weg.       */
+    .m-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .m-x {
+      flex-shrink: 0;
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      background: var(--n-field);
+      border: 1px solid var(--card-border);
+      border-radius: 50%;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .m-x:hover { background: var(--n-surface-2); color: var(--text-main); }
+    html[data-design="raster"] .m-x { border-radius: 0; }
+
+    .m-tabs {
+      position: relative;
+      display: none;
+      grid-template-columns: 1fr 1fr;
+      background: var(--n-field);
+      border: 1px solid var(--card-border);
+      border-radius: var(--n-r);
+      padding: 4px;
+      margin: 12px 0 16px;
+    }
+    .modal.has-food .m-tabs { display: grid; }
+    /* Der Balken wandert beim Wischen mit dem Finger mit */
+    .m-tabs::before {
+      content: '';
+      position: absolute;
+      top: 4px;
+      bottom: 4px;
+      left: 4px;
+      width: calc(50% - 4px);
+      background: var(--n-active-bg);
+      border-radius: calc(var(--n-r) - 4px);
+      transform: translateX(calc(var(--pos, 0) * 100%));
+    }
+    .m-tabs button {
+      position: relative;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 600;
+      padding: 8px 10px;
+      cursor: pointer;
+      transition: color 0.25s;
+    }
+    .m-tabs button.active { color: var(--n-active-fg); }
+
+    .m-pager {
+      display: flex;
+      align-items: flex-start;
+      margin: 0 calc(-1 * var(--m-pad));
+      overflow-x: auto;
+      overflow-y: hidden;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+    }
+    .m-pager::-webkit-scrollbar { display: none; }
+    .m-page {
+      flex: 0 0 100%;
+      min-width: 0;
+      padding: 4px var(--m-pad);
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+    }
+    .modal:not(.has-food) .m-page.m-food { display: none; }
+
+    .m-next {
+      display: block;
+      margin: 14px auto 0;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 300;
+      cursor: pointer;
+      padding: 6px 10px;
+    }
+    .m-next:hover { color: var(--text-main); }
+    .m-next span { display: inline-block; margin-left: 4px; font-weight: 600; animation: m-nudge 1.6s var(--n-ease) 0.6s 2; }
+    @keyframes m-nudge { 50% { transform: translateX(5px); } }
+
+    .m-food .mf-title {
+      font-family: var(--n-label-font);
+      text-transform: var(--n-label-case);
+      letter-spacing: var(--n-label-track);
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .m-food .fd-menus { grid-template-columns: 1fr; gap: 8px; }
+
+    /* Im Tages-Fenster über den Reitern: wer von den Kollegen da ist */
+    .m-team { margin-top: 12px; }
+    .modal:not(.has-food) .m-team { margin-bottom: 14px; }
+    .m-team .mt-title {
+      font-family: var(--n-label-font);
+      text-transform: var(--n-label-case);
+      letter-spacing: var(--n-label-track);
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .m-team .mt-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .m-team .mt-k {
+      background: var(--n-field);
+      border: 1px solid var(--card-border);
+      border-radius: var(--n-r-pill);
+      padding: 3px 10px;
+      font-size: 0.8rem;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-muted);
+    }
+    .m-team .mt-k b { color: var(--text-main); font-weight: 700; margin-right: 4px; }
+    .m-team .mt-none { font-size: 0.85rem; color: var(--free); font-weight: 300; }
+    .m-team .mt-note { margin-top: 6px; font-size: 0.78rem; color: var(--text-muted); font-weight: 300; }
+
+    /* ---------- Legende / Footer-Aktionen ---------- */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      justify-content: center;
+      margin: 24px 0 10px;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      font-weight: 300;
+    }
+    .legend span { display: flex; align-items: center; gap: 6px; }
+    .legend .dot { width: 9px; height: 9px; }
+
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 14px; }
+    .actions button, .actions .action-link {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 9px 16px;
+      border-radius: var(--n-r);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .actions button:hover, .actions .action-link:hover { background: var(--n-surface-2); color: var(--text-main); border-color: var(--n-line-2); }
+    .actions .action-link { text-decoration: none; display: inline-block; }
+
+    /* ---------- Modal ---------- */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--n-overlay);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 200;
+    }
+    .overlay.open { display: flex; }
+
+    .modal {
+      background: var(--n-solid);
+      border: 1px solid var(--n-line-2);
+      border-radius: var(--n-r-lg);
+      width: 100%;
+      max-width: 420px;
+      --m-pad: 24px;
+      padding: var(--m-pad);
+      max-height: 88vh;
+      overflow-y: auto;
+      animation: pop 0.45s var(--n-ease);
+      box-shadow: 0 30px 70px -20px rgba(0, 0, 0, 0.6);
+    }
+    .overlay.open { animation: n-fade 0.25s ease; }
+    @keyframes pop { from { opacity: 0; transform: translateY(24px) scale(0.96); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) {
+      * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+      .day:hover { transform: none; }
+    }
+
+    .modal h3 {
+      font-family: var(--n-font-display);
+      font-size: 1.5rem;
+      font-weight: var(--n-display-weight);
+      font-stretch: var(--n-display-stretch);
+      text-transform: var(--n-display-case);
+      letter-spacing: var(--n-display-track);
+    }
+    .modal .sub { color: var(--text-muted); font-weight: 300; margin-bottom: 18px; font-size: 0.92rem; }
+
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-family: var(--n-label-font); text-transform: var(--n-label-case); letter-spacing: var(--n-label-track); font-size: 0.74rem; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; }
+    .field input, .field select {
+      width: 100%;
+      background: var(--n-field);
+      border: 1px solid var(--n-line-2);
+      border-radius: var(--n-r-sm);
+      padding: 11px 12px;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 1rem;
+    }
+    .field input:focus, .field select:focus { outline: none; border-color: var(--accent-1); box-shadow: 0 0 0 3px color-mix(in srgb, var(--n-accent) 22%, transparent); }
+    .field-row { display: flex; gap: 10px; }
+    .field-row .field { flex: 1; }
+
+    .tag-picker { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tag-picker button {
+      background: var(--n-field);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: var(--n-r-sm);
+      cursor: pointer;
+    }
+    .tag-picker button.on { border-color: var(--accent-2); color: var(--accent-2); background: color-mix(in srgb, var(--n-accent) 13%, transparent); }
+
+    .calc-preview {
+      background: color-mix(in srgb, var(--n-accent) 10%, transparent);
+      border: 1px solid color-mix(in srgb, var(--n-accent) 28%, transparent);
+      border-radius: var(--n-r);
+      padding: 12px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .calc-preview .big { font-family: var(--n-font-display); font-stretch: var(--n-display-stretch); font-size: 1.8rem; font-weight: var(--n-display-weight); font-variant-numeric: tabular-nums; }
+    .calc-preview .small { font-size: 0.78rem; color: var(--text-muted); font-weight: 300; }
+
+    .modal-actions { display: flex; gap: 10px; margin-top: 6px; }
+    .btn {
+      flex: 1;
+      border: none;
+      border-radius: var(--n-r);
+      padding: 12px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s, opacity 0.2s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn.primary { background: var(--n-accent); color: var(--n-on-accent); }
+    .btn.primary:hover { filter: brightness(1.08); }
+    .btn.ghost { background: var(--n-surface-2); color: var(--text-main); border: 1px solid var(--card-border); }
+    .btn.danger { background: color-mix(in srgb, var(--n-bad) 14%, transparent); color: var(--danger); border: 1px solid color-mix(in srgb, var(--n-bad) 35%, transparent); flex: 0 0 auto; padding: 12px 16px; }
+
+    /* Schalter "zählt nicht aufs Konto" */
+    .check {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin: 4px 0 16px;
+      font-size: 0.82rem;
+      font-weight: 300;
+      color: var(--text-muted);
+      line-height: 1.45;
+      cursor: pointer;
+    }
+    .check input { width: 18px; height: 18px; margin-top: 1px; accent-color: var(--accent-2); flex-shrink: 0; }
+    .check b { font-weight: 600; color: var(--text-main); }
+
+    /* Eckmarke im Kalender: dieser Tag bewegt das Konto nicht */
+    .day .nomark {
+      position: absolute;
+      top: 4px;
+      right: 6px;
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: var(--free);
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
+
+    .modal-meta {
+      margin-top: 14px;
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-weight: 300;
+    }
+    .modal-meta:empty { margin-top: 0; }
+    .modal-meta button {
+      background: none;
+      border: none;
+      color: var(--accent-2);
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0;
+      text-decoration: underline;
+    }
+
+    footer { text-align: center; color: var(--text-muted); font-size: 0.85rem; opacity: 0.75; padding: 30px 20px 10px; line-height: 1.5; }
+
+    /* Beim Öffnen bauen sich die Abschnitte nacheinander auf */
+    .container > * { animation: var(--n-enter) 0.7s var(--n-enter-ease) backwards; }
+    .container > :nth-child(2) { animation-delay: 60ms; }
+    .container > :nth-child(3) { animation-delay: 100ms; }
+    .container > :nth-child(4) { animation-delay: 140ms; }
+    .container > :nth-child(5) { animation-delay: 190ms; }
+    .container > :nth-child(6) { animation-delay: 240ms; }
+    .container > :nth-child(n+7) { animation-delay: 290ms; }
+    .top-nav { animation: n-fade 0.6s ease backwards; }
+
+    @media (max-width: 700px) {
+      .top-nav { padding: 12px; }
+      .nav-title { font-size: 1.02rem; gap: 7px; }
+      html[data-design="raster"] .nav-title { font-size: 0.88rem; }
+      html[data-design="raster"] .top-nav a.home { padding: 7px 10px 7px 8px; }
+      .container { padding: 18px 12px 0; }
+      .month-name { font-size: 1.45rem; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .grid, .weekdays { gap: 5px; }
+      .day { min-height: 74px; padding: 6px 2px 4px; border-radius: var(--n-r-sm); }
+      .day .time { font-size: 0.6rem; }
+      .day .art { font-size: 0.58rem; }
+      .day .hrs { font-size: 0.85rem; }
+      .day .dnum { font-size: 0.78rem; }
+      .day .team { font-size: 0.56rem; gap: 0 3px; padding-top: 3px; }
+      .row .rdate { width: 62px; font-size: 0.85rem; }
+      .row .rtime { font-size: 0.88rem; }
+      .switch-row { gap: 8px; }
+      .fd-menus { grid-template-columns: 1fr; gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Nur über /edwin erreichbar – bewusst ohne Weg zum Hub -->
+  <div class="top-nav">
+    <div class="nav-title"><img class="n-app-icon" src="../icons/edwin.svg" alt=""> Dienstplan</div>
+    <button class="icon-btn" id="todayBtn" title="Zum heutigen Monat">Heute</button>
+  </div>
+
+  <!-- Firebase (Realtime Database, dieselbe Datenbank wie bei WM Wetten) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <!-- Edwins Dienstplan – eigene Datei, nur hier unter /edwin -->
+  <script src="dienstplan-daten.js"></script>
+
+  <!-- Rechenkern für das Überstunden-Feld oben – derselbe wie bei Tobias,
+       damit Kalender und Konto (ueberstunden.html) dieselbe Zahl zeigen -->
+  <script src="../ueberstunden-rechner.js"></script>
+
+  <!-- Mittagsmenüs aus dem Haus – derselbe Plan wie bei Tobias -->
+  <script src="../essensplan-daten.js"></script>
+
+  <!-- Wer von den Kollegen an welchem Tag Dienst hat – Team wie bei Tobias -->
+  <script src="../kollegen-daten.js"></script>
+
+  <div class="container">
+
+    <div class="sync-bar">
+      <div class="status" id="statusPill"><i></i><span id="statusText">Verbinde …</span></div>
+      <a class="konto-pill" id="kontoPill"><span>Überstunden</span><b id="kontoVal">±0</b></a>
+      <button class="name-btn" id="nameBtn">👤 Name festlegen</button>
+    </div>
+
+    <div id="noticeArea"></div>
+
+    <div class="month-bar">
+      <button class="icon-btn" id="prevBtn" aria-label="Vorheriger Monat">‹</button>
+      <div class="month-name" id="monthName">—</div>
+      <button class="icon-btn" id="nextBtn" aria-label="Nächster Monat">›</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="val" id="stHours">0</div><div class="lbl">Stunden gesamt</div></div>
+      <div class="stat"><div class="val" id="stDays">0</div><div class="lbl">Arbeitstage</div></div>
+      <div class="stat"><div class="val" id="stAvg">0</div><div class="lbl">Ø pro Dienst</div></div>
+      <div class="stat"><div class="val" id="stDiff">–</div><div class="lbl" id="stDiffLbl">Diff. zum Soll</div></div>
+    </div>
+
+    <div class="switch-row">
+      <div class="view-switch">
+        <button id="viewCal" class="active" type="button">Kalender</button>
+        <button id="viewList" type="button">Liste</button>
+        <button id="viewFood" type="button" hidden>Essen</button>
+      </div>
+      <div class="view-switch small" title="Anzeige der Stunden">
+        <button id="fmtDec" class="active" type="button">7,5 h</button>
+        <button id="fmtHm" type="button">7:30</button>
+      </div>
+    </div>
+
+    <div id="calendarView">
+      <div class="weekdays">
+        <div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div>Sa</div><div>So</div>
+      </div>
+      <div class="grid" id="grid"></div>
+    </div>
+
+    <div id="listView" style="display:none"></div>
+
+    <div id="foodView" style="display:none"></div>
+
+    <div class="legend" id="legend"></div>
+
+    <div class="actions">
+      <a class="action-link" href="ueberstunden.html">⏱️ Überstunden-Konto</a>
+      <button id="icsBtn" type="button">📅 Monat exportieren (.ics)</button>
+      <button id="resetBtn" type="button">↩️ Alle Änderungen zurücksetzen</button>
+    </div>
+
+    <footer id="footerInfo"></footer>
+  </div>
+
+  <!-- Detail / Bearbeiten -->
+  <div class="overlay" id="overlay">
+    <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+      <div class="m-head">
+        <h3 id="mTitle">Tag</h3>
+        <button class="m-x" id="mClose" type="button" aria-label="Schließen">✕</button>
+      </div>
+
+      <div class="m-team" id="mTeam" hidden></div>
+
+      <div class="m-tabs" id="mTabs" role="tablist" aria-label="Ansicht im Tages-Fenster">
+        <button type="button" role="tab" id="mTabFood" data-page="0" aria-controls="mFood">Essen</button>
+        <button type="button" role="tab" id="mTabDay" data-page="1" aria-controls="mDay">Einstellungen</button>
+      </div>
+
+      <div class="m-pager" id="mPager">
+      <section class="m-page m-food" id="mFood" role="tabpanel" aria-labelledby="mTabFood"></section>
+
+      <section class="m-page" id="mDay" role="tabpanel" aria-labelledby="mTabDay">
+      <div class="sub" id="mSub"></div>
+
+      <div class="calc-preview">
+        <div class="big" id="mCalc">0 h</div>
+        <div class="small" id="mCalcSub">Arbeitszeit abzüglich Pause</div>
+      </div>
+
+      <div class="field">
+        <label for="fArt">Art des Tages</label>
+        <select id="fArt">
+          <option value="dienst">Dienst</option>
+          <option value="feiertag">Feiertag</option>
+          <option value="urlaub">Urlaub</option>
+          <option value="zeitausgleich">Zeitausgleich</option>
+          <option value="fortbildung">Fortbildung</option>
+          <option value="sonderurlaub">Sonderurlaub</option>
+          <option value="krank">Krank</option>
+        </select>
+      </div>
+
+      <div id="dienstFields">
+        <div class="field-row">
+          <div class="field">
+            <label for="fVon">Von</label>
+            <input type="time" id="fVon" step="300">
+          </div>
+          <div class="field">
+            <label for="fBis">Bis</label>
+            <input type="time" id="fBis" step="300">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="fPause">Unbezahlte Pause</label>
+          <select id="fPause">
+            <option value="0">keine Pause</option>
+            <option value="0.25">15 Minuten</option>
+            <option value="0.5">30 Minuten</option>
+            <option value="0.75">45 Minuten</option>
+            <option value="1">1 Stunde</option>
+            <option value="1.5">1,5 Stunden</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Vermerk / Bereich</label>
+          <div class="tag-picker" id="tagPicker"></div>
+        </div>
+      </div>
+
+      <div id="artFields" style="display:none">
+        <div class="field">
+          <label for="fStd">Angerechnete Stunden</label>
+          <input type="text" id="fStd" inputmode="decimal" autocomplete="off" value="0">
+        </div>
+      </div>
+
+      <label class="check">
+        <input type="checkbox" id="fNeutral">
+        <span><b>Zählt nicht aufs Überstunden-Konto.</b>
+          Der Tag darf dann vom Aushang abweichen, ohne dass daraus ein
+          Plus oder ein Minus wird – gilt auch für „Frei“.</span>
+      </label>
+
+      <div class="modal-actions">
+        <button class="btn ghost" id="mCancel" type="button">Schließen</button>
+        <button class="btn danger" id="mDelete" type="button" title="Tag als frei markieren">Frei</button>
+        <button class="btn primary" id="mSave" type="button">Speichern</button>
+      </div>
+
+      <div class="modal-meta" id="mMeta"></div>
+      </section>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* =========================================================
+     DIENSTPLAN EDWIN
+     ---------------------------------------------------------
+     Gleich aufgebaut wie Tobias' Kalender (arbeitszeiten.html),
+     aber nur für eine Person und nur über /edwin erreichbar.
+     Der Plan steht in "edwin/dienstplan-daten.js" – dort werden
+     neue Monate eingetragen. Das Überstunden-Konto daneben
+     (edwin/ueberstunden.html) liest dieselbe Datei.
+     ========================================================= */
+
+  var APP_STAND = '16.11.2026';          // steht unten in der Fusszeile
+
+  var PEOPLE = (window.NESSIE_DIENSTPLAN && window.NESSIE_DIENSTPLAN.people) || [];
+
+  if (!PEOPLE.length) {
+    document.getElementById('noticeArea').innerHTML =
+      '<div class="notice">Die Dienstplan-Daten konnten nicht geladen werden ' +
+      '(dienstplan-daten.js fehlt oder wurde blockiert). Bitte die Seite neu laden.</div>';
+    return;
+  }
+
+  /* =========================================================
+     FIREBASE – dieselbe Realtime Database wie "WM Wetten",
+     aber komplett eigene Tabellen: die Tipps liegen unter
+     "bets/", dieser Dienstplan unter "dienstplan/<person>/".
+     Die beiden Apps kommen sich also nicht in die Quere.
+     ========================================================= */
+  var FIREBASE_CONFIG = {
+    databaseURL: 'https://wm-tippspiel-d4f4f-default-rtdb.europe-west1.firebasedatabase.app',
+    projectId: 'wm-tippspiel-d4f4f'
+  };
+  var DB_ROOT   = 'dienstplan';          // Edwin liegt unter "dienstplan/edwin/"
+
+  var NAME_KEY   = 'nessie_dienstplan_name';
+  var FMT_KEY    = 'nessie_dienstplan_format';
+  function localKey(pid) { return 'nessie_dienstplan_' + pid; }
+
+  var MONTH_NAMES = ['Jänner','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  var DAY_NAMES = ['So','Mo','Di','Mi','Do','Fr','Sa'];
+  var DAY_LONG = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+
+  var ART_LABELS = {
+    feiertag: 'Feiertag',
+    urlaub: 'Urlaub',
+    zeitausgleich: 'Zeitausgleich',
+    fortbildung: 'Fortbildung',
+    krank: 'Krank',
+    sonderurlaub: 'Sonderurlaub'
+  };
+  // Nur diese Kürzel bekommen eine eigene Farbe – alles andere wird grau
+  var KNOWN_TAGS = ['klub','seminar','hw','n1','n2','tx','custom'];
+
+  /* ---------- Kleine Helfer ---------- */
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  // Aus einem beliebigen (auch fremden) Vermerk eine sichere CSS-Klasse machen
+  function tagClass(t) {
+    var slug = String(t).toLowerCase().replace(/[^a-z0-9]/g, '');
+    return KNOWN_TAGS.indexOf(slug) > -1 ? slug : 'other';
+  }
+
+  function showNotice(msg) {
+    document.getElementById('noticeArea').innerHTML =
+      '<div class="notice">' + escapeHtml(msg) + '</div>';
+  }
+  function clearNotice() { document.getElementById('noticeArea').innerHTML = ''; }
+
+  function setStatus(state, text) {
+    document.getElementById('statusPill').className = 'status' + (state ? ' ' + state : '');
+    document.getElementById('statusText').textContent = text;
+  }
+
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function keyOf(y, m, d) { return y + '-' + pad(m + 1) + '-' + pad(d); }
+  function monthKeyOf(y, m) { return y + '-' + pad(m + 1); }
+
+  // Netto-Stunden eines Eintrags (Dienst über Mitternacht wird mitgerechnet).
+  // Steckt im gemeinsamen Rechenkern, damit das Konto unten dieselbe
+  // Arbeitszeit zählt wie der Kalender hier.
+  var RECH = window.NESSIE_UESTD || null;
+  function hoursOf(e) {
+    if (RECH) return RECH.hoursOf(e);
+    if (!e) return 0;
+    if (e.art) return Math.max(0, parseFloat(e.h) || 0);
+    if (!e.von || !e.bis) return 0;
+    var p = String(e.von).split(':'), q = String(e.bis).split(':');
+    var diff = (q[0] * 60 + +q[1]) - (p[0] * 60 + +p[1]);
+    if (diff < 0) diff += 24 * 60;
+    return Math.max(0, diff / 60 - (parseFloat(e.pause) || 0));
+  }
+
+  /* ---------- Stundenformat: 7,5 h  oder  7:30 ---------- */
+
+  var fmtMode = 'dec';
+  try { fmtMode = localStorage.getItem(FMT_KEY) === 'hm' ? 'hm' : 'dec'; } catch (e) {}
+
+  function fmtDec(n) {
+    var s = (Math.round(n * 100) / 100).toFixed(2).replace('.', ',');
+    return s.replace(/,00$/, '').replace(/(,\d)0$/, '$1');
+  }
+  function fmtHm(n) {
+    var sign = n < 0 ? '−' : '';
+    var mins = Math.round(Math.abs(n) * 60);
+    return sign + Math.floor(mins / 60) + ':' + pad(mins % 60);
+  }
+  // Stundenwert in der gewählten Anzeige – "h" nur im Dezimalmodus,
+  // damit aus "7:30 h" kein Zeitpunkt gelesen wird.
+  function fmtH(n) { return fmtMode === 'hm' ? fmtHm(n) : fmtDec(n) + ' h'; }
+  function fmtSigned(n) {
+    var pre = n > 0.001 ? '+' : n < -0.001 ? '−' : '±';
+    return fmtMode === 'hm' ? pre + fmtHm(Math.abs(n)) : pre + fmtDec(Math.abs(n));
+  }
+
+  /* ---------- Zahlen eintippen ----------
+     Stundenfelder sind type="text" mit inputmode="decimal". Ein type="number"
+     wirft in vielen Browsern und auf dem Handy alles weg, was ein Komma
+     enthaelt – aus "7,5" wird dann ein leeres Feld. Hier zaehlt jeder
+     Trenner, den eine Tastatur hergibt, und auch "7:30" wird verstanden.
+     Dieselben Regeln stehen im Überstunden-Rechner.                   */
+
+  // Alles, was auf einer Tastatur als Dezimaltrenner herauskommen kann
+  var SEP_RE   = /[.,\u00b7\u02d9\u2022\u2027\u066b\u060c\u2032'\u2019`\u00b4]/g;
+  // Minuszeichen, die keine echten Bindestriche sind
+  var MINUS_RE = /[\u2212\u2010\u2011\u2013\u2014]/g;
+
+  // Feldinhalt -> Zahl. Leer, "-" oder "," allein sind (noch) keine Zahl.
+  function parseNum(v) {
+    var t = String(v == null ? '' : v).replace(/[\s\u00a0]/g, '').replace(MINUS_RE, '-');
+    var hm = /^(-?)(\d{1,3}):([0-5]?\d)$/.exec(t);        // "7:30" sind 7,5 Stunden
+    if (hm) return (hm[1] ? -1 : 1) * (+hm[2] + (+hm[3]) / 60);
+    t = t.replace(SEP_RE, '.');
+    if (!/^-?(\d+\.?\d*|\.\d+)$/.test(t)) return NaN;
+    return parseFloat(t);
+  }
+
+  // Zahl -> Feldinhalt (deutsch mit Komma), leer bleibt leer
+  function numField(n) {
+    if (n === null || n === undefined || n === '' || isNaN(n)) return '';
+    return fmtDec(+n);
+  }
+
+  // Aus Zeichensalat die beste Zahl machen: jeder Trenner wird zum Komma,
+  // alles andere fliegt raus, und mehr als ein Trenner bleibt nicht uebrig.
+  function cleanNum(v) {
+    var t = String(v == null ? '' : v)
+      .replace(MINUS_RE, '-').replace(SEP_RE, ',').replace(/[^0-9,:\-]/g, '');
+    var minus = t.charAt(0) === '-';
+    t = t.replace(/-/g, '');
+    var i = t.search(/[,:]/);                            // nur der erste Trenner zaehlt
+    if (i >= 0) t = t.slice(0, i + 1) + t.slice(i + 1).replace(/[,:]/g, '');
+    return minus ? '-' + t : t;
+  }
+
+  function isNumFeld(el) {
+    return !!el && el.tagName === 'INPUT' && el.getAttribute('inputmode') === 'decimal';
+  }
+
+  /* Waehrend des Tippens wird am Feld bewusst nichts umgeschrieben.
+     Genau daran ist das Komma bisher gescheitert: schreibt ein Skript
+     dem Feld mitten im Tippen einen neuen Wert hinein, verschlucken
+     manche Handy- und Zahlentastaturen das Zeichen, das gerade gekommen
+     ist. Gelesen wird ohnehin mit parseNum(), dem Komma, Punkt und
+     Doppelpunkt gleich recht sind. Sauber hingeschrieben wird erst,
+     wenn das Feld fertig ist.                                        */
+  document.addEventListener('blur', function (ev) {
+    var el = ev.target;
+    if (!isNumFeld(el)) return;
+    var roh = String(el.value);
+    var h = parseNum(roh);
+    if (isNaN(h) && roh.trim() !== '') h = parseNum(cleanNum(roh));
+    var neu = (roh.trim() === '' || isNaN(h)) ? '' : numField(h);
+    if (neu === roh) return;
+    el.value = neu;
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+  }, true);
+
+  /* ---------- Firebase starten ---------- */
+
+  var db = null, firebaseReady = false;
+  try {
+    if (typeof firebase !== 'undefined' && FIREBASE_CONFIG.databaseURL) {
+      firebase.initializeApp(FIREBASE_CONFIG);
+      db = firebase.database();
+      firebaseReady = true;
+    }
+  } catch (e) {
+    console.warn('Firebase konnte nicht gestartet werden:', e);
+  }
+
+  /* ---------- Zustand ---------- */
+
+  var today = new Date();
+  var todayKey = keyOf(today.getFullYear(), today.getMonth(), today.getDate());
+
+  var personId = PEOPLE[0].id;          // hier gibt es nur Edwin
+
+  function person() {
+    for (var i = 0; i < PEOPLE.length; i++) if (PEOPLE[i].id === personId) return PEOPLE[i];
+    return PEOPLE[0];
+  }
+
+  // Abweichungen vom gedruckten Plan – je Person ein eigener Topf
+  var overridesByPerson = {};
+  PEOPLE.forEach(function (p) { overridesByPerson[p.id] = loadLocal(p.id); });
+
+  /* Überstunden-Konto: Einstellungen und Korrekturen liegen unter
+     "dienstplan/<person>/ueberstunden" – gepflegt wird das drüben im
+     Überstunden-Rechner, hier wird nur mitgelesen.                  */
+  function kontoKey(pid) { return 'nessie_ueberstunden_' + pid; }
+
+  var kontoByPerson = {};
+  PEOPLE.forEach(function (p) { kontoByPerson[p.id] = loadKonto(p.id); });
+
+  function loadKonto(pid) {
+    try { return JSON.parse(localStorage.getItem(kontoKey(pid))) || {}; } catch (e) { return {}; }
+  }
+  function saveKonto(pid) {
+    try { localStorage.setItem(kontoKey(pid), JSON.stringify(kontoByPerson[pid])); } catch (e) {}
+  }
+  function overrides() { return overridesByPerson[personId]; }
+
+  function loadLocal(pid) {
+    try { return JSON.parse(localStorage.getItem(localKey(pid))) || {}; }
+    catch (e) { return {}; }
+  }
+  function saveLocal(pid) {
+    try { localStorage.setItem(localKey(pid), JSON.stringify(overridesByPerson[pid])); } catch (e) {}
+  }
+
+  var curY, curM;
+  setStartMonth();
+  function setStartMonth() {
+    // Aktueller Monat, wenn es dafür Daten gibt – sonst der erste Monat des Plans
+    var p = person();
+    var mk = monthKeyOf(today.getFullYear(), today.getMonth());
+    var hasCurrent = Object.keys(p.plan).some(function (k) { return k.indexOf(mk) === 0; });
+    if (hasCurrent) { curY = today.getFullYear(); curM = today.getMonth(); return; }
+    var keys = Object.keys(p.plan).sort();
+    if (keys.length) {
+      curY = +keys[0].slice(0, 4);
+      curM = +keys[0].slice(5, 7) - 1;
+    } else {
+      curY = today.getFullYear(); curM = today.getMonth();
+    }
+  }
+
+  var mode = 'cal';
+  var editKey = null;
+  var editTags = [];
+
+  // Der rohe Eintrag aus der Datenbank – der weiß auch bei einem
+  // freigestellten Tag noch, ob er aufs Überstunden-Konto zählt.
+  function rawEntry(key) { return overrides()[key] || null; }
+
+  // Ist der Tag als "zählt nicht aufs Überstunden-Konto" markiert?
+  function isNeutral(key) {
+    var o = rawEntry(key);
+    return !!(o && o.neutral);
+  }
+
+  // Liefert den Eintrag eines Tages oder null (= dienstfrei).
+  // Reihenfolge: eigene Änderung im Kalender → am Aushang mit der Hand
+  // ausgebessert ("aenderungen" in dienstplan-daten.js) → gedruckter Plan.
+  // Das Soll fürs Konto bleibt immer der gedruckte Plan.
+  function getEntry(key) {
+    var o = overrides()[key];
+    if (o) {
+      if (o.frei) return null;
+      if (o.art) {
+        return {
+          art: o.art, h: parseFloat(o.h) || 0, tags: [], custom: true,
+          neutral: !!o.neutral, by: o.by || '', ts: o.ts || 0
+        };
+      }
+      return {
+        von: o.von, bis: o.bis, pause: parseFloat(o.pause) || 0,
+        tags: Array.isArray(o.tags) ? o.tags.slice() : [],
+        custom: true, neutral: !!o.neutral, by: o.by || '', ts: o.ts || 0
+      };
+    }
+    if (o === null) return null;                 // Altbestand: null bedeutete "frei"
+    var a = aushangOf(key);
+    if (a) {
+      if (a.art) return { art: a.art, h: parseFloat(a.h) || 0, tags: [], custom: true, aushang: true };
+      return {
+        von: a.von, bis: a.bis, pause: parseFloat(a.pause) || 0,
+        tags: (a.tags || []).slice(), custom: true, aushang: true
+      };
+    }
+    var p = person().plan[key];
+    if (!p) return null;
+    if (p.art) return { art: p.art, h: p.h, tags: [], custom: false };
+    return { von: p.von, bis: p.bis, pause: p.pause, tags: (p.tags || []).slice(), custom: false };
+  }
+
+  function aushangOf(key) {
+    var a = person().aenderungen;
+    return (a && a[key]) || null;
+  }
+
+  // So stand der Tag gedruckt am Aushang – für den Hinweis im Tages-Fenster
+  function gedrucktTxt(key) {
+    var p = person().plan[key];
+    if (!p) return 'frei';
+    if (p.art) return artLabel(p.art);
+    return p.von + '–' + p.bis;
+  }
+
+  /* ---------- Speicher-Schicht: Firebase, sonst nur lokal ---------- */
+
+  var entriesRef = null;
+  var kontoRef = null;
+  var readFailed = false;
+  var onChange = function () {};
+
+  var Store = {
+    // Verbindungsanzeige – wird nur einmal aufgesetzt
+    initStatus: function () {
+      if (!firebaseReady) { setStatus('', 'Nur auf diesem Gerät'); return; }
+      setStatus('', 'Verbinde …');
+      db.ref('.info/connected').on('value', function (snap) {
+        if (readFailed) return;          // Lesefehler nicht mit "Live" überschreiben
+        if (snap.val() === true) setStatus('live', 'Live – auf allen Geräten gleich');
+        else setStatus('', 'Offline – wird später abgeglichen');
+      });
+    },
+
+    // Auf die Einträge der aktuell gewählten Person hören
+    watch: function (pid) {
+      if (!firebaseReady) { onChange(); return; }
+      if (entriesRef) { entriesRef.off(); entriesRef = null; }
+
+      var ref = db.ref(DB_ROOT + '/' + pid + '/entries');
+      entriesRef = ref;
+      ref.on('value',
+        function (snap) {
+          if (entriesRef !== ref) return;          // zwischenzeitlich umgeschaltet
+          overridesByPerson[pid] = snap.val() || {};
+          saveLocal(pid);
+          clearNotice();
+          onChange();
+        },
+        function (err) {
+          if (entriesRef !== ref) return;
+          firebaseReady = false;
+          readFailed = true;
+          entriesRef = null;
+          setStatus('err', 'Verbindung gestört');
+          showNotice('Die geteilte Datenbank ist gerade nicht erreichbar (' + err.message +
+                     '). Der Plan wird angezeigt, Änderungen bleiben vorerst auf diesem Gerät.');
+          overridesByPerson[pid] = loadLocal(pid);
+          onChange();
+        }
+      );
+
+      // Überstunden-Konto derselben Person mitlesen. Gepflegt wird es im
+      // Überstunden-Rechner; klappt das Lesen nicht, bleibt es beim Stand
+      // auf diesem Gerät – der Kalender läuft davon unabhängig weiter.
+      if (kontoRef) { kontoRef.off(); kontoRef = null; }
+      var kref = db.ref(DB_ROOT + '/' + pid + '/ueberstunden');
+      kontoRef = kref;
+      kref.on('value',
+        function (snap) {
+          if (kontoRef !== kref) return;
+          kontoByPerson[pid] = snap.val() || {};
+          saveKonto(pid);
+          onChange();
+        },
+        function () {
+          if (kontoRef !== kref) return;
+          kontoRef = null;
+          kontoByPerson[pid] = loadKonto(pid);
+          onChange();
+        }
+      );
+    },
+
+    set: function (key, val) {
+      var pid = personId;
+      overridesByPerson[pid][key] = val;
+      saveLocal(pid);
+      if (!firebaseReady) return Promise.resolve();
+      return db.ref(DB_ROOT + '/' + pid + '/entries/' + key).set(val)
+        .catch(function (err) { showNotice('Speichern fehlgeschlagen: ' + err.message); });
+    },
+
+    remove: function (key) {
+      var pid = personId;
+      delete overridesByPerson[pid][key];
+      saveLocal(pid);
+      if (!firebaseReady) return Promise.resolve();
+      return db.ref(DB_ROOT + '/' + pid + '/entries/' + key).remove()
+        .catch(function (err) { showNotice('Zurücksetzen fehlgeschlagen: ' + err.message); });
+    },
+
+    clear: function () {
+      var pid = personId;
+      overridesByPerson[pid] = {};
+      saveLocal(pid);
+      if (!firebaseReady) return Promise.resolve();
+      return db.ref(DB_ROOT + '/' + pid + '/entries').remove()
+        .catch(function (err) { showNotice('Zurücksetzen fehlgeschlagen: ' + err.message); });
+    }
+  };
+
+  /* ---------- Name (steht bei den eigenen Änderungen) ---------- */
+
+  var userName = '';
+  try { userName = localStorage.getItem(NAME_KEY) || ''; } catch (e) {}
+
+  function updateNameBtn() {
+    document.getElementById('nameBtn').textContent = userName ? '👤 ' + userName : '👤 Name festlegen';
+  }
+
+  function askName() {
+    var n = window.prompt('Wie heißt du? Der Name steht dann bei deinen Änderungen.', userName || '');
+    if (n === null) return;
+    userName = n.trim().slice(0, 24);
+    try { localStorage.setItem(NAME_KEY, userName); } catch (e) {}
+    updateNameBtn();
+  }
+
+  updateNameBtn();
+  document.getElementById('nameBtn').addEventListener('click', askName);
+
+  /* ---------- Monatsdaten sammeln ---------- */
+
+  function monthDays(y, m) {
+    var days = [], last = new Date(y, m + 1, 0).getDate();
+    for (var d = 1; d <= last; d++) {
+      var key = keyOf(y, m, d);
+      var e = getEntry(key);
+      days.push({
+        d: d,
+        key: key,
+        dow: new Date(y, m, d).getDay(),
+        entry: e,
+        hours: hoursOf(e)
+      });
+    }
+    return days;
+  }
+
+  // ISO-Kalenderwoche
+  function isoWeek(date) {
+    var d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+    var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+  }
+
+  /* ---------- Kollegen im Dienst ----------
+     Wer laut Sollplan des Teams an einem Tag da ist. Die Einträge
+     stehen in "kollegen-daten.js" – aus Datenschutzgründen nur als
+     Kürzel, nie mit vollem Namen. Edwin ist im selben Team wie
+     Tobias ("kollegen" in dienstplan-daten.js).                   */
+
+  var KOLLEGEN = window.NESSIE_KOLLEGEN || null;
+  var SHIFT_RE = /^(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})$/;
+
+  function team() {
+    var t = KOLLEGEN && KOLLEGEN.teams && KOLLEGEN.teams[person().kollegen || personId];
+    return t && Array.isArray(t.leute) && t.leute.length ? t : null;
+  }
+
+  // Ein Tag im Team: "da" hat eine Uhrzeit, Urlaub und alles andere
+  // (z. B. "SP") stehen extra – in der Reihenfolge des Aushangs.
+  function teamOf(key) {
+    var res = { da: [], sonst: [], urlaub: [] };
+    var t = team();
+    if (!t) return res;
+    t.leute.forEach(function (k) {
+      var v = k.tage && k.tage[key];
+      if (!v) return;
+      var item = { kurz: String(k.kurz || '?') };
+      var m = SHIFT_RE.exec(String(v).trim());
+      if (m) { item.von = m[1]; item.bis = m[2]; res.da.push(item); }
+      else if (v === 'U') res.urlaub.push(item);
+      else { item.txt = String(v); res.sonst.push(item); }
+    });
+    return res;
+  }
+
+  // Gibt es für den Monat überhaupt einen Team-Plan? Sonst heißt ein
+  // leerer Tag nicht "niemand da", sondern "noch nichts eingetragen".
+  function teamHasMonth(mk) {
+    var t = team();
+    return !!t && t.leute.some(function (k) {
+      return Object.keys(k.tage || {}).some(function (d) { return d.indexOf(mk) === 0; });
+    });
+  }
+
+  /* ---------- Rendering ---------- */
+
+  var grid = document.getElementById('grid');
+  var listView = document.getElementById('listView');
+
+  function render() {
+    var days = monthDays(curY, curM);
+
+    document.getElementById('monthName').innerHTML =
+      MONTH_NAMES[curM] + ' <span>' + curY + '</span>';
+    document.getElementById('footerInfo').innerHTML =
+      'Dienstplan ' + escapeHtml(person().fullName) + '<br>' + escapeHtml(person().meta) +
+      '<br>Stand der App: ' + APP_STAND;
+
+    // "Essen" gibt es nur, wenn die Person einen Essensplan hat (Tobias)
+    btnFood.hidden = !foodPlan();
+    if (mode === 'food' && !foodPlan()) applyMode('cal');
+    foodView.classList.remove('calm');
+
+    renderLegend();
+    renderStats(days);
+    renderKonto();
+    if (mode === 'cal') renderCalendar(days);
+    else if (mode === 'list') renderList(days);
+    else renderFood();
+  }
+
+  /* ---------- Überstunden-Konto ----------
+     Zeigt denselben Stand wie der Überstunden-Rechner: Übertrag plus
+     alle Tagesdifferenzen bis heute plus Korrekturen – bzw. ab der
+     letzten Monatsabrechnung deren Stand plus alles, was seitdem kam.
+     Der Wert hängt nicht am angezeigten Monat.                       */
+
+  var kontoPill = document.getElementById('kontoPill');
+  var kontoVal = document.getElementById('kontoVal');
+
+  function kontoStand() {
+    if (!RECH) return null;
+    var p = person();
+    var k = kontoByPerson[personId] || {};
+    return RECH.stand({
+      plan: p.plan,
+      entries: overrides(),
+      settings: RECH.normSettings(k.settings, { wochenSoll: p.wochenSoll }),
+      korrekturen: k.korrekturen,
+      anpassungen: k.anpassungen,
+      getEntry: getEntry
+    }, todayKey);
+  }
+
+  function renderKonto() {
+    var st = kontoStand();
+
+    // Ohne hinterlegtes Wochen-Soll gibt es kein Konto – dann bleibt das
+    // Feld weg, statt eine erfundene Zahl zu zeigen.
+    if (!st) {
+      kontoPill.className = 'konto-pill';
+      kontoPill.removeAttribute('href');
+      return;
+    }
+
+    kontoVal.textContent = fmtSigned(st.saldo);
+    kontoVal.className = st.saldo > 0.001 ? 'pos' : st.saldo < -0.001 ? 'neg' : '';
+    kontoPill.className = 'konto-pill on';
+
+    var d = new Date(+st.nowKey.slice(0, 4), +st.nowKey.slice(5, 7) - 1, +st.nowKey.slice(8, 10));
+    var stand = 'Stand ' + d.getDate() + '. ' + MONTH_NAMES[d.getMonth()] + ' ' + d.getFullYear() +
+                (st.nowKey < todayKey ? ' (letzter Plantag)' : '');
+    var seite = person().kontoSeite;
+
+    kontoPill.title = 'Überstunden-Konto · ' + stand +
+      (seite ? ' · antippen für die ganze Auswertung' : '');
+    if (seite) kontoPill.setAttribute('href', seite);
+    else kontoPill.removeAttribute('href');
+  }
+
+  function renderLegend() {
+    // Die Farbpunkte gehören zum Kalender – beim Essen sind sie fehl am Platz
+    document.getElementById('legend').style.display = mode === 'food' ? 'none' : '';
+    var html = person().tags.map(function (t) {
+      return '<span><i class="dot ' + tagClass(t) + '"></i> ' + escapeHtml(t) + '</span>';
+    }).join('');
+    html += '<span><i class="dot custom"></i> von Hand geändert</span>';
+    if (daniKlubImMonat(monthKeyOf(curY, curM))) {
+      html += '<span><i class="dot dani"></i> Dani hat Klub</span>';
+    }
+    if (teamHasMonth(monthKeyOf(curY, curM))) {
+      html += '<span><b class="lg-team">' + escapeHtml(team().leute[0].kurz || '') + '</b> Kollegen im Dienst</span>';
+    }
+    document.getElementById('legend').innerHTML = html;
+  }
+
+  function renderStats(days) {
+    var total = 0, workHours = 0, workDays = 0;
+    days.forEach(function (x) {
+      if (!x.entry) return;
+      total += x.hours;
+      if (!x.entry.art) { workHours += x.hours; workDays++; }
+    });
+
+    document.getElementById('stHours').textContent = fmtH(total);
+    document.getElementById('stDays').textContent = workDays;
+    document.getElementById('stAvg').textContent = workDays ? fmtH(workHours / workDays) : '–';
+
+    var diffEl = document.getElementById('stDiff');
+    var lblEl = document.getElementById('stDiffLbl');
+    var soll = person().soll[monthKeyOf(curY, curM)];
+
+    if (soll != null) {
+      var diff = total - soll;
+      diffEl.textContent = fmtSigned(diff);
+      diffEl.className = 'val' + (diff > 0.001 ? ' pos' : diff < -0.001 ? ' neg' : '');
+      lblEl.textContent = 'Diff. zu ' + fmtH(soll) + ' Soll';
+      return;
+    }
+
+    // Ohne Monats-Soll: Schnitt der Wochen, die komplett in diesem Monat liegen
+    var avg = fullWeekAverage(days);
+    if (avg == null) {
+      diffEl.textContent = '–';
+      diffEl.className = 'val';
+      lblEl.textContent = 'kein Soll hinterlegt';
+    } else {
+      diffEl.textContent = fmtH(avg);
+      diffEl.className = 'val';
+      lblEl.textContent = 'Ø pro volle Woche';
+    }
+  }
+
+  // Nur Wochen zählen, deren Montag bis Sonntag komplett im Monat liegen –
+  // sonst würde eine angeschnittene Woche den Schnitt verfälschen.
+  function fullWeekAverage(days) {
+    var byNum = {};
+    days.forEach(function (x) { byNum[x.d] = x; });
+    var last = days.length, sums = [];
+
+    for (var d = 1; d <= last; d++) {
+      if (byNum[d].dow !== 1) continue;            // Wochenstart = Montag
+      if (d + 6 > last) break;                     // Woche ragt in den Folgemonat
+      var sum = 0, any = false;
+      for (var i = 0; i < 7; i++) {
+        sum += byNum[d + i].hours;
+        if (byNum[d + i].entry) any = true;
+      }
+      if (any) sums.push(sum);
+    }
+    if (!sums.length) return null;
+    return sums.reduce(function (a, b) { return a + b; }, 0) / sums.length;
+  }
+
+  // Hat Dani an diesem Tag laut Dienstplan Klub? (steht nur bei Tobias)
+  function hatDaniKlub(key) {
+    var l = person().daniKlub;
+    return !!l && l.indexOf(key) > -1;
+  }
+  function daniKlubImMonat(mk) {
+    var l = person().daniKlub;
+    return !!l && l.some(function (k) { return k.indexOf(mk) === 0; });
+  }
+
+  // entry darf fehlen (dienstfreier Tag) – Danis Klub-Punkt kommt trotzdem
+  function dotsFor(entry, key) {
+    var dots = entry ? entry.tags.map(function (t) {
+      return '<span class="dot ' + tagClass(t) + '" title="' + escapeHtml(t) + '"></span>';
+    }).join('') : '';
+    if (entry && entry.custom) dots += '<span class="dot custom" title="von Hand geändert"></span>';
+    if (hatDaniKlub(key)) dots += '<span class="dot dani" title="Dani hat Klub"></span>';
+    return dots ? '<div class="dots">' + dots + '</div>' : '';
+  }
+
+  function artLabel(art) { return ART_LABELS[art] || art; }
+  function artColor(art) { return ART_LABELS[art] ? 'var(--a-' + art + ')' : 'var(--text-muted)'; }
+
+  function renderCalendar(days) {
+    grid.innerHTML = '';
+
+    // Führende Leerzellen (Woche beginnt Montag)
+    var firstDow = new Date(curY, curM, 1).getDay();
+    var lead = (firstDow + 6) % 7;
+    for (var i = 0; i < lead; i++) {
+      var blank = document.createElement('div');
+      blank.className = 'day empty';
+      grid.appendChild(blank);
+    }
+
+    var frag = document.createDocumentFragment();
+    days.forEach(function (x) {
+      var cell = document.createElement('button');
+      cell.type = 'button';
+      var cls = 'day';
+      if (x.dow === 0 || x.dow === 6) cls += ' weekend';
+      if (x.entry) cls += x.entry.art ? ' special' : ' work';
+      if (x.key === todayKey) cls += ' today';
+      cell.className = cls;
+
+      var html = '<div class="dnum">' + x.d + '</div>';
+      if (isNeutral(x.key)) {
+        html += '<div class="nomark" title="Zählt nicht aufs Überstunden-Konto">±0</div>';
+      }
+      if (x.entry && x.entry.art) {
+        html += '<div class="art" style="color:' + artColor(x.entry.art) + '">' +
+                escapeHtml(artLabel(x.entry.art)) + '</div>';
+        html += '<div class="hrs">' + fmtH(x.hours) + '</div>';
+        html += dotsFor(x.entry, x.key);
+      } else if (x.entry) {
+        html += '<div class="time">' + escapeHtml(x.entry.von) + '<br>' + escapeHtml(x.entry.bis) + '</div>';
+        html += '<div class="hrs">' + fmtH(x.hours) + '</div>';
+        html += dotsFor(x.entry, x.key);
+      } else {
+        html += '<div class="free-lbl">frei</div>';
+        html += dotsFor(null, x.key);
+      }
+      var da = teamOf(x.key).da;
+      if (da.length) {
+        html += '<div class="team">' + da.map(function (k) {
+          return '<span>' + escapeHtml(k.kurz) + '</span>';
+        }).join('') + '</div>';
+      }
+      cell.innerHTML = html;
+      cell.setAttribute('aria-label',
+        x.d + '. ' + MONTH_NAMES[curM] + ' – ' +
+        (x.entry ? (x.entry.art ? artLabel(x.entry.art) : x.entry.von + ' bis ' + x.entry.bis) : 'frei') +
+        (isNeutral(x.key) ? ' – zählt nicht aufs Überstunden-Konto' : '') +
+        (hatDaniKlub(x.key) ? ' – Dani hat Klub' : '') +
+        (da.length ? ' – im Dienst: ' + da.map(function (k) { return k.kurz; }).join(', ') : ''));
+      cell.addEventListener('click', function () { openModal(x.key); });
+      frag.appendChild(cell);
+    });
+    grid.appendChild(frag);
+  }
+
+  function renderList(days) {
+    listView.innerHTML = '';
+    if (!days.some(function (x) { return !!x.entry; })) {
+      listView.innerHTML = '<div class="empty-hint">Für diesen Monat sind keine Arbeitszeiten hinterlegt.<br>' +
+        'Tippe im Kalender auf einen Tag, um einen Dienst einzutragen.</div>';
+      return;
+    }
+
+    // Nach Kalenderwoche gruppieren (neue Gruppe an jedem Montag)
+    var weeks = [], cur = null;
+    days.forEach(function (x) {
+      if (!cur || x.dow === 1) { cur = { days: [], sum: 0 }; weeks.push(cur); }
+      cur.days.push(x);
+      cur.sum += x.hours;
+    });
+
+    weeks.forEach(function (w) {
+      var used = w.days.filter(function (x) { return !!x.entry; });
+      if (!used.length) return;
+
+      var block = document.createElement('div');
+      block.className = 'week-block';
+
+      var first = w.days[0], last = w.days[w.days.length - 1];
+      var range = (first.d === last.d ? first.d + '.' : first.d + '.–' + last.d + '.') + ' ' + MONTH_NAMES[curM];
+      // Am Monatsanfang/-ende ist die Woche angeschnitten – dann ist auch die Summe nur ein Teil
+      if (w.days.length < 7) range += ' · Teilwoche';
+      var head = '<div class="week-head"><div class="wk">KW ' + isoWeek(new Date(curY, curM, first.d)) +
+        '<small>' + range + '</small></div>' +
+        '<div class="sum">' + fmtH(w.sum) + '</div></div>';
+
+      var rows = used.map(function (x) {
+        var chips = x.entry.tags.map(function (t) {
+          return '<span class="chip ' + tagClass(t) + '">' + escapeHtml(t) + '</span>';
+        }).join('');
+        if (x.entry.custom) chips += '<span class="chip custom">geändert</span>';
+        if (hatDaniKlub(x.key)) chips += '<span class="chip dani">Dani Klub</span>';
+        if (isNeutral(x.key)) chips += '<span class="chip neutral">ohne Überstunden</span>';
+
+        var middle;
+        if (x.entry.art) {
+          middle = '<span style="color:' + artColor(x.entry.art) + ';font-weight:600">' +
+                   escapeHtml(artLabel(x.entry.art)) + '</span>';
+        } else {
+          middle = escapeHtml(x.entry.von) + ' – ' + escapeHtml(x.entry.bis) +
+            (x.entry.pause > 0 ? ' <span class="muted">(' + fmtH(x.entry.pause) + ' Pause)</span>' : '');
+        }
+        var da = teamOf(x.key).da;
+        if (da.length) {
+          chips += '<small class="rteam">mit ' + da.map(function (k) { return escapeHtml(k.kurz); }).join(' · ') + '</small>';
+        }
+
+        return '<button type="button" class="row" data-key="' + x.key + '">' +
+          '<span class="rdate">' + x.d + '.' + pad(curM + 1) + '.<small>' + DAY_NAMES[x.dow] + '</small></span>' +
+          '<span class="rtime">' + middle + chips + '</span>' +
+          '<span class="rhrs">' + fmtH(x.hours) + '</span>' +
+          '</button>';
+      }).join('');
+
+      block.innerHTML = head + rows;
+      block.querySelectorAll('.row').forEach(function (r) {
+        r.addEventListener('click', function () { openModal(r.getAttribute('data-key')); });
+      });
+      listView.appendChild(block);
+    });
+  }
+
+  /* ---------- Essensplan ----------
+     Die drei Mittagsmenüs aus dem Haus (Hausmannskost, Leichte
+     Vollkost, Diabetiker geeignet). Die Menüs stehen in
+     "essensplan-daten.js". Edwin isst im selben Haus wie Tobias
+     und bekommt dessen Plan ("essen" in dienstplan-daten.js). */
+
+  var ESSEN = window.NESSIE_ESSENSPLAN || null;
+  var MENUES = (ESSEN && ESSEN.menues) || [];
+  var FOOD_KEY = 'nessie_dienstplan_essen';
+  var foodView = document.getElementById('foodView');
+
+  function foodPlan() {
+    var p = ESSEN && ESSEN.plaene && ESSEN.plaene[person().essen || personId];
+    return p && MENUES.length ? p : null;
+  }
+  function foodOf(key) {
+    var p = foodPlan();
+    return p ? p[key] || null : null;
+  }
+
+  // Welche Menülinie angezeigt wird – leer heißt alle drei
+  var foodFilter = '';
+  try { foodFilter = localStorage.getItem(FOOD_KEY) || ''; } catch (e) {}
+  if (!MENUES.some(function (m) { return m.id === foodFilter; })) foodFilter = '';
+
+  function setFoodFilter(id) {
+    foodFilter = id;
+    try { localStorage.setItem(FOOD_KEY, id); } catch (e) {}
+    foodView.classList.add('calm');          // beim Umschalten nicht neu einblenden
+    renderFood();
+  }
+
+  function menuColor(id) {
+    return '--mc:var(--m-' + String(id).replace(/[^a-z0-9-]/gi, '') + ', var(--t-other))';
+  }
+
+  // Ein Menü in der Reihenfolge des Aushangs: erste Zeile Suppe,
+  // letzte Nachspeise, dazwischen der Hauptgang mit den Beilagen.
+  function menuHtml(m, items) {
+    items = Array.isArray(items) ? items.filter(Boolean) : [];
+    if (!items.length) return '';
+    var n = items.length;
+    var soup = n >= 2 ? items[0] : '';
+    var sweet = n >= 3 ? items[n - 1] : '';
+    var main = n >= 3 ? items.slice(1, -1) : items.slice(n - 1);
+
+    return '<div class="menu" style="' + menuColor(m.id) + '">' +
+      '<div class="m-lbl">' + escapeHtml(m.label) + '</div>' +
+      (soup ? '<div class="m-soup">' + escapeHtml(soup) + '</div>' : '') +
+      '<div class="m-main"><b>' + escapeHtml(main[0]) + '</b>' +
+        main.slice(1).map(function (x) { return ' · ' + escapeHtml(x); }).join('') + '</div>' +
+      (sweet ? '<div class="m-sweet">' + escapeHtml(sweet) + '</div>' : '') +
+      '</div>';
+  }
+
+  function menusHtml(day, only) {
+    var list = MENUES.filter(function (m) { return !only || m.id === only; });
+    return '<div class="fd-menus' + (list.length === 1 ? ' single' : '') + '">' +
+      list.map(function (m) { return menuHtml(m, day[m.id]); }).join('') + '</div>';
+  }
+
+  // Der Dienst des Tages, damit man sieht, an welchen Tagen man im Haus isst
+  function shiftOf(key) {
+    var e = getEntry(key);
+    if (!e) return { cls: 'free', txt: 'frei', aria: 'dienstfrei' };
+    if (e.art) return { cls: 'art', txt: artLabel(e.art), aria: artLabel(e.art) };
+    return { cls: 'work', txt: e.von + '–' + e.bis, aria: 'Dienst ' + e.von + ' bis ' + e.bis };
+  }
+
+  function renderFood() {
+    foodView.innerHTML = '';
+    var plan = foodPlan();
+    if (!plan) return;
+
+    var bar = document.createElement('div');
+    bar.className = 'food-filter';
+    bar.setAttribute('role', 'group');
+    bar.setAttribute('aria-label', 'Menü auswählen');
+    [{ id: '', kurz: 'Alle' }].concat(MENUES).forEach(function (m) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      if (m.id === foodFilter) b.className = 'active';
+      b.setAttribute('aria-pressed', m.id === foodFilter ? 'true' : 'false');
+      b.innerHTML = (m.id ? '<i style="' + menuColor(m.id) + '"></i>' : '') + escapeHtml(m.kurz || m.label);
+      b.addEventListener('click', function () { setFoodFilter(m.id); });
+      bar.appendChild(b);
+    });
+    foodView.appendChild(bar);
+
+    // Immer ganze Wochen (Mo–So), die in den Monat ragen – der
+    // Aushang gilt ja für eine Woche, nicht für einen Monat.
+    var first = new Date(curY, curM, 1);
+    var last = new Date(curY, curM + 1, 0);
+    var mon = new Date(curY, curM, 1 - (first.getDay() + 6) % 7);
+    var shown = 0;
+
+    for (; mon <= last; mon = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + 7)) {
+      var days = [];
+      for (var i = 0; i < 7; i++) {
+        var d = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + i);
+        var k = keyOf(d.getFullYear(), d.getMonth(), d.getDate());
+        if (plan[k]) days.push({ date: d, key: k, menu: plan[k] });
+      }
+      if (!days.length) continue;
+      foodView.appendChild(foodWeek(mon, days));
+      shown++;
+    }
+
+    if (!shown) {
+      var hint = document.createElement('div');
+      hint.className = 'empty-hint';
+      hint.textContent = 'Für ' + MONTH_NAMES[curM] + ' ' + curY + ' ist noch kein Essensplan hinterlegt.';
+      foodView.appendChild(hint);
+    }
+  }
+
+  function foodWeek(mon, days) {
+    var a = days[0].date, b = days[days.length - 1].date;
+    var range;
+    if (a.getMonth() !== b.getMonth()) {
+      range = a.getDate() + '. ' + MONTH_NAMES[a.getMonth()] + ' – ' + b.getDate() + '. ' + MONTH_NAMES[b.getMonth()];
+    } else {
+      range = (a.getDate() === b.getDate() ? a.getDate() + '. ' : a.getDate() + '.–' + b.getDate() + '. ') +
+              MONTH_NAMES[b.getMonth()];
+    }
+
+    var html = '<div class="week-head"><div class="wk">KW ' + isoWeek(mon) + '<small>' + range + '</small></div>' +
+               '<div class="food-note">Mittagessen</div></div>';
+
+    days.forEach(function (x) {
+      var s = shiftOf(x.key);
+      var isToday = x.key === todayKey;
+      html += '<div class="food-day' + (isToday ? ' today' : '') + '">' +
+        '<div class="fd-head">' +
+          '<div class="fd-date">' + DAY_LONG[x.date.getDay()] +
+            '<small>' + pad(x.date.getDate()) + '.' + pad(x.date.getMonth() + 1) + '.</small>' +
+            (isToday ? '<span class="fd-badge">Heute</span>' : '') + '</div>' +
+          '<button type="button" class="fd-shift ' + s.cls + '" data-key="' + x.key + '"' +
+            ' aria-label="' + escapeHtml(s.aria) + ' – antippen zum Ändern">' + escapeHtml(s.txt) + '</button>' +
+        '</div>' +
+        menusHtml(x.menu, foodFilter) +
+        '</div>';
+    });
+
+    var block = document.createElement('div');
+    block.className = 'week-block';
+    block.innerHTML = html;
+    // Das Essen steht hier schon da – der Dienst-Knopf führt gleich zu den Einstellungen
+    block.querySelectorAll('.fd-shift').forEach(function (btn) {
+      btn.addEventListener('click', function () { openModal(btn.getAttribute('data-key'), 1); });
+    });
+    return block;
+  }
+
+  // Beim Öffnen der Ansicht gleich zum heutigen Tag springen
+  function scrollToFoodToday() {
+    var el = foodView.querySelector('.food-day.today');
+    if (!el || !el.scrollIntoView) return;
+    var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    el.scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block: 'center' });
+  }
+
+  // Im Tages-Fenster: was es an dem Tag zu Mittag gibt – liefert,
+  // ob es überhaupt eine Essens-Seite gibt
+  function renderModalFood(key) {
+    var box = document.getElementById('mFood');
+    var day = foodOf(key);
+    box.innerHTML = day
+      ? '<div class="mf-title">Mittagessen im Haus</div>' + menusHtml(day, '') +
+        '<button type="button" class="m-next">Wischen für die Tageseinstellungen<span aria-hidden="true">›</span></button>'
+      : '';
+    return !!day;
+  }
+
+  /* ---------- Modal ---------- */
+
+  var overlay = document.getElementById('overlay');
+  var fVon = document.getElementById('fVon');
+  var fBis = document.getElementById('fBis');
+  var fPause = document.getElementById('fPause');
+  var fArt = document.getElementById('fArt');
+  var fStd = document.getElementById('fStd');
+  var fNeutral = document.getElementById('fNeutral');
+  var tagPicker = document.getElementById('tagPicker');
+  var lastFocus = null;
+
+  /* ---------- Wisch-Ansicht im Tages-Fenster ----------
+     Seite 0 ist das Essen, Seite 1 die Tageseinstellungen. Das
+     Wischen selbst macht der Browser (Scroll-Snap); hier wird nur
+     die Höhe mitgeführt, damit das Fenster nicht so hoch bleibt
+     wie die längere Seite, und der Reiter oben nachgezogen.     */
+
+  var modal = document.getElementById('modal');
+  var mPager = document.getElementById('mPager');
+  var mPages = [document.getElementById('mFood'), document.getElementById('mDay')];
+  var mTabs = document.getElementById('mTabs');
+  var tabBtns = mTabs.querySelectorAll('[role="tab"]');
+  var hasFoodPage = false;
+  var curPage = -1;
+  var pagerW = 0;
+
+  function reducedMotion() {
+    return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  }
+
+  // 0 = Essen, 1 = Einstellungen, dazwischen mitten im Wischen
+  function pagerPos() {
+    var w = mPager.clientWidth;
+    return w ? Math.max(0, Math.min(1, mPager.scrollLeft / w)) : 0;
+  }
+
+  function markPage(p) {
+    curPage = p;
+    tabBtns.forEach(function (b, i) {
+      b.classList.toggle('active', i === p);
+      b.setAttribute('aria-selected', i === p ? 'true' : 'false');
+      b.tabIndex = i === p ? 0 : -1;
+    });
+  }
+
+  function fitPager() {
+    pagerW = mPager.clientWidth;
+    if (!hasFoodPage) { mPager.style.height = ''; return; }
+    var pos = pagerPos();
+    var h0 = mPages[0].offsetHeight, h1 = mPages[1].offsetHeight;
+    mPager.style.height = Math.round(h0 + (h1 - h0) * pos) + 'px';
+    mTabs.style.setProperty('--pos', pos.toFixed(3));
+    var p = Math.round(pos);
+    if (p !== curPage) markPage(p);
+  }
+
+  function showPage(p, smooth) {
+    var left = p * mPager.clientWidth;
+    if (smooth && !reducedMotion() && mPager.scrollTo) {
+      try { mPager.scrollTo({ left: left, behavior: 'smooth' }); return; } catch (e) {}
+    }
+    mPager.scrollLeft = left;
+    fitPager();
+  }
+
+  // Andere Art des Tages, gedrehtes Handy … die Höhe zieht mit. Ist das
+  // Fenster breiter oder schmäler geworden, wird neu eingerastet.
+  function refitPager() {
+    if (!overlay.classList.contains('open')) return;
+    if (hasFoodPage && curPage > -1 && mPager.clientWidth !== pagerW) showPage(curPage, false);
+    else fitPager();
+  }
+
+  mPager.addEventListener('scroll', fitPager, { passive: true });
+  window.addEventListener('resize', refitPager);
+  if (window.ResizeObserver) {
+    var ro = new ResizeObserver(refitPager);
+    mPages.forEach(function (el) { ro.observe(el); });
+  }
+
+  tabBtns.forEach(function (b) {
+    b.addEventListener('click', function () { showPage(+b.getAttribute('data-page'), true); });
+  });
+  // Pfeiltasten auf den Reitern
+  mTabs.addEventListener('keydown', function (ev) {
+    if (ev.key !== 'ArrowLeft' && ev.key !== 'ArrowRight') return;
+    ev.preventDefault();
+    var p = ev.key === 'ArrowLeft' ? 0 : 1;
+    showPage(p, true);
+    tabBtns[p].focus();
+  });
+  // "Wischen für die Tageseinstellungen" lässt sich auch antippen
+  mPages[0].addEventListener('click', function (ev) {
+    var t = ev.target.closest && ev.target.closest('.m-next');
+    if (t) showPage(1, true);
+  });
+
+  function buildTagPicker() {
+    tagPicker.innerHTML = '';
+    person().tags.forEach(function (t) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.setAttribute('data-tag', t);
+      b.textContent = t;
+      b.addEventListener('click', function () {
+        var i = editTags.indexOf(t);
+        if (i > -1) editTags.splice(i, 1); else editTags.push(t);
+        b.classList.toggle('on', i === -1);
+      });
+      tagPicker.appendChild(b);
+    });
+  }
+  buildTagPicker();
+
+  // Pausenwerte, die nicht in der Liste stehen, trotzdem anbieten
+  function setPause(v) {
+    var val = String(v);
+    if (!Array.prototype.some.call(fPause.options, function (o) { return o.value === val; })) {
+      var opt = document.createElement('option');
+      opt.value = val;
+      opt.textContent = fmtHm(parseFloat(val) || 0) + ' Std.';
+      fPause.appendChild(opt);
+    }
+    fPause.value = val;
+  }
+
+  function syncArtFields() {
+    var isDienst = fArt.value === 'dienst';
+    document.getElementById('dienstFields').style.display = isDienst ? '' : 'none';
+    document.getElementById('artFields').style.display = isDienst ? 'none' : '';
+    document.getElementById('mCalcSub').textContent = isDienst
+      ? 'Arbeitszeit abzüglich Pause'
+      : 'angerechnete Stunden';
+    updatePreview();
+    refitPager();
+  }
+
+  // page: 0 = mit dem Essen beginnen (Standard), 1 = gleich die Einstellungen
+  function openModal(key, page) {
+    editKey = key;
+    lastFocus = document.activeElement;
+    var parts = key.split('-');
+    var date = new Date(+parts[0], +parts[1] - 1, +parts[2]);
+    var e = getEntry(key);
+    var def = person().defaults;
+
+    document.getElementById('mTitle').textContent =
+      DAY_LONG[date.getDay()] + ', ' + (+parts[2]) + '. ' + MONTH_NAMES[date.getMonth()] + ' ' + parts[0];
+    var raw = rawEntry(key);
+    var sub = e
+      ? (e.aushang ? 'Am Aushang ausgebessert (gedruckt ' + gedrucktTxt(key) + ')'
+        : e.custom ? 'Von Hand eingetragen' : 'Laut Dienstplan')
+      : (raw && raw.frei ? 'Von Hand freigestellt' : 'Dienstfrei – trage hier einen Dienst ein');
+    if (raw && raw.neutral) sub += ' · zählt nicht aufs Konto';
+    if (hatDaniKlub(key)) sub += ' · Dani hat Klub';
+    document.getElementById('mSub').textContent = sub;
+
+    fArt.value = e && e.art ? e.art : 'dienst';
+    if (fArt.value !== 'dienst' && !ART_LABELS[fArt.value]) fArt.value = 'dienst';
+
+    fVon.value = e && !e.art ? e.von : def.von;
+    fBis.value = e && !e.art ? e.bis : def.bis;
+    setPause(e && !e.art ? e.pause : def.pause);
+    fStd.value = numField(e && e.art ? e.h : 0);
+
+    fNeutral.checked = !!(raw && raw.neutral);
+
+    editTags = e && !e.art ? e.tags.slice() : [];
+    tagPicker.querySelectorAll('button').forEach(function (b) {
+      b.classList.toggle('on', editTags.indexOf(b.getAttribute('data-tag')) > -1);
+    });
+
+    renderMeta(key);
+    renderModalTeam(key);
+    hasFoodPage = renderModalFood(key);
+    modal.classList.toggle('has-food', hasFoodPage);
+    syncArtFields();
+    overlay.classList.add('open');
+    modal.scrollTop = 0;
+
+    // Erst jetzt ist das Fenster sichtbar und hat eine Breite.
+    // Ohne Essen sind die Einstellungen die einzige Seite und stehen ganz links.
+    var foodFirst = hasFoodPage && page !== 1;
+    curPage = -1;
+    showPage(hasFoodPage && !foodFirst ? 1 : 0, false);
+
+    if (foodFirst) tabBtns[0].focus({ preventScroll: true });
+    else document.getElementById('mSave').focus();
+  }
+
+  // Über den Reitern: wer von den Kollegen an dem Tag mit welcher Zeit da
+  // ist, darunter Urlaub und sonstige Vermerke aus dem Plan
+  function renderModalTeam(key) {
+    var box = document.getElementById('mTeam');
+    if (!teamHasMonth(key.slice(0, 7))) { box.hidden = true; box.innerHTML = ''; return; }
+
+    var tm = teamOf(key);
+    var html = '<div class="mt-title">Kollegen im Dienst</div>';
+    html += tm.da.length
+      ? '<div class="mt-list">' + tm.da.map(function (k) {
+          return '<span class="mt-k"><b>' + escapeHtml(k.kurz) + '</b>' +
+                 escapeHtml(k.von) + '–' + escapeHtml(k.bis) + '</span>';
+        }).join('') + '</div>'
+      : '<div class="mt-none">Laut Plan ist niemand eingeteilt.</div>';
+
+    var notes = [];
+    var byTxt = {};
+    tm.sonst.forEach(function (k) { (byTxt[k.txt] = byTxt[k.txt] || []).push(k.kurz); });
+    Object.keys(byTxt).forEach(function (t) { notes.push(t + ': ' + byTxt[t].join(', ')); });
+    if (tm.urlaub.length) notes.push('Urlaub: ' + tm.urlaub.map(function (k) { return k.kurz; }).join(', '));
+    if (notes.length) html += '<div class="mt-note">' + escapeHtml(notes.join(' · ')) + '</div>';
+
+    box.innerHTML = html;
+    box.hidden = false;
+  }
+
+  // Zeigt, wer den Tag zuletzt geändert hat – plus Knopf zum Zurücksetzen.
+  // Gilt auch für freigestellte Tage, die ja ebenfalls eine Änderung sind.
+  function renderMeta(key) {
+    var box = document.getElementById('mMeta');
+    var raw = rawEntry(key);
+    if (!raw) { box.innerHTML = ''; return; }
+
+    var txt = raw.frei ? 'Freigestellt' : 'Geändert';
+    if (raw.by) txt += ' von ' + raw.by;
+    if (raw.ts) {
+      txt += ' am ' + new Date(raw.ts).toLocaleString('de-AT', {
+        day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
+      });
+    }
+    box.innerHTML = escapeHtml(txt) + '<br><button type="button" id="mRevert">Änderung zurücknehmen</button>';
+    document.getElementById('mRevert').addEventListener('click', function () { revertDay(key); });
+  }
+
+  function closeModal() {
+    if (!overlay.classList.contains('open')) return;
+    overlay.classList.remove('open');
+    editKey = null;
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+    lastFocus = null;
+  }
+
+  function updatePreview() {
+    var h = fArt.value === 'dienst'
+      ? hoursOf({ von: fVon.value, bis: fBis.value, pause: parseFloat(fPause.value) || 0 })
+      : Math.max(0, parseNum(fStd.value) || 0);
+    document.getElementById('mCalc').textContent =
+      fmtMode === 'hm' ? fmtHm(h) + ' Std.' : fmtDec(h) + ' h';
+  }
+
+  [fVon, fBis, fPause, fStd].forEach(function (el) {
+    el.addEventListener('input', updatePreview);
+    el.addEventListener('change', updatePreview);
+  });
+  fArt.addEventListener('change', syncArtFields);
+
+  document.getElementById('mSave').addEventListener('click', function () {
+    if (!editKey) return;
+    var val;
+
+    if (fArt.value === 'dienst') {
+      if (!fVon.value || !fBis.value) { alert('Bitte Von- und Bis-Zeit angeben.'); return; }
+      val = {
+        von: fVon.value,
+        bis: fBis.value,
+        pause: parseFloat(fPause.value) || 0,
+        tags: editTags.slice()
+      };
+      if (hoursOf(val) <= 0) {
+        if (!confirm('Damit ergibt der Tag 0 Stunden. Trotzdem speichern?')) return;
+      }
+    } else {
+      var h = parseNum(fStd.value);
+      if (!isFinite(h) || h < 0 || h > 24) { alert('Bitte gültige Stunden zwischen 0 und 24 angeben.'); return; }
+      val = { art: fArt.value, h: Math.round(h * 100) / 100 };
+    }
+
+    // Ausdrücklich als "zählt nicht" markierte Tage bewegen das
+    // Überstunden-Konto nicht – der Rechenkern setzt ihr Soll aufs Ist.
+    if (fNeutral.checked) val.neutral = true;
+
+    if (!userName && firebaseReady) askName();   // damit man sieht, wer geändert hat
+    val.by = userName || 'unbekannt';
+    val.ts = Date.now();
+
+    var key = editKey;
+    closeModal();
+    Store.set(key, val);
+    render();
+  });
+
+  document.getElementById('mDelete').addEventListener('click', function () {
+    if (!editKey) return;
+    if (!userName && firebaseReady) askName();
+    var key = editKey;
+    var val = { frei: true, by: userName || 'unbekannt', ts: Date.now() };
+    // Auch ein freigestellter Tag kann "zählt nicht" sein – sonst würde
+    // ein gestrichener Dienst als Minusstunden im Konto landen.
+    if (fNeutral.checked) val.neutral = true;
+    closeModal();
+    Store.set(key, val);
+    render();
+  });
+
+  // Einzelnen Tag auf den gedruckten Dienstplan zurücksetzen
+  function revertDay(key) {
+    closeModal();
+    Store.remove(key);
+    render();
+  }
+
+  document.getElementById('mCancel').addEventListener('click', closeModal);
+  document.getElementById('mClose').addEventListener('click', closeModal);
+  overlay.addEventListener('click', function (ev) { if (ev.target === overlay) closeModal(); });
+  document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape') closeModal(); });
+
+  /* ---------- Navigation & Aktionen ---------- */
+
+  document.getElementById('prevBtn').addEventListener('click', function () {
+    curM--; if (curM < 0) { curM = 11; curY--; } render();
+  });
+  document.getElementById('nextBtn').addEventListener('click', function () {
+    curM++; if (curM > 11) { curM = 0; curY++; } render();
+  });
+  document.getElementById('todayBtn').addEventListener('click', function () {
+    curY = today.getFullYear(); curM = today.getMonth(); render();
+    if (mode === 'food') scrollToFoodToday();
+  });
+
+  var btnCal = document.getElementById('viewCal');
+  var btnList = document.getElementById('viewList');
+  var btnFood = document.getElementById('viewFood');
+
+  // Kalender, Liste oder Essen – "Essen" nur, wenn es einen Plan gibt
+  function applyMode(m) {
+    if (m === 'food' && !foodPlan()) m = 'cal';
+    mode = m;
+    btnCal.classList.toggle('active', m === 'cal');
+    btnList.classList.toggle('active', m === 'list');
+    btnFood.classList.toggle('active', m === 'food');
+    document.getElementById('calendarView').style.display = m === 'cal' ? '' : 'none';
+    listView.style.display = m === 'list' ? '' : 'none';
+    foodView.style.display = m === 'food' ? '' : 'none';
+  }
+  btnCal.addEventListener('click', function () { applyMode('cal'); render(); });
+  btnList.addEventListener('click', function () { applyMode('list'); render(); });
+  btnFood.addEventListener('click', function () {
+    var again = mode === 'food';
+    applyMode('food');
+    render();
+    if (!again) scrollToFoodToday();
+  });
+
+  var btnDec = document.getElementById('fmtDec');
+  var btnHm = document.getElementById('fmtHm');
+  function setFmt(m) {
+    fmtMode = m;
+    try { localStorage.setItem(FMT_KEY, m); } catch (e) {}
+    btnDec.classList.toggle('active', m === 'dec');
+    btnHm.classList.toggle('active', m === 'hm');
+    render();
+    if (overlay.classList.contains('open')) updatePreview();
+  }
+  btnDec.addEventListener('click', function () { setFmt('dec'); });
+  btnHm.addEventListener('click', function () { setFmt('hm'); });
+
+  document.getElementById('resetBtn').addEventListener('click', function () {
+    var who = person().fullName;
+    var warn = 'Alle Änderungen bei ' + who + ' verwerfen und den Dienstplan laut Aushang wiederherstellen?';
+    if (firebaseReady) warn += '\n\nAchtung: Das gilt auf allen Geräten, nicht nur auf diesem.';
+    if (!confirm(warn)) return;
+    Store.clear();
+    render();
+  });
+
+  /* ---------- ICS-Export ---------- */
+
+  function icsEscape(s) {
+    return String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
+  }
+  function icsStamp(d) {
+    return d.getUTCFullYear() + pad(d.getUTCMonth() + 1) + pad(d.getUTCDate()) + 'T' +
+           pad(d.getUTCHours()) + pad(d.getUTCMinutes()) + pad(d.getUTCSeconds()) + 'Z';
+  }
+
+  document.getElementById('icsBtn').addEventListener('click', function () {
+    var days = monthDays(curY, curM).filter(function (x) { return !!x.entry; });
+    if (!days.length) { alert('In diesem Monat gibt es keine Dienste zum Exportieren.'); return; }
+
+    var p = person();
+    var stamp = icsStamp(new Date());
+    var lines = [
+      'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Nessie-Hub//Dienstplan//DE', 'CALSCALE:GREGORIAN',
+      'X-WR-CALNAME:' + icsEscape('Dienstplan ' + p.fullName)
+    ];
+
+    days.forEach(function (x) {
+      var dt = x.key.replace(/-/g, '');
+      lines.push('BEGIN:VEVENT',
+        'UID:' + dt + '-' + p.id + '@nessie-hub',
+        'DTSTAMP:' + stamp);
+
+      if (x.entry.art) {
+        // Ganztägig: DTEND ist im ICS-Format exklusiv, also der Folgetag
+        var next = new Date(curY, curM, x.d + 1);
+        lines.push(
+          'DTSTART;VALUE=DATE:' + dt,
+          'DTEND;VALUE=DATE:' + keyOf(next.getFullYear(), next.getMonth(), next.getDate()).replace(/-/g, ''),
+          'SUMMARY:' + icsEscape(artLabel(x.entry.art) + ' – ' + p.label),
+          'DESCRIPTION:' + icsEscape(fmtDec(x.hours) + ' h angerechnet')
+        );
+      } else {
+        lines.push(
+          'DTSTART:' + dt + 'T' + x.entry.von.replace(':', '') + '00',
+          'DTEND:' + dt + 'T' + x.entry.bis.replace(':', '') + '00',
+          'SUMMARY:' + icsEscape('Dienst ' + p.label + (x.entry.tags.length ? ' (' + x.entry.tags.join(', ') + ')' : '')),
+          'DESCRIPTION:' + icsEscape(fmtDec(x.hours) + ' h' +
+            (x.entry.pause > 0 ? ', ' + fmtDec(x.entry.pause) + ' h unbezahlte Pause' : ''))
+        );
+      }
+      lines.push('END:VEVENT');
+    });
+    lines.push('END:VCALENDAR');
+
+    var blob = new Blob([lines.join('\r\n') + '\r\n'], { type: 'text/calendar;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'dienstplan-' + p.id + '-' + curY + '-' + pad(curM + 1) + '.ics';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  /* ---------- Start ---------- */
+
+  onChange = render;
+  setFmt(fmtMode);          // rendert bereits mit dem lokalen Stand
+  Store.initStatus();
+  Store.watch(personId);    // danach live auf die geteilten Daten hören
+})();
+</script>
+</body>
+</html>
