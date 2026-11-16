@@ -19,6 +19,11 @@
 
    "wochenSoll" = vereinbarte Normalarbeitszeit pro Woche. Daraus
    errechnet der Überstunden-Rechner das Tages-Soll (Soll ÷ 5).
+
+   EDWIN steht bewusst NICHT hier, sondern in
+   "edwin/dienstplan-daten.js" – seine Seiten gibt es nur unter
+   /edwin, der Hub und dieser Kalender sollen ihn nicht zeigen.
+   Er steht am selben Aushang wie Tobias (oberste Zeile).
    ========================================================= */
 
 window.NESSIE_DIENSTPLAN = {

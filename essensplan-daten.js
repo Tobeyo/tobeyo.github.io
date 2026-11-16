@@ -5,6 +5,11 @@
    nur bei Personen, die hier unter "plaene" stehen – also
    nur bei Tobias, nicht bei Daniel.
 
+   Außerdem liest "edwin/index.html" (nur über /edwin, nicht
+   im Hub) genau diesen Plan unter "tobias" mit – Edwin isst
+   im selben Haus. Neue Wochen also nur hier bei "tobias"
+   eintragen, dann hat Edwin sie automatisch auch.
+
    Der Plan kommt in drei Formen:
      • „Menüplan“        – nur Mittagessen
      • „Wochenmenüplan“  – Mittagessen (ME) und Abendessen (AE)

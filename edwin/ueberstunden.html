@@ -1,0 +1,1976 @@
+<!DOCTYPE html>
+<html lang="de" class="n-themed">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Überstunden</title>
+  <meta name="description" content="Überstunden-Konto von Edwin – Ist-Stunden gegen 37 Stunden Wochen-Soll.">
+  <!-- Nur über den direkten Link /edwin erreichbar: nicht im Hub, nicht in Suchmaschinen -->
+  <meta name="robots" content="noindex, nofollow">
+
+  <!-- Dasselbe App-Manifest wie Edwins Kalender – installiert startet der Plan -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#0b1411" data-design>
+  <link rel="icon" type="image/svg+xml" href="../icons/ueberstunden.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="../icons/ueberstunden-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="../icons/ueberstunden-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../icons/edwin-180.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" data-design>
+  <meta name="apple-mobile-web-app-title" content="Dienstplan">
+
+  <!-- Gleiche Designs wie die übrigen Apps (Farben, Schriften, Übergänge) -->
+  <script src="../design.js"></script>
+  <link rel="stylesheet" href="../design.css">
+
+  <style>
+    :root {
+      /* Farbe dieser App im Design „Papier & Farbe“ */
+      --n-app: #e8702e;
+
+      /* Alle Farben kommen aus dem gewählten Design (design.css) */
+      --bg-color: var(--n-bg);
+      --card-bg: var(--n-surface);
+      --card-border: var(--n-line);
+      --accent-1: var(--n-accent);
+      --accent-2: var(--n-accent-2);
+      --free: var(--n-faint);
+      --danger: var(--n-bad);
+      --ok: var(--n-ok);
+      --text-main: var(--n-text);
+      --text-muted: var(--n-muted);
+
+      --a-feiertag: #ffd166;
+      --a-urlaub: #4ecdc4;
+      --a-zeitausgleich: #9aa0b5;
+      --a-fortbildung: #ffb454;
+      --a-krank: #ff5470;
+      --a-sonderurlaub: #7fd1ff;
+    }
+    html[data-mode="light"] {
+      --a-feiertag: #a67800;
+      --a-urlaub: #0f8a82;
+      --a-zeitausgleich: #6b655a;
+      --a-fortbildung: #b86200;
+      --a-krank: #cf3a4e;
+      --a-sonderurlaub: #1f6fb2;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: var(--n-font);
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      background-image: var(--n-bg-deco);
+      background-attachment: fixed;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      padding-bottom: 40px;
+    }
+
+    /* ---------- Nav ---------- */
+    .top-nav {
+      width: 100%;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      background: var(--n-nav);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--card-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .top-nav a.home {
+      color: var(--text-main);
+      text-decoration: none;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--card-bg);
+      padding: 8px 16px 8px 10px;
+      border-radius: var(--n-r-pill);
+      border: 1px solid var(--card-border);
+      transition: background 0.2s, transform 0.4s var(--n-ease);
+      white-space: nowrap;
+    }
+    .top-nav a.home:hover { background: var(--n-surface-2); }
+    .top-nav a.home:active { transform: scale(0.96); }
+    .n-back {
+      display: inline-grid;
+      place-items: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--n-active-bg);
+      color: var(--n-active-fg);
+      font-size: 0.85rem;
+      transition: transform 0.4s var(--n-ease);
+    }
+    html[data-design="raster"] .n-back { border-radius: 0; }
+    .top-nav a.home:hover .n-back { transform: translateX(-3px); }
+    .n-mini-icon { width: 22px; height: 22px; border-radius: 6px; }
+    html[data-design="raster"] .n-mini-icon { border-radius: 0; }
+    .nav-title {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-family: var(--n-font-display);
+      font-weight: var(--n-display-weight);
+      font-stretch: var(--n-display-stretch);
+      text-transform: var(--n-display-case);
+      font-size: 1.15rem;
+      letter-spacing: var(--n-display-track);
+      white-space: nowrap;
+    }
+    :focus-visible { outline: 2px solid var(--accent-2); outline-offset: 2px; }
+
+    .container { max-width: 1000px; margin: 0 auto; padding: 24px 16px 0; }
+
+    /* ---------- Sync-Leiste ---------- */
+    .sync-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      font-size: 0.82rem;
+    }
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--text-muted);
+      font-weight: 600;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 6px 13px;
+      border-radius: var(--n-r-pill);
+    }
+    .status i { width: 8px; height: 8px; border-radius: 50%; background: var(--free); flex-shrink: 0; }
+    .status.live i { background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+    .status.live { color: var(--ok); }
+    .status.err i { background: var(--danger); }
+    .status.err { color: var(--danger); }
+
+    .who { color: var(--text-muted); font-weight: 300; text-align: right; line-height: 1.35; }
+    .who b { color: var(--text-main); font-weight: 600; display: block; }
+
+    .notice {
+      background: color-mix(in srgb, var(--n-bad) 12%, transparent);
+      border: 1px solid color-mix(in srgb, var(--n-bad) 32%, transparent);
+      color: var(--n-bad);
+      border-radius: var(--n-r);
+      padding: 11px 14px;
+      margin-bottom: 16px;
+      font-size: 0.88rem;
+      font-weight: 300;
+      line-height: 1.5;
+    }
+
+    /* ---------- Konto-Karte ---------- */
+    .hero {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(160deg, color-mix(in srgb, var(--n-accent) 12%, transparent), color-mix(in srgb, var(--n-accent) 2%, transparent));
+      border: 1px solid var(--card-border);
+      border-radius: var(--n-r-lg);
+      padding: 26px 20px 22px;
+      text-align: center;
+      margin-bottom: 14px;
+      box-shadow: var(--n-shadow);
+    }
+    .hero .hero-lbl {
+      font-family: var(--n-label-font);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .hero .hero-val {
+      font-family: var(--n-font-display);
+      font-size: 4rem;
+      font-weight: var(--n-display-weight);
+      font-stretch: var(--n-display-stretch);
+      line-height: 1.02;
+      letter-spacing: var(--n-display-track);
+      font-variant-numeric: tabular-nums;
+      margin: 8px 0 4px;
+    }
+    /* Loch Ness: große, feine Serifen-Zahl, linksbündig */
+    html[data-design="loch"] .hero { text-align: left; background: transparent; box-shadow: none; border-width: 1px 0; border-radius: 0; padding: 24px 2px 22px; }
+    html[data-design="loch"] .hero .hero-val { font-size: 5.6rem; font-weight: 300; letter-spacing: -0.045em; font-variation-settings: "opsz" 144; line-height: 0.95; }
+    html[data-design="loch"] .hero .hero-break { justify-content: flex-start; }
+    /* Papier & Nachtpapier hell: die Karte in der App-Farbe */
+    html[data-mode="light"]:is([data-design="papier"], [data-design="nachtpapier"]) .hero { background: var(--n-app); border-color: transparent; color: #fff; text-align: left; padding: 24px 22px 22px; }
+    html[data-mode="light"]:is([data-design="papier"], [data-design="nachtpapier"]) .hero::after { content: ""; position: absolute; right: -70px; top: -70px; width: 240px; height: 240px; border-radius: 50%; border: 36px solid rgba(255, 255, 255, 0.12); pointer-events: none; }
+    html[data-mode="light"]:is([data-design="papier"], [data-design="nachtpapier"]) .hero .hero-lbl,
+    html[data-mode="light"]:is([data-design="papier"], [data-design="nachtpapier"]) .hero .hero-sub { color: rgba(255, 255, 255, 0.88); }
+    html[data-mode="light"]:is([data-design="papier"], [data-design="nachtpapier"]) .hero .hero-val { font-size: 4.8rem; letter-spacing: -0.045em; }
+    html[data-mode="light"]:is([data-design="papier"], [data-design="nachtpapier"]) .hero .hero-val.pos,
+    html[data-mode="light"]:is([data-design="papier"], [data-design="nachtpapier"]) .hero .hero-val.neg { color: #fff; }
+    html[data-mode="light"]:is([data-design="papier"], [data-design="nachtpapier"]) .hero .hero-break { justify-content: flex-start; }
+    html[data-mode="light"]:is([data-design="papier"], [data-design="nachtpapier"]) .hero .hero-break span { background: rgba(255, 255, 255, 0.2); border-color: transparent; color: rgba(255, 255, 255, 0.9); }
+    html[data-mode="light"]:is([data-design="papier"], [data-design="nachtpapier"]) .hero .hero-break span b { color: #fff; }
+    /* Papier & Nachtpapier dunkel: die Karte in der App-Farbe, nur dunkel */
+    html[data-mode="dark"]:is([data-design="papier"], [data-design="nachtpapier"]) .hero { background: color-mix(in oklab, var(--n-app) 34%, #1c1b18); border-color: color-mix(in srgb, var(--n-accent) 22%, transparent); text-align: left; padding: 24px 22px 22px; }
+    html[data-mode="dark"]:is([data-design="papier"], [data-design="nachtpapier"]) .hero::after { content: ""; position: absolute; right: -70px; top: -70px; width: 240px; height: 240px; border-radius: 50%; border: 36px solid rgba(255, 255, 255, 0.06); pointer-events: none; }
+    html[data-mode="dark"]:is([data-design="papier"], [data-design="nachtpapier"]) .hero .hero-val { font-size: 4.8rem; letter-spacing: -0.045em; }
+    html[data-mode="dark"]:is([data-design="papier"], [data-design="nachtpapier"]) .hero .hero-break { justify-content: flex-start; }
+    /* Schlicht: weiße Karte, große ruhige Zahl, linksbündig */
+    html[data-design="schlicht"] .hero { background: var(--n-surface); text-align: left; padding: 24px 22px 22px; }
+    html[data-design="schlicht"] .hero .hero-val { font-size: 5rem; letter-spacing: -0.055em; line-height: 0.98; }
+    html[data-design="schlicht"] .hero .hero-break { justify-content: flex-start; }
+    /* Kalligraphie: zwischen zwei feinen Doppellinien wie auf einer Buchseite */
+    html[data-design="kalligraphie"] .hero { background: var(--n-surface); border-width: 3px 0; border-style: double; border-color: var(--n-line-2); border-radius: 0; box-shadow: none; }
+    html[data-design="kalligraphie"] .hero .hero-val { font-size: 5rem; font-weight: 500; line-height: 1; }
+    /* Raster: riesige breite Zahl */
+    html[data-design="raster"] .hero { text-align: left; background: transparent; box-shadow: none; }
+    html[data-design="raster"] .hero .hero-val { font-size: 5.4rem; font-weight: 900; font-stretch: 125%; letter-spacing: -0.05em; line-height: 0.92; }
+    html[data-design="raster"] .hero .hero-break { justify-content: flex-start; }
+    .hero .hero-val.pos { color: var(--ok); }
+    .hero .hero-val.neg { color: var(--danger); }
+    .hero .hero-sub { color: var(--text-muted); font-weight: 300; font-size: 0.95rem; }
+    .hero .hero-break {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .hero .hero-break span {
+      background: var(--n-surface-2);
+      border: 1px solid var(--card-border);
+      border-radius: var(--n-r-pill);
+      padding: 6px 12px;
+      font-size: 0.78rem;
+      font-weight: 300;
+      color: var(--text-muted);
+    }
+    .hero .hero-break span b { font-weight: 700; color: var(--text-main); font-variant-numeric: tabular-nums; }
+
+    /* ---------- Statistik ---------- */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .stat {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--n-r-lg);
+      padding: 14px 12px;
+      text-align: center;
+      box-shadow: var(--n-shadow);
+    }
+    .stat .val {
+      font-family: var(--n-font-display);
+      font-size: 1.55rem;
+      font-weight: var(--n-display-weight);
+      font-stretch: var(--n-display-stretch);
+      letter-spacing: var(--n-display-track);
+      line-height: 1.1;
+      font-variant-numeric: tabular-nums;
+    }
+    .stat .lbl {
+      font-family: var(--n-label-font);
+      text-transform: var(--n-label-case);
+      letter-spacing: var(--n-label-track);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+      font-weight: 400;
+    }
+    html[data-design="loch"] .stat { text-align: left; padding: 14px 16px; }
+    html[data-design="loch"] .stat .lbl { font-size: 0.64rem; }
+    html[data-design="raster"] .stats { gap: 0; border: 1px solid var(--n-line); }
+    html[data-design="raster"] .stat { text-align: left; border: 0; border-right: 1px solid var(--n-line); padding: 14px 16px; }
+    html[data-design="raster"] .stat:last-child { border-right: 0; }
+    html[data-design="raster"] .stat .lbl { font-size: 0.64rem; }
+    .stat .val.pos { color: var(--ok); }
+    .stat .val.neg { color: var(--danger); }
+
+    /* ---------- Karten & Einstellungen ---------- */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--n-r-lg);
+      padding: 16px 18px;
+      margin-bottom: 18px;
+      box-shadow: var(--n-shadow);
+    }
+    .card h2 {
+      font-family: var(--n-font-display);
+      font-stretch: var(--n-display-stretch);
+      text-transform: var(--n-display-case);
+      letter-spacing: var(--n-display-track);
+      font-size: 1.2rem;
+      font-weight: var(--n-display-weight);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .card .hint { font-size: 0.8rem; color: var(--text-muted); font-weight: 300; line-height: 1.5; }
+
+    .set-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .field label { display: block; font-family: var(--n-label-font); text-transform: var(--n-label-case); letter-spacing: var(--n-label-track); font-size: 0.72rem; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; }
+    .field input, .field select {
+      width: 100%;
+      background: var(--n-field);
+      border: 1px solid var(--n-line-2);
+      border-radius: var(--n-r-sm);
+      padding: 10px 12px;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 1rem;
+      font-variant-numeric: tabular-nums;
+    }
+    .field input:focus, .field select:focus { outline: none; border-color: var(--accent-1); box-shadow: 0 0 0 3px color-mix(in srgb, var(--n-accent) 22%, transparent); }
+    .field .unit { font-size: 0.72rem; color: var(--free); font-weight: 300; margin-top: 4px; display: block; }
+
+    .check {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-top: 14px;
+      font-size: 0.85rem;
+      font-weight: 300;
+      color: var(--text-muted);
+      line-height: 1.45;
+      cursor: pointer;
+    }
+    .check input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--accent-2); flex-shrink: 0; }
+
+    /* ---------- Umschalter ---------- */
+    .switch-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .view-switch {
+      display: flex;
+      gap: 6px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--n-r);
+      padding: 5px;
+      width: fit-content;
+    }
+    .view-switch button {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.92rem;
+      font-weight: 600;
+      padding: 8px 18px;
+      border-radius: calc(var(--n-r) - 4px);
+      cursor: pointer;
+      transition: background 0.3s var(--n-ease), color 0.3s;
+    }
+    .view-switch button:hover { color: var(--text-main); }
+    .view-switch button.active {
+      background: var(--n-active-bg);
+      color: var(--n-active-fg);
+    }
+    .view-switch.small button { font-size: 0.82rem; padding: 7px 13px; }
+
+    /* ---------- Tabelle ---------- */
+    .table-wrap {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--n-r-lg);
+      box-shadow: var(--n-shadow);
+      padding: 4px 6px;
+      overflow-x: auto;
+      margin-bottom: 18px;
+    }
+    table.tbl { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+    table.tbl th {
+      font-family: var(--n-label-font);
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 12px 8px 8px;
+      text-align: left;
+      border-bottom: 1px solid var(--card-border);
+      white-space: nowrap;
+    }
+    table.tbl th.num, table.tbl td.num { text-align: right; }
+    table.tbl td {
+      padding: 11px 8px;
+      border-bottom: 1px solid var(--n-line);
+      font-size: 0.92rem;
+      white-space: nowrap;
+    }
+    table.tbl tr:last-child td { border-bottom: none; }
+    tr.wk { cursor: pointer; }
+    tr.wk td { transition: background 0.2s; }
+    tr.wk:hover td { background: var(--n-surface-2); }
+    tr.wk.future td { color: var(--free); }
+    tr.wk.now td { background: color-mix(in srgb, var(--n-accent) 9%, transparent); }
+    tr.wk.now td:first-child { box-shadow: inset 3px 0 0 var(--accent-2); }
+
+    .lbl-main { font-weight: 600; }
+    .lbl-sub { display: block; font-size: 0.74rem; color: var(--text-muted); font-weight: 300; margin-top: 1px; }
+    td.diff.pos, td.saldo.pos { color: var(--ok); font-weight: 700; }
+    td.diff.neg, td.saldo.neg { color: var(--danger); font-weight: 700; }
+    td.saldo { font-weight: 700; }
+    td.zero { color: var(--free); }
+
+    .flag {
+      display: inline-block;
+      font-size: 0.66rem;
+      font-weight: 600;
+      padding: 1px 7px;
+      border-radius: var(--n-r-pill);
+      margin-left: 6px;
+      color: var(--text-muted);
+      border: 1px solid currentColor;
+      vertical-align: middle;
+    }
+
+    /* Tages-Details in der aufgeklappten Woche */
+    tr.detail td { padding: 0 8px 12px; }
+    .days { display: flex; flex-direction: column; gap: 2px; padding: 4px 0 0; }
+    .dayline {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      font-size: 0.85rem;
+      font-weight: 300;
+      padding: 5px 10px;
+      border-radius: var(--n-r-sm);
+      background: var(--n-surface);
+      animation: n-rise 0.4s var(--n-ease) backwards;
+    }
+    .dayline .dd { width: 78px; flex-shrink: 0; font-weight: 600; }
+    .dayline .dt { flex-grow: 1; color: var(--text-muted); white-space: normal; }
+    .dayline .dh { font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .dayline .dv { width: 74px; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; flex-shrink: 0; }
+    .dayline .dv.pos { color: var(--ok); }
+    .dayline .dv.neg { color: var(--danger); }
+    .dayline .dv.zero { color: var(--free); }
+    .dayline.off { opacity: 0.6; }
+    html[data-design="raster"] .dayline { font-size: 0.76rem; gap: 8px; }
+    html[data-design="raster"] .dayline .dd { width: 88px; }
+
+    /* ---------- Stand laut Abrechnung ---------- */
+    .anp-group { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+    .anp-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--n-surface);
+      border: 1px solid var(--card-border);
+      border-radius: var(--n-r);
+      padding: 8px 10px;
+      transition: border-color 0.2s, background 0.2s, opacity 0.2s;
+    }
+    .anp-row.set { border-color: color-mix(in srgb, var(--n-accent) 50%, transparent); background: color-mix(in srgb, var(--n-accent) 8%, transparent); }
+    .anp-row .an { flex-grow: 1; min-width: 0; }
+    .anp-row .an-name { display: block; font-size: 0.9rem; font-weight: 600; }
+    .anp-row .an-sub {
+      display: block;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 300;
+      margin-top: 1px;
+      font-variant-numeric: tabular-nums;
+    }
+    .anp-row .an-sub b { font-weight: 600; color: var(--text-main); white-space: nowrap; }
+    .anp-row input[type="text"] {
+      width: 88px;
+      flex-shrink: 0;
+      text-align: right;
+      background: var(--n-field);
+      border: 1px solid var(--n-line-2);
+      border-radius: var(--n-r-sm);
+      padding: 9px 10px;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-variant-numeric: tabular-nums;
+    }
+    .anp-row input[type="text"]:focus { outline: none; border-color: var(--accent-1); box-shadow: 0 0 0 3px color-mix(in srgb, var(--n-accent) 22%, transparent); }
+    .anp-del {
+      background: none;
+      border: none;
+      color: var(--free);
+      font-size: 1rem;
+      cursor: pointer;
+      padding: 2px 4px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .anp-del:hover { color: var(--danger); }
+    .anp-del.hidden { visibility: hidden; }
+    .anp-info { font-size: 0.78rem; color: var(--text-muted); font-weight: 300; line-height: 1.5; margin-top: 10px; }
+    .anp-info b { font-weight: 600; color: var(--text-main); white-space: nowrap; }
+
+    /* ---------- Korrekturen ---------- */
+    .korr-list { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .korr {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--n-surface);
+      border: 1px solid var(--card-border);
+      border-radius: var(--n-r);
+      padding: 10px 12px;
+    }
+    .korr .kd { font-size: 0.78rem; color: var(--text-muted); width: 78px; flex-shrink: 0; font-weight: 600; }
+    .korr .kt { flex-grow: 1; font-size: 0.9rem; font-weight: 300; }
+    .korr .kt small { display: block; color: var(--free); font-size: 0.72rem; }
+    .korr .kh { font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .korr .kh.pos { color: var(--ok); }
+    .korr .kh.neg { color: var(--danger); }
+    .korr.drin .kh { opacity: 0.45; }
+    .korr .kdel {
+      background: none;
+      border: none;
+      color: var(--free);
+      font-size: 1rem;
+      cursor: pointer;
+      padding: 2px 4px;
+      line-height: 1;
+    }
+    .korr .kdel:hover { color: var(--danger); }
+
+    .add-btn {
+      background: var(--n-field);
+      border: 1px dashed var(--n-line-2);
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 600;
+      padding: 11px;
+      border-radius: var(--n-r);
+      cursor: pointer;
+      width: 100%;
+      margin-top: 10px;
+      transition: all 0.2s;
+    }
+    .add-btn:hover { background: var(--n-surface-2); color: var(--text-main); border-color: var(--n-accent); }
+
+    .empty-hint { color: var(--text-muted); font-weight: 300; font-size: 0.85rem; padding: 10px 0 0; line-height: 1.5; }
+
+    /* ---------- Erklärung ---------- */
+    .rules { list-style: none; margin-top: 12px; display: flex; flex-direction: column; gap: 9px; }
+    .rules li {
+      display: flex;
+      gap: 10px;
+      font-size: 0.85rem;
+      font-weight: 300;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .rules li i { font-style: normal; flex-shrink: 0; }
+    .rules b { color: var(--text-main); font-weight: 600; }
+
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 14px; }
+    .actions button, .actions a {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 9px 16px;
+      border-radius: var(--n-r);
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.2s;
+    }
+    .actions button:hover, .actions a:hover { background: var(--n-surface-2); color: var(--text-main); border-color: var(--n-line-2); }
+
+    /* ---------- Modal ---------- */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--n-overlay);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 200;
+    }
+    .overlay.open { display: flex; }
+    .modal {
+      background: var(--n-solid);
+      border: 1px solid var(--n-line-2);
+      border-radius: var(--n-r-lg);
+      width: 100%;
+      max-width: 420px;
+      padding: 24px;
+      max-height: 88vh;
+      overflow-y: auto;
+      animation: pop 0.45s var(--n-ease);
+      box-shadow: 0 30px 70px -20px rgba(0, 0, 0, 0.6);
+    }
+    .overlay.open { animation: n-fade 0.25s ease; }
+    @keyframes pop { from { opacity: 0; transform: translateY(24px) scale(0.96); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) {
+      * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+    .modal h3 {
+      font-family: var(--n-font-display);
+      font-size: 1.5rem;
+      font-weight: var(--n-display-weight);
+      font-stretch: var(--n-display-stretch);
+      text-transform: var(--n-display-case);
+      letter-spacing: var(--n-display-track);
+    }
+    .modal .sub { color: var(--text-muted); font-weight: 300; margin-bottom: 18px; font-size: 0.92rem; line-height: 1.45; }
+    .modal .field { margin-bottom: 14px; }
+    .quick { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .quick button {
+      background: var(--n-field);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 8px 12px;
+      border-radius: var(--n-r-sm);
+      cursor: pointer;
+    }
+    .quick button:hover { border-color: var(--accent-2); color: var(--accent-2); }
+
+    .modal-actions { display: flex; gap: 10px; margin-top: 6px; }
+    .btn {
+      flex: 1;
+      border: none;
+      border-radius: var(--n-r);
+      padding: 12px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s, opacity 0.2s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn.primary { background: var(--n-accent); color: var(--n-on-accent); }
+    .btn.primary:hover { filter: brightness(1.08); }
+    .btn.ghost { background: var(--n-surface-2); color: var(--text-main); border: 1px solid var(--card-border); }
+
+    footer { text-align: center; color: var(--text-muted); font-size: 0.85rem; opacity: 0.75; padding: 30px 20px 10px; line-height: 1.5; }
+
+    /* Beim Öffnen bauen sich die Abschnitte nacheinander auf */
+    .container > * { animation: var(--n-enter) 0.7s var(--n-enter-ease) backwards; }
+    .container > :nth-child(2) { animation-delay: 60ms; }
+    .container > :nth-child(3) { animation-delay: 110ms; }
+    .container > :nth-child(4) { animation-delay: 160ms; }
+    .container > :nth-child(5) { animation-delay: 210ms; }
+    .container > :nth-child(6) { animation-delay: 260ms; }
+    .container > :nth-child(n+7) { animation-delay: 310ms; }
+    .top-nav { animation: n-fade 0.6s ease backwards; }
+
+    @media (max-width: 700px) {
+      .top-nav { padding: 12px; }
+      .nav-title { font-size: 1.02rem; gap: 7px; }
+      html[data-design="raster"] .nav-title { font-size: 0.88rem; }
+      html[data-design="raster"] .top-nav a.home { padding: 7px 10px 7px 8px; }
+      .container { padding: 18px 12px 0; }
+      .hero .hero-val { font-size: 3.2rem; }
+      html[data-design="loch"] .hero .hero-val { font-size: 4.6rem; }
+      html[data-mode="light"]:is([data-design="papier"], [data-design="nachtpapier"]) .hero .hero-val { font-size: 4rem; }
+      html[data-design="raster"] .hero .hero-val { font-size: 3.6rem; }
+      html[data-mode="dark"]:is([data-design="papier"], [data-design="nachtpapier"]) .hero .hero-val { font-size: 4rem; }
+      html[data-design="schlicht"] .hero .hero-val { font-size: 4.2rem; }
+      html[data-design="kalligraphie"] .hero .hero-val { font-size: 4.2rem; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .set-grid { grid-template-columns: 1fr 1fr; }
+      table.tbl td { font-size: 0.86rem; padding: 10px 6px; }
+      table.tbl th { padding: 10px 6px 8px; }
+      .dayline .dd { width: 62px; }
+      html[data-design="raster"] .dayline .dd { width: 84px; }
+      .dayline .dv { width: 62px; }
+      .dayline .dt { font-size: 0.78rem; }
+    }
+    @media (max-width: 430px) {
+      .set-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Nur über /edwin erreichbar – zurück geht es zum Plan, nicht zum Hub -->
+  <div class="top-nav">
+    <a href="./" class="home"><span class="n-back" aria-hidden="true">←</span> Plan</a>
+    <div class="nav-title"><img class="n-app-icon" src="../icons/ueberstunden.svg" alt=""> Überstunden</div>
+  </div>
+
+  <!-- Firebase: derselbe Dienstplan wie im Kalender -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <!-- Edwins Dienstplan – eigene Datei, nur hier unter /edwin -->
+  <script src="dienstplan-daten.js"></script>
+
+  <!-- Rechenkern – derselbe wie bei Tobias und im Konto-Feld des Kalenders -->
+  <script src="../ueberstunden-rechner.js"></script>
+
+  <div class="container">
+
+    <div class="sync-bar">
+      <div class="status" id="statusPill"><i></i><span id="statusText">Verbinde …</span></div>
+      <div class="who" id="whoInfo"></div>
+    </div>
+
+    <div id="noticeArea"></div>
+
+    <div class="hero">
+      <div class="hero-lbl">Überstunden-Konto</div>
+      <div class="hero-val" id="heroVal">±0</div>
+      <div class="hero-sub" id="heroSub">–</div>
+      <div class="hero-break" id="heroBreak"></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="val" id="stIst">0</div><div class="lbl">Ist-Stunden bis heute</div></div>
+      <div class="stat"><div class="val" id="stSoll">0</div><div class="lbl">Soll-Stunden bis heute</div></div>
+      <div class="stat"><div class="val" id="stZa">0</div><div class="lbl">Zeitausgleich genommen</div></div>
+      <div class="stat"><div class="val" id="stProg">0</div><div class="lbl" id="stProgLbl">Prognose Planende</div></div>
+    </div>
+
+    <div class="card">
+      <h2>⚙️ Soll-Stunden</h2>
+      <p class="hint" id="setHint">–</p>
+      <div class="set-grid">
+        <div class="field">
+          <label for="fWoche">Soll pro Woche</label>
+          <input type="text" id="fWoche" inputmode="decimal" autocomplete="off">
+          <span class="unit" id="uTag">–</span>
+        </div>
+        <div class="field">
+          <label for="fStart">Übertrag / Startsaldo</label>
+          <input type="text" id="fStart" inputmode="decimal" autocomplete="off">
+          <span class="unit">Stunden, die es vorher schon gab – 12,5 oder 12.5, notfalls 12:30</span>
+        </div>
+        <div class="field">
+          <label for="fAb">Konto zählt ab</label>
+          <input type="date" id="fAb">
+          <span class="unit" id="uAb">–</span>
+        </div>
+      </div>
+      <label class="check">
+        <input type="checkbox" id="fZa">
+        <span>Zeitausgleich-Tage vom Konto abziehen. Ein ganzer ZA-Tag kostet also genau die Soll-Stunden dieses Tages.</span>
+      </label>
+    </div>
+
+    <div class="switch-row">
+      <div class="view-switch">
+        <button id="viewWeek" class="active" type="button">Wochen</button>
+        <button id="viewMonth" type="button">Monate</button>
+      </div>
+      <div class="view-switch small" title="Anzeige der Stunden">
+        <button id="fmtDec" class="active" type="button">7,5 h</button>
+        <button id="fmtHm" type="button">7:30</button>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th id="thPeriod">Woche</th>
+            <th class="num">Ist</th>
+            <th class="num">Soll</th>
+            <th class="num">Diff.</th>
+            <th class="num">Konto</th>
+          </tr>
+        </thead>
+        <tbody id="tblBody"></tbody>
+      </table>
+    </div>
+    <p class="empty-hint" id="tblHint" style="margin: -8px 0 18px; text-align: center;"></p>
+
+    <div class="card">
+      <h2>🎚️ Stand laut Abrechnung</h2>
+      <p class="hint">Hier kommt die Zahl von der Monatsabrechnung hin: Steht dort „Ende Oktober
+        10,75 Überstunden“, dann bei Oktober einfach 10,75 eintragen. Das Konto steht am letzten Tag
+        des Monats dann auf <b>genau</b> dieser Zahl – es wird nichts dazu- oder abgerechnet, auch
+        nichts aus den Monaten davor. Was danach im Dienstplan passiert, kommt ganz normal dazu.
+        Minusstunden mit „−“ davor, leeres Feld = keine Abrechnung.<br>
+        Halbe Stunden gehen mit Komma <b>und</b> mit Punkt – 10,75 oder 10.75 – und wenn die
+        Tastatur beides nicht hergibt, tut es auch 10:45.</p>
+
+      <div class="anp-group" id="anpMonate"></div>
+      <p class="anp-info" id="anpInfo"></p>
+    </div>
+
+    <div class="card">
+      <h2>✏️ Korrekturen</h2>
+      <p class="hint">Alles, was nicht im Dienstplan steht: ausbezahlte Überstunden, gutgeschriebene Zeit, ein Übertrag mitten im Jahr. Minus-Stunden mit einem Minus davor eintragen.</p>
+      <div class="korr-list" id="korrList"></div>
+      <button class="add-btn" id="korrAdd" type="button">＋ Korrektur eintragen</button>
+    </div>
+
+    <div class="card">
+      <h2>🧮 So wird gerechnet</h2>
+      <ul class="rules" id="rules"></ul>
+    </div>
+
+    <div class="actions">
+      <a href="./">🗓️ Zeiten im Dienstplan ändern</a>
+      <button id="csvBtn" type="button">📄 Wochen als CSV</button>
+      <button id="reloadBtn" type="button" title="Holt die Seite frisch vom Server, statt sie aus dem Zwischenspeicher zu nehmen">🔄 App neu laden</button>
+    </div>
+
+    <footer id="footerInfo"></footer>
+  </div>
+
+  <!-- Korrektur anlegen -->
+  <div class="overlay" id="overlay">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+      <h3 id="mTitle">Korrektur eintragen</h3>
+      <div class="sub">Wird zum Konto dazugezählt – unabhängig vom Dienstplan.</div>
+
+      <div class="quick" id="quickPicks"></div>
+
+      <div class="field">
+        <label for="kDatum">Datum</label>
+        <input type="date" id="kDatum">
+      </div>
+      <div class="field">
+        <label for="kText">Beschreibung</label>
+        <input type="text" id="kText" maxlength="60" placeholder="z. B. Überstunden ausbezahlt">
+      </div>
+      <div class="field">
+        <label for="kH">Stunden (Minus mit −)</label>
+        <input type="text" id="kH" inputmode="decimal" autocomplete="off" value="0">
+        <span class="unit">Komma oder Punkt – 2,5 oder 2.5 oder 2:30</span>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn ghost" id="kCancel" type="button">Abbrechen</button>
+        <button class="btn primary" id="kSave" type="button">Speichern</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* =========================================================
+     ÜBERSTUNDEN-KONTO
+     ---------------------------------------------------------
+     Grundgedanke: Jeder Tag hat ein Soll (Wochen-Soll ÷ 5 an
+     Werktagen, 0 am Wochenende und an Feiertagen) und ein Ist
+     (die Zeiten aus dem Dienstplan). Die Summe der Differenzen
+     plus Übertrag plus Korrekturen ergibt das Konto. Ist für einen
+     Monat der Stand laut Abrechnung eingetragen, steht das Konto an
+     dessen letztem Tag genau darauf, und es geht von dort aus weiter.
+
+     Gleich aufgebaut wie Tobias' Konto (ueberstunden.html), nur
+     für Edwin und nur über /edwin erreichbar. Die Dienstzeiten
+     kommen aus "edwin/dienstplan-daten.js" (gedruckter Plan plus
+     am Aushang ausgebesserte Zeiten) und – wenn im Kalender etwas
+     geändert wurde – live aus Firebase unter "dienstplan/edwin".
+     Diese Seite liest die Zeiten nur, geändert wird im Kalender.
+     ========================================================= */
+
+  var RECH = window.NESSIE_UESTD;
+
+  if (!RECH) {
+    document.getElementById('noticeArea').innerHTML =
+      '<div class="notice">Der Rechenkern konnte nicht geladen werden ' +
+      '(ueberstunden-rechner.js fehlt oder wurde blockiert). Bitte die Seite neu laden.</div>';
+    return;
+  }
+
+  var PERSON_ID = 'edwin';
+  var APP_STAND = '16.11.2026';          // steht unten in der Fusszeile
+
+  var ALL = (window.NESSIE_DIENSTPLAN && window.NESSIE_DIENSTPLAN.people) || [];
+  var PERSON = null;
+  for (var i = 0; i < ALL.length; i++) if (ALL[i].id === PERSON_ID) PERSON = ALL[i];
+
+  if (!PERSON) {
+    document.getElementById('noticeArea').innerHTML =
+      '<div class="notice">Die Dienstplan-Daten konnten nicht geladen werden ' +
+      '(dienstplan-daten.js fehlt oder wurde blockiert). Bitte die Seite neu laden.</div>';
+    return;
+  }
+
+  var FIREBASE_CONFIG = {
+    databaseURL: 'https://wm-tippspiel-d4f4f-default-rtdb.europe-west1.firebasedatabase.app',
+    projectId: 'wm-tippspiel-d4f4f'
+  };
+  var DB_ROOT = 'dienstplan';
+
+  var FMT_KEY   = 'nessie_dienstplan_format';                 // dieselbe Einstellung wie im Kalender
+  var NAME_KEY  = 'nessie_dienstplan_name';
+  var ENTRY_KEY = 'nessie_dienstplan_' + PERSON_ID;           // Spiegel der Kalender-Änderungen
+  var KONTO_KEY = 'nessie_ueberstunden_' + PERSON_ID;
+
+  var MONTH_NAMES = ['Jänner','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  var DAY_NAMES = ['So','Mo','Di','Mi','Do','Fr','Sa'];
+
+  var ART_LABELS = {
+    feiertag: 'Feiertag',
+    urlaub: 'Urlaub',
+    zeitausgleich: 'Zeitausgleich',
+    fortbildung: 'Fortbildung',
+    krank: 'Krank',
+    sonderurlaub: 'Sonderurlaub'
+  };
+
+  /* ---------- Kleine Helfer ---------- */
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function keyOf(y, m, d) { return y + '-' + pad(m + 1) + '-' + pad(d); }
+  function keyOfDate(d) { return keyOf(d.getFullYear(), d.getMonth(), d.getDate()); }
+  function dateOfKey(k) { return new Date(+k.slice(0, 4), +k.slice(5, 7) - 1, +k.slice(8, 10)); }
+  function addDays(d, n) { return new Date(d.getFullYear(), d.getMonth(), d.getDate() + n); }
+  function mondayOf(d) { return addDays(d, -((d.getDay() + 6) % 7)); }
+  function shortDate(d) { return pad(d.getDate()) + '.' + pad(d.getMonth() + 1) + '.'; }
+  function longDate(d) { return DAY_NAMES[d.getDay()] + ', ' + pad(d.getDate()) + '.' + pad(d.getMonth() + 1) + '.' + d.getFullYear(); }
+
+  function showNotice(msg) {
+    document.getElementById('noticeArea').innerHTML = '<div class="notice">' + escapeHtml(msg) + '</div>';
+  }
+  function clearNotice() { document.getElementById('noticeArea').innerHTML = ''; }
+  function setStatus(state, text) {
+    document.getElementById('statusPill').className = 'status' + (state ? ' ' + state : '');
+    document.getElementById('statusText').textContent = text;
+  }
+
+  /* ---------- Stundenformat ---------- */
+
+  var fmtMode = 'dec';
+  try { fmtMode = localStorage.getItem(FMT_KEY) === 'hm' ? 'hm' : 'dec'; } catch (e) {}
+
+  function fmtDec(n) {
+    var s = (Math.round(n * 100) / 100).toFixed(2).replace('.', ',');
+    return s.replace(/,00$/, '').replace(/(,\d)0$/, '$1');
+  }
+  function fmtHm(n) {
+    var mins = Math.round(Math.abs(n) * 60);
+    return (n < 0 ? '−' : '') + Math.floor(mins / 60) + ':' + pad(mins % 60);
+  }
+  function fmtH(n) { return fmtMode === 'hm' ? fmtHm(n) : fmtDec(n) + ' h'; }
+  function fmtSigned(n) {
+    var pre = n > 0.001 ? '+' : n < -0.001 ? '−' : '±';
+    return fmtMode === 'hm' ? pre + fmtHm(Math.abs(n)) : pre + fmtDec(Math.abs(n)) + ' h';
+  }
+  function signClass(n) { return n > 0.001 ? 'pos' : n < -0.001 ? 'neg' : 'zero'; }
+
+  /* ---------- Zahlen eintippen ----------
+     Die Stundenfelder sind bewusst type="text" mit inputmode="decimal":
+     Ein type="number" wirft in vielen Browsern und auf dem Handy alles weg,
+     was ein Komma enthaelt – aus "12,5" wird dann ein leeres Feld.
+     Hier zaehlt jedes Trennzeichen, das eine Tastatur so hergibt: Komma,
+     Punkt, Mittelpunkt, Hochkomma. Und wer partout keinen Trenner findet,
+     tippt "12:30". Angezeigt wird immer deutsch mit Komma.             */
+
+  // Alles, was auf einer Tastatur als Dezimaltrenner herauskommen kann
+  var SEP_RE   = /[.,\u00b7\u02d9\u2022\u2027\u066b\u060c\u2032'\u2019`\u00b4]/g;
+  // Minuszeichen, die keine echten Bindestriche sind
+  var MINUS_RE = /[\u2212\u2010\u2011\u2013\u2014]/g;
+
+  // Feldinhalt -> Zahl. Leer, "-" oder "," allein sind (noch) keine Zahl.
+  function parseNum(v) {
+    var t = String(v == null ? '' : v).replace(/[\s\u00a0]/g, '').replace(MINUS_RE, '-');
+    var hm = /^(-?)(\d{1,3}):([0-5]?\d)$/.exec(t);        // "7:30" sind 7,5 Stunden
+    if (hm) return (hm[1] ? -1 : 1) * (+hm[2] + (+hm[3]) / 60);
+    t = t.replace(SEP_RE, '.');
+    if (!/^-?(\d+\.?\d*|\.\d+)$/.test(t)) return NaN;
+    return parseFloat(t);
+  }
+
+  // Zahl -> Feldinhalt (deutsch mit Komma), leer bleibt leer
+  function numField(n) {
+    if (n === null || n === undefined || n === '' || isNaN(n)) return '';
+    return fmtDec(+n);
+  }
+
+  // Aus Zeichensalat die beste Zahl machen: jeder Trenner wird zum Komma,
+  // alles andere fliegt raus, und mehr als ein Trenner bleibt nicht uebrig.
+  function cleanNum(v) {
+    var t = String(v == null ? '' : v)
+      .replace(MINUS_RE, '-').replace(SEP_RE, ',').replace(/[^0-9,:\-]/g, '');
+    var minus = t.charAt(0) === '-';
+    t = t.replace(/-/g, '');
+    var i = t.search(/[,:]/);                            // nur der erste Trenner zaehlt
+    if (i >= 0) t = t.slice(0, i + 1) + t.slice(i + 1).replace(/[,:]/g, '');
+    return minus ? '-' + t : t;
+  }
+
+  function isNumFeld(el) {
+    return !!el && el.tagName === 'INPUT' && el.getAttribute('inputmode') === 'decimal';
+  }
+
+  /* Waehrend des Tippens wird am Feld bewusst nichts umgeschrieben.
+     Genau daran ist das Komma bisher gescheitert: schreibt ein Skript
+     dem Feld mitten im Tippen einen neuen Wert hinein, verschlucken
+     manche Handy- und Zahlentastaturen das Zeichen, das gerade gekommen
+     ist. Gelesen wird ohnehin mit parseNum(), dem Komma, Punkt und
+     Doppelpunkt gleich recht sind. Sauber hingeschrieben wird erst,
+     wenn das Feld fertig ist.                                        */
+  document.addEventListener('blur', function (ev) {
+    var el = ev.target;
+    if (!isNumFeld(el)) return;
+    var roh = String(el.value);
+    var h = parseNum(roh);
+    if (isNaN(h) && roh.trim() !== '') h = parseNum(cleanNum(roh));
+    var neu = (roh.trim() === '' || isNaN(h)) ? '' : numField(h);
+    if (neu === roh) return;
+    el.value = neu;
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+  }, true);
+
+  /* ---------- Feiertage (Österreich) – siehe ueberstunden-rechner.js ---------- */
+
+  function holidayName(key) { return RECH.holidayName(key); }
+
+  /* ---------- Zustand ---------- */
+
+  var today = new Date();
+  var todayKey = keyOfDate(today);
+
+  var entries = {};          // Änderungen aus dem Kalender (überschreiben den Plan)
+  try { entries = JSON.parse(localStorage.getItem(ENTRY_KEY)) || {}; } catch (e) { entries = {}; }
+
+  var DEFAULTS = {
+    wochenSoll: PERSON.wochenSoll || 37,
+    startSaldo: 0,
+    startDatum: '',
+    zaAbzug: true
+  };
+  var settings = { wochenSoll: DEFAULTS.wochenSoll, startSaldo: 0, startDatum: '', zaAbzug: true };
+  var korrekturen = {};
+
+  // Stand laut Abrechnung: je Monat die Zahl, auf der das Konto am
+  // Monatsende genau steht (siehe ueberstunden-rechner.js).
+  var anpassungen = { monate: {}, vorgaben: {} };
+
+  (function loadKonto() {
+    try {
+      var raw = JSON.parse(localStorage.getItem(KONTO_KEY)) || {};
+      applyKonto(raw);
+    } catch (e) {}
+  })();
+
+  // Einstellungen nur übernehmen, wenn es welche gibt – sonst würde ein noch
+  // leerer Datenbank-Eintrag die lokalen Werte überschreiben.
+  function applyKonto(raw) {
+    var s = raw && raw.settings;
+    if (s) {
+      var n = RECH.normSettings(s, DEFAULTS);
+      settings.wochenSoll = n.wochenSoll;
+      settings.startSaldo = n.startSaldo;
+      settings.startDatum = n.startDatum;
+      settings.zaAbzug = n.zaAbzug;
+    }
+    korrekturen = (raw && raw.korrekturen) || {};
+    anpassungen = normAnp(raw && raw.anpassungen);
+  }
+
+  // Aus den Rohdaten immer dieselbe Form machen – die Eingabefelder
+  // wollen ein vollständiges Objekt vorfinden. Ein altes "gesamt" (das
+  // Gesamtkonto von Hand) wird nicht mehr übernommen, beim nächsten
+  // Speichern fällt es aus der Datenbank.
+  function normAnp(raw) {
+    var a = raw || {};
+    return {
+      monate: a.monate || {},
+      vorgaben: a.vorgaben || {}                 // welche Vorgaben schon gelaufen sind
+    };
+  }
+
+  /* ---------- Vorgaben ----------
+     Zahlen aus der Abrechnung, die uns durchgesagt wurden und die einmal
+     ins Konto wandern sollen – so, als haetten wir sie unter "Stand laut
+     Abrechnung" selbst eingetippt. Jede Vorgabe laeuft genau ein Mal;
+     dass sie gelaufen ist, merkt sich das Konto unter "vorgaben". Wer den
+     Wert danach aendert oder loescht, behaelt seine Version – sie kommt
+     nicht wieder.                                                    */
+
+  // Edwin hat im November 2026 angefangen: Übertrag 0, noch keine
+  // Abrechnung. Kommt eine, hier wie bei Tobias eintragen, z. B.
+  //   { id: 'nov2026', monat: '2026-11', h: 4.5 }
+  var VORGABEN = [];
+
+  // true, wenn dabei etwas ins Konto gekommen ist
+  function applyVorgaben() {
+    var neu = false;
+    VORGABEN.forEach(function (v) {
+      if (anpassungen.vorgaben[v.id]) return;
+      anpassungen.vorgaben[v.id] = true;
+      anpassungen.monate[v.monat] = {
+        modus: 'stand',
+        h: v.h,
+        by: 'Vorgabe',
+        ts: Date.now()
+      };
+      neu = true;
+    });
+    if (neu) saveKontoLocal();
+    return neu;
+  }
+
+  function saveKontoLocal() {
+    try {
+      localStorage.setItem(KONTO_KEY, JSON.stringify({
+        settings: settings, korrekturen: korrekturen, anpassungen: anpassungen
+      }));
+    } catch (e) {}
+  }
+
+  applyVorgaben();               // einmal auf den Stand, der auf diesem Geraet liegt
+
+  var userName = '';
+  try { userName = localStorage.getItem(NAME_KEY) || ''; } catch (e) {}
+
+  function tagesSoll() { return RECH.tagesSoll(settings); }
+
+  // Eintrag eines Tages: Kalender-Änderung schlägt die am Aushang
+  // ausgebesserte Zeit, die wiederum den gedruckten Plan. Das Soll
+  // bleibt dabei immer der gedruckte Plan (PERSON.plan).
+  function getEntry(key) {
+    var o = entries[key];
+    if (o) {
+      if (o.frei) return null;
+      if (o.art) return { art: o.art, h: parseFloat(o.h) || 0, custom: true };
+      return { von: o.von, bis: o.bis, pause: parseFloat(o.pause) || 0, tags: o.tags || [], custom: true };
+    }
+    if (o === null) return null;                 // Altbestand: null bedeutete "frei"
+    var a = PERSON.aenderungen && PERSON.aenderungen[key];
+    if (a) {
+      if (a.art) return { art: a.art, h: parseFloat(a.h) || 0, custom: true, aushang: true };
+      return { von: a.von, bis: a.bis, pause: parseFloat(a.pause) || 0, tags: a.tags || [], custom: true, aushang: true };
+    }
+    var p = PERSON.plan[key];
+    if (!p) return null;
+    if (p.art) return { art: p.art, h: p.h, custom: false };
+    return { von: p.von, bis: p.bis, pause: p.pause, tags: p.tags || [], custom: false };
+  }
+
+  /* ---------- Rechenkern ----------
+     Die Regeln (Tages-Soll, Urlaub, Zeitausgleich, Konto) stehen in
+     "ueberstunden-rechner.js", damit der Dienstplan mit demselben
+     Kern rechnet. Hier hängen sie nur am Zustand dieser Seite.      */
+
+  function ctx() {
+    return {
+      plan: PERSON.plan,
+      entries: entries,
+      settings: settings,
+      korrekturen: korrekturen,
+      anpassungen: anpassungen,
+      getEntry: getEntry
+    };
+  }
+
+  function dataRange() { return RECH.dataRange(ctx()); }
+  function allDays() { return RECH.allDays(ctx()); }
+  function korrList() { return RECH.korrList(korrekturen); }
+
+  // Konto-Stand bis einschließlich Datum "bisKey".
+  // "extra" enthält die Anpassungen von Hand (siehe RECH.extrasOf).
+  function saldoUntil(days, bisKey, extra) {
+    return RECH.saldoUntil(days, korrList(), settings, bisKey, extra);
+  }
+
+  // Monatsname aus einem Schlüssel wie "2026-09"
+  function monatName(mk) {
+    return MONTH_NAMES[+mk.slice(5, 7) - 1] + ' ' + mk.slice(0, 4);
+  }
+
+  /* ---------- Wochen & Monate ---------- */
+
+  function weeksOf(days) {
+    var out = [], byMonday = {};
+    days.forEach(function (x) {
+      var mk = keyOfDate(mondayOf(x.date));
+      if (!byMonday[mk]) {
+        byMonday[mk] = { start: mondayOf(x.date), days: [], ist: 0, soll: 0, za: 0, diff: 0 };
+        out.push(byMonday[mk]);
+      }
+      var w = byMonday[mk];
+      w.days.push(x);
+      w.ist += x.ist; w.soll += x.soll; w.za += x.za; w.diff += x.diff;
+    });
+    out.forEach(function (w) {
+      w.key = keyOfDate(w.start);
+      w.kw = isoWeek(w.start);
+      w.teil = w.days.length < 7;                  // am Rand der Plandaten angeschnitten
+    });
+    return out;
+  }
+
+  function isoWeek(date) {
+    var d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+    var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+  }
+
+  /* ---------- Rendering ---------- */
+
+  var mode = 'week';
+  var openRow = null;
+
+  function render() {
+    var days = allDays();
+    var r = dataRange();
+
+    document.getElementById('whoInfo').innerHTML =
+      '<b>' + escapeHtml(PERSON.fullName) + '</b>' + escapeHtml(PERSON.meta);
+    document.getElementById('uTag').textContent = 'Tages-Soll: ' + fmtH(tagesSoll()) + ' (Mo–Fr)';
+    document.getElementById('setHint').innerHTML =
+      'Das Wochen-Soll wird auf fünf Werktage aufgeteilt. Bei ' + escapeHtml(fmtDec(settings.wochenSoll)) +
+      ' Stunden sind das <b>' + escapeHtml(fmtH(tagesSoll())) + ' pro Tag</b> von Montag bis Freitag.';
+
+    if (!days.length) {
+      document.getElementById('tblBody').innerHTML =
+        '<tr><td colspan="5"><p class="empty-hint">Für diesen Zeitraum sind keine Dienste hinterlegt. ' +
+        'Sobald im Dienstplan Zeiten stehen, rechnet das Konto automatisch mit.</p></td></tr>';
+      renderHero(null, null);
+      renderAnp([], [], null, null, todayKey);
+      renderKorr();
+      renderRules();
+      document.getElementById('footerInfo').textContent =
+        'Keine Plandaten vorhanden. \u00b7 Stand der App: ' + APP_STAND;
+      return;
+    }
+
+    var nowKey = todayKey > r.bis ? r.bis : todayKey;
+    var korr = korrList();
+    // Die Abrechnungen greifen jeweils am letzten Tag ihres Monats
+    var extra = RECH.extrasOf(days, korr, settings, anpassungen);
+    var jetzt = saldoUntil(days, nowKey, extra);
+    var ende = saldoUntil(days, '9999-12-31', extra);   // alles, auch Späteres
+
+    renderHero(jetzt, { nowKey: nowKey, ende: ende, range: r });
+    if (mode === 'week') renderWeeks(days, nowKey, extra); else renderMonths(days, nowKey, extra);
+
+    // Zeile antippen klappt die einzelnen Tage auf; oben zählt nur bis heute,
+    // in der Tabelle steht dagegen die komplette Woche bzw. der ganze Monat.
+    document.getElementById('tblHint').textContent =
+      'Zeile antippen zeigt die einzelnen Tage. Die Zeilen rechnen den ganzen ' +
+      (mode === 'week' ? 'Zeitraum' : 'Monat') + ', das Konto oben nur bis heute.';
+    renderAnp(days, korr, extra, jetzt, nowKey);
+    renderKorr(extra);
+    renderRules();
+
+    document.getElementById('footerInfo').innerHTML =
+      'Konto von ' + escapeHtml(PERSON.fullName) + '<br>' +
+      'Daten vom ' + shortDate(dateOfKey(r.von)) + dateOfKey(r.von).getFullYear() +
+      ' bis ' + shortDate(dateOfKey(r.bis)) + dateOfKey(r.bis).getFullYear() + '<br>' +
+      'Stand der App: ' + APP_STAND;
+  }
+
+  function renderHero(jetzt, extra) {
+    var val = document.getElementById('heroVal');
+    var sub = document.getElementById('heroSub');
+    var brk = document.getElementById('heroBreak');
+
+    if (!jetzt) {
+      val.textContent = '±0';
+      val.className = 'hero-val';
+      sub.textContent = 'noch keine Daten';
+      brk.innerHTML = '';
+      document.getElementById('stIst').textContent = '–';
+      document.getElementById('stSoll').textContent = '–';
+      document.getElementById('stZa').textContent = '–';
+      document.getElementById('stProg').textContent = '–';
+      return;
+    }
+
+    val.textContent = fmtSigned(jetzt.saldo);
+    val.className = 'hero-val ' + (jetzt.saldo > 0.001 ? 'pos' : jetzt.saldo < -0.001 ? 'neg' : '');
+
+    var tage = Math.abs(jetzt.saldo) / tagesSoll();
+    var tagText = jetzt.saldo > 0.001
+      ? 'entspricht ' + fmtDec(tage) + ' Tagen Zeitausgleich'
+      : jetzt.saldo < -0.001
+        ? 'entspricht ' + fmtDec(tage) + ' Tagen, die noch fehlen'
+        : 'genau ausgeglichen';
+    sub.textContent = 'Stand ' + longDate(dateOfKey(extra.nowKey)) + ' · ' + tagText;
+
+    // Mit Abrechnung beginnt die Rechnung bei ihr – was davor war, steckt
+    // ja schon in ihrer Zahl. Ohne geht es wie gehabt vom Übertrag aus.
+    var parts = [];
+    var abr = jetzt.abrechnung;
+    if (abr) {
+      parts.push(['Ende ' + monatName(abr.key) + ' laut Abrechnung', abr.h]);
+      if (abr.tag < extra.nowKey) {
+        parts.push(['seit ' + shortDate(addDays(dateOfKey(abr.tag), 1)) + ' aus dem Plan', jetzt.seit.plan]);
+      }
+      if (Math.abs(jetzt.seit.korr) > 0.001) parts.push(['Korrekturen seitdem', jetzt.seit.korr]);
+    } else {
+      if (Math.abs(settings.startSaldo) > 0.001) parts.push(['Übertrag', settings.startSaldo]);
+      parts.push(['aus dem Plan', jetzt.plan]);
+      if (Math.abs(jetzt.korr) > 0.001) parts.push(['Korrekturen', jetzt.korr]);
+    }
+    brk.innerHTML = parts.map(function (p) {
+      return '<span>' + escapeHtml(p[0]) + ' <b>' + escapeHtml(fmtSigned(p[1])) + '</b></span>';
+    }).join('');
+
+    document.getElementById('stIst').textContent = fmtH(jetzt.ist);
+    document.getElementById('stSoll').textContent = fmtH(jetzt.soll);
+    document.getElementById('stZa').textContent = jetzt.za > 0.001 ? fmtH(jetzt.za) : '–';
+
+    var prog = document.getElementById('stProg');
+    prog.textContent = fmtSigned(extra.ende.saldo);
+    prog.className = 'val ' + signClass(extra.ende.saldo);
+    document.getElementById('stProgLbl').textContent =
+      todayKey >= extra.range.bis ? 'Konto am Planende' : 'Prognose bis ' + shortDate(dateOfKey(extra.range.bis));
+  }
+
+  function cell(n, cls) {
+    return '<td class="num ' + cls + ' ' + signClass(n) + '">' + escapeHtml(fmtSigned(n)) + '</td>';
+  }
+
+  // Wochen samt Korrekturen, Abrechnungen und laufendem Konto – so rechnen
+  // Tabelle und CSV gleich. Korrekturen vor dem ersten bzw. nach dem letzten
+  // Plantag landen in der ersten bzw. letzten Woche, damit keine unter den
+  // Tisch fällt. Eine Abrechnung landet in der Woche mit dem letzten Tag
+  // ihres Monats – dort springt das Konto auf genau ihre Zahl.
+  function weekRows(days, extra) {
+    var weeks = weeksOf(days);
+    var korr = korrList();
+    var e = extra || {};
+    var run = settings.startSaldo;
+    var offen = (e.monate || []).slice();
+
+    return weeks.map(function (w, idx) {
+      var letzte = idx === weeks.length - 1;
+      var wEnde = keyOfDate(addDays(w.start, 6));
+      var kSum = 0, kTexts = [], aTexts = [];
+
+      korr.forEach(function (k) {
+        var vor = idx === 0 && (!k.datum || k.datum < w.key);
+        var drin = k.datum >= w.key && k.datum <= wEnde;
+        var nach = letzte && k.datum > wEnde;
+        if (vor || drin || nach) { kSum += k.h; kTexts.push(k.text + ' ' + fmtSigned(k.h)); }
+      });
+
+      offen = offen.filter(function (a) {
+        if (!(a.tag <= wEnde || letzte)) return true;
+        kSum += a.wirkung;
+        aTexts.push('Ende ' + monatName(a.key) + ' laut Abrechnung genau ' + fmtSigned(a.h) +
+          ' (gerechnet wären es ' + fmtSigned(a.roh) + ')');
+        return false;
+      });
+
+      run += w.diff + kSum;
+      return { w: w, ende: wEnde, kSum: kSum, kTexts: kTexts, aTexts: aTexts, run: run };
+    });
+  }
+
+  function renderWeeks(days, nowKey, extra) {
+    document.getElementById('thPeriod').textContent = 'Woche';
+    var html = '';
+
+    weekRows(days, extra).forEach(function (row) {
+      var w = row.w, kSum = row.kSum, run = row.run;
+      var future = w.key > nowKey;
+      var now = w.key <= nowKey && keyOfDate(addDays(w.start, 6)) >= nowKey;
+      var cls = 'wk' + (future ? ' future' : '') + (now ? ' now' : '');
+
+      var flags = '';
+      if (now) flags += '<span class="flag">läuft noch</span>';
+      if (w.teil) flags += '<span class="flag">Teilwoche</span>';
+      if (row.kTexts.length) flags += '<span class="flag" title="' + escapeHtml(row.kTexts.join(' · ')) + '">von Hand</span>';
+      if (row.aTexts.length) flags += '<span class="flag" title="' + escapeHtml(row.aTexts.join(' · ')) + '">Abrechnung</span>';
+
+      html += '<tr class="' + cls + '" data-row="' + w.key + '" tabindex="0">' +
+        '<td><span class="lbl-main">KW ' + w.kw + flags + '</span>' +
+        '<span class="lbl-sub">' + shortDate(w.start) + ' – ' + shortDate(addDays(w.start, 6)) + '</span></td>' +
+        '<td class="num">' + escapeHtml(fmtH(w.ist)) + '</td>' +
+        '<td class="num">' + escapeHtml(fmtH(w.soll)) + '</td>' +
+        cell(w.diff + kSum, 'diff') +
+        cell(run, 'saldo') +
+        '</tr>';
+
+      if (openRow === w.key) html += detailRow(w.days);
+    });
+
+    document.getElementById('tblBody').innerHTML = html;
+  }
+
+  function renderMonths(days, nowKey, extra) {
+    document.getElementById('thPeriod').textContent = 'Monat';
+    var e = extra || {};
+    var months = RECH.monatsBloecke(days, korrList());
+    var run = settings.startSaldo;
+    var abByMonat = {};
+    (e.monate || []).forEach(function (a) { abByMonat[a.key] = a; });
+    var html = '';
+
+    months.forEach(function (m) {
+      var kSum = m.korr;                       // Korrekturen dieses Monats
+      var ab = abByMonat[m.key];
+      var flags = '';
+
+      // Mit Abrechnung landet die Konto-Spalte dieses Monats genau auf ihrer Zahl
+      if (ab) {
+        kSum += ab.wirkung;
+        flags += '<span class="flag" title="' + escapeHtml(
+          'Ende ' + monatName(m.key) + ' laut Abrechnung genau ' + fmtSigned(ab.h) +
+          ' (gerechnet wären es ' + fmtSigned(ab.roh) + ')') + '">Abrechnung</span>';
+      }
+      run += m.diff + kSum;
+
+      var future = m.days[0].key > nowKey;
+      var now = m.key === nowKey.slice(0, 7);
+      var amtlich = PERSON.soll && PERSON.soll[m.key];
+
+      html += '<tr class="wk' + (future ? ' future' : '') + (now ? ' now' : '') +
+        '" data-row="' + m.key + '" tabindex="0">' +
+        '<td><span class="lbl-main">' + escapeHtml(monatName(m.key)) + flags + '</span>' +
+        '<span class="lbl-sub">' + (amtlich ? 'Aushang: ' + escapeHtml(fmtH(amtlich)) + ' Soll' : m.days.length + ' Tage') + '</span></td>' +
+        '<td class="num">' + escapeHtml(fmtH(m.ist)) + '</td>' +
+        '<td class="num">' + escapeHtml(fmtH(m.soll)) + '</td>' +
+        cell(m.diff + kSum, 'diff') +
+        cell(run, 'saldo') +
+        '</tr>';
+
+      if (openRow === m.key) html += detailRow(m.days);
+    });
+
+    document.getElementById('tblBody').innerHTML = html;
+  }
+
+  function detailRow(days) {
+    var lines = days.map(function (x) {
+      var was, off = false;
+      if (x.entry && !x.art) {
+        was = x.entry.von + '–' + x.entry.bis + (x.entry.pause > 0 ? ' (' + fmtDec(x.entry.pause) + ' h Pause)' : '');
+      } else if (x.art) {
+        was = ART_LABELS[x.art] || x.art;
+      } else if (x.feiertag) {
+        was = x.feiertag;
+        off = true;
+      } else if (x.soll > 0) {
+        was = 'kein Dienst eingetragen';
+        off = true;
+      } else {
+        was = 'frei';
+        off = true;
+      }
+      if (x.feiertag && x.entry) was += ' · ' + x.feiertag;
+      if (x.entry && x.entry.aushang) was += ' · am Aushang ausgebessert';
+      else if (x.entry && x.entry.custom) was += ' · von Hand geändert';
+      if (x.neutral) was += ' · zählt nicht aufs Konto';
+
+      return '<div class="dayline' + (off ? ' off' : '') + '">' +
+        '<span class="dd">' + DAY_NAMES[x.dow] + ' ' + shortDate(x.date) + '</span>' +
+        '<span class="dt">' + escapeHtml(was) + '</span>' +
+        '<span class="dh">' + escapeHtml(fmtH(x.ist)) + ' / ' + escapeHtml(fmtH(x.soll)) + '</span>' +
+        '<span class="dv ' + signClass(x.diff) + '">' + escapeHtml(fmtSigned(x.diff)) + '</span>' +
+        '</div>';
+    }).join('');
+
+    return '<tr class="detail"><td colspan="5"><div class="days">' + lines +
+      '<p class="empty-hint">Ist / Soll je Tag – die rechte Spalte ist das, was aufs Konto geht.</p>' +
+      '</div></td></tr>';
+  }
+
+  function toggleRow(target) {
+    var tr = target && target.closest ? target.closest('tr.wk') : null;
+    if (!tr) return false;
+    var id = tr.getAttribute('data-row');
+    openRow = openRow === id ? null : id;
+    render();
+    return true;
+  }
+
+  document.getElementById('tblBody').addEventListener('click', function (ev) {
+    toggleRow(ev.target);
+  });
+  document.getElementById('tblBody').addEventListener('keydown', function (ev) {
+    if (ev.key !== 'Enter' && ev.key !== ' ') return;
+    if (toggleRow(ev.target)) ev.preventDefault();
+  });
+
+  /* ---------- Stand laut Abrechnung ----------
+     Je abgeschlossenem Monat ein Feld für die Zahl von der Abrechnung.
+     Sie gilt als Kontostand am letzten Tag dieses Monats – gerechnet
+     wird das im Rechenkern (RECH.extrasOf), hier stehen nur die
+     Eingabefelder und was daraus in der Datenbank landet.            */
+
+  var anpBox = document.getElementById('anpMonate');
+  var anpBuilt = null;                  // welche Monate gerade als Zeilen dastehen
+  var anpFest = {};                     // Monate, die stehen bleiben, solange die Seite offen ist
+
+  function renderAnp(days, korr, extra, jetzt, nowKey) {
+    var bloecke = days && days.length ? RECH.monatsBloecke(days, korr) : [];
+    var gueltig = RECH.normAnpassungen(anpassungen).monate;
+    var e = extra || {};
+    var abByMonat = {};
+    (e.monate || []).forEach(function (a) { abByMonat[a.key] = a; });
+
+    // Eine Abrechnung gibt es erst, wenn der Monat vorbei ist – also nur für
+    // Monate vor dem laufenden. Ein späterer Monat, in dem (noch von früher)
+    // etwas steht, bleibt sichtbar, damit es sich ändern oder löschen lässt.
+    var curMonat = todayKey.slice(0, 7);
+    var zeilen = bloecke.filter(function (m) {
+      if (m.key < curMonat || gueltig[m.key]) anpFest[m.key] = true;
+      return !!anpFest[m.key];
+    });
+    var sig = zeilen.map(function (m) { return m.key; }).join(',');
+
+    // Die Zeilen nur neu bauen, wenn sich die Monate ändern – sonst würde
+    // beim Tippen das Feld unter den Fingern weggerissen.
+    if (sig !== anpBuilt) {
+      anpBuilt = sig;
+      anpBox.innerHTML = zeilen.length ? zeilen.map(function (m) {
+        var name = escapeHtml(monatName(m.key));
+        return '<div class="anp-row" data-mk="' + m.key + '">' +
+          '<div class="an"><span class="an-name">' + name + '</span>' +
+          '<span class="an-sub"></span></div>' +
+          '<input type="text" inputmode="decimal" autocomplete="off" ' +
+            'placeholder="–" aria-label="Stand Ende ' + name + ' laut Abrechnung">' +
+          '<button type="button" class="anp-del" title="Abrechnung löschen">✕</button>' +
+          '</div>';
+      }).join('') : '<p class="empty-hint">Sobald ein Monat mit Diensten vorbei ist, steht er ' +
+        'hier zum Eintragen bereit.</p>';
+    }
+
+    zeilen.forEach(function (m) {
+      var row = anpBox.querySelector('.anp-row[data-mk="' + m.key + '"]');
+      if (!row) return;
+      var rec = gueltig[m.key];
+      var ab = abByMonat[m.key];
+      var tag = m.days[m.days.length - 1].key;
+      var inp = row.querySelector('input');
+
+      row.className = 'anp-row' + (ab ? ' set' : '');
+      row.querySelector('.anp-del').classList.toggle('hidden', !rec);
+
+      // Wo das Konto am Monatsende ohne diese Abrechnung stünde
+      var roh = ab ? ab.roh : saldoUntil(days, tag, extra).saldo;
+      var am = 'Stand am ' + shortDate(dateOfKey(tag));
+      row.querySelector('.an-sub').innerHTML = ab
+        ? am + ' genau <b>' + escapeHtml(fmtSigned(ab.h)) + '</b> · gerechnet wären es ' + escapeHtml(fmtSigned(roh))
+        : am + ' gerechnet ' + escapeHtml(fmtSigned(roh));
+
+      if (document.activeElement !== inp) inp.value = rec ? numField(rec.h) : '';
+    });
+
+    renderAnpInfo(e, jetzt, nowKey);
+  }
+
+  // Die Zeile unter den Monaten: Welche Abrechnung gilt, was kam seitdem dazu?
+  function renderAnpInfo(e, jetzt, nowKey) {
+    var info = document.getElementById('anpInfo');
+    if (!jetzt) { info.textContent = ''; return; }
+
+    var abr = jetzt.abrechnung;
+    var html;
+    if (!abr) {
+      html = 'Noch keine Abrechnung eingetragen – das Konto kommt gerade rein aus Übertrag, ' +
+        'Dienstplan und Korrekturen.';
+    } else {
+      html = 'Maßgeblich ist die Abrechnung für <b>' + escapeHtml(monatName(abr.key)) + '</b>: Am ' +
+        escapeHtml(longDate(dateOfKey(abr.tag))) + ' stand das Konto auf genau <b>' +
+        escapeHtml(fmtSigned(abr.h)) + '</b>.';
+      if (abr.tag < nowKey) {
+        html += ' Seitdem aus dem Dienstplan ' + escapeHtml(fmtSigned(jetzt.seit.plan));
+        if (Math.abs(jetzt.seit.korr) > 0.001) html += ', aus Korrekturen ' + escapeHtml(fmtSigned(jetzt.seit.korr));
+        html += ' → ' + (nowKey === todayKey ? 'heute' : 'am ' + escapeHtml(shortDate(dateOfKey(nowKey)))) +
+          ' <b>' + escapeHtml(fmtSigned(jetzt.saldo)) + '</b>.';
+      }
+    }
+
+    // Eine Abrechnung, deren Monat noch läuft, greift erst an seinem Ende
+    (e.monate || []).forEach(function (a) {
+      if (a.tag <= nowKey) return;
+      html += ' Die Abrechnung für ' + escapeHtml(monatName(a.key)) + ' zählt erst ab ' +
+        escapeHtml(longDate(dateOfKey(a.tag))) + '.';
+    });
+    info.innerHTML = html;
+  }
+
+  // Einen Monat setzen (leeres Feld = Abrechnung wieder weg)
+  function setMonatsAnp(mk, rohWert) {
+    var h = parseNum(rohWert);
+    if (isNaN(h)) delete anpassungen.monate[mk];
+    else {
+      anpassungen.monate[mk] = {
+        modus: 'stand',                      // Stand am Monatsende, nichts dazurechnen
+        h: Math.round(h * 100) / 100,
+        by: userName || '',
+        ts: Date.now()
+      };
+    }
+    saveKontoLocal();
+  }
+
+  anpBox.addEventListener('click', function (ev) {
+    if (!ev.target.classList || !ev.target.classList.contains('anp-del')) return;
+    var row = ev.target.closest('.anp-row');
+    if (!row) return;
+    delete anpassungen.monate[row.getAttribute('data-mk')];
+    saveKontoLocal();
+    Store.setAnp();
+    render();
+  });
+
+  anpBox.addEventListener('input', function (ev) {
+    var row = ev.target.closest ? ev.target.closest('.anp-row') : null;
+    if (!row || ev.target.tagName !== 'INPUT') return;
+    setMonatsAnp(row.getAttribute('data-mk'), ev.target.value);
+    render();
+  });
+
+  anpBox.addEventListener('change', function (ev) {
+    if (ev.target.tagName !== 'INPUT') return;
+    Store.setAnp();
+  });
+
+  /* ---------- Korrekturen ---------- */
+
+  function renderKorr(extra) {
+    var list = korrList();
+    var abr = (extra && extra.monate) || [];
+    var box = document.getElementById('korrList');
+    if (!list.length) {
+      box.innerHTML = '<p class="empty-hint">Noch keine Korrekturen – das Konto kommt gerade rein aus dem Dienstplan.</p>';
+      return;
+    }
+    box.innerHTML = list.map(function (k) {
+      var d = k.datum ? dateOfKey(k.datum) : null;
+      // Liegt die Korrektur vor dem Stichtag einer Abrechnung, ist sie in
+      // deren Zahl schon enthalten und bewegt das Konto nicht noch einmal.
+      var drin = null;
+      for (var i = 0; i < abr.length && !drin; i++) if (!k.datum || k.datum <= abr[i].tag) drin = abr[i];
+      return '<div class="korr' + (drin ? ' drin' : '') + '">' +
+        '<span class="kd">' + (d ? DAY_NAMES[d.getDay()] + ' ' + shortDate(d) : '—') + '</span>' +
+        '<span class="kt">' + escapeHtml(k.text) +
+          (k.by ? '<small>von ' + escapeHtml(k.by) + '</small>' : '') +
+          (drin ? '<small>steckt schon in der Abrechnung für ' + escapeHtml(monatName(drin.key)) +
+            ' – zählt nicht extra</small>' : '') + '</span>' +
+        '<span class="kh ' + signClass(k.h) + '">' + escapeHtml(fmtSigned(k.h)) + '</span>' +
+        '<button class="kdel" type="button" data-del="' + escapeHtml(k.id) + '" title="Löschen">✕</button>' +
+        '</div>';
+    }).join('');
+  }
+
+  document.getElementById('korrList').addEventListener('click', function (ev) {
+    var id = ev.target.getAttribute && ev.target.getAttribute('data-del');
+    if (!id) return;
+    if (!confirm('Diese Korrektur löschen?')) return;
+    delete korrekturen[id];
+    saveKontoLocal();
+    Store.delKorr(id);
+    render();
+  });
+
+  var overlay = document.getElementById('overlay');
+
+  function openKorr() {
+    document.getElementById('kDatum').value = todayKey;
+    document.getElementById('kText').value = '';
+    document.getElementById('kH').value = numField(0);
+    overlay.classList.add('open');
+    document.getElementById('kText').focus();
+  }
+  function closeKorr() { overlay.classList.remove('open'); }
+
+  document.getElementById('korrAdd').addEventListener('click', openKorr);
+  document.getElementById('kCancel').addEventListener('click', closeKorr);
+  overlay.addEventListener('click', function (ev) { if (ev.target === overlay) closeKorr(); });
+  document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape') closeKorr(); });
+
+  // Schnellauswahl für die typischen Fälle
+  var QUICKS = [
+    { text: 'Überstunden ausbezahlt', h: -10 },
+    { text: 'Zeitausgleich genommen', h: -7.4 },
+    { text: 'Gutschrift', h: 1 },
+    { text: 'Übertrag korrigiert', h: 0 }
+  ];
+  document.getElementById('quickPicks').innerHTML = QUICKS.map(function (q, i) {
+    return '<button type="button" data-q="' + i + '">' + escapeHtml(q.text) + '</button>';
+  }).join('');
+  document.getElementById('quickPicks').addEventListener('click', function (ev) {
+    var i = ev.target.getAttribute && ev.target.getAttribute('data-q');
+    if (i === null || i === undefined) return;
+    var q = QUICKS[+i];
+    document.getElementById('kText').value = q.text;
+    // Beim Zeitausgleich immer das aktuelle Tages-Soll vorschlagen
+    document.getElementById('kH').value = q.text === 'Zeitausgleich genommen'
+      ? numField(-tagesSoll())
+      : numField(q.h);
+  });
+
+  document.getElementById('kSave').addEventListener('click', function () {
+    var h = parseNum(document.getElementById('kH').value);
+    if (isNaN(h) || h === 0) { alert('Bitte Stunden eintragen – mit Minus, wenn sie vom Konto abgehen.'); return; }
+    var rec = {
+      datum: document.getElementById('kDatum').value || todayKey,
+      text: (document.getElementById('kText').value || 'Korrektur').trim().slice(0, 60),
+      h: Math.round(h * 100) / 100,
+      by: userName || '',
+      ts: Date.now()
+    };
+    var id = 'k' + Date.now() + Math.floor(Math.random() * 1000);
+    korrekturen[id] = rec;
+    saveKontoLocal();
+    Store.setKorr(id, rec);
+    closeKorr();
+    render();
+  });
+
+  /* ---------- Erklärung ---------- */
+
+  function renderRules() {
+    var ts = fmtH(tagesSoll());
+    var items = [
+      ['📅', '<b>' + escapeHtml(fmtDec(settings.wochenSoll)) + ' Stunden pro Woche</b> sind das Soll – aufgeteilt auf Montag bis Freitag also ' + escapeHtml(ts) + ' pro Tag. Samstag und Sonntag haben kein Soll.'],
+      ['🎉', 'An <b>gesetzlichen Feiertagen</b> (Österreich) ist das Soll 0. Wer da arbeitet, schreibt die ganze Zeit aufs Konto.'],
+      ['🌴', '<b>Urlaub, Krankenstand und Sonderurlaub</b> sind angerechnet – das Konto bleibt gleich. Bei <b>Fortbildung</b> zählen die eingetragenen Stunden, ein langer Seminartag bringt also ein Plus.'],
+      ['⏳', '<b>Zeitausgleich</b> ' + (settings.zaAbzug ? 'zieht die Stunden vom Konto ab' : 'wird wie ein normaler Arbeitstag gewertet (Abzug ist ausgeschaltet)') + '.'],
+      ['⚠️', 'Ein <b>Werktag ohne Eintrag</b> zählt als Minus von ' + escapeHtml(ts) + '. Freie Tage also im Dienstplan als Urlaub oder Zeitausgleich eintragen, sonst rutscht das Konto zu Unrecht ins Minus.'],
+      ['🔄', 'Die Zeiten kommen <b>live aus dem Dienstplan</b>. Wird dort etwas geändert, ist es hier sofort mitgerechnet. Der heutige Tag zählt bereits voll mit.'],
+      ['🙈', 'Ein Tag, der im Dienstplan als <b>„zählt nicht aufs Überstunden-Konto“</b> markiert ist, bewegt das Konto nicht – egal wie stark er vom Aushang abweicht. So lassen sich Dienste tauschen oder Zeiten richtigstellen, ohne dass daraus Plus- oder Minusstunden werden.'],
+      ['🎚️', 'Unter <b>„Stand laut Abrechnung“</b> kommt die Zahl von der Monatsabrechnung hin. Am letzten Tag dieses Monats steht das Konto dann auf <b>genau</b> diesem Wert – was davor gerechnet wurde (auch Übertrag und Korrekturen bis dahin), spielt keine Rolle mehr. Alles, was danach im Dienstplan passiert, kommt wie gewohnt dazu. Der Dienstplan selbst bleibt unverändert.']
+    ];
+    document.getElementById('rules').innerHTML = items.map(function (it) {
+      return '<li><i>' + it[0] + '</i><span>' + it[1] + '</span></li>';
+    }).join('');
+  }
+
+  /* ---------- Einstellungen (Eingabefelder) ---------- */
+
+  var inWoche = document.getElementById('fWoche');
+  var inStart = document.getElementById('fStart');
+  var inAb = document.getElementById('fAb');
+  var inZa = document.getElementById('fZa');
+
+  function fillSettings() {
+    if (document.activeElement !== inWoche) inWoche.value = numField(settings.wochenSoll);
+    if (document.activeElement !== inStart) inStart.value = numField(settings.startSaldo);
+    if (document.activeElement !== inAb) inAb.value = settings.startDatum;
+    inZa.checked = settings.zaAbzug;
+
+    var r = dataRange();
+    var keys = Object.keys(PERSON.plan).sort();
+    document.getElementById('uAb').textContent = settings.startDatum
+      ? 'ab ' + longDate(dateOfKey(settings.startDatum))
+      : 'leer = ab dem ersten Plantag' + (keys.length ? ' (' + shortDate(dateOfKey(keys[0])) + keys[0].slice(0, 4) + ')' : '');
+    if (r && settings.startDatum && settings.startDatum > r.bis) {
+      showNotice('Das Startdatum liegt nach dem letzten Plantag – es gibt dann nichts zu rechnen.');
+    }
+  }
+
+  function readSettings() {
+    var w = parseNum(inWoche.value);
+    settings.wochenSoll = w > 0 ? w : DEFAULTS.wochenSoll;
+    var s = parseNum(inStart.value);
+    settings.startSaldo = isNaN(s) ? 0 : s;
+    settings.startDatum = inAb.value || '';
+    settings.zaAbzug = inZa.checked;
+  }
+
+  function onSettingInput() { readSettings(); saveKontoLocal(); render(); fillSettings(); }
+  function onSettingChange() { onSettingInput(); Store.setSettings(); }
+
+  [inWoche, inStart, inAb].forEach(function (el) {
+    el.addEventListener('input', onSettingInput);
+    el.addEventListener('change', onSettingChange);
+  });
+  inZa.addEventListener('change', onSettingChange);
+
+  /* ---------- Umschalter ---------- */
+
+  var btnWeek = document.getElementById('viewWeek');
+  var btnMonth = document.getElementById('viewMonth');
+  btnWeek.addEventListener('click', function () {
+    mode = 'week'; openRow = null;
+    btnWeek.classList.add('active'); btnMonth.classList.remove('active');
+    render();
+  });
+  btnMonth.addEventListener('click', function () {
+    mode = 'month'; openRow = null;
+    btnMonth.classList.add('active'); btnWeek.classList.remove('active');
+    render();
+  });
+
+  var btnDec = document.getElementById('fmtDec');
+  var btnHm = document.getElementById('fmtHm');
+  function setFmt(m) {
+    fmtMode = m;
+    try { localStorage.setItem(FMT_KEY, m); } catch (e) {}
+    btnDec.classList.toggle('active', m === 'dec');
+    btnHm.classList.toggle('active', m === 'hm');
+    render();
+  }
+  btnDec.addEventListener('click', function () { setFmt('dec'); });
+  btnHm.addEventListener('click', function () { setFmt('hm'); });
+
+  /* ---------- CSV-Export ---------- */
+
+  document.getElementById('csvBtn').addEventListener('click', function () {
+    var days = allDays();
+    if (!days.length) { alert('Es gibt noch nichts zu exportieren.'); return; }
+    var extra = RECH.extrasOf(days, korrList(), settings, anpassungen);
+    var rows = [['KW', 'Von', 'Bis', 'Ist', 'Soll', 'Differenz', 'Korrektur/Abrechnung', 'Konto']];
+    weekRows(days, extra).forEach(function (r) {
+      rows.push([
+        'KW ' + r.w.kw,
+        r.w.key,
+        r.ende,
+        fmtDec(r.w.ist), fmtDec(r.w.soll), fmtDec(r.w.diff),
+        r.kSum ? fmtDec(r.kSum) : '', fmtDec(r.run)
+      ]);
+    });
+    var csv = rows.map(function (r) {
+      return r.map(function (c) { return '"' + String(c).replace(/"/g, '""') + '"'; }).join(';');
+    }).join('\r\n');
+
+    var blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'ueberstunden-' + PERSON_ID + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  // Handys halten eine einmal geoeffnete Seite gern ewig fest. Mit einem
+  // frischen Zeitstempel in der Adresse muss der Browser sie neu holen.
+  document.getElementById('reloadBtn').addEventListener('click', function () {
+    location.replace(location.pathname + '?v=' + Date.now());
+  });
+
+  /* ---------- Firebase ---------- */
+
+  var db = null, firebaseReady = false;
+  try {
+    if (typeof firebase !== 'undefined' && FIREBASE_CONFIG.databaseURL) {
+      firebase.initializeApp(FIREBASE_CONFIG);
+      db = firebase.database();
+      firebaseReady = true;
+    }
+  } catch (e) {
+    console.warn('Firebase konnte nicht gestartet werden:', e);
+  }
+
+  var Store = {
+    kontoRef: function () { return db.ref(DB_ROOT + '/' + PERSON_ID + '/ueberstunden'); },
+
+    start: function () {
+      if (!firebaseReady) { setStatus('', 'Nur auf diesem Gerät'); return; }
+      setStatus('', 'Verbinde …');
+
+      db.ref('.info/connected').on('value', function (snap) {
+        if (!firebaseReady) return;
+        if (snap.val() === true) setStatus('live', 'Live – auf allen Geräten gleich');
+        else setStatus('', 'Offline – wird später abgeglichen');
+      });
+
+      // Dienstzeiten (werden im Kalender gepflegt) nur mitlesen
+      db.ref(DB_ROOT + '/' + PERSON_ID + '/entries').on('value', function (snap) {
+        entries = snap.val() || {};
+        try { localStorage.setItem(ENTRY_KEY, JSON.stringify(entries)); } catch (e) {}
+        clearNotice();
+        render();
+        fillSettings();
+      }, onErr);
+
+      // Konto-Einstellungen und Korrekturen
+      this.kontoRef().on('value', function (snap) {
+        applyKonto(snap.val() || {});
+        // Eine noch nicht gelaufene Vorgabe wandert jetzt ins Konto und
+        // gleich auch in die Datenbank – danach ist sie erledigt.
+        if (applyVorgaben()) Store.setAnp();
+        saveKontoLocal();
+        render();
+        fillSettings();
+      }, onErr);
+    },
+
+    setSettings: function () {
+      if (!firebaseReady) return;
+      this.kontoRef().child('settings').set({
+        wochenSoll: settings.wochenSoll,
+        startSaldo: settings.startSaldo,
+        startDatum: settings.startDatum,
+        zaAbzug: settings.zaAbzug,
+        by: userName || '',
+        ts: Date.now()
+      }).catch(function (err) { showNotice('Speichern fehlgeschlagen: ' + err.message); });
+    },
+
+    // Die Abrechnungen sind ein kleiner Block – der wird am Stück
+    // geschrieben, damit gelöschte Monate auch wirklich verschwinden
+    // (und mit ihnen das alte "Gesamtkonto von Hand").
+    setAnp: function () {
+      if (!firebaseReady) return;
+      this.kontoRef().child('anpassungen').set({
+        monate: anpassungen.monate,
+        vorgaben: anpassungen.vorgaben
+      }).catch(function (err) { showNotice('Speichern fehlgeschlagen: ' + err.message); });
+    },
+
+    setKorr: function (id, rec) {
+      if (!firebaseReady) return;
+      this.kontoRef().child('korrekturen/' + id).set(rec)
+        .catch(function (err) { showNotice('Speichern fehlgeschlagen: ' + err.message); });
+    },
+
+    delKorr: function (id) {
+      if (!firebaseReady) return;
+      this.kontoRef().child('korrekturen/' + id).remove()
+        .catch(function (err) { showNotice('Löschen fehlgeschlagen: ' + err.message); });
+    }
+  };
+
+  function onErr(err) {
+    firebaseReady = false;
+    setStatus('err', 'Verbindung gestört');
+    showNotice('Die geteilte Datenbank ist gerade nicht erreichbar (' + err.message +
+               '). Gerechnet wird mit dem Stand auf diesem Gerät.');
+    render();
+  }
+
+  /* ---------- Start ---------- */
+
+  fillSettings();
+  setFmt(fmtMode);
+  Store.start();
+})();
+</script>
+</body>
+</html>
