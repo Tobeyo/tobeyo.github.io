@@ -402,6 +402,117 @@ window.NESSIE_ESSENSPLAN = {
         hausmann:   ['Rindsuppe mit Biskuitschöberln', 'Hendlkeulenschnitzel gebacken', 'Erdäpfelsalat', 'Zitrone', 'Nuss-Oberschnitte'],
         leicht:     ['Rindsuppe mit Biskuitschöberln', 'Gemüse-Frittata', 'Rahm-Joghurt-Dip', 'Petersilerdäpfel', 'Bummerlsalat', 'Schokolade-Mandelkuchen'],
         diabetiker: ['Rahmsuppe mit Kartoffelwürfeln', 'Schweinsgulasch', 'Nockerln', 'Bummerlsalat', 'Mohn-Marillenkuchen mit Topfenroyal']
+      },
+
+      /* ---- Menübesteller 23.11. – 29.11.2026 (Bildschirm, nur ME übernommen) ---- */
+      '2026-11-23': {
+        hausmann:   ['Klare Gemüsesuppe mit Käsecroutons', 'Bohnengulasch mit Speck vom Schwein', 'Hausbrot', 'Kokoscreme'],
+        leicht:     ['Selleriecremesuppe', 'Putenknacker', 'Eingebrannte Kartoffeln', 'Gemischter Blattsalat', 'Kokoscreme'],
+        diabetiker: ['Selleriecremesuppe', 'Topfenknödel mit Nussbrösel', 'Milch', 'Zwetschkenkompott']
+      },
+      '2026-11-24': {
+        hausmann:   ['Gebundene Gemüsesuppe', 'Gebackenes Schollenfilet', 'Sauce Tartare', 'Petersilerdäpfel', 'Bummerlsalat', 'Pfirsichkompott'],
+        leicht:     ['Gebundene Gemüsesuppe', 'Scheiterhaufen mit Äpfeln', 'Vanillesauce', 'Pfirsichkompott'],
+        diabetiker: ['Rindsuppe mit Dinkelnockerln', 'Selchfleischfleckerl vom Schwein', 'Rote Rübensalat', 'Grießkoch']
+      },
+      '2026-11-25': {
+        hausmann:   ['Hühnersuppe mit Profiteroles', 'Reisfleisch vom Schweinsschopf mit Saft', 'Häuptelsalat', 'Geriebener Hartkäse', 'Zitronen-Topfencreme'],
+        leicht:     ['Hühnersuppe mit Profiteroles', 'Gebratenes Tilapiafischfilet', 'Gemüseallerlei', 'Petersilerdäpfel', 'Zitronen-Topfencreme'],
+        diabetiker: ['Mais-Erbsensuppe', 'Karfiol-Tofulaibchen', 'Kräutersauce', 'Petersilerdäpfel', 'Häuptelsalat', 'Marillenkompott']
+      },
+      '2026-11-26': {
+        hausmann:   ['Lauchcremesuppe', 'Germknödel', 'Mohn-Zucker', 'Zerlassene Butter', 'Ananaskompott'],
+        leicht:     ['Klare Gemüsesuppe mit Biskuitschöberl', 'Zucchini-Tomatenragout mit Feta', 'Polentaschnitte', 'Gemischter Blattsalat', 'Ananaskompott'],
+        diabetiker: ['Klare Gemüsesuppe mit Biskuitschöberl', 'Putenkeulenrollbraten in Rahmsauce', 'Kohlsprossen', 'Makkaroni', 'Joghurt mit Früchten']
+      },
+      '2026-11-27': {
+        hausmann:   ['Klare Gemüsesuppe mit Nudeln', 'Karfiol mit Butterbrösel und gehacktem Ei', 'Petersilerdäpfel', 'Chinakohlsalat', 'Herrencreme'],
+        leicht:     ['Spinatcremesuppe', 'Hühnersaftschnitzel natur', 'Kürbisragout', 'Nockerln', 'Apfelkompott'],
+        diabetiker: ['Klare Gemüsesuppe mit Nudeln', 'Gebratenes Seehechtfilet', 'Röstgemüse', 'Petersilerdäpfel', 'Apfelkompott']
+      },
+      '2026-11-28': {
+        hausmann:   ['Pastinakencremesuppe', 'Lasagne mit gemischtem Faschiertem', 'Tomatensauce', 'Endiviensalat', 'Sauerkirschenkompott'],
+        leicht:     ['Rindsuppe mit Eintropf', 'Champignonsauce', 'Semmelknödel', 'Kaffeepudding'],
+        diabetiker: ['Pastinakencremesuppe', 'Hühner-Teriyaki mit Gemüse', 'Jasminreis', 'Endiviensalat', 'Kaffeepudding']
+      },
+      '2026-11-29': {
+        hausmann:   ['Rindsuppe mit Grießnockerl', 'Kümmelbraten vom Schwein', 'Kartoffelknödel', 'Warmer Krautsalat', 'Eierlikörschnitte'],
+        leicht:     ['Rindsuppe mit Grießnockerl', 'Kalbfleisch eingemacht', 'Reis', 'Bummerlsalat', 'Orangencremeschnitte'],
+        diabetiker: ['Fisolenrahmsuppe', 'Gnocchi', 'Kräutersauce mit Wurzelstreifen', 'Bummerlsalat', 'Orangencremeschnitte']
+      },
+
+      /* ---- Menübesteller 30.11. – 06.12.2026 (Bildschirm, nur ME übernommen) ---- */
+      '2026-11-30': {
+        hausmann:   ['Rindsuppe mit Sternchen', 'Cremespinat', 'Gekochtes Ei', 'Geröstete Erdäpfel', 'Bananen garniert'],
+        leicht:     ['Paradeissuppe', 'Rindsgeschnetzeltes Esterhazy', 'Spiralen', 'Gemischter Blattsalat', 'Birnenkompott'],
+        diabetiker: ['Paradeissuppe', 'Kabeljaufilet gebraten', 'Paprikagemüse', 'Petersilerdäpfel', 'Birnenkompott']
+      },
+      '2026-12-01': {
+        hausmann:   ['Champignoncremesuppe', 'Topfenpalatschinken überbacken', 'Milch', 'Mandarinenkompott'],
+        leicht:     ['Klare Gemüsesuppe mit Dinkelreis', 'Dillkürbis', 'Salzerdäpfel', 'Schokopudding'],
+        diabetiker: ['Klare Gemüsesuppe mit Dinkelreis', 'Makkaroni', 'Putenschinkensauce mit Erbsen', 'Bummerlsalat', 'Schokopudding']
+      },
+      '2026-12-02': {
+        hausmann:   ['Rindsuppe mit Teigmuscheln', 'Bratwürstel vom Schwein', 'Eingemachter Kohlrabi', 'Erdäpfelschmarren', 'Vanillepudding'],
+        leicht:     ['Schwarzwurzelsuppe', 'Gebratenes Tilapiafischfilet', 'Romanescogemüse', 'Petersilerdäpfel', 'Apfelcreme mit Topfen'],
+        diabetiker: ['Schwarzwurzelsuppe', 'Asiatische Gemüsepfanne mit Tofu', 'Basmatireis', 'Apfelcreme mit Topfen']
+      },
+      '2026-12-03': {
+        hausmann:   ['Linsensuppe', 'Kaspressknödel', 'Bierkraut', 'Melonencocktail'],
+        leicht:     ['Klare Gemüsesuppe mit Backerbsen', 'Hendlfilet in Wurzelrahmsauce', 'Gedünsteter Reis', 'Melonencocktail'],
+        diabetiker: ['Linsensuppe', 'Apfelauflauf mit Haferflocken', 'Himbeersauce', 'Buttermilchgelee mit Pfirsich']
+      },
+      '2026-12-04': {
+        hausmann:   ['Klare Gemüsesuppe mit Käsefrittaten', 'Fischstäbchen', 'Petersilerdäpfel', 'Gemüsemayonnaise-Salat', 'Zitrone', 'Honigjoghurt'],
+        leicht:     ['Karottencremesuppe', 'Grießschmarren', 'Apfelmus', 'Honigjoghurt'],
+        diabetiker: ['Klare Gemüsesuppe mit Käsefrittaten', 'Szegediner Krautfleisch vom Schwein', 'Salzerdäpfel', 'Sauerrahm', 'Zwetschkenkompott']
+      },
+      '2026-12-05': {
+        hausmann:   ['Knoblauchrahmsuppe', 'Schweinsrahmherz', 'Semmelknödel', 'Erdbeerkompott'],
+        leicht:     ['Hühnersuppentopf', 'Faschierte Laibchen mit Saft', 'Erdäpfelpüree', 'Bummerlsalat', 'Erdbeerkompott'],
+        diabetiker: ['Hühnersuppentopf', 'Spinatauflauf mit Schafskäse', 'Kräutersauce', 'Petersilerdäpfel', 'Vanillejoghurtcreme']
+      },
+      '2026-12-06': {
+        hausmann:   ['Rindsuppe mit Leberknödel', 'Gebratene Hendlkeule mit Saft', 'Gemüsereis', 'Endiviensalat', 'Schwedenbombenschnitten'],
+        leicht:     ['Zucchinicremesuppe', 'Penne', 'Tomatensauce mit Basilikum', 'Endiviensalat', 'Topfenschnitte gebacken'],
+        diabetiker: ['Zucchinicremesuppe', 'Naturschnitzel vom Schwein', 'Feine Gemüsemischung', 'Cremige Polenta', 'Topfenschnitte gebacken']
+      },
+
+      /* ---- Menübesteller 07.12. – 13.12.2026 (Bildschirm, nur ME übernommen) ---- */
+      '2026-12-07': {
+        hausmann:   ['Broccolicremesuppe', 'Erdäpfelgulasch', 'Einspänner-Frankfurter', 'Hausbrot', 'Sauerkirschenkompott'],
+        leicht:     ['Klare Gemüsesuppe mit Nudeln', 'Hühnergeschnetzeltes in Champignonsauce', 'Reis', 'Häuptelsalat', 'Himbeercreme'],
+        diabetiker: ['Broccolicremesuppe', 'Apfelstrudel mit Nüssen', 'Vanillesauce', 'Sauerkirschenkompott']
+      },
+      '2026-12-08': {
+        hausmann:   ['Rindsuppe mit Frittaten', 'Hühnerschnitzel gebacken', 'Gedünsteter Pilawreis', 'Gurkensalat', 'Herrencreme'],
+        leicht:     ['Gelbe Rübencremesuppe', 'Gebratenes Schollenfilet', 'Dillsauce', 'Broccoli', 'Salzerdäpfel', 'Herrencreme'],
+        diabetiker: ['Rindsuppe mit Frittaten', 'Überbackene Zucchini vegetarisch', 'Rahm-Joghurt-Dip', 'Salzerdäpfel', 'Obstsalat']
+      },
+      '2026-12-09': {
+        hausmann:   ['Hühnersuppe mit Käsecroutons', 'Gebratenes Pangasiusfilet', 'Mangold', 'Petersilerdäpfel', 'Apfelkompott'],
+        leicht:     ['Petersilsuppe', 'Kipferlschmarren', 'Milch', 'Apfelkompott'],
+        diabetiker: ['Petersilsuppe', 'Schweinsgeschnetzeltes in Pfeffersauce', 'Makkaroni', 'Tomatensalat', 'Erdbeerpudding']
+      },
+      '2026-12-10': {
+        hausmann:   ['Fisolenrahmsuppe', 'Mohnnudeln', 'Milch', 'Rhabarberkompott'],
+        leicht:     ['Klare Gemüsesuppe mit Biskuitschöberl', 'Gemüseomelette', 'Petersilerdäpfel', 'Endiviensalat', 'Rhabarberkompott'],
+        diabetiker: ['Klare Gemüsesuppe mit Biskuitschöberl', 'Spaghetti', 'Sauce Bolognese mit faschiertem Rind', 'Endiviensalat', 'Pfirsichjoghurt']
+      },
+      '2026-12-11': {
+        hausmann:   ['Rote Linsensuppe', 'Kartoffel-Pastinakenpuffer', 'Rahm-Joghurt-Dip', 'Gemischter Blattsalat', 'Maisgrießcreme mit Mandeln'],
+        leicht:     ['Klare Gemüsesuppe mit Gartengemüse', 'Putenkeulen-Ragout in Gemüserahmsauce', 'Nockerln', 'Gemischter Blattsalat', 'Maisgrießcreme mit Mandeln'],
+        diabetiker: ['Klare Gemüsesuppe mit Gartengemüse', 'Gebratenes Seehechtfilet', 'Letscho', 'Reis', 'Ananaskompott']
+      },
+      '2026-12-12': {
+        hausmann:   ['Rindsuppe mit Eintropf', 'Selchfleischfleckerl überbacken vom Schwein', 'Chinakohlsalat', 'Fruchtkompott'],
+        leicht:     ['Dinkelsuppe mit Gemüse', 'Gemüselaibchen', 'Joghurt-Kräuterdip', 'Bummerlsalat', 'Fruchtkompott'],
+        diabetiker: ['Dinkelsuppe mit Gemüse', 'Putenknacker', 'Eingemachte Dillfisolen', 'Braterdäpfel', 'Topfencreme']
+      },
+      '2026-12-13': {
+        hausmann:   ['Kohlrabicremesuppe', 'Hirschragout', 'Rotkraut', 'Kartoffelknödel', 'Malakoffschnitte'],
+        leicht:     ['Rindsuppe mit Grießdukaten', 'Schweinskarree mit Rosmarin', 'Gemüse natur', 'Petersilerdäpfel', 'Dinkel-Marillenkuchen'],
+        diabetiker: ['Rindsuppe mit Grießdukaten', 'Krautstrudel', 'Paprikasauce', 'Petersilerdäpfel', 'Dinkel-Marillenkuchen']
       }
     }
   }
