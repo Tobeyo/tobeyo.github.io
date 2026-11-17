@@ -779,7 +779,7 @@
       </div>
       <label class="check">
         <input type="checkbox" id="fZa">
-        <span>Zeitausgleich-Tage vom Konto abziehen. Ein ganzer ZA-Tag kostet also genau die Soll-Stunden dieses Tages.</span>
+        <span>Zeitausgleich vom Konto abziehen. Ein ZA-Tag kostet genau die Stunden des Dienstes, der im Dienstplan dafür eingetragen ist (ohne Pause) – steht kein Dienst dabei, das Tages-Soll.</span>
       </label>
     </div>
 
@@ -1157,18 +1157,26 @@
 
   function tagesSoll() { return RECH.tagesSoll(settings); }
 
+  // Ein angerechneter Tag (Urlaub, Zeitausgleich …). Ein Zeitausgleich
+  // für einen bestimmten Dienst bringt dessen Von/Bis/Pause mit.
+  function artEntry(src, custom) {
+    var a = { art: src.art, h: parseFloat(src.h) || 0, custom: custom };
+    if (src.von && src.bis) { a.von = src.von; a.bis = src.bis; a.pause = parseFloat(src.pause) || 0; }
+    return a;
+  }
+
   // Eintrag eines Tages: Kalender-Änderung schlägt den gedruckten Plan
   function getEntry(key) {
     var o = entries[key];
     if (o) {
       if (o.frei) return null;
-      if (o.art) return { art: o.art, h: parseFloat(o.h) || 0, custom: true };
+      if (o.art) return artEntry(o, true);
       return { von: o.von, bis: o.bis, pause: parseFloat(o.pause) || 0, tags: o.tags || [], custom: true };
     }
     if (o === null) return null;                 // Altbestand: null bedeutete "frei"
     var p = PERSON.plan[key];
     if (!p) return null;
-    if (p.art) return { art: p.art, h: p.h, custom: false };
+    if (p.art) return artEntry(p, false);
     return { von: p.von, bis: p.bis, pause: p.pause, tags: p.tags || [], custom: false };
   }
 
@@ -1467,6 +1475,10 @@
         was = x.entry.von + '–' + x.entry.bis + (x.entry.pause > 0 ? ' (' + fmtDec(x.entry.pause) + ' h Pause)' : '');
       } else if (x.art) {
         was = ART_LABELS[x.art] || x.art;
+        if (RECH.isZaDienst(x.entry)) {
+          was += ' für ' + x.entry.von + '–' + x.entry.bis +
+            (x.entry.pause > 0 ? ' (' + fmtDec(x.entry.pause) + ' h Pause)' : '');
+        }
       } else if (x.feiertag) {
         was = x.feiertag;
         off = true;
@@ -1748,7 +1760,9 @@
       ['📅', '<b>' + escapeHtml(fmtDec(settings.wochenSoll)) + ' Stunden pro Woche</b> sind das Soll – aufgeteilt auf Montag bis Freitag also ' + escapeHtml(ts) + ' pro Tag. Samstag und Sonntag haben kein Soll.'],
       ['🎉', 'An <b>gesetzlichen Feiertagen</b> (Österreich) ist das Soll 0. Wer da arbeitet, schreibt die ganze Zeit aufs Konto.'],
       ['🌴', '<b>Urlaub, Krankenstand und Sonderurlaub</b> sind angerechnet – das Konto bleibt gleich. Bei <b>Fortbildung</b> zählen die eingetragenen Stunden, ein langer Seminartag bringt also ein Plus.'],
-      ['⏳', '<b>Zeitausgleich</b> ' + (settings.zaAbzug ? 'zieht die Stunden vom Konto ab' : 'wird wie ein normaler Arbeitstag gewertet (Abzug ist ausgeschaltet)') + '.'],
+      ['⏳', settings.zaAbzug
+        ? '<b>Zeitausgleich</b> trägt man im Dienstplan mit dem Dienst ein, den man frei nimmt (Von, Bis, Pause). Vom Konto gehen genau dessen Stunden ab – die Pause zählt nicht. Weicht der Dienst vom Aushang ab (z. B. 09:00–17:00 auf 07:30–14:00 getauscht), kostet die Abweichung selbst nichts.'
+        : '<b>Zeitausgleich</b> wird wie ein normaler Arbeitstag gewertet (Abzug ist ausgeschaltet).'],
       ['⚠️', 'Ein <b>Werktag ohne Eintrag</b> zählt als Minus von ' + escapeHtml(ts) + '. Freie Tage also im Dienstplan als Urlaub oder Zeitausgleich eintragen, sonst rutscht das Konto zu Unrecht ins Minus.'],
       ['🔄', 'Die Zeiten kommen <b>live aus dem Dienstplan</b>. Wird dort etwas geändert, ist es hier sofort mitgerechnet. Der heutige Tag zählt bereits voll mit.'],
       ['🙈', 'Ein Tag, der im Dienstplan als <b>„zählt nicht aufs Überstunden-Konto“</b> markiert ist, bewegt das Konto nicht – egal wie stark er vom Aushang abweicht. So lassen sich Dienste tauschen oder Zeiten richtigstellen, ohne dass daraus Plus- oder Minusstunden werden.'],

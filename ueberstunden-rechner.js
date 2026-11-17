@@ -10,13 +10,26 @@
      Soll eines Tages:  normaler Werktag → das, was der Aushang für
                         GENAU DIESEN Tag vorsieht (nicht der Wochen-
                         durchschnitt!). Sa/So und Feiertage = 0.
-                        Zeitausgleich = Wochen-Soll ÷ 5 (siehe unten).
+                        Zeitausgleich mit Dienstzeit = genau dieser
+                        Dienst (siehe unten), ohne = Wochen-Soll ÷ 5.
      Ist eines Tages:   Dienst        → Netto-Arbeitszeit
                         Feiertag      → 0 (Soll ist ja auch 0)
                         Urlaub etc.   → angerechnete Stunden,
                                         mindestens das Tages-Soll
                         Zeitausgleich → Soll minus genommene
                                         Stunden (Konto sinkt)
+
+     Zeitausgleich für einen bestimmten Dienst:
+       { art:'zeitausgleich', von:'07:30', bis:'14:00', pause:0.5, h:6 }
+     Von/Bis/Pause beschreiben den Dienst, der frei genommen wird. Vom
+     Konto gehen genau seine Netto-Stunden ab (hier 6 – die Pause zählt
+     nicht). Weicht dieser Dienst vom Aushang ab (z. B. 09:00–17:00 auf
+     07:30–14:00 getauscht), kostet die Abweichung selbst nichts: Soll
+     des Tages ist dann der eingetragene Dienst, nicht der Aushang.
+     "h" steht nur zur Sicherheit mit drin (gleiche Zahl), damit auch
+     ältere Seiten, die Von/Bis hier noch nicht kennen, richtig rechnen.
+     Ältere Einträge ohne Von/Bis zählen wie bisher: "h" Stunden,
+     höchstens das Tages-Soll (Wochen-Soll ÷ 5).
      Konto = Übertrag + Summe der Tagesdifferenzen + Korrekturen –
              bis eine Abrechnung den Stand am Ende eines Monats festlegt;
              ab dann: Stand laut Abrechnung + alles, was danach kommt
@@ -61,10 +74,18 @@
     return parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
   }
 
-  // Netto-Stunden eines Eintrags (Dienst über Mitternacht wird mitgerechnet)
+  // Hat der Eintrag eine eigene Dienstzeit? Das sind normale Dienste –
+  // und Zeitausgleich für einen bestimmten Dienst.
+  function hasTimes(e) { return !!(e && e.von && e.bis); }
+
+  // Zeitausgleich, der sich auf einen bestimmten Dienst (Von/Bis) bezieht
+  function isZaDienst(e) { return !!(e && e.art === 'zeitausgleich' && hasTimes(e)); }
+
+  // Netto-Stunden eines Eintrags (Dienst über Mitternacht wird mitgerechnet).
+  // Ein Zeitausgleich mit Von/Bis zählt die Stunden genau dieses Dienstes.
   function hoursOf(e) {
     if (!e) return 0;
-    if (e.art) return Math.max(0, parseFloat(e.h) || 0);
+    if (e.art && !isZaDienst(e)) return Math.max(0, parseFloat(e.h) || 0);
     if (!e.von || !e.bis) return 0;
     var diff = toMinutes(e.bis) - toMinutes(e.von);
     if (diff < 0) diff += 24 * 60;
@@ -204,6 +225,12 @@
     var art = entry.art || null;
     if (!art) return { ist: hoursOf(entry), za: 0 };
     if (art === 'feiertag') return { ist: 0, za: 0 };
+    if (isZaDienst(entry)) {
+      // Genau dieser Dienst fällt weg. An Sa/So/Feiertagen gibt es kein
+      // Soll – da ist also auch nichts abzubauen.
+      var dienst = flatSoll > 0 ? hoursOf(entry) : 0;
+      return zaAbzug ? { ist: 0, za: dienst } : { ist: dienst, za: 0 };
+    }
     if (art === 'zeitausgleich') {
       var za = Math.min(hoursOf(entry) > 0 ? hoursOf(entry) : flatSoll, flatSoll);
       var ist = zaAbzug ? flatSoll - za : flatSoll;
@@ -215,7 +242,7 @@
   function planEntryOf(ctx, key) {
     var p = ctx.plan && ctx.plan[key];
     if (!p) return null;
-    if (p.art) return { art: p.art, h: p.h };
+    if (p.art) return { art: p.art, h: p.h, von: p.von, bis: p.bis, pause: p.pause };
     return { von: p.von, bis: p.bis, pause: p.pause };
   }
 
@@ -254,11 +281,21 @@
     // Ein von Hand als "zählt nicht" markierter Tag bekommt genau das
     // Soll, das er auch tatsächlich hat – seine Differenz ist also 0,
     // egal wie stark er vom gedruckten Plan abweicht.
+    // Zeitausgleich für einen bestimmten Dienst: Soll ist dieser Dienst.
+    // Dass er vom Aushang abweichen darf (getauschte Zeit), kostet also
+    // nichts – vom Konto geht nur der Zeitausgleich selbst ab.
+    // Steht im Aushang selbst ein Zeitausgleich und wird stattdessen doch
+    // gearbeitet, ist das Soll der Dienst hinter diesem Zeitausgleich
+    // (deshalb hier ohne Abzug) – die Arbeit gleicht ihn genau aus.
     var soll = neutral
       ? ist
-      : (frei || art === 'zeitausgleich')
+      : frei
         ? flatSoll
-        : tagesWert(planEntryOf(ctx, key), flatSoll, settings.zaAbzug).ist;
+        : isZaDienst(entry)
+          ? hoursOf(entry)
+          : art === 'zeitausgleich'
+            ? flatSoll
+            : tagesWert(planEntryOf(ctx, key), flatSoll, false).ist;
 
     return {
       key: key, date: date, dow: dow, entry: entry, art: art,
@@ -416,6 +453,7 @@
   window.NESSIE_UESTD = {
     toMinutes: toMinutes,
     hoursOf: hoursOf,
+    isZaDienst: isZaDienst,
     easter: easter,
     holidaysOf: holidaysOf,
     holidayName: holidayName,

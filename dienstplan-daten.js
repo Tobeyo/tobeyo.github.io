@@ -10,6 +10,11 @@
       { von:'07:00', bis:'15:00', pause:1, tags:['HW'] }
    … oder ein angerechneter Tag ohne Dienstzeit:
       { art:'feiertag', h:4.7833 }
+   … oder Zeitausgleich für einen bestimmten Dienst:
+      { art:'zeitausgleich', von:'07:30', bis:'14:00', pause:0.5, h:6 }
+   Von/Bis/Pause = der Dienst, der frei genommen wird. Vom Überstunden-
+   Konto gehen genau seine Netto-Stunden ab ("h", hier 6). Weicht er vom
+   Aushang ab, kostet die Abweichung selbst nichts.
    Fehlt ein Tag ganz, ist er dienstfrei.
 
    "pause" = unbezahlte Pause in Stunden. Bei geteilten Diensten
@@ -153,7 +158,10 @@ window.NESSIE_DIENSTPLAN = {
         '2026-11-17': { von: '07:30', bis: '15:30', pause: 0.5, tags: [] },        // 7,5
         '2026-11-18': { von: '07:30', bis: '16:00', pause: 0.5, tags: [] },        // 8,0
         '2026-11-19': { von: '07:30', bis: '15:00', pause: 0.5, tags: [] },        // 7,0
-        '2026-11-20': { von: '09:00', bis: '17:00', pause: 0.5, tags: ['Klub'] },  // 7,5
+        // Fr 20.11. laut Aushang 09:00–17:00 Klub (7,5). Getauscht auf
+        // 07:30–14:00 – das kostet keine Überstunden – und genau dieser
+        // Dienst als Zeitausgleich genommen: 6,5 h minus 0,5 Pause = 6,0
+        '2026-11-20': { art: 'zeitausgleich', von: '07:30', bis: '14:00', pause: 0.5, h: 6 },  // ZA 6,0
 
         '2026-11-23': { von: '07:30', bis: '16:00', pause: 0.5, tags: [] },        // 8,0
         '2026-11-24': { von: '08:30', bis: '17:00', pause: 0.5, tags: ['Klub'] },  // 8,0

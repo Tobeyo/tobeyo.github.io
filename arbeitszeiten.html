@@ -933,6 +933,16 @@
     .calc-preview .big { font-family: var(--n-font-display); font-stretch: var(--n-display-stretch); font-size: 1.8rem; font-weight: var(--n-display-weight); font-variant-numeric: tabular-nums; }
     .calc-preview .small { font-size: 0.78rem; color: var(--text-muted); font-weight: 300; }
 
+    /* Hinweis beim Zeitausgleich: welcher Dienst frei genommen wird */
+    .za-hint {
+      margin: -4px 0 14px;
+      font-size: 0.82rem;
+      line-height: 1.45;
+      color: var(--text-muted);
+      font-weight: 300;
+    }
+    .za-hint b { color: var(--text-main); font-weight: 600; }
+
     .modal-actions { display: flex; gap: 10px; margin-top: 6px; }
     .btn {
       flex: 1;
@@ -1156,6 +1166,11 @@
       </div>
 
       <div id="dienstFields">
+        <p class="za-hint" id="zaHint" hidden>
+          Trag den <b>Dienst ein, den du frei nimmst</b>. Vom Überstunden-Konto
+          gehen genau seine Stunden ab – die Pause zählt nicht mit. Weicht er
+          vom Aushang ab (z.&nbsp;B. getauschte Zeit), kostet das nichts extra.
+        </p>
         <div class="field-row">
           <div class="field">
             <label for="fVon">Von</label>
@@ -1179,7 +1194,7 @@
           </select>
         </div>
 
-        <div class="field">
+        <div class="field" id="tagField">
           <label>Vermerk / Bereich</label>
           <div class="tag-picker" id="tagPicker"></div>
         </div>
@@ -1223,7 +1238,7 @@
      liest dieselbe Datei, damit beide Seiten gleich rechnen.
      ========================================================= */
 
-  var APP_STAND = '29.10.2026';          // steht unten in der Fusszeile
+  var APP_STAND = '17.11.2026';          // steht unten in der Fusszeile
 
   var PEOPLE = (window.NESSIE_DIENSTPLAN && window.NESSIE_DIENSTPLAN.people) || [];
 
@@ -1304,12 +1319,23 @@
   function hoursOf(e) {
     if (RECH) return RECH.hoursOf(e);
     if (!e) return 0;
-    if (e.art) return Math.max(0, parseFloat(e.h) || 0);
+    if (e.art && !isZaDienst(e)) return Math.max(0, parseFloat(e.h) || 0);
     if (!e.von || !e.bis) return 0;
     var p = String(e.von).split(':'), q = String(e.bis).split(':');
     var diff = (q[0] * 60 + +q[1]) - (p[0] * 60 + +p[1]);
     if (diff < 0) diff += 24 * 60;
     return Math.max(0, diff / 60 - (parseFloat(e.pause) || 0));
+  }
+
+  // Zeitausgleich für einen bestimmten Dienst (mit Von/Bis) – kostet
+  // genau die Netto-Stunden dieses Dienstes
+  function isZaDienst(e) { return !!(e && e.art === 'zeitausgleich' && e.von && e.bis); }
+
+  // "07:30" + 6 Stunden → "13:30" (für ältere ZA-Einträge ohne Uhrzeit)
+  function addHoursTo(t, h) {
+    var p = String(t).split(':');
+    var m = ((+p[0] * 60 + +p[1] + Math.round(h * 60)) % 1440 + 1440) % 1440;
+    return pad(Math.floor(m / 60)) + ':' + pad(m % 60);
   }
 
   /* ---------- Stundenformat: 7,5 h  oder  7:30 ---------- */
@@ -1507,10 +1533,13 @@
     if (o) {
       if (o.frei) return null;
       if (o.art) {
-        return {
+        var a = {
           art: o.art, h: parseFloat(o.h) || 0, tags: [], custom: true,
           neutral: !!o.neutral, by: o.by || '', ts: o.ts || 0
         };
+        // Zeitausgleich für einen bestimmten Dienst bringt dessen Zeiten mit
+        if (o.von && o.bis) { a.von = o.von; a.bis = o.bis; a.pause = parseFloat(o.pause) || 0; }
+        return a;
       }
       return {
         von: o.von, bis: o.bis, pause: parseFloat(o.pause) || 0,
@@ -1521,8 +1550,18 @@
     if (o === null) return null;                 // Altbestand: null bedeutete "frei"
     var p = person().plan[key];
     if (!p) return null;
-    if (p.art) return { art: p.art, h: p.h, tags: [], custom: false };
+    if (p.art) {
+      var pa = { art: p.art, h: p.h, tags: [], custom: false };
+      if (p.von && p.bis) { pa.von = p.von; pa.bis = p.bis; pa.pause = parseFloat(p.pause) || 0; }
+      return pa;
+    }
     return { von: p.von, bis: p.bis, pause: p.pause, tags: (p.tags || []).slice(), custom: false };
+  }
+
+  // Der gedruckte Dienst eines Tages – nur wenn dort wirklich ein Dienst steht
+  function planDienst(key) {
+    var p = person().plan[key];
+    return p && !p.art && p.von && p.bis ? p : null;
   }
 
   /* ---------- Speicher-Schicht: Firebase, sonst nur lokal ---------- */
@@ -1989,7 +2028,11 @@
       cell.innerHTML = html;
       cell.setAttribute('aria-label',
         x.d + '. ' + MONTH_NAMES[curM] + ' – ' +
-        (x.entry ? (x.entry.art ? artLabel(x.entry.art) : x.entry.von + ' bis ' + x.entry.bis) : 'frei') +
+        (x.entry
+          ? (x.entry.art
+              ? artLabel(x.entry.art) + (isZaDienst(x.entry) ? ' für ' + x.entry.von + ' bis ' + x.entry.bis : '')
+              : x.entry.von + ' bis ' + x.entry.bis)
+          : 'frei') +
         (isNeutral(x.key) ? ' – zählt nicht aufs Überstunden-Konto' : '') +
         (hatDaniKlub(x.key) ? ' – Dani hat Klub' : '') +
         (da.length ? ' – im Dienst: ' + da.map(function (k) { return k.kurz; }).join(', ') : ''));
@@ -2042,6 +2085,9 @@
         if (x.entry.art) {
           middle = '<span style="color:' + artColor(x.entry.art) + ';font-weight:600">' +
                    escapeHtml(artLabel(x.entry.art)) + '</span>';
+          if (isZaDienst(x.entry)) {
+            middle += ' <span class="muted">für ' + escapeHtml(x.entry.von) + ' – ' + escapeHtml(x.entry.bis) + '</span>';
+          }
         } else {
           middle = escapeHtml(x.entry.von) + ' – ' + escapeHtml(x.entry.bis) +
             (x.entry.pause > 0 ? ' <span class="muted">(' + fmtH(x.entry.pause) + ' Pause)</span>' : '');
@@ -2367,13 +2413,22 @@
     fPause.value = val;
   }
 
+  // Zeitausgleich wird wie ein Dienst mit Von/Bis/Pause eingetragen –
+  // nämlich der Dienst, der frei genommen wird
+  function mitZeiten() { return fArt.value === 'dienst' || fArt.value === 'zeitausgleich'; }
+
   function syncArtFields() {
     var isDienst = fArt.value === 'dienst';
-    document.getElementById('dienstFields').style.display = isDienst ? '' : 'none';
-    document.getElementById('artFields').style.display = isDienst ? 'none' : '';
+    var isZa = fArt.value === 'zeitausgleich';
+    document.getElementById('dienstFields').style.display = mitZeiten() ? '' : 'none';
+    document.getElementById('artFields').style.display = mitZeiten() ? 'none' : '';
+    document.getElementById('tagField').style.display = isDienst ? '' : 'none';
+    document.getElementById('zaHint').hidden = !isZa;
     document.getElementById('mCalcSub').textContent = isDienst
       ? 'Arbeitszeit abzüglich Pause'
-      : 'angerechnete Stunden';
+      : isZa
+        ? (person().wochenSoll > 0 ? 'Zeitausgleich – so viel geht vom Konto ab' : 'Zeitausgleich – Dienst abzüglich Pause')
+        : 'angerechnete Stunden';
     updatePreview();
     refitPager();
   }
@@ -2400,9 +2455,20 @@
     fArt.value = e && e.art ? e.art : 'dienst';
     if (fArt.value !== 'dienst' && !ART_LABELS[fArt.value]) fArt.value = 'dienst';
 
-    fVon.value = e && !e.art ? e.von : def.von;
-    fBis.value = e && !e.art ? e.bis : def.bis;
-    setPause(e && !e.art ? e.pause : def.pause);
+    // Welche Zeiten in Von/Bis stehen: der Dienst selbst, beim Zeitausgleich
+    // der frei genommene Dienst – sonst der gedruckte Dienst des Tages, damit
+    // ein Wechsel auf "Zeitausgleich" gleich den richtigen Dienst vorschlägt.
+    var zeiten;
+    if (e && (!e.art || isZaDienst(e))) zeiten = e;
+    else if (e && e.art === 'zeitausgleich' && e.h > 0) {
+      // Älterer Zeitausgleich nur mit Stunden: so eintragen, dass dieselbe
+      // Stundenzahl herauskommt
+      zeiten = { von: def.von, bis: addHoursTo(def.von, e.h), pause: 0 };
+    } else zeiten = planDienst(key) || def;
+
+    fVon.value = zeiten.von;
+    fBis.value = zeiten.bis;
+    setPause(zeiten.pause || 0);
     fStd.value = numField(e && e.art ? e.h : 0);
 
     fNeutral.checked = !!(raw && raw.neutral);
@@ -2483,7 +2549,7 @@
   }
 
   function updatePreview() {
-    var h = fArt.value === 'dienst'
+    var h = mitZeiten()
       ? hoursOf({ von: fVon.value, bis: fBis.value, pause: parseFloat(fPause.value) || 0 })
       : Math.max(0, parseNum(fStd.value) || 0);
     document.getElementById('mCalc').textContent =
@@ -2511,6 +2577,22 @@
       if (hoursOf(val) <= 0) {
         if (!confirm('Damit ergibt der Tag 0 Stunden. Trotzdem speichern?')) return;
       }
+    } else if (fArt.value === 'zeitausgleich') {
+      // Zeitausgleich für genau diesen Dienst. "h" steht mit drin, damit
+      // auch ältere Seiten ohne Von/Bis-Kenntnis dieselbe Zahl abziehen.
+      if (!fVon.value || !fBis.value) { alert('Bitte Von- und Bis-Zeit des Dienstes angeben, den du frei nimmst.'); return; }
+      var zaDienst = { von: fVon.value, bis: fBis.value, pause: parseFloat(fPause.value) || 0 };
+      var zaH = hoursOf(zaDienst);
+      if (zaH <= 0) {
+        if (!confirm('Damit kostet der Zeitausgleich 0 Stunden. Trotzdem speichern?')) return;
+      }
+      val = {
+        art: 'zeitausgleich',
+        von: zaDienst.von,
+        bis: zaDienst.bis,
+        pause: zaDienst.pause,
+        h: Math.round(zaH * 100) / 100
+      };
     } else {
       var h = parseNum(fStd.value);
       if (!isFinite(h) || h < 0 || h > 24) { alert('Bitte gültige Stunden zwischen 0 und 24 angeben.'); return; }
@@ -2649,7 +2731,9 @@
           'DTSTART;VALUE=DATE:' + dt,
           'DTEND;VALUE=DATE:' + keyOf(next.getFullYear(), next.getMonth(), next.getDate()).replace(/-/g, ''),
           'SUMMARY:' + icsEscape(artLabel(x.entry.art) + ' – ' + p.label),
-          'DESCRIPTION:' + icsEscape(fmtDec(x.hours) + ' h angerechnet')
+          'DESCRIPTION:' + icsEscape(isZaDienst(x.entry)
+            ? fmtDec(x.hours) + ' h Zeitausgleich für den Dienst ' + x.entry.von + '–' + x.entry.bis
+            : fmtDec(x.hours) + ' h angerechnet')
         );
       } else {
         lines.push(
