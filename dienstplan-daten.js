@@ -341,8 +341,6 @@ window.NESSIE_DIENSTPLAN = {
         '2026-11-13': { art: 'zeitausgleich', h: 5 + 50 / 60 },                   // 5:50
         // Sa 14.11. + So 15.11. frei
 
-        /* ---- KW 47 · 16.11. – 22.11.2026 – Aushang fehlt noch ---- */
-
         /* ---- KW 48 · 23.11. – 29.11.2026 (Planzeit 35:00) ---- */
         '2026-11-23': { von: '07:00', bis: '15:00', pause: 1,   tags: ['HW'] },   // 7:00
         '2026-11-24': { von: '07:00', bis: '15:00', pause: 1,   tags: ['HW'] },   // 7:00
